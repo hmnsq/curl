@@ -21,215 +21,215 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(USE_HTTP3) && \
+#اگر defined(USE_HTTP3) && \
   (defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL))
 
 #ifdef USE_OPENSSL
-#include <openssl/err.h>
-#include "vtls/openssl.h"
-#elif defined(USE_GNUTLS)
-#include <gnutls/abstract.h>
-#include <gnutls/gnutls.h>
-#include <gnutls/x509.h>
-#include <gnutls/crypto.h>
-#include <nettle/sha2.h>
-#include "vtls/gtls.h"
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
-#include "vtls/wolfssl.h"
+#شامل <openssl/err.h>
+#شامل "vtls/openssl.h"
+#وگرنهاگر defined(USE_GNUTLS)
+#شامل <gnutls/abstract.h>
+#شامل <gnutls/gnutls.h>
+#شامل <gnutls/x509.h>
+#شامل <gnutls/crypto.h>
+#شامل <nettle/sha2.h>
+#شامل "vtls/gtls.h"
+#وگرنهاگر defined(USE_WOLFSSL)
+#شامل <wolfssl/options.h>
+#شامل <wolfssl/ssl.h>
+#شامل <wolfssl/quic.h>
+#شامل "vtls/wolfssl.h"
 #endif
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "vquic/vquic-tls.h"
+#شامل "urldata.h"
+#شامل "cfilters.h"
+#شامل "vtls/vtls.h"
+#شامل "vtls/vtls_scache.h"
+#شامل "vquic/vquic-tls.h"
 
-CURLcode Curl_vquic_tls_peer_init(struct Curl_peer *origin,
-                                  struct Curl_peer *peer,
-                                  struct ssl_filter_config *sslc,
-                                  struct ssl_peer *ssl_peer)
+CURLcode Curl_vquic_tls_peer_init(ساختار Curl_peer *origin,
+                                  ساختار Curl_peer *peer,
+                                  ساختار ssl_filter_config *sslc,
+                                  ساختار ssl_peer *ssl_peer)
 {
-  char tls_id[80];
+  نویسه tls_id[80];
 
 #ifdef USE_OPENSSL
-  Curl_ossl_version(tls_id, sizeof(tls_id));
-#elif defined(USE_GNUTLS)
-  Curl_gtls_version(tls_id, sizeof(tls_id));
-#elif defined(USE_WOLFSSL)
-  Curl_wssl_version(tls_id, sizeof(tls_id));
-#else
+  Curl_ossl_version(tls_id, اندازه(tls_id));
+#وگرنهاگر defined(USE_GNUTLS)
+  Curl_gtls_version(tls_id, اندازه(tls_id));
+#وگرنهاگر defined(USE_WOLFSSL)
+  Curl_wssl_version(tls_id, اندازه(tls_id));
+#وگرنه
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  بازگشت CURLE_FAILED_INIT;
 #endif
-  if(ssl_peer->origin || ssl_peer->peer)
+  اگر(ssl_peer->origin || ssl_peer->peer)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
+  بازگشت Curl_ssl_peer_init(ssl_peer, origin, peer, sslc,
                             tls_id, TRNSPRT_QUIC);
 }
 
-CURLcode Curl_vquic_tls_init(struct curl_tls_ctx *ctx,
-                             struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct ssl_peer *ssl_peer,
-                             const struct alpn_spec *alpns,
+CURLcode Curl_vquic_tls_init(ساختار curl_tls_ctx *ctx,
+                             ساختار Curl_cfilter *cf,
+                             ساختار Curl_easy *data,
+                             ساختار ssl_peer *ssl_peer,
+                             ثابت ساختار alpn_spec *alpns,
                              Curl_vquic_tls_ctx_setup *cb_setup,
-                             void *cb_user_data, void *ssl_user_data,
+                             تهی *cb_user_data, تهی *ssl_user_data,
                              Curl_vquic_session_reuse_cb *session_reuse_cb)
 {
 #ifdef USE_OPENSSL
-  return Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
-                            cb_setup, cb_user_data, NULL, ssl_user_data,
+  بازگشت Curl_ossl_ctx_init(&ctx->ossl, cf, data, ssl_peer, alpns,
+                            cb_setup, cb_user_data, پوچ, ssl_user_data,
                             session_reuse_cb);
-#elif defined(USE_GNUTLS)
-  return Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
+#وگرنهاگر defined(USE_GNUTLS)
+  بازگشت Curl_gtls_ctx_init(&ctx->gtls, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data, ssl_user_data,
                             session_reuse_cb);
-#elif defined(USE_WOLFSSL)
-  return Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
+#وگرنهاگر defined(USE_WOLFSSL)
+  بازگشت Curl_wssl_ctx_init(&ctx->wssl, cf, data, ssl_peer, alpns,
                             cb_setup, cb_user_data,
                             ssl_user_data, session_reuse_cb);
-#else
+#وگرنه
 #error "no TLS lib in used, should not happen"
-  return CURLE_FAILED_INIT;
+  بازگشت CURLE_FAILED_INIT;
 #endif
 }
 
-void Curl_vquic_tls_cleanup(struct curl_tls_ctx *ctx)
+تهی Curl_vquic_tls_cleanup(ساختار curl_tls_ctx *ctx)
 {
 #ifdef USE_OPENSSL
   Curl_osslctx_cleanup(&ctx->ossl);
-#elif defined(USE_GNUTLS)
-  if(ctx->gtls.session)
+#وگرنهاگر defined(USE_GNUTLS)
+  اگر(ctx->gtls.session)
     gnutls_deinit(ctx->gtls.session);
   Curl_gtls_shared_creds_free(&ctx->gtls.shared_creds);
-#elif defined(USE_WOLFSSL)
-  if(ctx->wssl.ssl)
+#وگرنهاگر defined(USE_WOLFSSL)
+  اگر(ctx->wssl.ssl)
     wolfSSL_free(ctx->wssl.ssl);
-  if(ctx->wssl.ssl_ctx)
+  اگر(ctx->wssl.ssl_ctx)
     wolfSSL_CTX_free(ctx->wssl.ssl_ctx);
 #endif
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, اندازه(*ctx));
 }
 
-CURLcode Curl_vquic_tls_before_recv(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+CURLcode Curl_vquic_tls_before_recv(ساختار curl_tls_ctx *ctx,
+                                    ساختار Curl_cfilter *cf,
+                                    ساختار Curl_easy *data)
 {
 #ifdef USE_OPENSSL
-  if(!ctx->ossl.x509_store_setup) {
+  اگر(!ctx->ossl.x509_store_setup) {
     CURLcode result = Curl_ssl_setup_x509_store(cf, data, &ctx->ossl);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
     ctx->ossl.x509_store_setup = TRUE;
   }
-#elif defined(USE_WOLFSSL)
-  if(!ctx->wssl.x509_store_setup) {
+#وگرنهاگر defined(USE_WOLFSSL)
+  اگر(!ctx->wssl.x509_store_setup) {
     CURLcode result = Curl_wssl_setup_x509_store(cf, data, &ctx->wssl);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-#elif defined(USE_GNUTLS)
-  if(!ctx->gtls.shared_creds->trust_setup) {
+#وگرنهاگر defined(USE_GNUTLS)
+  اگر(!ctx->gtls.shared_creds->trust_setup) {
     CURLcode result = Curl_gtls_client_trust_setup(cf, data, &ctx->gtls);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-#else
-  (void)ctx;
-  (void)cf;
-  (void)data;
+#وگرنه
+  (تهی)ctx;
+  (تهی)cf;
+  (تهی)data;
 #endif
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-CURLcode Curl_vquic_tls_verify_peer(struct curl_tls_ctx *ctx,
-                                    struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct ssl_peer *peer)
+CURLcode Curl_vquic_tls_verify_peer(ساختار curl_tls_ctx *ctx,
+                                    ساختار Curl_cfilter *cf,
+                                    ساختار Curl_easy *data,
+                                    ساختار ssl_peer *peer)
 {
-  struct ssl_filter_config *conn_config;
+  ساختار ssl_filter_config *conn_config;
   CURLcode result = CURLE_OK;
 
   conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!conn_config)
-    return CURLE_FAILED_INIT;
+  اگر(!conn_config)
+    بازگشت CURLE_FAILED_INIT;
 
 #ifdef USE_OPENSSL
-  (void)conn_config;
+  (تهی)conn_config;
   result = Curl_ossl_check_peer_cert(cf, data, &ctx->ossl, peer);
-#elif defined(USE_GNUTLS)
+#وگرنهاگر defined(USE_GNUTLS)
   result = Curl_gtls_verifyserver(
     cf, data, ctx->gtls.session, conn_config, &data->set.ssl, peer,
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY));
-#elif defined(USE_WOLFSSL)
-  (void)data;
-  if(conn_config->verifyhost) {
+#وگرنهاگر defined(USE_WOLFSSL)
+  (تهی)data;
+  اگر(conn_config->verifyhost) {
     WOLFSSL_X509 *cert = wolfSSL_get_peer_certificate(ctx->wssl.ssl);
-    if(!cert)
+    اگر(!cert)
       result = CURLE_OUT_OF_MEMORY;
-    else if(peer->sni &&
+    وگرنه اگر(peer->sni &&
             (wolfSSL_X509_check_host(cert, peer->sni, strlen(peer->sni), 0,
-                                     NULL) == WOLFSSL_FAILURE))
+                                     پوچ) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
-    else if(!peer->sni &&
+    وگرنه اگر(!peer->sni &&
             (wolfSSL_X509_check_ip_asc(cert, peer->origin->hostname,
                                        0) == WOLFSSL_FAILURE))
       result = CURLE_PEER_FAILED_VERIFICATION;
     wolfSSL_X509_free(cert);
   }
-  if(!result)
+  اگر(!result)
     result = Curl_wssl_verify_pinned(cf, data, &ctx->wssl);
 #endif
   /* on error, remove any session we might have in the pool */
-  if(result)
-    Curl_ssl_scache_remove_all(cf, data, peer->scache_key);
-  return result;
+  اگر(result)
+    Curl_ssl_scache_remove_all(cf, data, peer->scache_کلید);
+  بازگشت result;
 }
 
-bool Curl_vquic_tls_get_ssl_info(struct curl_tls_ctx *ctx,
+bool Curl_vquic_tls_get_ssl_info(ساختار curl_tls_ctx *ctx,
                                  bool give_ssl_ctx,
-                                 struct curl_tlssessioninfo *info)
+                                 ساختار curl_tlssessioninfo *info)
 {
 #ifdef USE_OPENSSL
   info->backend = CURLSSLBACKEND_OPENSSL;
   info->internals = give_ssl_ctx ?
-                    (void *)ctx->ossl.ssl_ctx : (void *)ctx->ossl.ssl;
-  return TRUE;
-#elif defined(USE_GNUTLS)
-  (void)give_ssl_ctx; /* gnutls always returns its session */
+                    (تهی *)ctx->ossl.ssl_ctx : (تهی *)ctx->ossl.ssl;
+  بازگشت TRUE;
+#وگرنهاگر defined(USE_GNUTLS)
+  (تهی)give_ssl_ctx; /* gnutls always returns its session */
   info->backend = CURLSSLBACKEND_GNUTLS;
   info->internals = ctx->gtls.session;
-  return TRUE;
-#elif defined(USE_WOLFSSL)
+  بازگشت TRUE;
+#وگرنهاگر defined(USE_WOLFSSL)
   info->backend = CURLSSLBACKEND_WOLFSSL;
   info->internals = give_ssl_ctx ?
-                    (void *)ctx->wssl.ssl_ctx : (void *)ctx->wssl.ssl;
-  return TRUE;
-#else
-  return FALSE;
+                    (تهی *)ctx->wssl.ssl_ctx : (تهی *)ctx->wssl.ssl;
+  بازگشت TRUE;
+#وگرنه
+  بازگشت FALSE;
 #endif
 }
 
-void Curl_vquic_report_handshake(struct curl_tls_ctx *ctx,
-                                 struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+تهی Curl_vquic_report_handshake(ساختار curl_tls_ctx *ctx,
+                                 ساختار Curl_cfilter *cf,
+                                 ساختار Curl_easy *data)
 {
-  (void)cf;
+  (تهی)cf;
 #ifdef USE_OPENSSL
-  (void)cf;
+  (تهی)cf;
   Curl_ossl_report_handshake(data, &ctx->ossl);
-#elif defined(USE_GNUTLS)
+#وگرنهاگر defined(USE_GNUTLS)
   Curl_gtls_report_handshake(data, &ctx->gtls);
-#elif defined(USE_WOLFSSL)
+#وگرنهاگر defined(USE_WOLFSSL)
   Curl_wssl_report_handshake(data, &ctx->wssl);
-#else
-  (void)data;
-  (void)ctx;
+#وگرنه
+  (تهی)data;
+  (تهی)ctx;
 #endif
 }
 

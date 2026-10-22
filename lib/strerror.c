@@ -21,285 +21,285 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef USE_WINDOWS_SSPI
-#include "curl_sspi.h"
+#شامل "curl_sspi.h"
 #endif
 
-#include "curlx/winapi.h"
-#include "strerror.h"
-#include "curlx/strcopy.h"
+#شامل "curlx/winapi.h"
+#شامل "strerror.h"
+#شامل "curlx/strcopy.h"
 
-const char *curl_easy_strerror(CURLcode error)
+ثابت نویسه *curl_easy_strerror(CURLcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLE_OK:
-    return "No error";
+  انتخاب(error) {
+  حالت CURLE_OK:
+    بازگشت "No error";
 
-  case CURLE_UNSUPPORTED_PROTOCOL:
-    return "Unsupported protocol";
+  حالت CURLE_UNSUPPORTED_PROTOCOL:
+    بازگشت "Unsupported protocol";
 
-  case CURLE_FAILED_INIT:
-    return "Failed initialization";
+  حالت CURLE_FAILED_INIT:
+    بازگشت "Failed initialization";
 
-  case CURLE_URL_MALFORMAT:
-    return "URL using bad/illegal format or missing URL";
+  حالت CURLE_URL_MALFORMAT:
+    بازگشت "URL using bad/illegal format or missing URL";
 
-  case CURLE_NOT_BUILT_IN:
-    return "A requested feature, protocol or option was not found built-in in"
+  حالت CURLE_NOT_BUILT_IN:
+    بازگشت "A requested feature, protocol or option was not found built-in in"
            " this libcurl due to a build-time decision.";
 
-  case CURLE_COULDNT_RESOLVE_PROXY:
-    return "Could not resolve proxy name";
+  حالت CURLE_COULDNT_RESOLVE_PROXY:
+    بازگشت "Could not resolve proxy name";
 
-  case CURLE_COULDNT_RESOLVE_HOST:
-    return "Could not resolve hostname";
+  حالت CURLE_COULDNT_RESOLVE_HOST:
+    بازگشت "Could not resolve hostname";
 
-  case CURLE_COULDNT_CONNECT:
-    return "Could not connect to server";
+  حالت CURLE_COULDNT_CONNECT:
+    بازگشت "Could not connect to server";
 
-  case CURLE_WEIRD_SERVER_REPLY:
-    return "Weird server reply";
+  حالت CURLE_WEIRD_SERVER_REPLY:
+    بازگشت "Weird server reply";
 
-  case CURLE_REMOTE_ACCESS_DENIED:
-    return "Access denied to remote resource";
+  حالت CURLE_REMOTE_ACCESS_DENIED:
+    بازگشت "Access denied to remote resource";
 
-  case CURLE_FTP_ACCEPT_FAILED:
-    return "FTP: The server failed to connect to data port";
+  حالت CURLE_FTP_ACCEPT_FAILED:
+    بازگشت "FTP: The server failed to connect to data port";
 
-  case CURLE_FTP_ACCEPT_TIMEOUT:
-    return "FTP: Accepting server connect has timed out";
+  حالت CURLE_FTP_ACCEPT_TIMEOUT:
+    بازگشت "FTP: Accepting server connect has timed out";
 
-  case CURLE_FTP_PRET_FAILED:
-    return "FTP: The server did not accept the PRET command.";
+  حالت CURLE_FTP_PRET_FAILED:
+    بازگشت "FTP: The server did not accept the PRET command.";
 
-  case CURLE_FTP_WEIRD_PASS_REPLY:
-    return "FTP: unknown PASS reply";
+  حالت CURLE_FTP_WEIRD_PASS_REPLY:
+    بازگشت "FTP: unknown PASS reply";
 
-  case CURLE_FTP_WEIRD_PASV_REPLY:
-    return "FTP: unknown PASV reply";
+  حالت CURLE_FTP_WEIRD_PASV_REPLY:
+    بازگشت "FTP: unknown PASV reply";
 
-  case CURLE_FTP_WEIRD_227_FORMAT:
-    return "FTP: unknown 227 response format";
+  حالت CURLE_FTP_WEIRD_227_FORMAT:
+    بازگشت "FTP: unknown 227 response format";
 
-  case CURLE_FTP_CANT_GET_HOST:
-    return "FTP: cannot figure out the host in the PASV response";
+  حالت CURLE_FTP_CANT_GET_HOST:
+    بازگشت "FTP: cannot figure out the host in the PASV response";
 
-  case CURLE_HTTP2:
-    return "Error in the HTTP2 framing layer";
+  حالت CURLE_HTTP2:
+    بازگشت "Error in the HTTP2 framing layer";
 
-  case CURLE_FTP_COULDNT_SET_TYPE:
-    return "FTP: could not set file type";
+  حالت CURLE_FTP_COULDNT_SET_TYPE:
+    بازگشت "FTP: could not set file type";
 
-  case CURLE_PARTIAL_FILE:
-    return "Transferred a partial file";
+  حالت CURLE_PARTIAL_FILE:
+    بازگشت "Transferred a partial file";
 
-  case CURLE_FTP_COULDNT_RETR_FILE:
-    return "FTP: could not retrieve (RETR failed) the specified file";
+  حالت CURLE_FTP_COULDNT_RETR_FILE:
+    بازگشت "FTP: could not retrieve (RETR failed) the specified file";
 
-  case CURLE_QUOTE_ERROR:
-    return "Quote command returned error";
+  حالت CURLE_QUOTE_ERROR:
+    بازگشت "Quote command returned error";
 
-  case CURLE_HTTP_RETURNED_ERROR:
-    return "HTTP response code said error";
+  حالت CURLE_HTTP_RETURNED_ERROR:
+    بازگشت "HTTP response code said error";
 
-  case CURLE_WRITE_ERROR:
-    return "Failed writing received data to disk/application";
+  حالت CURLE_WRITE_ERROR:
+    بازگشت "Failed writing received data to disk/application";
 
-  case CURLE_UPLOAD_FAILED:
-    return "Upload failed (at start/before it took off)";
+  حالت CURLE_UPLOAD_FAILED:
+    بازگشت "Upload failed (at start/before it took off)";
 
-  case CURLE_READ_ERROR:
-    return "Failed to open/read local data from file/application";
+  حالت CURLE_READ_ERROR:
+    بازگشت "Failed to open/read local data from file/application";
 
-  case CURLE_OUT_OF_MEMORY:
-    return "Out of memory";
+  حالت CURLE_OUT_OF_MEMORY:
+    بازگشت "Out of memory";
 
-  case CURLE_OPERATION_TIMEDOUT:
-    return "Timeout was reached";
+  حالت CURLE_OPERATION_TIMEDOUT:
+    بازگشت "Timeout was reached";
 
-  case CURLE_FTP_PORT_FAILED:
-    return "FTP: command PORT failed";
+  حالت CURLE_FTP_PORT_FAILED:
+    بازگشت "FTP: command PORT failed";
 
-  case CURLE_FTP_COULDNT_USE_REST:
-    return "FTP: command REST failed";
+  حالت CURLE_FTP_COULDNT_USE_REST:
+    بازگشت "FTP: command REST failed";
 
-  case CURLE_RANGE_ERROR:
-    return "Requested range was not delivered by the server";
+  حالت CURLE_RANGE_ERROR:
+    بازگشت "Requested range was not delivered by the server";
 
-  case CURLE_SSL_CONNECT_ERROR:
-    return "SSL connect error";
+  حالت CURLE_SSL_CONNECT_ERROR:
+    بازگشت "SSL connect error";
 
-  case CURLE_BAD_DOWNLOAD_RESUME:
-    return "Could not resume download";
+  حالت CURLE_BAD_DOWNLOAD_RESUME:
+    بازگشت "Could not resume download";
 
-  case CURLE_FILE_COULDNT_READ_FILE:
-    return "Could not read a file:// file";
+  حالت CURLE_FILE_COULDNT_READ_FILE:
+    بازگشت "Could not read a file:// file";
 
-  case CURLE_LDAP_CANNOT_BIND:
-    return "LDAP: cannot bind";
+  حالت CURLE_LDAP_CANNOT_BIND:
+    بازگشت "LDAP: cannot bind";
 
-  case CURLE_LDAP_SEARCH_FAILED:
-    return "LDAP: search failed";
+  حالت CURLE_LDAP_جستجو_FAILED:
+    بازگشت "LDAP: search failed";
 
-  case CURLE_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  حالت CURLE_ABORTED_BY_CALLBACK:
+    بازگشت "Operation was aborted by an application callback";
 
-  case CURLE_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  حالت CURLE_BAD_FUNCTION_ARGUMENT:
+    بازگشت "A libcurl function was given a bad argument";
 
-  case CURLE_INTERFACE_FAILED:
-    return "Failed binding local connection end";
+  حالت CURLE_INTERFACE_FAILED:
+    بازگشت "Failed binding local connection end";
 
-  case CURLE_TOO_MANY_REDIRECTS:
-    return "Number of redirects hit maximum amount";
+  حالت CURLE_TOO_MANY_REDIRECTS:
+    بازگشت "Number of redirects hit maximum amount";
 
-  case CURLE_UNKNOWN_OPTION:
-    return "An unknown option was passed in to libcurl";
+  حالت CURLE_UNKNOWN_OPTION:
+    بازگشت "An unknown option was passed in to libcurl";
 
-  case CURLE_SETOPT_OPTION_SYNTAX:
-    return "Malformed option provided in a setopt";
+  حالت CURLE_SETOPT_OPTION_SYNTAX:
+    بازگشت "Malformed option provided in a setopt";
 
-  case CURLE_GOT_NOTHING:
-    return "Server returned nothing (no headers, no data)";
+  حالت CURLE_GOT_NOTHING:
+    بازگشت "Server returned nothing (no headers, no data)";
 
-  case CURLE_SSL_ENGINE_NOTFOUND:
-    return "SSL crypto engine not found";
+  حالت CURLE_SSL_ENGINE_NOTFOUND:
+    بازگشت "SSL crypto engine not found";
 
-  case CURLE_SSL_ENGINE_SETFAILED:
-    return "Can not set SSL crypto engine as default";
+  حالت CURLE_SSL_ENGINE_SETFAILED:
+    بازگشت "Can not set SSL crypto engine as default";
 
-  case CURLE_SSL_ENGINE_INITFAILED:
-    return "Failed to initialize SSL crypto engine";
+  حالت CURLE_SSL_ENGINE_INITFAILED:
+    بازگشت "Failed to initialize SSL crypto engine";
 
-  case CURLE_SEND_ERROR:
-    return "Failed sending data to the peer";
+  حالت CURLE_SEND_ERROR:
+    بازگشت "Failed sending data to the peer";
 
-  case CURLE_RECV_ERROR:
-    return "Failure when receiving data from the peer";
+  حالت CURLE_RECV_ERROR:
+    بازگشت "Failure when receiving data from the peer";
 
-  case CURLE_SSL_CERTPROBLEM:
-    return "Problem with the local SSL certificate";
+  حالت CURLE_SSL_CERTPROBLEM:
+    بازگشت "Problem with the local SSL certificate";
 
-  case CURLE_SSL_CIPHER:
-    return "Could not use specified SSL cipher";
+  حالت CURLE_SSL_CIPHER:
+    بازگشت "Could not use specified SSL cipher";
 
-  case CURLE_PEER_FAILED_VERIFICATION:
-    return "SSL peer certificate or SSH remote key was not OK";
+  حالت CURLE_PEER_FAILED_VERIFICATION:
+    بازگشت "SSL peer certificate or SSH remote key was not OK";
 
-  case CURLE_SSL_CACERT_BADFILE:
-    return "Problem with the SSL CA cert (path? access rights?)";
+  حالت CURLE_SSL_CACERT_BADFILE:
+    بازگشت "Problem with the SSL CA cert (path? access rights?)";
 
-  case CURLE_BAD_CONTENT_ENCODING:
-    return "Unrecognized or bad HTTP Content or Transfer-Encoding";
+  حالت CURLE_BAD_CONTENT_ENCODING:
+    بازگشت "Unrecognized or bad HTTP Content or Transfer-Encoding";
 
-  case CURLE_FILESIZE_EXCEEDED:
-    return "Maximum file size exceeded";
+  حالت CURLE_FILESIZE_EXCEEDED:
+    بازگشت "Maximum file size exceeded";
 
-  case CURLE_USE_SSL_FAILED:
-    return "Requested SSL level failed";
+  حالت CURLE_USE_SSL_FAILED:
+    بازگشت "Requested SSL level failed";
 
-  case CURLE_SSL_SHUTDOWN_FAILED:
-    return "Failed to shut down the SSL connection";
+  حالت CURLE_SSL_SHUTDOWN_FAILED:
+    بازگشت "Failed to shut down the SSL connection";
 
-  case CURLE_SSL_CRL_BADFILE:
-    return "Failed to load CRL file (path? access rights?, format?)";
+  حالت CURLE_SSL_CRL_BADFILE:
+    بازگشت "Failed to load CRL file (path? access rights?, format?)";
 
-  case CURLE_SSL_ISSUER_ERROR:
-    return "Issuer check against peer certificate failed";
+  حالت CURLE_SSL_ISSUER_ERROR:
+    بازگشت "Issuer check against peer certificate failed";
 
-  case CURLE_SEND_FAIL_REWIND:
-    return "Send failed since rewinding of the data stream failed";
+  حالت CURLE_SEND_FAIL_REWIND:
+    بازگشت "Send failed since rewinding of the data stream failed";
 
-  case CURLE_LOGIN_DENIED:
-    return "Login denied";
+  حالت CURLE_LOGIN_DENIED:
+    بازگشت "Login denied";
 
-  case CURLE_TFTP_NOTFOUND:
-    return "TFTP: File Not Found";
+  حالت CURLE_TFTP_NOTFOUND:
+    بازگشت "TFTP: File Not Found";
 
-  case CURLE_TFTP_PERM:
-    return "TFTP: Access Violation";
+  حالت CURLE_TFTP_PERM:
+    بازگشت "TFTP: Access Violation";
 
-  case CURLE_REMOTE_DISK_FULL:
-    return "Disk full or allocation exceeded";
+  حالت CURLE_REMOTE_DISK_FULL:
+    بازگشت "Disk full or allocation exceeded";
 
-  case CURLE_TFTP_ILLEGAL:
-    return "TFTP: Illegal operation";
+  حالت CURLE_TFTP_ILLEGAL:
+    بازگشت "TFTP: Illegal operation";
 
-  case CURLE_TFTP_UNKNOWNID:
-    return "TFTP: Unknown transfer ID";
+  حالت CURLE_TFTP_UNKNOWNID:
+    بازگشت "TFTP: Unknown transfer ID";
 
-  case CURLE_REMOTE_FILE_EXISTS:
-    return "Remote file already exists";
+  حالت CURLE_REMOTE_FILE_EXISTS:
+    بازگشت "Remote file already exists";
 
-  case CURLE_TFTP_NOSUCHUSER:
-    return "TFTP: No such user";
+  حالت CURLE_TFTP_NOSUCHUSER:
+    بازگشت "TFTP: No such user";
 
-  case CURLE_REMOTE_FILE_NOT_FOUND:
-    return "Remote file not found";
+  حالت CURLE_REMOTE_FILE_NOT_FOUND:
+    بازگشت "Remote file not found";
 
-  case CURLE_SSH:
-    return "Error in the SSH layer";
+  حالت CURLE_SSH:
+    بازگشت "Error in the SSH layer";
 
-  case CURLE_AGAIN:
-    return "Socket not ready for send/recv";
+  حالت CURLE_AGAIN:
+    بازگشت "Socket not ready for send/recv";
 
-  case CURLE_RTSP_CSEQ_ERROR:
-    return "RTSP CSeq mismatch or invalid CSeq";
+  حالت CURLE_RTSP_CSEQ_ERROR:
+    بازگشت "RTSP CSeq mismatch or invalid CSeq";
 
-  case CURLE_RTSP_SESSION_ERROR:
-    return "RTSP session error";
+  حالت CURLE_RTSP_SESSION_ERROR:
+    بازگشت "RTSP session error";
 
-  case CURLE_FTP_BAD_FILE_LIST:
-    return "Unable to parse FTP file list";
+  حالت CURLE_FTP_BAD_FILE_LIST:
+    بازگشت "Unable to parse FTP file list";
 
-  case CURLE_CHUNK_FAILED:
-    return "Chunk callback failed";
+  حالت CURLE_CHUNK_FAILED:
+    بازگشت "Chunk callback failed";
 
-  case CURLE_NO_CONNECTION_AVAILABLE:
-    return "The max connection limit is reached";
+  حالت CURLE_NO_CONNECTION_AVAILABLE:
+    بازگشت "The max connection limit is reached";
 
-  case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
-    return "SSL public key does not match pinned public key";
+  حالت CURLE_SSL_PINNEDPUBKEYNOTMATCH:
+    بازگشت "SSL public key does not match pinned public key";
 
-  case CURLE_SSL_INVALIDCERTSTATUS:
-    return "SSL server certificate status verification FAILED";
+  حالت CURLE_SSL_INVALIDCERTSTATUS:
+    بازگشت "SSL server certificate status verification FAILED";
 
-  case CURLE_HTTP2_STREAM:
-    return "Stream error in the HTTP/2 framing layer";
+  حالت CURLE_HTTP2_STREAM:
+    بازگشت "Stream error in the HTTP/2 framing layer";
 
-  case CURLE_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  حالت CURLE_RECURSIVE_API_CALL:
+    بازگشت "API function called from within callback";
 
-  case CURLE_AUTH_ERROR:
-    return "An authentication function returned an error";
+  حالت CURLE_AUTH_ERROR:
+    بازگشت "An authentication function returned an error";
 
-  case CURLE_HTTP3:
-    return "HTTP/3 error";
+  حالت CURLE_HTTP3:
+    بازگشت "HTTP/3 error";
 
-  case CURLE_QUIC_CONNECT_ERROR:
-    return "QUIC connection error";
+  حالت CURLE_QUIC_CONNECT_ERROR:
+    بازگشت "QUIC connection error";
 
-  case CURLE_PROXY:
-    return "proxy handshake error";
+  حالت CURLE_PROXY:
+    بازگشت "proxy handshake error";
 
-  case CURLE_SSL_CLIENTCERT:
-    return "SSL Client Certificate required";
+  حالت CURLE_SSL_CLIENTCERT:
+    بازگشت "SSL Client Certificate required";
 
-  case CURLE_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  حالت CURLE_UNRECOVERABLE_POLL:
+    بازگشت "Unrecoverable error in select/poll";
 
-  case CURLE_TOO_LARGE:
-    return "A value or data field grew larger than allowed";
+  حالت CURLE_TOO_LARGE:
+    بازگشت "A value or data field grew larger than allowed";
 
-  case CURLE_ECH_REQUIRED:
-    return "ECH attempted but failed";
+  حالت CURLE_ECH_REQUIRED:
+    بازگشت "ECH attempted but failed";
 
     /* error codes not used by current libcurl */
-  default:
-    break;
+  پیشفرض:
+    بشکن;
   }
   /*
    * By using a switch, gcc -Wall will complain about enum values
@@ -314,222 +314,222 @@ const char *curl_easy_strerror(CURLcode error)
    * The line number for the error will be near this comment, which is why it
    * is here, and not at the start of the switch.
    */
-  return "Unknown error";
-#else
-  if(!error)
-    return "No error";
-  else
-    return "Error";
+  بازگشت "Unknown error";
+#وگرنه
+  اگر(!error)
+    بازگشت "No error";
+  وگرنه
+    بازگشت "Error";
 #endif
 }
 
-const char *curl_multi_strerror(CURLMcode error)
+ثابت نویسه *curl_multi_strerror(CURLMcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLM_CALL_MULTI_PERFORM:
-    return "Please call curl_multi_perform() soon";
+  انتخاب(error) {
+  حالت CURLM_CALL_MULTI_PERFORM:
+    بازگشت "Please call curl_multi_perform() soon";
 
-  case CURLM_OK:
-    return "No error";
+  حالت CURLM_OK:
+    بازگشت "No error";
 
-  case CURLM_BAD_HANDLE:
-    return "Invalid multi handle";
+  حالت CURLM_BAD_HANDLE:
+    بازگشت "Invalid multi handle";
 
-  case CURLM_BAD_EASY_HANDLE:
-    return "Invalid easy handle";
+  حالت CURLM_BAD_EASY_HANDLE:
+    بازگشت "Invalid easy handle";
 
-  case CURLM_OUT_OF_MEMORY:
-    return "Out of memory";
+  حالت CURLM_OUT_OF_MEMORY:
+    بازگشت "Out of memory";
 
-  case CURLM_INTERNAL_ERROR:
-    return "Internal error";
+  حالت CURLM_INTERNAL_ERROR:
+    بازگشت "Internal error";
 
-  case CURLM_BAD_SOCKET:
-    return "Invalid socket argument";
+  حالت CURLM_BAD_SOCKET:
+    بازگشت "Invalid socket argument";
 
-  case CURLM_UNKNOWN_OPTION:
-    return "Unknown option";
+  حالت CURLM_UNKNOWN_OPTION:
+    بازگشت "Unknown option";
 
-  case CURLM_ADDED_ALREADY:
-    return "The easy handle is already added to a multi handle";
+  حالت CURLM_ADDED_ALREADY:
+    بازگشت "The easy handle is already added to a multi handle";
 
-  case CURLM_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  حالت CURLM_RECURSIVE_API_CALL:
+    بازگشت "API function called from within callback";
 
-  case CURLM_WAKEUP_FAILURE:
-    return "Wakeup is unavailable or failed";
+  حالت CURLM_WAKEUP_FAILURE:
+    بازگشت "Wakeup is unavailable or failed";
 
-  case CURLM_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  حالت CURLM_BAD_FUNCTION_ARGUMENT:
+    بازگشت "A libcurl function was given a bad argument";
 
-  case CURLM_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  حالت CURLM_ABORTED_BY_CALLBACK:
+    بازگشت "Operation was aborted by an application callback";
 
-  case CURLM_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  حالت CURLM_UNRECOVERABLE_POLL:
+    بازگشت "Unrecoverable error in select/poll";
 
-  case CURLM_LAST:
-    break;
+  حالت CURLM_LAST:
+    بشکن;
   }
 
-  return "Unknown error";
-#else
-  if(error == CURLM_OK)
-    return "No error";
-  else
-    return "Error";
+  بازگشت "Unknown error";
+#وگرنه
+  اگر(error == CURLM_OK)
+    بازگشت "No error";
+  وگرنه
+    بازگشت "Error";
 #endif
 }
 
-const char *curl_share_strerror(CURLSHcode error)
+ثابت نویسه *curl_share_strerror(CURLSHcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLSHE_OK:
-    return "No error";
+  انتخاب(error) {
+  حالت CURLSHE_OK:
+    بازگشت "No error";
 
-  case CURLSHE_BAD_OPTION:
-    return "Unknown share option";
+  حالت CURLSHE_BAD_OPTION:
+    بازگشت "Unknown share option";
 
-  case CURLSHE_IN_USE:
-    return "Share currently in use";
+  حالت CURLSHE_IN_USE:
+    بازگشت "Share currently in use";
 
-  case CURLSHE_INVALID:
-    return "Invalid share handle";
+  حالت CURLSHE_INVALID:
+    بازگشت "Invalid share handle";
 
-  case CURLSHE_NOMEM:
-    return "Out of memory";
+  حالت CURLSHE_NOMEM:
+    بازگشت "Out of memory";
 
-  case CURLSHE_NOT_BUILT_IN:
-    return "Feature not enabled in this library";
+  حالت CURLSHE_NOT_BUILT_IN:
+    بازگشت "Feature not enabled in this library";
 
-  case CURLSHE_LAST:
-    break;
+  حالت CURLSHE_LAST:
+    بشکن;
   }
 
-  return "CURLSHcode unknown";
-#else
-  if(error == CURLSHE_OK)
-    return "No error";
-  else
-    return "Error";
+  بازگشت "CURLSHcode unknown";
+#وگرنه
+  اگر(error == CURLSHE_OK)
+    بازگشت "No error";
+  وگرنه
+    بازگشت "Error";
 #endif
 }
 
-const char *curl_url_strerror(CURLUcode error)
+ثابت نویسه *curl_url_strerror(CURLUcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLUE_OK:
-    return "No error";
+  انتخاب(error) {
+  حالت CURLUE_OK:
+    بازگشت "No error";
 
-  case CURLUE_BAD_HANDLE:
-    return "An invalid CURLU pointer was passed as argument";
+  حالت CURLUE_BAD_HANDLE:
+    بازگشت "An invalid CURLU pointer was passed as argument";
 
-  case CURLUE_BAD_PARTPOINTER:
-    return "An invalid 'part' argument was passed as argument";
+  حالت CURLUE_BAD_PARTPOINTER:
+    بازگشت "An invalid 'part' argument was passed as argument";
 
-  case CURLUE_MALFORMED_INPUT:
-    return "Malformed input to a URL function";
+  حالت CURLUE_MALFORMED_درون_داد:
+    بازگشت "Malformed input to a URL function";
 
-  case CURLUE_BAD_PORT_NUMBER:
-    return "Port number was not a decimal number between 0 and 65535";
+  حالت CURLUE_BAD_PORT_عدد:
+    بازگشت "Port number was not a decimal number between 0 and 65535";
 
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return "Unsupported URL scheme";
+  حالت CURLUE_UNSUPPORTED_SCHEME:
+    بازگشت "Unsupported URL scheme";
 
-  case CURLUE_URLDECODE:
-    return "URL decode error, most likely because of rubbish in the input";
+  حالت CURLUE_URLDECODE:
+    بازگشت "URL decode error, most likely because of rubbish in the input";
 
-  case CURLUE_OUT_OF_MEMORY:
-    return "A memory function failed";
+  حالت CURLUE_OUT_OF_MEMORY:
+    بازگشت "A memory function failed";
 
-  case CURLUE_USER_NOT_ALLOWED:
-    return "Credentials was passed in the URL when prohibited";
+  حالت CURLUE_USER_NOT_ALLOWED:
+    بازگشت "Credentials was passed in the URL when prohibited";
 
-  case CURLUE_UNKNOWN_PART:
-    return "An unknown part ID was passed to a URL API function";
+  حالت CURLUE_UNKNOWN_PART:
+    بازگشت "An unknown part ID was passed to a URL API function";
 
-  case CURLUE_NO_SCHEME:
-    return "No scheme present";
+  حالت CURLUE_NO_SCHEME:
+    بازگشت "No scheme present";
 
-  case CURLUE_NO_USER:
-    return "No user present";
+  حالت CURLUE_NO_USER:
+    بازگشت "No user present";
 
-  case CURLUE_NO_PASSWORD:
-    return "No password present";
+  حالت CURLUE_NO_PASSWORD:
+    بازگشت "No password present";
 
-  case CURLUE_NO_OPTIONS:
-    return "No options present";
+  حالت CURLUE_NO_OPTIONS:
+    بازگشت "No options present";
 
-  case CURLUE_NO_HOST:
-    return "No host present";
+  حالت CURLUE_NO_HOST:
+    بازگشت "No host present";
 
-  case CURLUE_NO_PORT:
-    return "No port number present";
+  حالت CURLUE_NO_PORT:
+    بازگشت "No port number present";
 
-  case CURLUE_NO_QUERY:
-    return "No query present";
+  حالت CURLUE_NO_QUERY:
+    بازگشت "No query present";
 
-  case CURLUE_NO_FRAGMENT:
-    return "No fragment present";
+  حالت CURLUE_NO_FRAGMENT:
+    بازگشت "No fragment present";
 
-  case CURLUE_NO_ZONEID:
-    return "No zoneid present";
+  حالت CURLUE_NO_ZONEID:
+    بازگشت "No zoneid present";
 
-  case CURLUE_BAD_LOGIN:
-    return "Bad login";
+  حالت CURLUE_BAD_LOGIN:
+    بازگشت "Bad login";
 
-  case CURLUE_BAD_IPV6:
-    return "Bad IPv6 address";
+  حالت CURLUE_BAD_IPV6:
+    بازگشت "Bad IPv6 address";
 
-  case CURLUE_BAD_HOSTNAME:
-    return "Bad hostname";
+  حالت CURLUE_BAD_HOSTNAME:
+    بازگشت "Bad hostname";
 
-  case CURLUE_BAD_FILE_URL:
-    return "Bad file:// URL";
+  حالت CURLUE_BAD_FILE_URL:
+    بازگشت "Bad file:// URL";
 
-  case CURLUE_BAD_SLASHES:
-    return "Unsupported number of slashes following scheme";
+  حالت CURLUE_BAD_SLASHES:
+    بازگشت "Unsupported number of slashes following scheme";
 
-  case CURLUE_BAD_SCHEME:
-    return "Bad scheme";
+  حالت CURLUE_BAD_SCHEME:
+    بازگشت "Bad scheme";
 
-  case CURLUE_BAD_PATH:
-    return "Bad path";
+  حالت CURLUE_BAD_PATH:
+    بازگشت "Bad path";
 
-  case CURLUE_BAD_FRAGMENT:
-    return "Bad fragment";
+  حالت CURLUE_BAD_FRAGMENT:
+    بازگشت "Bad fragment";
 
-  case CURLUE_BAD_QUERY:
-    return "Bad query";
+  حالت CURLUE_BAD_QUERY:
+    بازگشت "Bad query";
 
-  case CURLUE_BAD_PASSWORD:
-    return "Bad password";
+  حالت CURLUE_BAD_PASSWORD:
+    بازگشت "Bad password";
 
-  case CURLUE_BAD_USER:
-    return "Bad user";
+  حالت CURLUE_BAD_USER:
+    بازگشت "Bad user";
 
-  case CURLUE_LACKS_IDN:
-    return "libcurl lacks IDN support";
+  حالت CURLUE_LACKS_IDN:
+    بازگشت "libcurl lacks IDN support";
 
-  case CURLUE_TOO_LARGE:
-    return "A value or data field is larger than allowed";
+  حالت CURLUE_TOO_LARGE:
+    بازگشت "A value or data field is larger than allowed";
 
-  case CURLUE_BACKSLASH:
-    return "Found a backslash where a forward slash was expected";
+  حالت CURLUE_BACKSLASH:
+    بازگشت "Found a backslash where a forward slash was expected";
 
-  case CURLUE_LAST:
-    break;
+  حالت CURLUE_LAST:
+    بشکن;
   }
 
-  return "CURLUcode unknown";
-#else
-  if(error == CURLUE_OK)
-    return "No error";
-  else
-    return "Error";
+  بازگشت "CURLUcode unknown";
+#وگرنه
+  اگر(error == CURLUE_OK)
+    بازگشت "No error";
+  وگرنه
+    بازگشت "Error";
 #endif
 }
 
@@ -538,25 +538,25 @@ const char *curl_url_strerror(CURLUcode error)
  * Curl_sspi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows SSPI.
  */
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
+ثابت نویسه *Curl_sspi_strerror(SECURITY_STATUS err, نویسه *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  VERBOSE(const char *txt);
+  صحیح old_errno = errno;
+  VERBOSE(ثابت نویسه *txt);
 
-  if(!buflen)
-    return NULL;
+  اگر(!buflen)
+    بازگشت پوچ;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  switch(err) {
-  case SEC_E_OK:
+  انتخاب(err) {
+  حالت SEC_E_OK:
     txt = "No error";
-    break;
-#define SEC2TXT(sec) case sec: txt = #sec; break
+    بشکن;
+#define SEC2TXT(sec) حالت sec: txt = #sec; بشکن
   SEC2TXT(CRYPT_E_REVOKED);
   SEC2TXT(CRYPT_E_NO_REVOCATION_DLL);
   SEC2TXT(CRYPT_E_NO_REVOCATION_CHECK);
@@ -604,7 +604,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_NO_CREDENTIALS);
   SEC2TXT(SEC_E_NO_IMPERSONATION);
   SEC2TXT(SEC_E_NO_IP_ADDRESSES);
-  SEC2TXT(SEC_E_NO_KERB_KEY);
+  SEC2TXT(SEC_E_NO_KERB_کلید);
   SEC2TXT(SEC_E_NO_PA_DATA);
   SEC2TXT(SEC_E_NO_S4U_PROT_SUPPORT);
   SEC2TXT(SEC_E_NO_TGT_REPLY);
@@ -629,7 +629,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_UNKNOWN_CREDENTIALS);
   SEC2TXT(SEC_E_UNSUPPORTED_FUNCTION);
   SEC2TXT(SEC_E_UNSUPPORTED_PREAUTH);
-  SEC2TXT(SEC_E_UNTRUSTED_ROOT);
+  SEC2TXT(SEC_E_UNTRUSTED_ریشه);
   SEC2TXT(SEC_E_WRONG_CREDENTIAL_HANDLE);
   SEC2TXT(SEC_E_WRONG_PRINCIPAL);
   SEC2TXT(SEC_I_COMPLETE_AND_CONTINUE);
@@ -641,40 +641,40 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_I_NO_LSA_CONTEXT);
   SEC2TXT(SEC_I_RENEGOTIATE);
   SEC2TXT(SEC_I_SIGNATURE_NEEDED);
-  default:
+  پیشفرض:
     txt = "Unknown error";
   }
 
-  if(err == SEC_E_ILLEGAL_MESSAGE) {
+  اگر(err == SEC_E_ILLEGAL_MESSAGE) {
     curl_msnprintf(buf, buflen,
                    "SEC_E_ILLEGAL_MESSAGE (0x%08lx) - This error usually "
                    "occurs when a fatal SSL/TLS alert is received (e.g. "
                    "handshake failed). More detail may be available in "
                    "the Windows System event log.", (unsigned long)err);
   }
-  else {
-    char msgbuf[256];
-    if(curlx_get_winapi_error((DWORD)err, msgbuf, sizeof(msgbuf)))
+  وگرنه {
+    نویسه msgbuf[256];
+    اگر(curlx_get_winapi_error((DWORD)err, msgbuf, اندازه(msgbuf)))
       curl_msnprintf(buf, buflen, "%s (0x%08lx) - %s", txt, (unsigned long)err,
                      msgbuf);
-    else
+    وگرنه
       curl_msnprintf(buf, buflen, "%s (0x%08lx)", txt, (unsigned long)err);
   }
-#else /* CURLVERBOSE */
-  if(err == SEC_E_OK)
+#وگرنه /* CURLVERBOSE */
+  اگر(err == SEC_E_OK)
     curlx_strcopy(buf, buflen, STRCONST("No error"));
-  else
+  وگرنه
     curlx_strcopy(buf, buflen, STRCONST("Error"));
 #endif
 
-  if(errno != old_errno)
+  اگر(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  اگر(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  بازگشت buf;
 }
 #endif /* USE_WINDOWS_SSPI */

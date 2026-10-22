@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct connectdata;
-struct Curl_addrinfo;
-struct Curl_cfilter;
-struct Curl_easy;
-struct Curl_peer;
-struct Curl_sockaddr_ex;
+ساختار connectdata;
+ساختار Curl_addrinfo;
+ساختار Curl_cfilter;
+ساختار Curl_easy;
+ساختار Curl_peer;
+ساختار Curl_sockaddr_ex;
 
 /**
  * Create a cfilter to connect to `origin` via an optional `peer`
@@ -44,14 +44,14 @@ struct Curl_sockaddr_ex;
  * The filter is used in "happy eyeball" scenarios. Once connected,
  * it MAY be installed in the connection filter chain to serve transfers.
  */
-typedef CURLcode cf_ip_connect_create(struct Curl_cfilter **pcf,
-                                      struct Curl_easy *data,
-                                      struct Curl_peer *origin,
-                                      struct Curl_peer *peer,
+تعریفنوع CURLcode cf_ip_connect_create(ساختار Curl_cfilter **pcf,
+                                      ساختار Curl_easy *data,
+                                      ساختار Curl_peer *origin,
+                                      ساختار Curl_peer *peer,
                                       uint8_t transport_peer,
-                                      struct connectdata *conn,
-                                      struct Curl_sockaddr_ex *addr,
-                                      struct Curl_peer *tunnel_peer,
+                                      ساختار connectdata *conn,
+                                      ساختار Curl_sockaddr_ex *addr,
+                                      ساختار Curl_peer *tunnel_peer,
                                       uint8_t tunnel_transport);
 
 /**
@@ -60,14 +60,14 @@ typedef CURLcode cf_ip_connect_create(struct Curl_cfilter **pcf,
  * With a `tunnel_peer` present, the filter will be used to proxy tunnel
  * to it and the tunnel will use `tunnel_transport`.
  */
-CURLcode Curl_cf_ip_happy_insert_after(struct Curl_cfilter *cf_at,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *origin,
-                                       struct Curl_peer *peer,
+CURLcode Curl_cf_ip_happy_درج_after(ساختار Curl_cfilter *cf_at,
+                                       ساختار Curl_easy *data,
+                                       ساختار Curl_peer *origin,
+                                       ساختار Curl_peer *peer,
                                        uint8_t transport_peer,
-                                       struct Curl_peer *tunnel_peer,
+                                       ساختار Curl_peer *tunnel_peer,
                                        uint8_t tunnel_transport);
 
-extern struct Curl_cftype Curl_cft_ip_happy;
+بیرونی ساختار Curl_cftype Curl_cft_ip_happy;
 
 #endif /* HEADER_CURL_IP_HAPPY_H */

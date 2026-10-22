@@ -21,46 +21,46 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#اگر !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
-#include "curl_get_line.h"
+#شامل "curl_get_line.h"
 
 /*
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_سطر(ساختار dynbuf *buf, FILE *درون_داد, bool *eof)
 {
   CURLcode result;
-  char buffer[128];
+  نویسه buffer[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  وقتی(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    ثابت نویسه *b = fgets(buffer, اندازه(buffer), درون_داد);
+    اگر(!b && ferror(درون_داد))
+      بازگشت CURLE_READ_ERROR;
 
-    *eof = feof(input);
+    *eof = feof(درون_داد);
 
     rlen = b ? strlen(b) : 0;
-    if(rlen) {
+    اگر(rlen) {
       result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+      اگر(result)
         /* too long line or out of memory */
-        return result;
+        بازگشت result;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    اگر(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      بازگشت CURLE_OK; /* all good */
+    اگر(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      بازگشت curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

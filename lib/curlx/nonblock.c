@@ -21,72 +21,72 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#شامل <sys/ioctl.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+#شامل <fcntl.h>
 #endif
 
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#شامل <in.h>
+#شامل <inet.h>
 #endif
 
-#include "curlx/nonblock.h"
+#شامل "curlx/nonblock.h"
 
 /*
  * curlx_nonblock() set the given socket to either blocking or non-blocking
  * mode based on the 'nonblock' boolean argument. This function is highly
  * portable.
  */
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */)
+صحیح curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   صحیح nonblock   /* TRUE or FALSE */)
 {
 #ifdef HAVE_FCNTL_O_NONBLOCK
   /* most recent Unix versions */
-  int flags;
+  صحیح flags;
   flags = sfcntl(sockfd, F_GETFL, 0);
-  if(flags < 0)
-    return -1;
+  اگر(flags < 0)
+    بازگشت -1;
   /* Check if the current file status flags have already satisfied
    * the request, if so, it is no need to call fcntl() to replicate it.
    */
-  if(!!(flags & O_NONBLOCK) == !!nonblock)
-    return 0;
-  if(nonblock)
+  اگر(!!(flags & O_NONBLOCK) == !!nonblock)
+    بازگشت 0;
+  اگر(nonblock)
     flags |= O_NONBLOCK;
-  else
+  وگرنه
     flags &= ~O_NONBLOCK;
-  return sfcntl(sockfd, F_SETFL, flags);
+  بازگشت sfcntl(sockfd, F_SETFL, flags);
 
-#elif defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
+#وگرنهاگر defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
 
   /* Amiga */
   long flags = nonblock ? 1L : 0L;
-  return IoctlSocket(sockfd, FIONBIO, (char *)&flags);
+  بازگشت IoctlSocket(sockfd, FIONBIO, (نویسه *)&flags);
 
-#elif defined(HAVE_IOCTL_FIONBIO)
+#وگرنهاگر defined(HAVE_IOCTL_FIONBIO)
 
   /* older Unix versions */
-  int flags = nonblock ? 1 : 0;
-  return ioctl(sockfd, FIONBIO, &flags);
+  صحیح flags = nonblock ? 1 : 0;
+  بازگشت ioctl(sockfd, FIONBIO, &flags);
 
-#elif defined(HAVE_IOCTLSOCKET_FIONBIO)
+#وگرنهاگر defined(HAVE_IOCTLSOCKET_FIONBIO)
 
   /* Windows */
   unsigned long flags = nonblock ? 1UL : 0UL;
-  return ioctlsocket(sockfd, (long)FIONBIO, &flags);
+  بازگشت ioctlsocket(sockfd, (long)FIONBIO, &flags);
 
-#elif defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
+#وگرنهاگر defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
 
   /* Orbis OS */
   long b = nonblock ? 1L : 0L;
-  return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
+  بازگشت setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, اندازه(b));
 
-#else
+#وگرنه
 #error "no non-blocking method was found/used/set"
 #endif
 }

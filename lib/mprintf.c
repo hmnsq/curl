@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
-#include "curlx/strparse.h"
-#include "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
+#شامل "curlx/dynbuf.h"
+#شامل "curl_printf.h"
+#شامل "curlx/strparse.h"
+#شامل "curlx/snprintf.h"  /* for curlx_win32_snprintf() */
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should
                         fit negative DBL_MAX (317 letters) */
@@ -34,20 +34,20 @@
 #define MAX_SEGMENTS   128 /* number of output segments */
 
 /* Lower-case digits. */
-const unsigned char Curl_ldigits[] = "0123456789abcdef";
+ثابت unsigned نویسه Curl_ldigits[] = "0123456789abcdef";
 
 /* Upper-case digits. */
-const unsigned char Curl_udigits[] = "0123456789ABCDEF";
+ثابت unsigned نویسه Curl_udigits[] = "0123456789ABCDEF";
 
 #define OUTCHAR(x)                        \
-  do {                                    \
-    if(stream((unsigned char)(x), userp)) \
-      return TRUE;                        \
+  انجامبده {                                    \
+    اگر(stream((unsigned نویسه)(x), userp)) \
+      بازگشت TRUE;                        \
     (*donep)++;                           \
-  } while(0)
+  } وقتی(0)
 
 /* Data type to read from the arglist */
-typedef enum {
+تعریفنوع شمارش {
   MTYPE_STRING,
   MTYPE_PTR,
   MTYPE_INTPTR,
@@ -64,10 +64,10 @@ typedef enum {
 } FormatType;
 
 /* conversion and display flags */
-enum {
+شمارش {
   FLAGS_SPACE      = 1 << 0,
   FLAGS_SHOWSIGN   = 1 << 1,
-  FLAGS_LEFT       = 1 << 2,
+  FLAGS_چپ       = 1 << 2,
   FLAGS_ALT        = 1 << 3,
   FLAGS_SHORT      = 1 << 4,
   FLAGS_LONG       = 1 << 5,
@@ -88,7 +88,7 @@ enum {
   FLAGS_SUBSTR     = 1 << 20  /* no input, only substring */
 };
 
-enum {
+شمارش {
   DOLLAR_UNKNOWN,
   DOLLAR_NOPE,
   DOLLAR_USE
@@ -97,31 +97,31 @@ enum {
 /*
  * Describes an input va_arg type and hold its value.
  */
-struct va_input {
+ساختار va_درون_داد {
   FormatType type; /* FormatType */
-  union {
-    const char *str;
-    void *ptr;
+  اجتماع {
+    ثابت نویسه *str;
+    تهی *ptr;
     int64_t nums; /* signed */
     uint64_t numu; /* unsigned */
-    double dnum;
+    دوگانه dnum;
   } val;
 };
 
 /*
  * Describes an output segment.
  */
-struct outsegment {
-  int width;     /* width OR width parameter number */
-  int precision; /* precision OR precision parameter number */
-  unsigned int flags;
-  unsigned int input; /* input argument array index */
-  const char *start; /* format string start to output */
+ساختار outsegment {
+  صحیح width;     /* width OR width parameter number */
+  صحیح precision; /* precision OR precision parameter number */
+  unsigned صحیح flags;
+  unsigned صحیح درون_داد; /* input argument array index */
+  ثابت نویسه *start; /* format string start to output */
   size_t outlen;     /* number of bytes from the format string to output */
 };
 
-struct nsprintf {
-  char *buffer;
+ساختار nsprintf {
+  نویسه *buffer;
   size_t length;
   size_t max;
 };
@@ -132,14 +132,14 @@ struct nsprintf {
    request line or header in a single flush. */
 #define ASPRINTF_STAGE_SIZE 512
 
-struct asprintf {
-  struct dynbuf *b;
-  char merr;
+ساختار asprintf {
+  ساختار dynbuf *b;
+  نویسه merr;
   size_t nstage;
-  unsigned char stage[ASPRINTF_STAGE_SIZE];
+  unsigned نویسه stage[ASPRINTF_STAGE_SIZE];
 };
 
-struct ioprintf {
+ساختار ioprintf {
   FILE *fd;
   bool error;
 };
@@ -148,18 +148,18 @@ struct ioprintf {
  *
  * returns -1 if no valid number was provided.
  */
-static int dollarstring(const char *p, const char **end)
+ایستا صحیح dollarstring(ثابت نویسه *p, ثابت نویسه **end)
 {
-  curl_off_t num;
-  if(curlx_str_number(&p, &num, MAX_PARAMETERS) ||
-     curlx_str_single(&p, '$') || !num)
-    return -1;
+  curl_off_t رقم;
+  اگر(curlx_str_عدد(&p, &رقم, MAX_PARAMETERS) ||
+     curlx_str_single(&p, '$') || !رقم)
+    بازگشت -1;
   *end = p;
-  return (int)num - 1;
+  بازگشت (صحیح)رقم - 1;
 }
 
 #define is_arg_used(x, y)   ((x)[(y) / 8] & (1 << ((y) & 7)))
-#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned char)(1 << ((y) & 7)))
+#define mark_arg_used(x, y) ((x)[(y) / 8] |= (unsigned نویسه)(1 << ((y) & 7)))
 
 /*
  * Parse the format string.
@@ -182,345 +182,345 @@ static int dollarstring(const char *p, const char **end)
 #define PFMT_PRECARG    10 /* attempted to use same arg twice, for prec */
 #define PFMT_MANYSEGS   11 /* maxed out output segments */
 
-static int parse_flags(const char **fmtp, unsigned int *flagsp, int use_dollar,
-                       int *precp, int *widthp)
+ایستا صحیح parse_flags(ثابت نویسه **fmtp, unsigned صحیح *flagsp, صحیح use_dollar,
+                       صحیح *precp, صحیح *widthp)
 {
-  const char *fmt = *fmtp;
+  ثابت نویسه *fmt = *fmtp;
   bool loopit = TRUE;
-  unsigned int flags = 0;
-  int width = 0;
-  int precision = 0;
+  unsigned صحیح flags = 0;
+  صحیح width = 0;
+  صحیح precision = 0;
 
   /* Handle the flags */
-  do {
-    switch(*fmt++) {
-    case ' ':
+  انجامبده {
+    انتخاب(*fmt++) {
+    حالت ' ':
       flags |= FLAGS_SPACE;
-      break;
-    case '+':
+      بشکن;
+    حالت '+':
       flags |= FLAGS_SHOWSIGN;
-      break;
-    case '-':
-      flags |= FLAGS_LEFT;
-      flags &= ~(unsigned int)FLAGS_PAD_NIL;
-      break;
-    case '#':
+      بشکن;
+    حالت '-':
+      flags |= FLAGS_چپ;
+      flags &= ~(unsigned صحیح)FLAGS_PAD_NIL;
+      بشکن;
+    حالت '#':
       flags |= FLAGS_ALT;
-      break;
-    case '.':
-      if('*' == *fmt) {
+      بشکن;
+    حالت '.':
+      اگر('*' == *fmt) {
         /* The precision is picked from a specified parameter */
         flags |= FLAGS_PRECPARAM;
         fmt++;
 
-        if(use_dollar == DOLLAR_USE) {
+        اگر(use_dollar == DOLLAR_USE) {
           precision = dollarstring(fmt, &fmt);
-          if(precision < 0)
+          اگر(precision < 0)
             /* illegal combo */
-            return PFMT_DOLLARPREC;
+            بازگشت PFMT_DOLLARPREC;
         }
-        else
+        وگرنه
           /* get it from the next argument */
           precision = -1;
       }
-      else {
+      وگرنه {
         bool is_neg;
-        curl_off_t num;
+        curl_off_t رقم;
         flags |= FLAGS_PREC;
         is_neg = ('-' == *fmt);
-        if(is_neg)
+        اگر(is_neg)
           fmt++;
-        if(curlx_str_number(&fmt, &num, INT_MAX))
-          return PFMT_PREC;
-        precision = (int)num;
-        if(is_neg)
+        اگر(curlx_str_عدد(&fmt, &رقم, INT_MAX))
+          بازگشت PFMT_PREC;
+        precision = (صحیح)رقم;
+        اگر(is_neg)
           precision = -precision;
       }
-      if((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
+      اگر((flags & (FLAGS_PREC | FLAGS_PRECPARAM)) ==
          (FLAGS_PREC | FLAGS_PRECPARAM))
         /* it is not permitted to use both kinds of precision for the same
            argument */
-        return PFMT_PRECMIX;
-      break;
-    case 'h':
+        بازگشت PFMT_PRECMIX;
+      بشکن;
+    حالت 'h':
       flags |= FLAGS_SHORT;
-      break;
+      بشکن;
 #ifdef _WIN32
-    case 'I':
+    حالت 'I':
       /* Non-ANSI integer extensions I32 I64 */
-      if((fmt[0] == '3') && (fmt[1] == '2')) {
+      اگر((fmt[0] == '3') && (fmt[1] == '2')) {
         flags |= FLAGS_LONG;
         fmt += 2;
       }
-      else if((fmt[0] == '6') && (fmt[1] == '4')) {
+      وگرنه اگر((fmt[0] == '6') && (fmt[1] == '4')) {
         flags |= FLAGS_LONGLONG;
         fmt += 2;
       }
-      else {
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+      وگرنه {
+#اگر SIZEOF_SIZE_T > SIZEOF_LONG
         flags |= FLAGS_LONGLONG;
-#else
+#وگرنه
         flags |= FLAGS_LONG;
 #endif
       }
-      break;
+      بشکن;
 #endif /* _WIN32 */
-    case 'l':
-      if(flags & FLAGS_LONG)
+    حالت 'l':
+      اگر(flags & FLAGS_LONG)
         flags |= FLAGS_LONGLONG;
-      else
+      وگرنه
         flags |= FLAGS_LONG;
-      break;
-    case 'L':
+      بشکن;
+    حالت 'L':
       flags |= FLAGS_LONGDOUBLE;
-      break;
-    case 'q':
+      بشکن;
+    حالت 'q':
       flags |= FLAGS_LONGLONG;
-      break;
-    case 'z':
+      بشکن;
+    حالت 'z':
       /* the code below generates a warning if -Wunreachable-code is
          used */
-#if SIZEOF_SIZE_T > SIZEOF_LONG
+#اگر SIZEOF_SIZE_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#وگرنه
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case 'O':
-#if SIZEOF_CURL_OFF_T > SIZEOF_LONG
+      بشکن;
+    حالت 'O':
+#اگر SIZEOF_CURL_OFF_T > SIZEOF_LONG
       flags |= FLAGS_LONGLONG;
-#else
+#وگرنه
       flags |= FLAGS_LONG;
 #endif
-      break;
-    case '0':
-      if(!(flags & FLAGS_LEFT))
+      بشکن;
+    حالت '0':
+      اگر(!(flags & FLAGS_چپ))
         flags |= FLAGS_PAD_NIL;
       FALLTHROUGH();
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9': {
-      curl_off_t num;
+    حالت '1':
+    حالت '2':
+    حالت '3':
+    حالت '4':
+    حالت '5':
+    حالت '6':
+    حالت '7':
+    حالت '8':
+    حالت '9': {
+      curl_off_t رقم;
       flags |= FLAGS_WIDTH;
       fmt--;
-      if(curlx_str_number(&fmt, &num, INT_MAX))
-        return PFMT_WIDTH;
-      width = (int)num;
-      break;
+      اگر(curlx_str_عدد(&fmt, &رقم, INT_MAX))
+        بازگشت PFMT_WIDTH;
+      width = (صحیح)رقم;
+      بشکن;
     }
-    case '*':  /* read width from argument list */
+    حالت '*':  /* read width from argument list */
       flags |= FLAGS_WIDTHPARAM;
-      if(use_dollar == DOLLAR_USE) {
+      اگر(use_dollar == DOLLAR_USE) {
         width = dollarstring(fmt, &fmt);
-        if(width < 0)
+        اگر(width < 0)
           /* illegal combo */
-          return PFMT_DOLLARWIDTH;
+          بازگشت PFMT_DOLLARWIDTH;
       }
-      else
+      وگرنه
         /* pick from the next argument */
         width = -1;
-      break;
-    default:
+      بشکن;
+    پیشفرض:
       loopit = FALSE;
       fmt--;
-      break;
+      بشکن;
     } /* switch */
-  } while(loopit); /* do */
+  } وقتی(loopit); /* do */
   *flagsp = flags;
   *precp = precision;
   *widthp = width;
   *fmtp = fmt;
-  return PFMT_OK;
+  بازگشت PFMT_OK;
 }
 
-static bool parse_conversion(const char f, unsigned int *flagp,
+ایستا bool parse_conversion(ثابت نویسه f, unsigned صحیح *flagp,
                              FormatType *typep)
 {
-  unsigned int flags = *flagp;
+  unsigned صحیح flags = *flagp;
   FormatType type;
-  switch(f) {
-  case 'S':
+  انتخاب(f) {
+  حالت 'S':
     flags |= FLAGS_ALT;
     type = MTYPE_STRING;
-    break;
-  case 's':
+    بشکن;
+  حالت 's':
     type = MTYPE_STRING;
-    break;
-  case 'n':
+    بشکن;
+  حالت 'n':
     type = MTYPE_INTPTR;
-    break;
-  case 'p':
+    بشکن;
+  حالت 'p':
     type = MTYPE_PTR;
-    break;
-  case 'd':
-  case 'i':
-    if(flags & FLAGS_LONGLONG)
+    بشکن;
+  حالت 'd':
+  حالت 'i':
+    اگر(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONG;
-    else if(flags & FLAGS_LONG)
+    وگرنه اگر(flags & FLAGS_LONG)
       type = MTYPE_LONG;
-    else
+    وگرنه
       type = MTYPE_INT;
-    break;
-  case 'u':
-    if(flags & FLAGS_LONGLONG)
+    بشکن;
+  حالت 'u':
+    اگر(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    وگرنه اگر(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    وگرنه
       type = MTYPE_INTU;
     flags |= FLAGS_UNSIGNED;
-    break;
-  case 'o':
-    if(flags & FLAGS_LONGLONG)
+    بشکن;
+  حالت 'o':
+    اگر(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    وگرنه اگر(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    وگرنه
       type = MTYPE_INTU;
     flags |= FLAGS_OCTAL | FLAGS_UNSIGNED;
-    break;
-  case 'x':
-    if(flags & FLAGS_LONGLONG)
+    بشکن;
+  حالت 'x':
+    اگر(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    وگرنه اگر(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    وگرنه
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UNSIGNED;
-    break;
-  case 'X':
-    if(flags & FLAGS_LONGLONG)
+    بشکن;
+  حالت 'X':
+    اگر(flags & FLAGS_LONGLONG)
       type = MTYPE_LONGLONGU;
-    else if(flags & FLAGS_LONG)
+    وگرنه اگر(flags & FLAGS_LONG)
       type = MTYPE_LONGU;
-    else
+    وگرنه
       type = MTYPE_INTU;
     flags |= FLAGS_HEX | FLAGS_UPPER | FLAGS_UNSIGNED;
-    break;
-  case 'c':
+    بشکن;
+  حالت 'c':
     type = MTYPE_INT;
     flags |= FLAGS_CHAR;
-    break;
-  case 'f':
+    بشکن;
+  حالت 'f':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
-    break;
-  case 'F':
+    بشکن;
+  حالت 'F':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_UPPER;
-    break;
-  case 'e':
+    بشکن;
+  حالت 'e':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE;
-    break;
-  case 'E':
+    بشکن;
+  حالت 'E':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATE | FLAGS_UPPER;
-    break;
-  case 'g':
+    بشکن;
+  حالت 'g':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG;
-    break;
-  case 'G':
+    بشکن;
+  حالت 'G':
     type = flags & FLAGS_LONGDOUBLE ? MTYPE_LONGDOUBLE : MTYPE_DOUBLE;
     flags |= FLAGS_FLOATG | FLAGS_UPPER;
-    break;
-  default:
+    بشکن;
+  پیشفرض:
     /* invalid instruction, disregard and continue */
-    return TRUE;
+    بازگشت TRUE;
   } /* switch */
 
   *flagp |= flags;
   *typep = type;
-  return FALSE;
+  بازگشت FALSE;
 }
 
-static int parsefmt(const char *format,
-                    struct outsegment *out,
-                    struct va_input *in,
-                    int *opieces,
-                    int *ipieces, va_list arglist)
+ایستا صحیح parsefmt(ثابت نویسه *format,
+                    ساختار outsegment *out,
+                    ساختار va_درون_داد *in,
+                    صحیح *opieces,
+                    صحیح *ipieces, va_list arglist)
 {
-  const char *fmt = format;
-  int param_num = 0;
-  int max_param = -1;
-  int i;
-  int ocount = 0;
-  unsigned char usedinput[MAX_PARAMETERS / 8];
+  ثابت نویسه *fmt = format;
+  صحیح param_رقم = 0;
+  صحیح max_param = -1;
+  صحیح i;
+  صحیح ocount = 0;
+  unsigned نویسه usedinput[MAX_PARAMETERS / 8];
   size_t outlen = 0;
-  struct outsegment *optr;
-  int use_dollar = DOLLAR_UNKNOWN;
-  const char *start = fmt;
+  ساختار outsegment *optr;
+  صحیح use_dollar = DOLLAR_UNKNOWN;
+  ثابت نویسه *start = fmt;
 
   /* clear, set a bit for each used input */
-  memset(usedinput, 0, sizeof(usedinput));
+  memset(usedinput, 0, اندازه(usedinput));
 
-  while(*fmt) {
-    if(*fmt == '%') {
-      struct va_input *iptr;
+  وقتی(*fmt) {
+    اگر(*fmt == '%') {
+      ساختار va_درون_داد *iptr;
       FormatType type;
-      unsigned int flags = 0;
-      int width = 0;
-      int precision = 0;
-      int param = -1;
-      int rc;
+      unsigned صحیح flags = 0;
+      صحیح width = 0;
+      صحیح precision = 0;
+      صحیح param = -1;
+      صحیح rc;
       fmt++;
       outlen = (size_t)(fmt - start - 1);
-      if(*fmt == '%') {
+      اگر(*fmt == '%') {
         /* this means a %% that should be output only as %. Create an output
            segment. */
-        if(outlen) {
+        اگر(outlen) {
           optr = &out[ocount++];
-          if(ocount > MAX_SEGMENTS)
-            return PFMT_MANYSEGS;
-          optr->input = 0;
+          اگر(ocount > MAX_SEGMENTS)
+            بازگشت PFMT_MANYSEGS;
+          optr->درون_داد = 0;
           optr->flags = FLAGS_SUBSTR;
           optr->start = start;
           optr->outlen = outlen;
         }
         start = fmt;
         fmt++;
-        continue; /* while */
+        ادامه; /* while */
       }
 
-      if(use_dollar != DOLLAR_NOPE) {
+      اگر(use_dollar != DOLLAR_NOPE) {
         param = dollarstring(fmt, &fmt);
-        if(param < 0) {
-          if(use_dollar == DOLLAR_USE)
+        اگر(param < 0) {
+          اگر(use_dollar == DOLLAR_USE)
             /* illegal combo */
-            return PFMT_DOLLAR;
+            بازگشت PFMT_DOLLAR;
 
           /* we got no positional, get the next arg */
           param = -1;
           use_dollar = DOLLAR_NOPE;
         }
-        else
+        وگرنه
           use_dollar = DOLLAR_USE;
       }
 
       rc = parse_flags(&fmt, &flags, use_dollar, &precision, &width);
-      if(rc)
-        return rc;
+      اگر(rc)
+        بازگشت rc;
 
-      if(parse_conversion(*fmt, &flags, &type))
-        continue;
+      اگر(parse_conversion(*fmt, &flags, &type))
+        ادامه;
 
-      if(flags & FLAGS_WIDTHPARAM) {
-        if(width < 0)
-          width = param_num++;
-        else {
+      اگر(flags & FLAGS_WIDTHPARAM) {
+        اگر(width < 0)
+          width = param_رقم++;
+        وگرنه {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, width))
-            return PFMT_WIDTHARG;
+          اگر(is_arg_used(usedinput, width))
+            بازگشت PFMT_WIDTHARG;
         }
-        if(width >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(width >= max_param)
+        اگر(width >= MAX_PARAMETERS)
+          بازگشت PFMT_MANYARGS;
+        اگر(width >= max_param)
           max_param = width;
 
         in[width].type = MTYPE_WIDTH;
@@ -528,17 +528,17 @@ static int parsefmt(const char *format,
         mark_arg_used(usedinput, width);
       }
 
-      if(flags & FLAGS_PRECPARAM) {
-        if(precision < 0)
-          precision = param_num++;
-        else {
+      اگر(flags & FLAGS_PRECPARAM) {
+        اگر(precision < 0)
+          precision = param_رقم++;
+        وگرنه {
           /* if this identifies a parameter already used, this is illegal */
-          if(is_arg_used(usedinput, precision))
-            return PFMT_PRECARG;
+          اگر(is_arg_used(usedinput, precision))
+            بازگشت PFMT_PRECARG;
         }
-        if(precision >= MAX_PARAMETERS)
-          return PFMT_MANYARGS;
-        if(precision >= max_param)
+        اگر(precision >= MAX_PARAMETERS)
+          بازگشت PFMT_MANYARGS;
+        اگر(precision >= max_param)
           max_param = precision;
 
         in[precision].type = MTYPE_PRECISION;
@@ -546,11 +546,11 @@ static int parsefmt(const char *format,
       }
 
       /* Handle the specifier */
-      if(param < 0)
-        param = param_num++;
-      if(param >= MAX_PARAMETERS)
-        return PFMT_MANYARGS;
-      if(param >= max_param)
+      اگر(param < 0)
+        param = param_رقم++;
+      اگر(param >= MAX_PARAMETERS)
+        بازگشت PFMT_MANYARGS;
+      اگر(param >= max_param)
         max_param = param;
 
       iptr = &in[param];
@@ -561,9 +561,9 @@ static int parsefmt(const char *format,
 
       fmt++;
       optr = &out[ocount++];
-      if(ocount > MAX_SEGMENTS)
-        return PFMT_MANYSEGS;
-      optr->input = (unsigned int)param;
+      اگر(ocount > MAX_SEGMENTS)
+        بازگشت PFMT_MANYSEGS;
+      optr->درون_داد = (unsigned صحیح)param;
       optr->flags = flags;
       optr->width = width;
       optr->precision = precision;
@@ -571,149 +571,149 @@ static int parsefmt(const char *format,
       optr->outlen = outlen;
       start = fmt;
     }
-    else
+    وگرنه
       fmt++;
   }
 
   /* is there a trailing piece */
   outlen = (size_t)(fmt - start);
-  if(outlen) {
+  اگر(outlen) {
     optr = &out[ocount++];
-    if(ocount > MAX_SEGMENTS)
-      return PFMT_MANYSEGS;
-    optr->input = 0;
+    اگر(ocount > MAX_SEGMENTS)
+      بازگشت PFMT_MANYSEGS;
+    optr->درون_داد = 0;
     optr->flags = FLAGS_SUBSTR;
     optr->start = start;
     optr->outlen = outlen;
   }
 
   /* Read the arg list parameters into our data list */
-  for(i = 0; i < max_param + 1; i++) {
-    struct va_input *iptr = &in[i];
-    if(!is_arg_used(usedinput, i))
+  برای(i = 0; i < max_param + 1; i++) {
+    ساختار va_درون_داد *iptr = &in[i];
+    اگر(!is_arg_used(usedinput, i))
       /* bad input */
-      return PFMT_INPUTGAP;
+      بازگشت PFMT_INPUTGAP;
 
     /* based on the type, read the correct argument */
-    switch(iptr->type) {
-    case MTYPE_STRING:
-      iptr->val.str = va_arg(arglist, const char *);
-      break;
+    انتخاب(iptr->type) {
+    حالت MTYPE_STRING:
+      iptr->val.str = va_arg(arglist, ثابت نویسه *);
+      بشکن;
 
-    case MTYPE_INTPTR:
-    case MTYPE_PTR:
-      iptr->val.ptr = va_arg(arglist, void *);
-      break;
+    حالت MTYPE_INTPTR:
+    حالت MTYPE_PTR:
+      iptr->val.ptr = va_arg(arglist, تهی *);
+      بشکن;
 
-    case MTYPE_LONGLONGU:
+    حالت MTYPE_LONGLONGU:
       iptr->val.numu = va_arg(arglist, uint64_t);
-      break;
+      بشکن;
 
-    case MTYPE_LONGLONG:
+    حالت MTYPE_LONGLONG:
       iptr->val.nums = va_arg(arglist, int64_t);
-      break;
+      بشکن;
 
-    case MTYPE_LONGU:
+    حالت MTYPE_LONGU:
       iptr->val.numu = va_arg(arglist, unsigned long);
-      break;
+      بشکن;
 
-    case MTYPE_LONG:
+    حالت MTYPE_LONG:
       iptr->val.nums = va_arg(arglist, long);
-      break;
+      بشکن;
 
-    case MTYPE_INTU:
-      iptr->val.numu = va_arg(arglist, unsigned int);
-      break;
+    حالت MTYPE_INTU:
+      iptr->val.numu = va_arg(arglist, unsigned صحیح);
+      بشکن;
 
-    case MTYPE_INT:
-    case MTYPE_WIDTH:
-    case MTYPE_PRECISION:
-      iptr->val.nums = va_arg(arglist, int);
-      break;
+    حالت MTYPE_INT:
+    حالت MTYPE_WIDTH:
+    حالت MTYPE_PRECISION:
+      iptr->val.nums = va_arg(arglist, صحیح);
+      بشکن;
 
-    case MTYPE_DOUBLE:
-      iptr->val.dnum = va_arg(arglist, double);
-      break;
+    حالت MTYPE_DOUBLE:
+      iptr->val.dnum = va_arg(arglist, دوگانه);
+      بشکن;
 
-    case MTYPE_LONGDOUBLE:
-      iptr->val.dnum = (double)va_arg(arglist, long double);
-      break;
+    حالت MTYPE_LONGDOUBLE:
+      iptr->val.dnum = (دوگانه)va_arg(arglist, long دوگانه);
+      بشکن;
 
-    default:
-      DEBUGASSERT(NULL); /* unexpected */
-      break;
+    پیشفرض:
+      DEBUGASSERT(پوچ); /* unexpected */
+      بشکن;
     }
   }
   *ipieces = max_param + 1;
   *opieces = ocount;
 
-  return PFMT_OK;
+  بازگشت PFMT_OK;
 }
 
-struct mproperty {
-  int width;            /* Width of a field. */
-  int prec;             /* Precision of a field. */
-  unsigned int flags;
+ساختار mproperty {
+  صحیح width;            /* Width of a field. */
+  صحیح prec;             /* Precision of a field. */
+  unsigned صحیح flags;
 };
 
 /* block output callback: consume up to 'len' bytes, return the number of
    bytes accepted. Accepting fewer than 'len' bytes aborts formatting, like
    the byte callback returning failure. May be NULL, in which case output
    falls back to the per-byte 'stream' callback. */
-typedef size_t (*mp_streamn)(const unsigned char *buf, size_t len, void *f);
+تعریفنوع size_t (*mp_streamn)(ثابت unsigned نویسه *buf, size_t len, تهی *f);
 
 /* commit any output the sink is holding. Returns non-zero on failure. Sinks
    whose accepted bytes are already committed do not need one. */
-typedef int (*mp_flush)(void *f);
+تعریفنوع صحیح (*mp_flush)(تهی *f);
 
 /* emit a run of bytes through the block callback when available, else byte
    by byte. Returns TRUE to abort formatting (mirroring OUTCHAR). */
-static bool stream_run(void *userp,
-                       int (*stream)(unsigned char, void *),
+ایستا bool stream_run(تهی *userp,
+                       صحیح (*stream)(unsigned نویسه, تهی *),
                        mp_streamn streamn,
-                       const unsigned char *buf, size_t len, int *donep)
+                       ثابت unsigned نویسه *buf, size_t len, صحیح *donep)
 {
-  if(!len)
-    return FALSE;
-  if(streamn) {
+  اگر(!len)
+    بازگشت FALSE;
+  اگر(streamn) {
     size_t n = streamn(buf, len, userp);
-    *donep += (int)n;
-    return n != len;
+    *donep += (صحیح)n;
+    بازگشت n != len;
   }
-  while(len--) {
-    if(stream(*buf++, userp))
-      return TRUE;
+  وقتی(len--) {
+    اگر(stream(*buf++, userp))
+      بازگشت TRUE;
     (*donep)++;
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /* Padding is always spaces or zeros, so it comes from a constant rather than a
    buffer that has to be filled first. 16 keeps every width used in the tree to
    a single run; wider padding loops. */
-static const char pad_spaces[] = "                ";
-static const char pad_zeros[] = "0000000000000000";
+ایستا ثابت نویسه pad_spaces[] = "                ";
+ایستا ثابت نویسه pad_zeros[] = "0000000000000000";
 #define PAD_RUN 16 /* strlen() of both of the above */
 
 /* emit 'num' copies of the pad byte. Returns TRUE to abort formatting. */
-static bool stream_pad(void *userp,
-                       int (*stream)(unsigned char, void *),
+ایستا bool stream_pad(تهی *userp,
+                       صحیح (*stream)(unsigned نویسه, تهی *),
                        mp_streamn streamn,
-                       unsigned char pad, int num, int *donep)
+                       unsigned نویسه pad, صحیح رقم, صحیح *donep)
 {
-  const unsigned char *src;
-  if(num <= 0)
-    return FALSE;
-  if(pad == '0')
-    src = (const unsigned char *)pad_zeros;
-  else
-    src = (const unsigned char *)pad_spaces;
-  while(num > PAD_RUN) {
-    if(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
-      return TRUE;
-    num -= PAD_RUN;
+  ثابت unsigned نویسه *src;
+  اگر(رقم <= 0)
+    بازگشت FALSE;
+  اگر(pad == '0')
+    src = (ثابت unsigned نویسه *)pad_zeros;
+  وگرنه
+    src = (ثابت unsigned نویسه *)pad_spaces;
+  وقتی(رقم > PAD_RUN) {
+    اگر(stream_run(userp, stream, streamn, src, PAD_RUN, donep))
+      بازگشت TRUE;
+    رقم -= PAD_RUN;
   }
-  return stream_run(userp, stream, streamn, src, (size_t)num, donep);
+  بازگشت stream_run(userp, stream, streamn, src, (size_t)رقم, donep);
 }
 
 /* emit the leading null-terminated part of a run of at most 'len' bytes.
@@ -722,83 +722,83 @@ static bool stream_pad(void *userp,
    A byte loop and not memchr(): 'len' is the requested precision, which
    out_string() does not clamp to the string length, so "%.64s" on a 10-byte
    string arrives with len == 64 and memchr() would read past the object. */
-static bool stream_zrun(void *userp,
-                        int (*stream)(unsigned char, void *),
+ایستا bool stream_zrun(تهی *userp,
+                        صحیح (*stream)(unsigned نویسه, تهی *),
                         mp_streamn streamn,
-                        const char *str, size_t len, int *donep)
+                        ثابت نویسه *str, size_t len, صحیح *donep)
 {
   size_t n = 0;
-  while(n < len && str[n])
+  وقتی(n < len && str[n])
     n++;
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)str, n, donep);
+  بازگشت stream_run(userp, stream, streamn,
+                    (ثابت unsigned نویسه *)str, n, donep);
 }
 
-static bool out_double(void *userp,
-                       int (*stream)(unsigned char, void *),
+ایستا bool out_double(تهی *userp,
+                       صحیح (*stream)(unsigned نویسه, تهی *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       double dnum,
-                       char *work, int *donep)
+                       ساختار mproperty *p,
+                       دوگانه dnum,
+                       نویسه *work, صحیح *donep)
 {
-  char fmt[32] = "%";
-  char *fptr = &fmt[1];
-  size_t left = sizeof(fmt) - strlen(fmt);
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  نویسه fmt[32] = "%";
+  نویسه *fptr = &fmt[1];
+  size_t چپ = اندازه(fmt) - strlen(fmt);
+  صحیح flags = p->flags;
+  صحیح width = p->width;
+  صحیح prec = p->prec;
 
-  if(flags & FLAGS_LEFT)
+  اگر(flags & FLAGS_چپ)
     *fptr++ = '-';
-  if(flags & FLAGS_SHOWSIGN)
+  اگر(flags & FLAGS_SHOWSIGN)
     *fptr++ = '+';
-  if(flags & FLAGS_SPACE)
+  اگر(flags & FLAGS_SPACE)
     *fptr++ = ' ';
-  if(flags & FLAGS_ALT)
+  اگر(flags & FLAGS_ALT)
     *fptr++ = '#';
 
   *fptr = 0;
 
-  if(width >= 0) {
+  اگر(width >= 0) {
     size_t dlen;
-    if(width >= BUFFSIZE)
+    اگر(width >= BUFFSIZE)
       width = BUFFSIZE - 1;
     /* RECURSIVE USAGE */
-    dlen = (size_t)curl_msnprintf(fptr, left, "%d", width);
+    dlen = (size_t)curl_msnprintf(fptr, چپ, "%d", width);
     fptr += dlen;
-    left -= dlen;
+    چپ -= dlen;
   }
-  if(prec >= 0) {
+  اگر(prec >= 0) {
     /* for each digit in the integer part, we can have one less
        precision */
-    int maxprec = BUFFSIZE - 1;
-    double val = dnum;
-    int len;
-    if(prec > maxprec)
+    صحیح maxprec = BUFFSIZE - 1;
+    دوگانه val = dnum;
+    صحیح len;
+    اگر(prec > maxprec)
       prec = maxprec - 1;
-    if(width > 0 && prec <= width)
+    اگر(width > 0 && prec <= width)
       maxprec -= width;
-    while(maxprec && (val >= 10.0)) {
+    وقتی(maxprec && (val >= 10.0)) {
       val /= 10;
       maxprec--;
     }
 
-    if(prec > maxprec)
+    اگر(prec > maxprec)
       prec = maxprec - 1;
-    if(prec < 0)
+    اگر(prec < 0)
       prec = 0;
     /* RECURSIVE USAGE */
-    len = curl_msnprintf(fptr, left, ".%d", prec);
+    len = curl_msnprintf(fptr, چپ, ".%d", prec);
     fptr += len;
   }
-  if(flags & FLAGS_LONG)
+  اگر(flags & FLAGS_LONG)
     *fptr++ = 'l';
 
-  if(flags & FLAGS_FLOATE)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'E' : 'e');
-  else if(flags & FLAGS_FLOATG)
-    *fptr++ = (char)((flags & FLAGS_UPPER) ? 'G' : 'g');
-  else
+  اگر(flags & FLAGS_FLOATE)
+    *fptr++ = (نویسه)((flags & FLAGS_UPPER) ? 'E' : 'e');
+  وگرنه اگر(flags & FLAGS_FLOATG)
+    *fptr++ = (نویسه)((flags & FLAGS_UPPER) ? 'G' : 'g');
+  وگرنه
     *fptr++ = (flags & FLAGS_UPPER) ? 'F' : 'f';
 
   *fptr = 0; /* and a final null-termination */
@@ -806,269 +806,269 @@ static bool out_double(void *userp,
   /* NOTE NOTE NOTE!! Not all sprintf implementations return number of
      output characters */
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic افزودن
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
 #ifdef _WIN32
   curlx_win32_snprintf(work, BUFFSIZE, fmt, dnum);
-#else
+#وگرنه
   /* !checksrc! disable BANNEDFUNC 1 */
   snprintf(work, BUFFSIZE, fmt, dnum);
 #endif
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic برداشت
 #endif
   DEBUGASSERT(strlen(work) < BUFFSIZE);
-  return stream_run(userp, stream, streamn,
-                    (const unsigned char *)work, strlen(work), donep);
+  بازگشت stream_run(userp, stream, streamn,
+                    (ثابت unsigned نویسه *)work, strlen(work), donep);
 }
 
-static bool out_number(void *userp,
-                       int (*stream)(unsigned char, void *),
+ایستا bool out_عدد(تهی *userp,
+                       صحیح (*stream)(unsigned نویسه, تهی *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       uint64_t num,
+                       ساختار mproperty *p,
+                       uint64_t رقم,
                        int64_t nums,
-                       char *work, int *donep)
+                       نویسه *work, صحیح *donep)
 {
-  const unsigned char *digits = Curl_ldigits;
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  ثابت unsigned نویسه *digits = Curl_ldigits;
+  صحیح flags = p->flags;
+  صحیح width = p->width;
+  صحیح prec = p->prec;
   bool is_alt = flags & FLAGS_ALT;
   bool is_neg = FALSE;
-  int base = 10;
+  صحیح base = 10;
 
   /* 'workend' points to the final buffer byte position, but with an extra
      byte as margin to avoid the (FALSE?) warning Coverity gives us
      otherwise */
-  char *workend = &work[BUFFSIZE - 2];
-  char *w;
+  نویسه *workend = &work[BUFFSIZE - 2];
+  نویسه *w;
 
-  if(flags & FLAGS_CHAR) {
+  اگر(flags & FLAGS_CHAR) {
     /* Character. */
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    اگر(!(flags & FLAGS_چپ)) {
+      اگر(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        بازگشت TRUE;
       width = 1;
     }
-    OUTCHAR((char)num);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
-        return TRUE;
+    OUTCHAR((نویسه)رقم);
+    اگر(flags & FLAGS_چپ) {
+      اگر(stream_pad(userp, stream, streamn, ' ', width - 1, donep))
+        بازگشت TRUE;
     }
-    return FALSE;
+    بازگشت FALSE;
   }
-  if(flags & FLAGS_OCTAL)
+  اگر(flags & FLAGS_OCTAL)
     /* Octal unsigned integer */
     base = 8;
 
-  else if(flags & FLAGS_HEX) {
+  وگرنه اگر(flags & FLAGS_HEX) {
     /* Hexadecimal unsigned integer */
     digits = (flags & FLAGS_UPPER) ? Curl_udigits : Curl_ldigits;
     base = 16;
   }
-  else if(flags & FLAGS_UNSIGNED)
+  وگرنه اگر(flags & FLAGS_UNSIGNED)
     /* Decimal unsigned integer */
     ;
 
-  else {
+  وگرنه {
     /* Decimal integer. */
     is_neg = (nums < 0);
-    if(is_neg) {
+    اگر(is_neg) {
       /* signed_num might fail to hold absolute negative minimum by 1 */
-      int64_t signed_num; /* Used to convert negative in positive. */
-      signed_num = nums + (int64_t)1;
-      signed_num = -signed_num;
-      num = (uint64_t)signed_num;
-      num += (uint64_t)1;
+      int64_t signed_رقم; /* Used to convert negative in positive. */
+      signed_رقم = nums + (int64_t)1;
+      signed_رقم = -signed_رقم;
+      رقم = (uint64_t)signed_رقم;
+      رقم += (uint64_t)1;
     }
   }
 
   /* Supply a default precision if none was given. */
-  if(prec == -1)
+  اگر(prec == -1)
     prec = 1;
 
   /* Put the number in WORK. */
   w = workend;
   DEBUGASSERT(base <= 16);
-  switch(base) {
-  case 10:
-    while(num > 0) {
-      *w-- = (char)('0' + (num % 10));
-      num /= 10;
+  انتخاب(base) {
+  حالت 10:
+    وقتی(رقم > 0) {
+      *w-- = (نویسه)('0' + (رقم % 10));
+      رقم /= 10;
     }
-    break;
-  default:
-    while(num > 0) {
-      *w-- = digits[num % base];
-      num /= base;
+    بشکن;
+  پیشفرض:
+    وقتی(رقم > 0) {
+      *w-- = digits[رقم % base];
+      رقم /= base;
     }
-    break;
+    بشکن;
   }
-  width -= (int)(workend - w);
-  prec -= (int)(workend - w);
+  width -= (صحیح)(workend - w);
+  prec -= (صحیح)(workend - w);
 
-  if(is_alt && base == 8 && prec <= 0) {
+  اگر(is_alt && base == 8 && prec <= 0) {
     *w-- = '0';
     --width;
   }
 
-  if(prec > 0) {
+  اگر(prec > 0) {
     width -= prec;
-    while(prec-- > 0 && w >= work)
+    وقتی(prec-- > 0 && w >= work)
       *w-- = '0';
   }
 
-  if(is_alt && base == 16)
+  اگر(is_alt && base == 16)
     width -= 2;
 
-  if(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
+  اگر(is_neg || (flags & FLAGS_SHOWSIGN) || (flags & FLAGS_SPACE))
     --width;
 
-  if(!(flags & FLAGS_LEFT) && !(flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  اگر(!(flags & FLAGS_چپ) && !(flags & FLAGS_PAD_NIL)) {
+    اگر(stream_pad(userp, stream, streamn, ' ', width, donep))
+      بازگشت TRUE;
     width = 0;
   }
 
-  if(is_neg)
+  اگر(is_neg)
     OUTCHAR('-');
-  else if(flags & FLAGS_SHOWSIGN)
+  وگرنه اگر(flags & FLAGS_SHOWSIGN)
     OUTCHAR('+');
-  else if(flags & FLAGS_SPACE)
+  وگرنه اگر(flags & FLAGS_SPACE)
     OUTCHAR(' ');
 
-  if(is_alt && base == 16) {
+  اگر(is_alt && base == 16) {
     OUTCHAR('0');
-    if(flags & FLAGS_UPPER)
+    اگر(flags & FLAGS_UPPER)
       OUTCHAR('X');
-    else
+    وگرنه
       OUTCHAR('x');
   }
 
-  if(!(flags & FLAGS_LEFT) && (flags & FLAGS_PAD_NIL)) {
-    if(stream_pad(userp, stream, streamn, '0', width, donep))
-      return TRUE;
+  اگر(!(flags & FLAGS_چپ) && (flags & FLAGS_PAD_NIL)) {
+    اگر(stream_pad(userp, stream, streamn, '0', width, donep))
+      بازگشت TRUE;
     width = 0;
   }
 
   /* Write the number. */
-  if(stream_run(userp, stream, streamn, (const unsigned char *)w + 1,
+  اگر(stream_run(userp, stream, streamn, (ثابت unsigned نویسه *)w + 1,
                 (size_t)(workend - w), donep))
-    return TRUE;
+    بازگشت TRUE;
 
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  اگر(flags & FLAGS_چپ) {
+    اگر(stream_pad(userp, stream, streamn, ' ', width, donep))
+      بازگشت TRUE;
   }
 
-  return FALSE;
+  بازگشت FALSE;
 }
 
-static const char nilstr[] = "(nil)";
+ایستا ثابت نویسه nilstr[] = "(nil)";
 
-static bool out_string(void *userp,
-                       int (*stream)(unsigned char, void *),
+ایستا bool out_string(تهی *userp,
+                       صحیح (*stream)(unsigned نویسه, تهی *),
                        mp_streamn streamn,
-                       struct mproperty *p,
-                       const char *str,
-                       int *donep)
+                       ساختار mproperty *p,
+                       ثابت نویسه *str,
+                       صحیح *donep)
 {
-  int flags = p->flags;
-  int width = p->width;
-  int prec = p->prec;
+  صحیح flags = p->flags;
+  صحیح width = p->width;
+  صحیح prec = p->prec;
   size_t len;
 
-  if(!str) {
+  اگر(!str) {
     /* Write null string if there is space. */
-    if(prec == -1 || prec >= (int)CURL_CSTRLEN(nilstr)) {
+    اگر(prec == -1 || prec >= (صحیح)CURL_CSTRLEN(nilstr)) {
       str = nilstr;
       len = CURL_CSTRLEN(nilstr);
       /* Disable quotes around (nil) */
-      flags &= ~(unsigned int)FLAGS_ALT;
+      flags &= ~(unsigned صحیح)FLAGS_ALT;
     }
-    else {
+    وگرنه {
       str = "";
       len = 0;
     }
   }
-  else if(prec != -1)
+  وگرنه اگر(prec != -1)
     len = (size_t)prec;
-  else if(*str == '\0')
+  وگرنه اگر(*str == '\0')
     len = 0;
-  else
+  وگرنه
     len = strlen(str);
 
-  width -= (len > INT_MAX) ? INT_MAX : (int)len;
+  width -= (len > INT_MAX) ? INT_MAX : (صحیح)len;
 
-  if(flags & FLAGS_ALT)
+  اگر(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  if(!(flags & FLAGS_LEFT)) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  اگر(!(flags & FLAGS_چپ)) {
+    اگر(stream_pad(userp, stream, streamn, ' ', width, donep))
+      بازگشت TRUE;
     width = 0;
   }
 
   /* With no precision, len is already the exact length; emit it without
      scanning again. With precision, scan up to len but stop at NUL, since
      the string may be shorter or the buffer may not be null-terminated. */
-  if(prec == -1) {
-    if(stream_run(userp, stream, streamn,
-                  (const unsigned char *)str, len, donep))
-      return TRUE;
+  اگر(prec == -1) {
+    اگر(stream_run(userp, stream, streamn,
+                  (ثابت unsigned نویسه *)str, len, donep))
+      بازگشت TRUE;
   }
-  else if(stream_zrun(userp, stream, streamn, str, len, donep))
-    return TRUE;
-  if(flags & FLAGS_LEFT) {
-    if(stream_pad(userp, stream, streamn, ' ', width, donep))
-      return TRUE;
+  وگرنه اگر(stream_zrun(userp, stream, streamn, str, len, donep))
+    بازگشت TRUE;
+  اگر(flags & FLAGS_چپ) {
+    اگر(stream_pad(userp, stream, streamn, ' ', width, donep))
+      بازگشت TRUE;
   }
 
-  if(flags & FLAGS_ALT)
+  اگر(flags & FLAGS_ALT)
     OUTCHAR('"');
 
-  return FALSE;
+  بازگشت FALSE;
 }
 
-static bool out_pointer(void *userp,
-                        int (*stream)(unsigned char, void *),
+ایستا bool out_pointer(تهی *userp,
+                        صحیح (*stream)(unsigned نویسه, تهی *),
                         mp_streamn streamn,
-                        struct mproperty *p,
-                        const char *ptr,
-                        char *work,
-                        int *donep)
+                        ساختار mproperty *p,
+                        ثابت نویسه *ptr,
+                        نویسه *work,
+                        صحیح *donep)
 {
   /* Generic pointer. */
-  if(ptr) {
-    size_t num = (size_t)ptr;
+  اگر(ptr) {
+    size_t رقم = (size_t)ptr;
 
     /* If the pointer is not NULL, write it as a %#x spec. */
     p->flags |= FLAGS_HEX | FLAGS_ALT;
-    if(out_number(userp, stream, streamn, p, num, 0, work, donep))
-      return TRUE;
+    اگر(out_عدد(userp, stream, streamn, p, رقم, 0, work, donep))
+      بازگشت TRUE;
   }
-  else {
+  وگرنه {
     /* Write "(nil)" for a nil pointer. */
-    int width = p->width;
-    int flags = p->flags;
+    صحیح width = p->width;
+    صحیح flags = p->flags;
 
-    width -= (int)CURL_CSTRLEN(nilstr);
-    if(flags & FLAGS_LEFT) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    width -= (صحیح)CURL_CSTRLEN(nilstr);
+    اگر(flags & FLAGS_چپ) {
+      اگر(stream_pad(userp, stream, streamn, ' ', width, donep))
+        بازگشت TRUE;
       width = 0;
     }
-    if(stream_run(userp, stream, streamn, (const unsigned char *)nilstr,
-                  sizeof(nilstr) - 1, donep))
-      return TRUE;
-    if(!(flags & FLAGS_LEFT)) {
-      if(stream_pad(userp, stream, streamn, ' ', width, donep))
-        return TRUE;
+    اگر(stream_run(userp, stream, streamn, (ثابت unsigned نویسه *)nilstr,
+                  اندازه(nilstr) - 1, donep))
+      بازگشت TRUE;
+    اگر(!(flags & FLAGS_چپ)) {
+      اگر(stream_pad(userp, stream, streamn, ' ', width, donep))
+        بازگشت TRUE;
     }
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /*
@@ -1086,433 +1086,433 @@ static bool out_pointer(void *userp,
  *
  * All output is sent to the 'stream()' callback, one byte at a time.
  */
-static int formatf(void *userp, /* untouched by format(), sent to the
+ایستا صحیح formatf(تهی *userp, /* untouched by format(), sent to the
                                    stream() function in the second argument */
                    /* function pointer called for each output character */
-                   int (*stream)(unsigned char, void *),
+                   صحیح (*stream)(unsigned نویسه, تهی *),
                    /* optional block-output function pointer */
                    mp_streamn streamn,
                    /* optional, commits output the sink is holding */
                    mp_flush flush,
-                   const char *format, /* %-formatted string */
+                   ثابت نویسه *format, /* %-formatted string */
                    va_list ap_save) /* list of parameters */
 {
-  int done = 0;   /* number of characters written */
-  int i;
-  int ocount = 0; /* number of output segments */
-  int icount = 0; /* number of input arguments */
+  صحیح done = 0;   /* number of characters written */
+  صحیح i;
+  صحیح ocount = 0; /* number of output segments */
+  صحیح icount = 0; /* number of input arguments */
 
-  struct outsegment output[MAX_SEGMENTS];
-  struct va_input input[MAX_PARAMETERS];
-  char work[BUFFSIZE + 2];
+  ساختار outsegment output[MAX_SEGMENTS];
+  ساختار va_درون_داد درون_داد[MAX_PARAMETERS];
+  نویسه work[BUFFSIZE + 2];
 
   /* Parse the format string */
-  if(parsefmt(format, output, input, &ocount, &icount, ap_save))
-    return 0;
+  اگر(parsefmt(format, output, درون_داد, &ocount, &icount, ap_save))
+    بازگشت 0;
 
-  for(i = 0; i < ocount; i++) {
-    struct outsegment *optr = &output[i];
-    struct va_input *iptr = &input[optr->input];
-    struct mproperty p;
+  برای(i = 0; i < ocount; i++) {
+    ساختار outsegment *optr = &output[i];
+    ساختار va_درون_داد *iptr = &درون_داد[optr->درون_داد];
+    ساختار mproperty p;
     size_t outlen = optr->outlen;
 
-    if(outlen) {
-      if(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
-        return done;
-      if(optr->flags & FLAGS_SUBSTR)
+    اگر(outlen) {
+      اگر(stream_zrun(userp, stream, streamn, optr->start, outlen, &done))
+        بازگشت done;
+      اگر(optr->flags & FLAGS_SUBSTR)
         /* this is a substring */
-        continue;
+        ادامه;
     }
 
     p.flags = optr->flags;
 
     /* pick up the specified width */
-    if(p.flags & FLAGS_WIDTHPARAM) {
-      p.width = (int)input[optr->width].val.nums;
-      if(p.width < 0) {
+    اگر(p.flags & FLAGS_WIDTHPARAM) {
+      p.width = (صحیح)درون_داد[optr->width].val.nums;
+      اگر(p.width < 0) {
         /* "A negative field width is taken as a '-' flag followed by a
            positive field width." */
-        if(p.width == INT_MIN)
+        اگر(p.width == INT_MIN)
           p.width = INT_MAX;
-        else
+        وگرنه
           p.width = -p.width;
-        p.flags |= FLAGS_LEFT;
-        p.flags &= ~(unsigned int)FLAGS_PAD_NIL;
+        p.flags |= FLAGS_چپ;
+        p.flags &= ~(unsigned صحیح)FLAGS_PAD_NIL;
       }
     }
-    else
+    وگرنه
       p.width = optr->width;
 
     /* pick up the specified precision */
-    if(p.flags & FLAGS_PRECPARAM) {
-      p.prec = (int)input[optr->precision].val.nums;
-      if(p.prec < 0)
+    اگر(p.flags & FLAGS_PRECPARAM) {
+      p.prec = (صحیح)درون_داد[optr->precision].val.nums;
+      اگر(p.prec < 0)
         /* "A negative precision is taken as if the precision were
            omitted." */
         p.prec = -1;
     }
-    else if(p.flags & FLAGS_PREC)
+    وگرنه اگر(p.flags & FLAGS_PREC)
       p.prec = optr->precision;
-    else
+    وگرنه
       p.prec = -1;
 
-    switch(iptr->type) {
-    case MTYPE_INTU:
-    case MTYPE_LONGU:
-    case MTYPE_LONGLONGU:
+    انتخاب(iptr->type) {
+    حالت MTYPE_INTU:
+    حالت MTYPE_LONGU:
+    حالت MTYPE_LONGLONGU:
       p.flags |= FLAGS_UNSIGNED;
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu, 0, work,
+      اگر(out_عدد(userp, stream, streamn, &p, iptr->val.numu, 0, work,
                     &done))
-        return done;
-      break;
+        بازگشت done;
+      بشکن;
 
-    case MTYPE_INT:
-    case MTYPE_LONG:
-    case MTYPE_LONGLONG:
-      if(out_number(userp, stream, streamn, &p, iptr->val.numu,
+    حالت MTYPE_INT:
+    حالت MTYPE_LONG:
+    حالت MTYPE_LONGLONG:
+      اگر(out_عدد(userp, stream, streamn, &p, iptr->val.numu,
                     iptr->val.nums, work, &done))
-        return done;
-      break;
+        بازگشت done;
+      بشکن;
 
-    case MTYPE_STRING:
-      if(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
-        return done;
-      break;
+    حالت MTYPE_STRING:
+      اگر(out_string(userp, stream, streamn, &p, iptr->val.str, &done))
+        بازگشت done;
+      بشکن;
 
-    case MTYPE_PTR:
-      if(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
+    حالت MTYPE_PTR:
+      اگر(out_pointer(userp, stream, streamn, &p, iptr->val.ptr, work,
                      &done))
-        return done;
-      break;
+        بازگشت done;
+      بشکن;
 
-    case MTYPE_DOUBLE:
-    case MTYPE_LONGDOUBLE:
-      if(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
+    حالت MTYPE_DOUBLE:
+    حالت MTYPE_LONGDOUBLE:
+      اگر(out_double(userp, stream, streamn, &p, iptr->val.dnum, work,
                     &done))
-        return done;
-      break;
+        بازگشت done;
+      بشکن;
 
-    case MTYPE_INTPTR:
+    حالت MTYPE_INTPTR:
       /* %n is observable by the caller, so commit what is pending first and
          perform it only if that succeeded, as a sink that never holds output
          would. */
-      if(flush && flush(userp))
-        return done;
+      اگر(flush && flush(userp))
+        بازگشت done;
       /* Answer the count of characters written. */
-      if(p.flags & FLAGS_LONGLONG)
+      اگر(p.flags & FLAGS_LONGLONG)
         *(int64_t *)iptr->val.ptr = (int64_t)done;
-      else if(p.flags & FLAGS_LONG)
+      وگرنه اگر(p.flags & FLAGS_LONG)
         *(long *)iptr->val.ptr = (long)done;
-      else if(!(p.flags & FLAGS_SHORT))
-        *(int *)iptr->val.ptr = done;
-      else
+      وگرنه اگر(!(p.flags & FLAGS_SHORT))
+        *(صحیح *)iptr->val.ptr = done;
+      وگرنه
         *(short *)iptr->val.ptr = (short)done;
-      break;
+      بشکن;
 
-    default:
-      break;
+    پیشفرض:
+      بشکن;
     }
   }
-  return done;
+  بازگشت done;
 }
 
 /* fputc() look-alike */
-static int addbyter(unsigned char outc, void *f)
+ایستا صحیح addbyter(unsigned نویسه outc, تهی *f)
 {
-  struct nsprintf *infop = f;
-  if(infop->length < infop->max) {
+  ساختار nsprintf *infop = f;
+  اگر(infop->length < infop->max) {
     /* only do this if we have not reached max length yet */
-    *infop->buffer++ = (char)outc; /* store */
+    *infop->buffer++ = (نویسه)outc; /* store */
     infop->length++; /* we are now one byte larger */
-    return 0;     /* fputc() returns like this on success */
+    بازگشت 0;     /* fputc() returns like this on success */
   }
-  return 1;
+  بازگشت 1;
 }
 
 /* block variant of addbyter */
-static size_t addrun(const unsigned char *buf, size_t len, void *f)
+ایستا size_t addrun(ثابت unsigned نویسه *buf, size_t len, تهی *f)
 {
-  struct nsprintf *infop = f;
+  ساختار nsprintf *infop = f;
   size_t fit = infop->max - infop->length;
-  if(len > fit)
+  اگر(len > fit)
     len = fit;
-  if(len) {
+  اگر(len) {
     memcpy(infop->buffer, buf, len);
     infop->buffer += len;
     infop->length += len;
   }
-  return len;
+  بازگشت len;
 }
 
-int curl_mvsnprintf(char *buffer, size_t maxlength, const char *format,
+صحیح curl_mvsnprintf(نویسه *buffer, size_t maxlength, ثابت نویسه *format,
                     va_list args)
 {
-  int retcode;
-  struct nsprintf info;
+  صحیح retcode;
+  ساختار nsprintf info;
 
   info.buffer = buffer;
   info.length = 0;
   info.max = maxlength;
 
-  retcode = formatf(&info, addbyter, addrun, NULL, format, args);
-  if(info.max) {
+  retcode = formatf(&info, addbyter, addrun, پوچ, format, args);
+  اگر(info.max) {
     /* we null-terminate this */
-    if(info.max == info.length) {
+    اگر(info.max == info.length) {
       /* we are at maximum, scrap the last letter */
       info.buffer[-1] = 0;
       DEBUGASSERT(retcode);
       retcode--; /* do not count the NUL byte */
     }
-    else
+    وگرنه
       info.buffer[0] = 0;
   }
-  return retcode;
+  بازگشت retcode;
 }
 
-int curl_msnprintf(char *buffer, size_t maxlength, const char *format, ...)
+صحیح curl_msnprintf(نویسه *buffer, size_t maxlength, ثابت نویسه *format, ...)
 {
-  int retcode;
+  صحیح retcode;
   va_list args; /* argument pointer */
   va_start(args, format);
   retcode = curl_mvsnprintf(buffer, maxlength, format, args);
   va_end(args);
-  return retcode;
+  بازگشت retcode;
 }
 
 /* append the staged bytes to the dynbuf. Returns 1 on failure (and sets
    merr), 0 on success. */
-static int alloc_flush(void *f)
+ایستا صحیح alloc_flush(تهی *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage) {
+  ساختار asprintf *infop = f;
+  اگر(infop->nstage) {
     CURLcode result = curlx_dyn_addn(infop->b, infop->stage, infop->nstage);
     infop->nstage = 0;
-    if(result) {
+    اگر(result) {
       infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-      return 1; /* fail */
+      بازگشت 1; /* fail */
     }
   }
-  return 0;
+  بازگشت 0;
 }
 
 /* append directly, bypassing the stage. Returns 1 on failure. */
-static int alloc_addn(struct asprintf *infop, const unsigned char *buf,
+ایستا صحیح alloc_addn(ساختار asprintf *infop, ثابت unsigned نویسه *buf,
                       size_t len)
 {
   CURLcode result = curlx_dyn_addn(infop->b, buf, len);
-  if(result) {
+  اگر(result) {
     infop->merr = result == CURLE_TOO_LARGE ? MERR_TOO_LARGE : MERR_MEM;
-    return 1; /* fail */
+    بازگشت 1; /* fail */
   }
-  return 0;
+  بازگشت 0;
 }
 
 /* TRUE if 'more' additional bytes still fit the dynbuf size limit, counting
    what is already staged. curlx_dyn_addn() rejects an append when
    len + leng + 1 exceeds it. */
-static bool alloc_fits(struct asprintf *infop, size_t more)
+ایستا bool alloc_fits(ساختار asprintf *infop, size_t more)
 {
-  return (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
+  بازگشت (infop->b->leng + infop->nstage + more + 1) <= infop->b->toobig;
 }
 
 /* fputc() look-alike */
-static int alloc_addbyter(unsigned char outc, void *f)
+ایستا صحیح alloc_addbyter(unsigned نویسه outc, تهی *f)
 {
-  struct asprintf *infop = f;
-  if(infop->nstage == sizeof(infop->stage) && alloc_flush(infop))
-    return 1; /* fail */
-  if(!alloc_fits(infop, 1)) {
+  ساختار asprintf *infop = f;
+  اگر(infop->nstage == اندازه(infop->stage) && alloc_flush(infop))
+    بازگشت 1; /* fail */
+  اگر(!alloc_fits(infop, 1)) {
     /* Does not fit the dynbuf size limit. Flush and append this byte on
        its own, so the limit is reported at exactly this byte and formatting
        stops where it would without staging. %n depends on that. */
-    if(alloc_flush(infop))
-      return 1;
-    return alloc_addn(infop, &outc, 1);
+    اگر(alloc_flush(infop))
+      بازگشت 1;
+    بازگشت alloc_addn(infop, &outc, 1);
   }
   infop->stage[infop->nstage++] = outc;
-  return 0;
+  بازگشت 0;
 }
 
 /* block variant of alloc_addbyter */
-static size_t alloc_addrun(const unsigned char *buf, size_t len, void *f)
+ایستا size_t alloc_addrun(ثابت unsigned نویسه *buf, size_t len, تهی *f)
 {
-  struct asprintf *infop = f;
+  ساختار asprintf *infop = f;
   size_t accepted = 0;
-  while(accepted < len) {
-    size_t room = sizeof(infop->stage) - infop->nstage;
+  وقتی(accepted < len) {
+    size_t room = اندازه(infop->stage) - infop->nstage;
     size_t n;
-    if(!room) {
-      if(alloc_flush(infop))
-        return accepted; /* accepted < len aborts formatting */
-      room = sizeof(infop->stage);
+    اگر(!room) {
+      اگر(alloc_flush(infop))
+        بازگشت accepted; /* accepted < len aborts formatting */
+      room = اندازه(infop->stage);
     }
     n = len - accepted;
-    if(n > room)
+    اگر(n > room)
       n = room;
-    if(!alloc_fits(infop, n)) {
+    اگر(!alloc_fits(infop, n)) {
       /* Run does not fit the dynbuf size limit. Stage what does, then
          append the first byte that does not on its own, so the limit is
          reported at exactly that byte. */
       size_t fits = infop->b->toobig - infop->b->leng - infop->nstage - 1;
-      if(fits) {
+      اگر(fits) {
         memcpy(&infop->stage[infop->nstage], buf + accepted, fits);
         infop->nstage += fits;
         accepted += fits;
       }
-      if(alloc_flush(infop))
-        return accepted;
-      if(alloc_addn(infop, buf + accepted, 1))
-        return accepted; /* accepted < len aborts formatting */
+      اگر(alloc_flush(infop))
+        بازگشت accepted;
+      اگر(alloc_addn(infop, buf + accepted, 1))
+        بازگشت accepted; /* accepted < len aborts formatting */
       accepted++;
-      continue;
+      ادامه;
     }
     memcpy(&infop->stage[infop->nstage], buf + accepted, n);
     infop->nstage += n;
     accepted += n;
   }
-  return accepted;
+  بازگشت accepted;
 }
 
 /* appends the formatted string, returns MERR error code */
-int curlx_dyn_vprintf(struct dynbuf *dyn, const char *format, va_list args)
+صحیح curlx_dyn_vprintf(ساختار dynbuf *dyn, ثابت نویسه *format, va_list args)
 {
-  struct asprintf info;
+  ساختار asprintf info;
   info.b = dyn;
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (تهی)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  اگر(!info.merr)
+    (تهی)alloc_flush(&info);
+  اگر(info.merr) {
     curlx_dyn_free(info.b);
-    return info.merr;
+    بازگشت info.merr;
   }
-  return 0;
+  بازگشت 0;
 }
 
-char *curl_mvaprintf(const char *format, va_list args)
+نویسه *curl_mvaprintf(ثابت نویسه *format, va_list args)
 {
-  struct asprintf info;
-  struct dynbuf dyn;
+  ساختار asprintf info;
+  ساختار dynbuf dyn;
   info.b = &dyn;
   curlx_dyn_init(info.b, DYN_APRINTF);
   info.merr = MERR_OK;
   info.nstage = 0;
 
-  (void)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
+  (تهی)formatf(&info, alloc_addbyter, alloc_addrun, alloc_flush,
                 format, args);
-  if(!info.merr)
-    (void)alloc_flush(&info);
-  if(info.merr) {
+  اگر(!info.merr)
+    (تهی)alloc_flush(&info);
+  اگر(info.merr) {
     curlx_dyn_free(info.b);
-    return NULL;
+    بازگشت پوچ;
   }
-  if(curlx_dyn_len(info.b))
-    return curlx_dyn_ptr(info.b);
-  return curlx_strdup("");
+  اگر(curlx_dyn_len(info.b))
+    بازگشت curlx_dyn_ptr(info.b);
+  بازگشت curlx_strdup("");
 }
 
-char *curl_maprintf(const char *format, ...)
+نویسه *curl_maprintf(ثابت نویسه *format, ...)
 {
   va_list args;
-  char *s;
+  نویسه *s;
   va_start(args, format);
   s = curl_mvaprintf(format, args);
   va_end(args);
-  return s;
+  بازگشت s;
 }
 
-static int storebuffer(unsigned char outc, void *f)
+ایستا صحیح storebuffer(unsigned نویسه outc, تهی *f)
 {
-  char **buffer = f;
-  **buffer = (char)outc;
+  نویسه **buffer = f;
+  **buffer = (نویسه)outc;
   (*buffer)++;
-  return 0;
+  بازگشت 0;
 }
 
 /* block variant of storebuffer */
-static size_t storerun(const unsigned char *buf, size_t len, void *f)
+ایستا size_t storerun(ثابت unsigned نویسه *buf, size_t len, تهی *f)
 {
-  char **buffer = f;
+  نویسه **buffer = f;
   memcpy(*buffer, buf, len);
   *buffer += len;
-  return len;
+  بازگشت len;
 }
 
-int curl_msprintf(char *buffer, const char *format, ...)
+صحیح curl_msprintf(نویسه *buffer, ثابت نویسه *format, ...)
 {
   va_list args; /* argument pointer */
-  int retcode;
+  صحیح retcode;
   va_start(args, format);
-  retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  retcode = formatf(&buffer, storebuffer, storerun, پوچ, format, args);
   va_end(args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  بازگشت retcode;
 }
 
-static int fputc_wrapper(unsigned char outc, void *f)
+ایستا صحیح fputc_wrapper(unsigned نویسه outc, تهی *f)
 {
-  struct ioprintf *i = f;
-  int out = outc;
+  ساختار ioprintf *i = f;
+  صحیح out = outc;
   FILE *s = i->fd;
-  int rc = fputc(out, s);
+  صحیح rc = fputc(out, s);
   i->error = (rc == EOF);
-  return (rc == EOF);
+  بازگشت (rc == EOF);
 }
 
 /* block variant of fputc_wrapper */
-static size_t fwrite_wrapper(const unsigned char *buf, size_t len, void *f)
+ایستا size_t fwrite_wrapper(ثابت unsigned نویسه *buf, size_t len, تهی *f)
 {
-  struct ioprintf *i = f;
+  ساختار ioprintf *i = f;
   size_t n;
   FILE *s = i->fd;
   n = fwrite(buf, 1, len, s);
   i->error = (n != len);
-  return n;
+  بازگشت n;
 }
 
-int curl_mvfprintf(FILE *fd, const char *format, va_list args)
+صحیح curl_mvfprintf(FILE *fd, ثابت نویسه *format, va_list args)
 {
-  struct ioprintf info;
-  int n;
+  ساختار ioprintf info;
+  صحیح n;
   info.fd = fd;
   info.error = FALSE;
-  n = formatf(&info, fputc_wrapper, fwrite_wrapper, NULL, format, args);
-  if(info.error)
-    return -1;
-  return n;
+  n = formatf(&info, fputc_wrapper, fwrite_wrapper, پوچ, format, args);
+  اگر(info.error)
+    بازگشت -1;
+  بازگشت n;
 }
 
-int curl_mfprintf(FILE *fd, const char *format, ...)
+صحیح curl_mfprintf(FILE *fd, ثابت نویسه *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  صحیح n;
   va_start(args, format);
   n = curl_mvfprintf(fd, format, args);
   va_end(args);
-  return n;
+  بازگشت n;
 }
 
-int curl_mprintf(const char *format, ...)
+صحیح curl_mprintf(ثابت نویسه *format, ...)
 {
   va_list args; /* argument pointer */
-  int n;
+  صحیح n;
   va_start(args, format);
   n = curl_mvfprintf(stdout, format, args);
   va_end(args);
-  return n;
+  بازگشت n;
 }
 
-int curl_mvsprintf(char *buffer, const char *format, va_list args)
+صحیح curl_mvsprintf(نویسه *buffer, ثابت نویسه *format, va_list args)
 {
-  int retcode = formatf(&buffer, storebuffer, storerun, NULL, format, args);
+  صحیح retcode = formatf(&buffer, storebuffer, storerun, پوچ, format, args);
   *buffer = 0; /* we null-terminate this */
-  return retcode;
+  بازگشت retcode;
 }
 
-int curl_mvprintf(const char *format, va_list args)
+صحیح curl_mvprintf(ثابت نویسه *format, va_list args)
 {
-  return curl_mvfprintf(stdout, format, args);
+  بازگشت curl_mvfprintf(stdout, format, args);
 }

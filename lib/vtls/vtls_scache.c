@@ -21,38 +21,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef USE_SSL
 
-#include "urldata.h"
-#include "cfilters.h"
+#شامل "urldata.h"
+#شامل "cfilters.h"
 
-#include "vtls/vtls.h" /* generic SSL protos etc */
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
+#شامل "vtls/vtls.h" /* generic SSL protos etc */
+#شامل "vtls/vtls_int.h"
+#شامل "vtls/vtls_scache.h"
+#شامل "vtls/vtls_spack.h"
 
-#include "strcase.h"
-#include "url.h"
-#include "llist.h"
-#include "curl_share.h"
-#include "curl_threads.h"
-#include "curl_trc.h"
-#include "curl_sha256.h"
-#include "rand.h"
-#include "curlx/strdup.h"
+#شامل "strcase.h"
+#شامل "url.h"
+#شامل "llist.h"
+#شامل "curl_share.h"
+#شامل "curl_threads.h"
+#شامل "curl_trc.h"
+#شامل "curl_sha256.h"
+#شامل "rand.h"
+#شامل "curlx/strdup.h"
 
 /* a peer+tls-config we cache sessions for */
-struct Curl_ssl_scache_peer {
-  char *ssl_peer_key;      /* id for peer + relevant TLS configuration */
-  char *clientcert;
-  char *key_passwd;
-  struct Curl_llist sessions;
-  void *sobj;              /* object instance or NULL */
+ساختار Curl_ssl_scache_peer {
+  نویسه *ssl_peer_کلید;      /* id for peer + relevant TLS configuration */
+  نویسه *clientcert;
+  نویسه *کلید_passwd;
+  ساختار Curl_llist sessions;
+  تهی *sobj;              /* object instance or NULL */
   Curl_ssl_scache_obj_dtor *sobj_free; /* free `sobj` callback */
-  unsigned char key_salt[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
-  unsigned char key_hmac[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
+  unsigned نویسه کلید_salt[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
+  unsigned نویسه کلید_hmac[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
   size_t max_sessions;
   long age;                /* a number, the higher the more recent */
   BIT(hmac_set);           /* if key_salt and key_hmac are present */
@@ -64,308 +64,308 @@ struct Curl_ssl_scache_peer {
 #define GOOD_SCACHE(x) ((x) && (x)->magic == CURL_SCACHE_MAGIC)
 
 /* Prefix the length to keep field boundaries unambiguous. */
-static CURLcode cf_ssl_peer_key_add_string(struct dynbuf *buf,
-                                           const char *name,
-                                           const char *value)
+ایستا CURLcode cf_ssl_peer_کلید_add_string(ساختار dynbuf *buf,
+                                           ثابت نویسه *name,
+                                           ثابت نویسه *مقدار)
 {
-  return curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(value), value);
+  بازگشت curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(مقدار), مقدار);
 }
 
-static CURLcode cf_ssl_peer_key_add_path(struct dynbuf *buf,
-                                         const char *name,
-                                         const char *path,
+ایستا CURLcode cf_ssl_peer_کلید_add_path(ساختار dynbuf *buf,
+                                         ثابت نویسه *name,
+                                         ثابت نویسه *path,
                                          bool *is_local)
 {
-  if(path && path[0]) {
+  اگر(path && path[0]) {
     /* We try to add absolute paths, so that the session key can stay valid
      * when used in another process with different CWD. When a path does not
      * exist, this does not work. Then, we add the path as is. */
 #ifdef _WIN32
-    char *abspath = _fullpath(NULL, path, 0);
-    if(abspath) {
-      CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
+    نویسه *abspath = _fullpath(پوچ, path, 0);
+    اگر(abspath) {
+      CURLcode result = cf_ssl_peer_کلید_add_string(buf, name, abspath);
       /* !checksrc! disable BANNEDFUNC 1 */
-      free(abspath); /* allocated by CRT, use system free() */
-      return result;
+      آزاد(abspath); /* allocated by CRT, use system free() */
+      بازگشت result;
     }
     *is_local = TRUE;
-#elif defined(HAVE_REALPATH)
-    if(path[0] != '/') {
-      char *abspath = realpath(path, NULL);
-      if(abspath) {
-        CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
+#وگرنهاگر defined(HAVE_REALPATH)
+    اگر(path[0] != '/') {
+      نویسه *abspath = realpath(path, پوچ);
+      اگر(abspath) {
+        CURLcode result = cf_ssl_peer_کلید_add_string(buf, name, abspath);
         /* !checksrc! disable BANNEDFUNC 1 */
-        free(abspath); /* allocated by libc, free without memdebug */
-        return result;
+        آزاد(abspath); /* allocated by libc, free without memdebug */
+        بازگشت result;
       }
       *is_local = TRUE;
     }
 #endif
-    return cf_ssl_peer_key_add_string(buf, name, path);
+    بازگشت cf_ssl_peer_کلید_add_string(buf, name, path);
   }
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static CURLcode cf_ssl_peer_key_add_hash(struct dynbuf *buf,
-                                         const char *name,
-                                         struct curl_blob *blob)
+ایستا CURLcode cf_ssl_peer_کلید_add_hash(ساختار dynbuf *buf,
+                                         ثابت نویسه *name,
+                                         ساختار curl_blob *blob)
 {
   CURLcode result = CURLE_OK;
-  if(blob && blob->len) {
-    unsigned char hash[CURL_SHA256_DIGEST_LENGTH];
+  اگر(blob && blob->len) {
+    unsigned نویسه hash[CURL_SHA256_DIGEST_LENGTH];
     size_t i;
 
     result = curlx_dyn_addf(buf, ":%s-", name);
-    if(result)
-      goto out;
+    اگر(result)
+      برو out;
     result = Curl_sha256it(hash, blob->data, blob->len);
-    if(result)
-      goto out;
-    for(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
+    اگر(result)
+      برو out;
+    برای(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
       result = curlx_dyn_addf(buf, "%02x", hash[i]);
-      if(result)
-        goto out;
+      اگر(result)
+        برو out;
     }
   }
 out:
-  return result;
+  بازگشت result;
 }
 
-static CURLcode cf_ssl_peer_key_add_mtls(struct dynbuf *buf,
-                                         struct ssl_filter_config *ssl,
+ایستا CURLcode cf_ssl_peer_کلید_add_mtls(ساختار dynbuf *buf,
+                                         ساختار ssl_filter_config *ssl,
                                          bool *is_local)
 {
   CURLcode result = CURLE_OK;
-  if(ssl->clientcert && ssl->clientcert[0]) {
-    result = cf_ssl_peer_key_add_path(buf, "CCERT", ssl->clientcert, is_local);
-    if(result)
-      goto out;
+  اگر(ssl->clientcert && ssl->clientcert[0]) {
+    result = cf_ssl_peer_کلید_add_path(buf, "CCERT", ssl->clientcert, is_local);
+    اگر(result)
+      برو out;
   }
-  if(ssl->key && ssl->key[0]) {
-    result = cf_ssl_peer_key_add_path(buf, "KEY", ssl->key, is_local);
-    if(result)
-      goto out;
+  اگر(ssl->کلید && ssl->کلید[0]) {
+    result = cf_ssl_peer_کلید_add_path(buf, "KEY", ssl->کلید, is_local);
+    اگر(result)
+      برو out;
   }
-  if(ssl->key_blob) {
-    result = cf_ssl_peer_key_add_hash(buf, "KEYBlob", ssl->key_blob);
-    if(result)
-      goto out;
+  اگر(ssl->کلید_blob) {
+    result = cf_ssl_peer_کلید_add_hash(buf, "KEYBlob", ssl->کلید_blob);
+    اگر(result)
+      برو out;
   }
-  if(ssl->cert_type && ssl->cert_type[0]) {
+  اگر(ssl->cert_type && ssl->cert_type[0]) {
     size_t i;
     result = curlx_dyn_addf(buf, ":CT-%zu:", strlen(ssl->cert_type));
-    for(i = 0; !result && ssl->cert_type[i]; i++) {
-      char c = Curl_raw_toupper(ssl->cert_type[i]);
+    برای(i = 0; !result && ssl->cert_type[i]; i++) {
+      نویسه c = Curl_raw_toupper(ssl->cert_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
-    if(result)
-      goto out;
+    اگر(result)
+      برو out;
   }
-  if(ssl->key_type && ssl->key_type[0]) {
+  اگر(ssl->کلید_type && ssl->کلید_type[0]) {
     size_t i;
-    result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->key_type));
-    for(i = 0; !result && ssl->key_type[i]; i++) {
-      char c = Curl_raw_toupper(ssl->key_type[i]);
+    result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->کلید_type));
+    برای(i = 0; !result && ssl->کلید_type[i]; i++) {
+      نویسه c = Curl_raw_toupper(ssl->کلید_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
   }
 out:
-  return result;
+  بازگشت result;
 }
 
 #define CURL_SSLS_LOCAL_SUFFIX     ":L"
 #define CURL_SSLS_GLOBAL_SUFFIX    ":G"
 
-static bool cf_ssl_peer_key_is_global(const char *peer_key)
+ایستا bool cf_ssl_peer_کلید_is_global(ثابت نویسه *peer_کلید)
 {
-  size_t len = peer_key ? strlen(peer_key) : 0;
-  return (len > 2) &&
-         (peer_key[len - 1] == 'G') &&
-         (peer_key[len - 2] == ':');
+  size_t len = peer_کلید ? strlen(peer_کلید) : 0;
+  بازگشت (len > 2) &&
+         (peer_کلید[len - 1] == 'G') &&
+         (peer_کلید[len - 2] == ':');
 }
 
-static CURLcode ssl_peer_key_add_transport(struct dynbuf *buf,
+ایستا CURLcode ssl_peer_کلید_add_transport(ساختار dynbuf *buf,
                                            uint8_t transport)
 {
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return CURLE_OK;
-  case TRNSPRT_UDP:
-    return curlx_dyn_add(buf, ":UDP");
-  case TRNSPRT_QUIC:
-    return curlx_dyn_add(buf, ":QUIC");
-  case TRNSPRT_UNIX:
-    return curlx_dyn_add(buf, ":UNIX");
-  default:
-    return curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
+  انتخاب(transport) {
+  حالت TRNSPRT_TCP:
+    بازگشت CURLE_OK;
+  حالت TRNSPRT_UDP:
+    بازگشت curlx_dyn_add(buf, ":UDP");
+  حالت TRNSPRT_QUIC:
+    بازگشت curlx_dyn_add(buf, ":QUIC");
+  حالت TRNSPRT_UNIX:
+    بازگشت curlx_dyn_add(buf, ":UNIX");
+  پیشفرض:
+    بازگشت curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
   }
 }
 
-static CURLcode ssl_peer_key_add_vrfy(struct dynbuf *buf,
-                                      struct ssl_filter_config *ssl,
-                                      const struct ssl_peer *peer)
+ایستا CURLcode ssl_peer_کلید_add_vrfy(ساختار dynbuf *buf,
+                                      ساختار ssl_filter_config *ssl,
+                                      ثابت ساختار ssl_peer *peer)
 {
   CURLcode result;
 
-  if(!ssl->verifypeer) {
+  اگر(!ssl->verifypeer) {
     result = curlx_dyn_add(buf, ":NO-VRFY-PEER");
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-  if(!ssl->verifyhost) {
+  اگر(!ssl->verifyhost) {
     result = curlx_dyn_add(buf, ":NO-VRFY-HOST");
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-  if(ssl->verifystatus) {
+  اگر(ssl->verifystatus) {
     result = curlx_dyn_add(buf, ":VRFY-STATUS");
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-  if((!ssl->verifypeer || !ssl->verifyhost) &&
+  اگر((!ssl->verifypeer || !ssl->verifyhost) &&
      peer->peer && !Curl_peer_equal(peer->origin, peer->peer)) {
-    result = cf_ssl_peer_key_add_string(buf, "CHOST", peer->peer->hostname);
-    if(!result)
+    result = cf_ssl_peer_کلید_add_string(buf, "CHOST", peer->peer->hostname);
+    اگر(!result)
       result = curlx_dyn_addf(buf, ":CPORT-%u", peer->peer->port);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static CURLcode ssl_peer_key_build(struct ssl_filter_config *ssl,
-                                   const struct ssl_peer *peer,
-                                   const char *tls_id,
-                                   char **ppeer_key)
+ایستا CURLcode ssl_peer_کلید_build(ساختار ssl_filter_config *ssl,
+                                   ثابت ساختار ssl_peer *peer,
+                                   ثابت نویسه *tls_id,
+                                   نویسه **ppeer_کلید)
 {
-  struct dynbuf buf;
-  size_t key_len;
+  ساختار dynbuf buf;
+  size_t کلید_len;
   bool is_local = FALSE;
   CURLcode result;
 
-  *ppeer_key = NULL;
+  *ppeer_کلید = پوچ;
   curlx_dyn_init(&buf, 10 * 1024);
 
   result = curlx_dyn_addf(&buf, "%s:%s:%d:KEY-V3",
                           peer->origin->scheme->name,
                           peer->origin->hostname, peer->origin->port);
-  if(result)
-    goto out;
-  result = ssl_peer_key_add_transport(&buf, peer->transport);
-  if(result)
-    goto out;
-  result = ssl_peer_key_add_vrfy(&buf, ssl, peer);
-  if(result)
-    goto out;
-  if(ssl->version || ssl->version_max) {
+  اگر(result)
+    برو out;
+  result = ssl_peer_کلید_add_transport(&buf, peer->transport);
+  اگر(result)
+    برو out;
+  result = ssl_peer_کلید_add_vrfy(&buf, ssl, peer);
+  اگر(result)
+    برو out;
+  اگر(ssl->version || ssl->version_max) {
     result = curlx_dyn_addf(&buf, ":TLSVER-%d-%u", ssl->version,
                             (ssl->version_max >> 16));
-    if(result)
-      goto out;
+    اگر(result)
+      برو out;
   }
-  if(ssl->ssl_options) {
+  اگر(ssl->ssl_options) {
     result = curlx_dyn_addf(&buf, ":TLSOPT-%x", ssl->ssl_options);
-    if(result)
-      goto out;
+    اگر(result)
+      برو out;
   }
-  if(ssl->cipher_list) {
-    result = cf_ssl_peer_key_add_string(&buf, "CIPHER", ssl->cipher_list);
-    if(result)
-      goto out;
+  اگر(ssl->cipher_list) {
+    result = cf_ssl_peer_کلید_add_string(&buf, "CIPHER", ssl->cipher_list);
+    اگر(result)
+      برو out;
   }
-  if(ssl->cipher_list13) {
-    result = cf_ssl_peer_key_add_string(&buf, "CIPHER13", ssl->cipher_list13);
-    if(result)
-      goto out;
+  اگر(ssl->cipher_list13) {
+    result = cf_ssl_peer_کلید_add_string(&buf, "CIPHER13", ssl->cipher_list13);
+    اگر(result)
+      برو out;
   }
-  if(ssl->curves) {
-    result = cf_ssl_peer_key_add_string(&buf, "CURVES", ssl->curves);
-    if(result)
-      goto out;
+  اگر(ssl->curves) {
+    result = cf_ssl_peer_کلید_add_string(&buf, "CURVES", ssl->curves);
+    اگر(result)
+      برو out;
   }
-  if(ssl->signature_algorithms) {
-    result = cf_ssl_peer_key_add_string(&buf, "SIGALGS",
+  اگر(ssl->signature_algorithms) {
+    result = cf_ssl_peer_کلید_add_string(&buf, "SIGALGS",
                                         ssl->signature_algorithms);
-    if(result)
-      goto out;
+    اگر(result)
+      برو out;
   }
-  if(ssl->verifypeer) {
-    result = cf_ssl_peer_key_add_path(&buf, "CA", ssl->CAfile, &is_local);
-    if(!result)
-      result = cf_ssl_peer_key_add_path(&buf, "CApath",
+  اگر(ssl->verifypeer) {
+    result = cf_ssl_peer_کلید_add_path(&buf, "CA", ssl->CAfile, &is_local);
+    اگر(!result)
+      result = cf_ssl_peer_کلید_add_path(&buf, "CApath",
                                         ssl->CApath, &is_local);
-    if(!result && ssl->native_ca_store)
+    اگر(!result && ssl->native_ca_store)
       result = curlx_dyn_add(&buf, ":NATIVE-CA");
-    if(!result)
-      result = cf_ssl_peer_key_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
-    if(result)
-      goto out;
-    result = cf_ssl_peer_key_add_path(&buf, "Issuer", ssl->issuercert,
+    اگر(!result)
+      result = cf_ssl_peer_کلید_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
+    اگر(result)
+      برو out;
+    result = cf_ssl_peer_کلید_add_path(&buf, "Issuer", ssl->issuercert,
                                       &is_local);
-    if(result)
-      goto out;
-    if(ssl->ca_info_blob) {
-      result = cf_ssl_peer_key_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
-      if(result)
-        goto out;
+    اگر(result)
+      برو out;
+    اگر(ssl->ca_info_blob) {
+      result = cf_ssl_peer_کلید_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
+      اگر(result)
+        برو out;
     }
-    if(ssl->issuercert_blob) {
-      result = cf_ssl_peer_key_add_hash(&buf, "IssuerBlob",
+    اگر(ssl->issuercert_blob) {
+      result = cf_ssl_peer_کلید_add_hash(&buf, "IssuerBlob",
                                         ssl->issuercert_blob);
-      if(result)
-        goto out;
+      اگر(result)
+        برو out;
     }
   }
-  if(ssl->cert_blob) {
-    result = cf_ssl_peer_key_add_hash(&buf, "CertBlob", ssl->cert_blob);
-    if(result)
-      goto out;
+  اگر(ssl->cert_blob) {
+    result = cf_ssl_peer_کلید_add_hash(&buf, "CertBlob", ssl->cert_blob);
+    اگر(result)
+      برو out;
   }
-  if(ssl->pinned_key && ssl->pinned_key[0]) {
-    result = cf_ssl_peer_key_add_string(&buf, "Pinned", ssl->pinned_key);
-    if(result)
-      goto out;
+  اگر(ssl->pinned_کلید && ssl->pinned_کلید[0]) {
+    result = cf_ssl_peer_کلید_add_string(&buf, "Pinned", ssl->pinned_کلید);
+    اگر(result)
+      برو out;
   }
 
-  result = cf_ssl_peer_key_add_mtls(&buf, ssl, &is_local);
-  if(result)
-    goto out;
+  result = cf_ssl_peer_کلید_add_mtls(&buf, ssl, &is_local);
+  اگر(result)
+    برو out;
 
-  if(!tls_id || !tls_id[0]) {
+  اگر(!tls_id || !tls_id[0]) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    برو out;
   }
-  result = cf_ssl_peer_key_add_string(&buf, "IMPL", tls_id);
-  if(result)
-    goto out;
+  result = cf_ssl_peer_کلید_add_string(&buf, "IMPL", tls_id);
+  اگر(result)
+    برو out;
 
   result = curlx_dyn_addf(&buf, is_local ?
                           CURL_SSLS_LOCAL_SUFFIX : CURL_SSLS_GLOBAL_SUFFIX);
-  if(result)
-    goto out;
+  اگر(result)
+    برو out;
 
-  *ppeer_key = curlx_dyn_take(&buf, &key_len);
+  *ppeer_کلید = curlx_dyn_take(&buf, &کلید_len);
   /* we added printable char, and dynbuf always null-terminates, no need
    * to track length */
 
 out:
   curlx_dyn_free(&buf);
-  return result;
+  بازگشت result;
 }
 
-CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
-                                struct ssl_filter_config *sslc,
-                                const char *tls_id,
-                                char **ppeer_key)
+CURLcode Curl_ssl_peer_کلید_make(ثابت ساختار ssl_peer *peer,
+                                ساختار ssl_filter_config *sslc,
+                                ثابت نویسه *tls_id,
+                                نویسه **ppeer_کلید)
 {
-  return ssl_peer_key_build(sslc, peer, tls_id, ppeer_key);
+  بازگشت ssl_peer_کلید_build(sslc, peer, tls_id, ppeer_کلید);
 }
 
-struct Curl_ssl_scache {
-  unsigned int magic;
-  struct Curl_ssl_scache_peer *peers;
-  size_t peer_count;
-  int default_lifetime_secs;
+ساختار Curl_ssl_scache {
+  unsigned صحیح magic;
+  ساختار Curl_ssl_scache_peer *peers;
+  size_t peer_شمار;
+  صحیح default_lifetime_secs;
   long age;
 #ifdef USE_MUTEX
   curl_mutex_t mutex;
@@ -374,62 +374,62 @@ struct Curl_ssl_scache {
   BIT(is_locked);
 };
 
-static struct Curl_ssl_scache *cf_ssl_scache_get(struct Curl_easy *data)
+ایستا ساختار Curl_ssl_scache *cf_ssl_scache_get(ساختار Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = NULL;
+  ساختار Curl_ssl_scache *scache = پوچ;
   /* If a share is present, its ssl_scache has preference over the multi */
-  if(data->share && data->share->ssl_scache)
+  اگر(data->share && data->share->ssl_scache)
     scache = data->share->ssl_scache;
-  else if(data->multi && data->multi->ssl_scache)
+  وگرنه اگر(data->multi && data->multi->ssl_scache)
     scache = data->multi->ssl_scache;
-  if(scache && !GOOD_SCACHE(scache)) {
+  اگر(scache && !GOOD_SCACHE(scache)) {
     failf(data, "transfer would use an invalid scache at %p, denied",
-          (void *)scache);
+          (تهی *)scache);
     DEBUGASSERT(0);
-    return NULL;
+    بازگشت پوچ;
   }
-  return scache;
+  بازگشت scache;
 }
 
-static void cf_ssl_scache_session_ldestroy(void *udata, void *obj)
+ایستا تهی cf_ssl_scache_session_ldestroy(تهی *udata, تهی *obj)
 {
-  struct Curl_ssl_session *s = obj;
-  (void)udata;
+  ساختار Curl_ssl_session *s = obj;
+  (تهی)udata;
   curlx_free(s->sdata);
   curlx_free(s->quic_tp);
   curlx_free(s->alpn);
   curlx_free(s);
 }
 
-CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create(تهی *sdata, size_t sdata_len,
+                                 صحیح ietf_tls_id, ثابت نویسه *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
-                                 struct Curl_ssl_session **psession)
+                                 ساختار Curl_ssl_session **psession)
 {
-  return Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
+  بازگشت Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
                                   valid_until, earlydata_max,
-                                  NULL, 0, psession);
+                                  پوچ, 0, psession);
 }
 
-CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create2(تهی *sdata, size_t sdata_len,
+                                  صحیح ietf_tls_id, ثابت نویسه *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
-                                  unsigned char *quic_tp, size_t quic_tp_len,
-                                  struct Curl_ssl_session **psession)
+                                  unsigned نویسه *quic_tp, size_t quic_tp_len,
+                                  ساختار Curl_ssl_session **psession)
 {
-  struct Curl_ssl_session *s;
+  ساختار Curl_ssl_session *s;
 
-  if(!sdata || !sdata_len) {
+  اگر(!sdata || !sdata_len) {
     curlx_free(sdata);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  *psession = NULL;
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
+  *psession = پوچ;
+  s = curlx_calloc(1, اندازه(*s));
+  اگر(!s) {
     curlx_free(sdata);
     curlx_free(quic_tp);
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
   }
 
   s->ietf_tls_id = ietf_tls_id;
@@ -439,223 +439,223 @@ CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
   s->sdata_len = sdata_len;
   s->quic_tp = quic_tp;
   s->quic_tp_len = quic_tp_len;
-  if(alpn) {
+  اگر(alpn) {
     s->alpn = curlx_strdup(alpn);
-    if(!s->alpn) {
-      cf_ssl_scache_session_ldestroy(NULL, s);
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!s->alpn) {
+      cf_ssl_scache_session_ldestroy(پوچ, s);
+      بازگشت CURLE_OUT_OF_MEMORY;
     }
   }
   *psession = s;
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-void Curl_ssl_session_destroy(struct Curl_ssl_session *s)
+تهی Curl_ssl_session_destroy(ساختار Curl_ssl_session *s)
 {
-  if(s) {
+  اگر(s) {
     /* if in the list, the list destructor takes care of it */
-    if(Curl_node_llist(&s->list))
-      Curl_node_remove(&s->list);
-    else {
-      cf_ssl_scache_session_ldestroy(NULL, s);
+    اگر(Curl_گره_llist(&s->list))
+      Curl_گره_remove(&s->list);
+    وگرنه {
+      cf_ssl_scache_session_ldestroy(پوچ, s);
     }
   }
 }
 
-CURLcode Curl_ssl_session_dup(struct Curl_ssl_session *src,
-                              struct Curl_ssl_session **pdest)
+CURLcode Curl_ssl_session_dup(ساختار Curl_ssl_session *src,
+                              ساختار Curl_ssl_session **pdest)
 {
-  struct Curl_ssl_session *dest = NULL;
+  ساختار Curl_ssl_session *dest = پوچ;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(!src || !pdest)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  *pdest = NULL;
+  اگر(!src || !pdest)
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
+  *pdest = پوچ;
 
-  dest = curlx_calloc(1, sizeof(*dest));
-  if(!dest)
-    goto out;
+  dest = curlx_calloc(1, اندازه(*dest));
+  اگر(!dest)
+    برو out;
 
   dest->ietf_tls_id = src->ietf_tls_id;
   dest->valid_until = src->valid_until;
   dest->earlydata_max = src->earlydata_max;
   dest->sectrust_verified = src->sectrust_verified;
-  if(src->sdata_len) {
+  اگر(src->sdata_len) {
     dest->sdata = curlx_memdup(src->sdata, src->sdata_len);
-    if(!dest->sdata)
-      goto out;
+    اگر(!dest->sdata)
+      برو out;
     dest->sdata_len = src->sdata_len;
   }
-  if(src->quic_tp_len) {
+  اگر(src->quic_tp_len) {
     dest->quic_tp = curlx_memdup(src->quic_tp, src->quic_tp_len);
-    if(!dest->quic_tp)
-      goto out;
+    اگر(!dest->quic_tp)
+      برو out;
     dest->quic_tp_len = src->quic_tp_len;
   }
-  if(src->alpn) {
+  اگر(src->alpn) {
     dest->alpn = curlx_strdup(src->alpn);
-    if(!dest->alpn)
-      goto out;
+    اگر(!dest->alpn)
+      برو out;
   }
   result = CURLE_OK;
 
 out:
-  if(!result)
+  اگر(!result)
     *pdest = dest;
-  else {
-    *pdest = NULL;
-    if(dest)
+  وگرنه {
+    *pdest = پوچ;
+    اگر(dest)
       Curl_ssl_session_destroy(dest);
   }
-  return result;
+  بازگشت result;
 }
 
-static void cf_ssl_scache_clear_peer(struct Curl_ssl_scache_peer *peer)
+ایستا تهی cf_ssl_scache_clear_peer(ساختار Curl_ssl_scache_peer *peer)
 {
-  Curl_llist_destroy(&peer->sessions, NULL);
-  if(peer->sobj) {
+  Curl_llist_destroy(&peer->sessions, پوچ);
+  اگر(peer->sobj) {
     DEBUGASSERT(peer->sobj_free);
-    if(peer->sobj_free)
+    اگر(peer->sobj_free)
       peer->sobj_free(peer->sobj);
-    peer->sobj = NULL;
+    peer->sobj = پوچ;
   }
-  peer->sobj_free = NULL;
+  peer->sobj_free = پوچ;
   curlx_safefree(peer->clientcert);
-  curlx_safefree(peer->key_passwd);
-  curlx_safefree(peer->ssl_peer_key);
+  curlx_safefree(peer->کلید_passwd);
+  curlx_safefree(peer->ssl_peer_کلید);
   peer->age = 0;
   peer->hmac_set = FALSE;
 }
 
-static void cf_ssl_scache_peer_set_obj(struct Curl_ssl_scache_peer *peer,
-                                       void *sobj,
+ایستا تهی cf_ssl_scache_peer_set_obj(ساختار Curl_ssl_scache_peer *peer,
+                                       تهی *sobj,
                                        Curl_ssl_scache_obj_dtor *sobj_free)
 {
   DEBUGASSERT(peer);
-  if(peer->sobj_free) {
+  اگر(peer->sobj_free) {
     peer->sobj_free(peer->sobj);
   }
   peer->sobj = sobj;
   peer->sobj_free = sobj_free;
 }
 
-static void cf_ssl_cache_peer_update(struct Curl_ssl_scache_peer *peer)
+ایستا تهی cf_ssl_cache_peer_update(ساختار Curl_ssl_scache_peer *peer)
 {
   /* The sessions of this peer are exportable if
    * - it has no confidential information
    * - its peer key is not yet known, because sessions were
    *   imported using only the salt+hmac
    * - the peer key is global, e.g. carrying no relative paths */
-  peer->exportable = (!peer->clientcert && !peer->key_passwd &&
-                      (!peer->ssl_peer_key ||
-                       cf_ssl_peer_key_is_global(peer->ssl_peer_key)));
+  peer->exportable = (!peer->clientcert && !peer->کلید_passwd &&
+                      (!peer->ssl_peer_کلید ||
+                       cf_ssl_peer_کلید_is_global(peer->ssl_peer_کلید)));
 }
 
-static CURLcode cf_ssl_scache_peer_init(struct Curl_ssl_scache_peer *peer,
-                                        const char *ssl_peer_key,
-                                        const char *clientcert,
-                                        const char *key_passwd,
-                                        const unsigned char *salt,
-                                        const unsigned char *hmac)
+ایستا CURLcode cf_ssl_scache_peer_init(ساختار Curl_ssl_scache_peer *peer,
+                                        ثابت نویسه *ssl_peer_کلید,
+                                        ثابت نویسه *clientcert,
+                                        ثابت نویسه *کلید_passwd,
+                                        ثابت unsigned نویسه *salt,
+                                        ثابت unsigned نویسه *hmac)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  DEBUGASSERT(!peer->ssl_peer_key);
-  if(ssl_peer_key) {
-    peer->ssl_peer_key = curlx_strdup(ssl_peer_key);
-    if(!peer->ssl_peer_key)
-      goto out;
+  DEBUGASSERT(!peer->ssl_peer_کلید);
+  اگر(ssl_peer_کلید) {
+    peer->ssl_peer_کلید = curlx_strdup(ssl_peer_کلید);
+    اگر(!peer->ssl_peer_کلید)
+      برو out;
     peer->hmac_set = FALSE;
   }
-  else if(salt && hmac) {
-    memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
-    memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
+  وگرنه اگر(salt && hmac) {
+    memcpy(peer->کلید_salt, salt, اندازه(peer->کلید_salt));
+    memcpy(peer->کلید_hmac, hmac, اندازه(peer->کلید_hmac));
     peer->hmac_set = TRUE;
   }
-  else {
+  وگرنه {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    برو out;
   }
-  if(clientcert) {
+  اگر(clientcert) {
     peer->clientcert = curlx_strdup(clientcert);
-    if(!peer->clientcert)
-      goto out;
+    اگر(!peer->clientcert)
+      برو out;
   }
-  if(key_passwd) {
-    peer->key_passwd = curlx_strdup(key_passwd);
-    if(!peer->key_passwd)
-      goto out;
+  اگر(کلید_passwd) {
+    peer->کلید_passwd = curlx_strdup(کلید_passwd);
+    اگر(!peer->کلید_passwd)
+      برو out;
   }
   cf_ssl_cache_peer_update(peer);
   result = CURLE_OK;
 out:
-  if(result)
+  اگر(result)
     cf_ssl_scache_clear_peer(peer);
-  return result;
+  بازگشت result;
 }
 
-static void cf_scache_session_remove(struct Curl_ssl_scache_peer *peer,
-                                     struct Curl_ssl_session *s)
+ایستا تهی cf_scache_session_remove(ساختار Curl_ssl_scache_peer *peer,
+                                     ساختار Curl_ssl_session *s)
 {
-  (void)peer;
-  DEBUGASSERT(Curl_node_llist(&s->list) == &peer->sessions);
+  (تهی)peer;
+  DEBUGASSERT(Curl_گره_llist(&s->list) == &peer->sessions);
   Curl_ssl_session_destroy(s);
 }
 
-static bool cf_scache_session_expired(struct Curl_ssl_session *s,
+ایستا bool cf_scache_session_expired(ساختار Curl_ssl_session *s,
                                       curl_off_t now)
 {
-  return (s->valid_until > 0) && (s->valid_until < now);
+  بازگشت (s->valid_until > 0) && (s->valid_until < now);
 }
 
-static void cf_scache_peer_remove_expired(struct Curl_ssl_scache_peer *peer,
+ایستا تهی cf_scache_peer_remove_expired(ساختار Curl_ssl_scache_peer *peer,
                                           curl_off_t now)
 {
-  struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
-    struct Curl_ssl_session *s = Curl_node_elem(n);
-    n = Curl_node_next(n);
-    if(cf_scache_session_expired(s, now))
+  ساختار Curl_llist_گره *n = Curl_llist_head(&peer->sessions);
+  وقتی(n) {
+    ساختار Curl_ssl_session *s = Curl_گره_elem(n);
+    n = Curl_گره_next(n);
+    اگر(cf_scache_session_expired(s, now))
       cf_scache_session_remove(peer, s);
   }
 }
 
-static void cf_scache_peer_remove_non13(struct Curl_ssl_scache_peer *peer)
+ایستا تهی cf_scache_peer_remove_non13(ساختار Curl_ssl_scache_peer *peer)
 {
-  struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
-    struct Curl_ssl_session *s = Curl_node_elem(n);
-    n = Curl_node_next(n);
-    if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
+  ساختار Curl_llist_گره *n = Curl_llist_head(&peer->sessions);
+  وقتی(n) {
+    ساختار Curl_ssl_session *s = Curl_گره_elem(n);
+    n = Curl_گره_next(n);
+    اگر(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
       cf_scache_session_remove(peer, s);
   }
 }
 
 CURLcode Curl_ssl_scache_create(size_t max_peers,
                                 size_t max_sessions_per_peer,
-                                struct Curl_ssl_scache **pscache)
+                                ساختار Curl_ssl_scache **pscache)
 {
-  struct Curl_ssl_scache *scache;
-  struct Curl_ssl_scache_peer *peers;
+  ساختار Curl_ssl_scache *scache;
+  ساختار Curl_ssl_scache_peer *peers;
   size_t i;
 
-  *pscache = NULL;
-  peers = curlx_calloc(max_peers, sizeof(*peers));
-  if(!peers)
-    return CURLE_OUT_OF_MEMORY;
+  *pscache = پوچ;
+  peers = curlx_calloc(max_peers, اندازه(*peers));
+  اگر(!peers)
+    بازگشت CURLE_OUT_OF_MEMORY;
 
-  scache = curlx_calloc(1, sizeof(*scache));
-  if(!scache) {
+  scache = curlx_calloc(1, اندازه(*scache));
+  اگر(!scache) {
     curlx_free(peers);
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
   }
 
   scache->magic = CURL_SCACHE_MAGIC;
   scache->default_lifetime_secs = (24 * 60 * 60); /* 1 day */
-  scache->peer_count = max_peers;
+  scache->peer_شمار = max_peers;
   scache->peers = peers;
   scache->age = 1;
-  for(i = 0; i < scache->peer_count; ++i) {
+  برای(i = 0; i < scache->peer_شمار; ++i) {
     scache->peers[i].max_sessions = max_sessions_per_peer;
     Curl_llist_init(&scache->peers[i].sessions,
                     cf_ssl_scache_session_ldestroy);
@@ -664,15 +664,15 @@ CURLcode Curl_ssl_scache_create(size_t max_peers,
   Curl_mutex_init(&scache->mutex);
 #endif
   *pscache = scache;
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
+تهی Curl_ssl_scache_destroy(ساختار Curl_ssl_scache *scache)
 {
-  if(GOOD_SCACHE(scache)) {
+  اگر(GOOD_SCACHE(scache)) {
     size_t i;
     scache->magic = 0;
-    for(i = 0; i < scache->peer_count; ++i) {
+    برای(i = 0; i < scache->peer_شمار; ++i) {
       cf_ssl_scache_clear_peer(&scache->peers[i]);
     }
     curlx_free(scache->peers);
@@ -683,22 +683,22 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
   }
 }
 
-bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data)
+bool Curl_ssl_scache_use(ساختار Curl_cfilter *cf, ساختار Curl_easy *data)
 {
-  if(cf_ssl_scache_get(data)) {
-    struct ssl_filter_config *conn_config =
+  اگر(cf_ssl_scache_get(data)) {
+    ساختار ssl_filter_config *conn_config =
       Curl_ssl_cf_get_filter_config(cf);
-    return conn_config ? conn_config->cache_session : FALSE;
+    بازگشت conn_config ? conn_config->cache_session : FALSE;
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /* Lock shared SSL session data */
-void Curl_ssl_scache_lock(struct Curl_easy *data)
+تهی Curl_ssl_scache_lock(ساختار Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
-    if(CURL_SHARE_ssl_scache(data))
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  اگر(scache) {
+    اگر(CURL_SHARE_ssl_scache(data))
       Curl_share_lock(data, CURL_LOCK_DATA_SSL_SESSION,
                       CURL_LOCK_ACCESS_SINGLE);
 #ifdef USE_MUTEX
@@ -707,7 +707,7 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
     Curl_mutex_release(&scache->mutex);
-#else
+#وگرنه
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
 #endif
@@ -715,428 +715,428 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
 }
 
 /* Unlock shared SSL session data */
-void Curl_ssl_scache_unlock(struct Curl_easy *data)
+تهی Curl_ssl_scache_unlock(ساختار Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  اگر(scache) {
 #ifdef USE_MUTEX
     Curl_mutex_acquire(&scache->mutex);
     scache->locking_thread = 0;
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
     Curl_mutex_release(&scache->mutex);
-#else
+#وگرنه
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
 #endif
-    if(CURL_SHARE_ssl_scache(data))
+    اگر(CURL_SHARE_ssl_scache(data))
       Curl_share_unlock(data, CURL_LOCK_DATA_SSL_SESSION);
   }
 }
 
-bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data)
+bool Curl_ssl_scache_is_locked_by_current_thread(ساختار Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
   bool locked = FALSE;
-  if(!scache)
-    return FALSE;
+  اگر(!scache)
+    بازگشت FALSE;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&scache->mutex);
   locked = scache->is_locked && Curl_thread_is_current(scache->locking_thread);
   Curl_mutex_release(&scache->mutex);
-#else
+#وگرنه
   locked = (bool)scache->is_locked;
 #endif
-  return locked;
+  بازگشت locked;
 }
 
-static bool cf_ssl_scache_match_auth(struct Curl_ssl_scache_peer *peer,
-                                     struct ssl_filter_config *conn_config)
+ایستا bool cf_ssl_scache_match_auth(ساختار Curl_ssl_scache_peer *peer,
+                                     ساختار ssl_filter_config *conn_config)
 {
-  if(!conn_config) {
-    if(peer->clientcert || peer->key_passwd)
-      return FALSE;
-    return TRUE;
+  اگر(!conn_config) {
+    اگر(peer->clientcert || peer->کلید_passwd)
+      بازگشت FALSE;
+    بازگشت TRUE;
   }
-  else if(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
-    return FALSE;
-  if(Curl_timestrcmp(peer->key_passwd, conn_config->key_passwd))
-    return FALSE;
-  return TRUE;
+  وگرنه اگر(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
+    بازگشت FALSE;
+  اگر(Curl_timestrcmp(peer->کلید_passwd, conn_config->کلید_passwd))
+    بازگشت FALSE;
+  بازگشت TRUE;
 }
 
-static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
-                                        struct Curl_ssl_scache *scache,
-                                        const char *ssl_peer_key,
-                                        struct ssl_filter_config *conn_config,
-                                        struct Curl_ssl_scache_peer **ppeer)
+ایستا CURLcode cf_ssl_find_peer_by_کلید(ساختار Curl_easy *data,
+                                        ساختار Curl_ssl_scache *scache,
+                                        ثابت نویسه *ssl_peer_کلید,
+                                        ساختار ssl_filter_config *conn_config,
+                                        ساختار Curl_ssl_scache_peer **ppeer)
 {
-  size_t i, peer_key_len = 0;
+  size_t i, peer_کلید_len = 0;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(!GOOD_SCACHE(scache)) {
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  *ppeer = پوچ;
+  اگر(!GOOD_SCACHE(scache)) {
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   CURL_TRC_SSLS(data, "find peer slot for %s among %zu slots",
-                ssl_peer_key, scache->peer_count);
+                ssl_peer_کلید, scache->peer_شمار);
 
   /* check for entries with known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(scache->peers[i].ssl_peer_key &&
-       !strcmp(ssl_peer_key, scache->peers[i].ssl_peer_key) &&
+  برای(i = 0; scache && i < scache->peer_شمار; i++) {
+    اگر(scache->peers[i].ssl_peer_کلید &&
+       !strcmp(ssl_peer_کلید, scache->peers[i].ssl_peer_کلید) &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* yes, we have a cached session for this! */
       *ppeer = &scache->peers[i];
-      goto out;
+      برو out;
     }
   }
   /* check for entries with HMAC set but no known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(!scache->peers[i].ssl_peer_key &&
+  برای(i = 0; scache && i < scache->peer_شمار; i++) {
+    اگر(!scache->peers[i].ssl_peer_کلید &&
        scache->peers[i].hmac_set &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* possible entry with unknown peer_key, check hmac */
-      unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
-      if(!peer_key_len) /* we are lazy */
-        peer_key_len = strlen(ssl_peer_key);
+      unsigned نویسه my_hmac[CURL_SHA256_DIGEST_LENGTH];
+      اگر(!peer_کلید_len) /* we are lazy */
+        peer_کلید_len = strlen(ssl_peer_کلید);
       result = Curl_hmacit(&Curl_HMAC_SHA256,
-                           scache->peers[i].key_salt,
-                           sizeof(scache->peers[i].key_salt),
-                           (const unsigned char *)ssl_peer_key,
-                           peer_key_len,
+                           scache->peers[i].کلید_salt,
+                           اندازه(scache->peers[i].کلید_salt),
+                           (ثابت unsigned نویسه *)ssl_peer_کلید,
+                           peer_کلید_len,
                            my_hmac);
-      if(result)
-        goto out;
-      if(!memcmp(scache->peers[i].key_hmac, my_hmac, sizeof(my_hmac))) {
+      اگر(result)
+        برو out;
+      اگر(!memcmp(scache->peers[i].کلید_hmac, my_hmac, اندازه(my_hmac))) {
         /* remember peer_key for future lookups */
         CURL_TRC_SSLS(data, "peer entry %zu key recovered: %s",
-                      i, ssl_peer_key);
-        scache->peers[i].ssl_peer_key = curlx_strdup(ssl_peer_key);
-        if(!scache->peers[i].ssl_peer_key) {
+                      i, ssl_peer_کلید);
+        scache->peers[i].ssl_peer_کلید = curlx_strdup(ssl_peer_کلید);
+        اگر(!scache->peers[i].ssl_peer_کلید) {
           result = CURLE_OUT_OF_MEMORY;
-          goto out;
+          برو out;
         }
         cf_ssl_cache_peer_update(&scache->peers[i]);
         *ppeer = &scache->peers[i];
-        goto out;
+        برو out;
       }
     }
   }
-  CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_key);
+  CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_کلید);
 out:
-  return result;
+  بازگشت result;
 }
 
-static struct Curl_ssl_scache_peer *cf_ssl_get_free_peer(
-  struct Curl_ssl_scache *scache)
+ایستا ساختار Curl_ssl_scache_peer *cf_ssl_get_free_peer(
+  ساختار Curl_ssl_scache *scache)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
   size_t i;
 
   /* find empty or oldest peer */
-  for(i = 0; i < scache->peer_count; ++i) {
+  برای(i = 0; i < scache->peer_شمار; ++i) {
     /* free peer entry? */
-    if(!scache->peers[i].ssl_peer_key && !scache->peers[i].hmac_set) {
+    اگر(!scache->peers[i].ssl_peer_کلید && !scache->peers[i].hmac_set) {
       peer = &scache->peers[i];
-      break;
+      بشکن;
     }
     /* peer without sessions and obj */
-    if(!scache->peers[i].sobj &&
-       !Curl_llist_count(&scache->peers[i].sessions)) {
+    اگر(!scache->peers[i].sobj &&
+       !Curl_llist_شمار(&scache->peers[i].sessions)) {
       peer = &scache->peers[i];
-      break;
+      بشکن;
     }
     /* remember "oldest" peer */
-    if(!peer || (scache->peers[i].age < peer->age)) {
+    اگر(!peer || (scache->peers[i].age < peer->age)) {
       peer = &scache->peers[i];
     }
   }
   DEBUGASSERT(peer);
-  if(peer)
+  اگر(peer)
     cf_ssl_scache_clear_peer(peer);
-  return peer;
+  بازگشت peer;
 }
 
-static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
-                                struct Curl_ssl_scache *scache,
-                                const char *ssl_peer_key,
-                                struct ssl_filter_config *conn_config,
-                                struct Curl_ssl_scache_peer **ppeer)
+ایستا CURLcode cf_ssl_add_peer(ساختار Curl_easy *data,
+                                ساختار Curl_ssl_scache *scache,
+                                ثابت نویسه *ssl_peer_کلید,
+                                ساختار ssl_filter_config *conn_config,
+                                ساختار Curl_ssl_scache_peer **ppeer)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(ssl_peer_key) {
-    result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  *ppeer = پوچ;
+  اگر(ssl_peer_کلید) {
+    result = cf_ssl_find_peer_by_کلید(data, scache, ssl_peer_کلید, conn_config,
                                      &peer);
-    if(result || !scache->peer_count)
-      return result;
+    اگر(result || !scache->peer_شمار)
+      بازگشت result;
   }
 
-  if(peer) {
+  اگر(peer) {
     *ppeer = peer;
-    return CURLE_OK;
+    بازگشت CURLE_OK;
   }
 
   peer = cf_ssl_get_free_peer(scache);
-  if(peer) {
-    char buffer[64];
-    const char *ccert = conn_config ? conn_config->clientcert : NULL;
-    const char *kpasswd = conn_config ? conn_config->key_passwd : NULL;
-    if(!ccert && conn_config && conn_config->cert_blob) {
+  اگر(peer) {
+    نویسه buffer[64];
+    ثابت نویسه *ccert = conn_config ? conn_config->clientcert : پوچ;
+    ثابت نویسه *kpasswd = conn_config ? conn_config->کلید_passwd : پوچ;
+    اگر(!ccert && conn_config && conn_config->cert_blob) {
       /* when using a client cert blob, create a name for it */
-      curl_msnprintf(buffer, sizeof(buffer),
+      curl_msnprintf(buffer, اندازه(buffer),
                      "cert-%p", conn_config->cert_blob->data);
       ccert = buffer; /* data is strduped by cf_ssl_scache_peer_init */
     }
-    result = cf_ssl_scache_peer_init(peer, ssl_peer_key, ccert, kpasswd,
-                                     NULL, NULL);
-    if(result)
-      goto out;
+    result = cf_ssl_scache_peer_init(peer, ssl_peer_کلید, ccert, kpasswd,
+                                     پوچ, پوچ);
+    اگر(result)
+      برو out;
     /* all ready */
     *ppeer = peer;
     result = CURLE_OK;
   }
 
 out:
-  if(result) {
+  اگر(result) {
     cf_ssl_scache_clear_peer(peer);
   }
-  return result;
+  بازگشت result;
 }
 
-static void cf_scache_peer_add_session(struct Curl_ssl_scache_peer *peer,
-                                       struct Curl_ssl_session *s,
+ایستا تهی cf_scache_peer_add_session(ساختار Curl_ssl_scache_peer *peer,
+                                       ساختار Curl_ssl_session *s,
                                        curl_off_t now)
 {
   /* A session not from TLSv1.3 replaces all other. */
-  if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
-    Curl_llist_destroy(&peer->sessions, NULL);
+  اگر(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
+    Curl_llist_destroy(&peer->sessions, پوچ);
     Curl_llist_append(&peer->sessions, s, &s->list);
   }
-  else {
+  وگرنه {
     /* Expire existing, append, trim from head to obey max_sessions */
     cf_scache_peer_remove_expired(peer, now);
     cf_scache_peer_remove_non13(peer);
     Curl_llist_append(&peer->sessions, s, &s->list);
-    while(Curl_llist_count(&peer->sessions) > peer->max_sessions) {
-      Curl_node_remove(Curl_llist_head(&peer->sessions));
+    وقتی(Curl_llist_شمار(&peer->sessions) > peer->max_sessions) {
+      Curl_گره_remove(Curl_llist_head(&peer->sessions));
     }
   }
 }
 
-static CURLcode cf_scache_add_session(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_ssl_scache *scache,
-                                      const char *ssl_peer_key,
-                                      struct Curl_ssl_session *s)
+ایستا CURLcode cf_scache_add_session(ساختار Curl_cfilter *cf,
+                                      ساختار Curl_easy *data,
+                                      ساختار Curl_ssl_scache *scache,
+                                      ثابت نویسه *ssl_peer_کلید,
+                                      ساختار Curl_ssl_session *s)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
+  ساختار ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  curl_off_t now = (curl_off_t)time(NULL);
+  curl_off_t now = (curl_off_t)time(پوچ);
   curl_off_t max_lifetime;
 
-  if(!scache || !scache->peer_count) {
+  اگر(!scache || !scache->peer_شمار) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    بازگشت CURLE_OK;
   }
 
-  if(s->valid_until <= 0)
+  اگر(s->valid_until <= 0)
     s->valid_until = now + scache->default_lifetime_secs;
 
   max_lifetime = (s->ietf_tls_id == CURL_IETF_PROTO_TLS1_3) ?
                  CURL_SCACHE_MAX_13_LIFETIME_SEC :
                  CURL_SCACHE_MAX_12_LIFETIME_SEC;
-  if(s->valid_until > (now + max_lifetime))
+  اگر(s->valid_until > (now + max_lifetime))
     s->valid_until = now + max_lifetime;
 
-  if(cf_scache_session_expired(s, now)) {
+  اگر(cf_scache_session_expired(s, now)) {
     CURL_TRC_SSLS(data, "add, session already expired");
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    بازگشت CURLE_OK;
   }
 
-  result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
+  result = cf_ssl_add_peer(data, scache, ssl_peer_کلید, conn_config, &peer);
+  اگر(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (صحیح)result);
     Curl_ssl_session_destroy(s);
-    goto out;
+    برو out;
   }
 
   cf_scache_peer_add_session(peer, s, now);
 
 out:
-  if(result) {
+  اگر(result) {
     failf(data, "[SCACHE] failed to add session for %s, error=%d",
-          ssl_peer_key, (int)result);
+          ssl_peer_کلید, (صحیح)result);
   }
-  else
+  وگرنه
     CURL_TRC_SSLS(data, "added session for %s [proto=0x%x, "
                   "valid_secs=%" FMT_OFF_T ", alpn=%s, earlydata=%zu, "
-                  "quic_tp=%s], peer has %zu sessions now", ssl_peer_key,
-                  (unsigned int)s->ietf_tls_id, s->valid_until - now,
+                  "quic_tp=%s], peer has %zu sessions now", ssl_peer_کلید,
+                  (unsigned صحیح)s->ietf_tls_id, s->valid_until - now,
                   s->alpn, s->earlydata_max, s->quic_tp ? "yes" : "no",
-                  peer ? Curl_llist_count(&peer->sessions) : 0);
-  return result;
+                  peer ? Curl_llist_شمار(&peer->sessions) : 0);
+  بازگشت result;
 }
 
-CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             const char *ssl_peer_key,
-                             struct Curl_ssl_session *s)
+CURLcode Curl_ssl_scache_put(ساختار Curl_cfilter *cf,
+                             ساختار Curl_easy *data,
+                             ثابت نویسه *ssl_peer_کلید,
+                             ساختار Curl_ssl_session *s)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result;
   DEBUGASSERT(conn_config);
 
-  if(!scache || !conn_config->cache_session) {
+  اگر(!scache || !conn_config->cache_session) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    بازگشت CURLE_OK;
   }
 
   Curl_ssl_scache_lock(data);
-  result = cf_scache_add_session(cf, data, scache, ssl_peer_key, s);
+  result = cf_scache_add_session(cf, data, scache, ssl_peer_کلید, s);
   Curl_ssl_scache_unlock(data);
-  return result;
+  بازگشت result;
 }
 
-void Curl_ssl_scache_return(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const char *ssl_peer_key,
-                            struct Curl_ssl_session *s)
+تهی Curl_ssl_scache_return(ساختار Curl_cfilter *cf,
+                            ساختار Curl_easy *data,
+                            ثابت نویسه *ssl_peer_کلید,
+                            ساختار Curl_ssl_session *s)
 {
   /* See RFC 8446 C.4:
    * "Clients SHOULD NOT reuse a ticket for multiple connections." */
-  if(s && s->ietf_tls_id < 0x304)
-    (void)Curl_ssl_scache_put(cf, data, ssl_peer_key, s);
-  else
+  اگر(s && s->ietf_tls_id < 0x304)
+    (تهی)Curl_ssl_scache_put(cf, data, ssl_peer_کلید, s);
+  وگرنه
     Curl_ssl_session_destroy(s);
 }
 
-CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key,
-                              struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_scache_take(ساختار Curl_cfilter *cf,
+                              ساختار Curl_easy *data,
+                              ثابت نویسه *ssl_peer_کلید,
+                              ساختار Curl_ssl_session **ps)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct Curl_llist_node *n;
-  struct Curl_ssl_session *s = NULL;
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
+  ساختار Curl_llist_گره *n;
+  ساختار Curl_ssl_session *s = پوچ;
   CURLcode result;
 
-  *ps = NULL;
-  if(!scache)
-    return CURLE_OK;
+  *ps = پوچ;
+  اگر(!scache)
+    بازگشت CURLE_OK;
 
   Curl_ssl_scache_lock(data);
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_کلید(data, scache, ssl_peer_کلید, conn_config,
                                    &peer);
-  if(!result && peer) {
-    cf_scache_peer_remove_expired(peer, (curl_off_t)time(NULL));
+  اگر(!result && peer) {
+    cf_scache_peer_remove_expired(peer, (curl_off_t)time(پوچ));
     n = Curl_llist_head(&peer->sessions);
-    if(n) {
-      s = Curl_node_take_elem(n);
+    اگر(n) {
+      s = Curl_گره_take_elem(n);
       scache->age++;           /* increase general age */
       peer->age = scache->age; /* set this as used in this age */
     }
   }
-  if(s) {
+  اگر(s) {
     *ps = s;
     CURL_TRC_SSLS(data, "took session for %s [proto=0x%x, "
                   "alpn=%s, earlydata=%zu, quic_tp=%s], %zu sessions remain",
-                  ssl_peer_key, (unsigned int)s->ietf_tls_id, s->alpn,
+                  ssl_peer_کلید, (unsigned صحیح)s->ietf_tls_id, s->alpn,
                   s->earlydata_max, s->quic_tp ? "yes" : "no",
-                  Curl_llist_count(&peer->sessions));
+                  Curl_llist_شمار(&peer->sessions));
   }
-  else {
-    CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_key);
+  وگرنه {
+    CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_کلید);
   }
   Curl_ssl_scache_unlock(data);
-  return result;
+  بازگشت result;
 }
 
-CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 void *sobj,
+CURLcode Curl_ssl_scache_add_obj(ساختار Curl_cfilter *cf,
+                                 ساختار Curl_easy *data,
+                                 ثابت نویسه *ssl_peer_کلید,
+                                 تهی *sobj,
                                  Curl_ssl_scache_obj_dtor *sobj_dtor_cb)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
   CURLcode result;
 
   DEBUGASSERT(sobj);
   DEBUGASSERT(sobj_dtor_cb);
 
-  if(!scache) {
+  اگر(!scache) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    برو out;
   }
 
-  result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
-    goto out;
+  result = cf_ssl_add_peer(data, scache, ssl_peer_کلید, conn_config, &peer);
+  اگر(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (صحیح)result);
+    برو out;
   }
 
   cf_ssl_scache_peer_set_obj(peer, sobj, sobj_dtor_cb);
-  sobj = NULL;  /* peer took ownership */
+  sobj = پوچ;  /* peer took ownership */
 
 out:
-  if(sobj && sobj_dtor_cb)
+  اگر(sobj && sobj_dtor_cb)
     sobj_dtor_cb(sobj);
-  return result;
+  بازگشت result;
 }
 
-void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key)
+تهی *Curl_ssl_scache_get_obj(ساختار Curl_cfilter *cf,
+                              ساختار Curl_easy *data,
+                              ثابت نویسه *ssl_peer_کلید)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
   CURLcode result;
-  void *sobj;
+  تهی *sobj;
 
-  if(!scache)
-    return NULL;
+  اگر(!scache)
+    بازگشت پوچ;
 
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_کلید(data, scache, ssl_peer_کلید, conn_config,
                                    &peer);
-  if(result)
-    return NULL;
+  اگر(result)
+    بازگشت پوچ;
 
-  sobj = peer ? peer->sobj : NULL;
+  sobj = peer ? peer->sobj : پوچ;
 
   CURL_TRC_SSLS(data, "%s cached session for '%s'",
-                sobj ? "Found" : "No", ssl_peer_key);
-  return sobj;
+                sobj ? "Found" : "No", ssl_peer_کلید);
+  بازگشت sobj;
 }
 
-void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const char *ssl_peer_key)
+تهی Curl_ssl_scache_remove_all(ساختار Curl_cfilter *cf,
+                                ساختار Curl_easy *data,
+                                ثابت نویسه *ssl_peer_کلید)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
   CURLcode result;
 
-  (void)cf;
-  if(!scache)
-    return;
+  (تهی)cf;
+  اگر(!scache)
+    بازگشت;
 
   Curl_ssl_scache_lock(data);
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_کلید(data, scache, ssl_peer_کلید, conn_config,
                                    &peer);
-  if(!result && peer)
+  اگر(!result && peer)
     cf_ssl_scache_clear_peer(peer);
   Curl_ssl_scache_unlock(data);
 }
@@ -1145,215 +1145,215 @@ void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
 
 #define CURL_SSL_TICKET_MAX   (16 * 1024)
 
-static CURLcode cf_ssl_scache_peer_set_hmac(struct Curl_ssl_scache_peer *peer)
+ایستا CURLcode cf_ssl_scache_peer_set_hmac(ساختار Curl_ssl_scache_peer *peer)
 {
   CURLcode result;
 
   DEBUGASSERT(peer);
-  if(!peer->ssl_peer_key)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!peer->ssl_peer_کلید)
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
-  result = Curl_rand(NULL, peer->key_salt, sizeof(peer->key_salt));
-  if(result)
-    return result;
+  result = Curl_rand(پوچ, peer->کلید_salt, اندازه(peer->کلید_salt));
+  اگر(result)
+    بازگشت result;
 
   result = Curl_hmacit(&Curl_HMAC_SHA256,
-                       peer->key_salt, sizeof(peer->key_salt),
-                       (const unsigned char *)peer->ssl_peer_key,
-                       strlen(peer->ssl_peer_key),
-                       peer->key_hmac);
-  if(!result)
+                       peer->کلید_salt, اندازه(peer->کلید_salt),
+                       (ثابت unsigned نویسه *)peer->ssl_peer_کلید,
+                       strlen(peer->ssl_peer_کلید),
+                       peer->کلید_hmac);
+  اگر(!result)
     peer->hmac_set = TRUE;
-  return result;
+  بازگشت result;
 }
 
-static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
-                                         const unsigned char *salt,
-                                         const unsigned char *hmac,
-                                         struct Curl_ssl_scache_peer **ppeer)
+ایستا CURLcode cf_ssl_find_peer_by_hmac(ساختار Curl_ssl_scache *scache,
+                                         ثابت unsigned نویسه *salt,
+                                         ثابت unsigned نویسه *hmac,
+                                         ساختار Curl_ssl_scache_peer **ppeer)
 {
   size_t i;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(!GOOD_SCACHE(scache))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  *ppeer = پوچ;
+  اگر(!GOOD_SCACHE(scache))
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* look for an entry that matches salt+hmac exactly or has a known
    * ssl_peer_key which salt+hmac's to the same. */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    struct Curl_ssl_scache_peer *peer = &scache->peers[i];
-    if(!cf_ssl_scache_match_auth(peer, NULL))
-      continue;
-    if(scache->peers[i].hmac_set &&
-       !memcmp(peer->key_salt, salt, sizeof(peer->key_salt)) &&
-       !memcmp(peer->key_hmac, hmac, sizeof(peer->key_hmac))) {
+  برای(i = 0; scache && i < scache->peer_شمار; i++) {
+    ساختار Curl_ssl_scache_peer *peer = &scache->peers[i];
+    اگر(!cf_ssl_scache_match_auth(peer, پوچ))
+      ادامه;
+    اگر(scache->peers[i].hmac_set &&
+       !memcmp(peer->کلید_salt, salt, اندازه(peer->کلید_salt)) &&
+       !memcmp(peer->کلید_hmac, hmac, اندازه(peer->کلید_hmac))) {
       /* found exact match, return */
       *ppeer = peer;
-      goto out;
+      برو out;
     }
-    else if(peer->ssl_peer_key) {
-      unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
+    وگرنه اگر(peer->ssl_peer_کلید) {
+      unsigned نویسه my_hmac[CURL_SHA256_DIGEST_LENGTH];
       /* compute hmac for the passed salt */
       result = Curl_hmacit(&Curl_HMAC_SHA256,
-                           salt, sizeof(peer->key_salt),
-                           (const unsigned char *)peer->ssl_peer_key,
-                           strlen(peer->ssl_peer_key),
+                           salt, اندازه(peer->کلید_salt),
+                           (ثابت unsigned نویسه *)peer->ssl_peer_کلید,
+                           strlen(peer->ssl_peer_کلید),
                            my_hmac);
-      if(result)
-        goto out;
-      if(!memcmp(my_hmac, hmac, sizeof(my_hmac))) {
+      اگر(result)
+        برو out;
+      اگر(!memcmp(my_hmac, hmac, اندازه(my_hmac))) {
         /* cryptohash match, take over salt+hmac if no set and return */
-        if(!peer->hmac_set) {
-          memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
-          memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
+        اگر(!peer->hmac_set) {
+          memcpy(peer->کلید_salt, salt, اندازه(peer->کلید_salt));
+          memcpy(peer->کلید_hmac, hmac, اندازه(peer->کلید_hmac));
           peer->hmac_set = TRUE;
         }
         *ppeer = peer;
-        goto out;
+        برو out;
       }
     }
   }
 out:
-  return result;
+  بازگشت result;
 }
 
-CURLcode Curl_ssl_session_import(struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 const unsigned char *shmac, size_t shmac_len,
-                                 const void *sdata, size_t sdata_len)
+CURLcode Curl_ssl_session_import(ساختار Curl_easy *data,
+                                 ثابت نویسه *ssl_peer_کلید,
+                                 ثابت unsigned نویسه *shmac, size_t shmac_len,
+                                 ثابت تهی *sdata, size_t sdata_len)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct Curl_ssl_session *s = NULL;
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار Curl_ssl_scache_peer *peer = پوچ;
+  ساختار Curl_ssl_session *s = پوچ;
   bool have_lock = FALSE;
   CURLcode result;
 
-  if(!scache || !sdata || !sdata_len) {
+  اگر(!scache || !sdata || !sdata_len) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    برو out;
   }
-  if(!ssl_peer_key && (!shmac || !shmac_len)) {
+  اگر(!ssl_peer_کلید && (!shmac || !shmac_len)) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    برو out;
   }
 
   result = Curl_ssl_session_unpack(data, sdata, sdata_len, &s);
-  if(result)
-    goto out;
+  اگر(result)
+    برو out;
 
   Curl_ssl_scache_lock(data);
   have_lock = TRUE;
 
-  if(ssl_peer_key) {
-    result = cf_ssl_add_peer(data, scache, ssl_peer_key, NULL, &peer);
-    if(result)
-      goto out;
+  اگر(ssl_peer_کلید) {
+    result = cf_ssl_add_peer(data, scache, ssl_peer_کلید, پوچ, &peer);
+    اگر(result)
+      برو out;
   }
-  else if(shmac_len != (sizeof(peer->key_salt) + sizeof(peer->key_hmac))) {
+  وگرنه اگر(shmac_len != (اندازه(peer->کلید_salt) + اندازه(peer->کلید_hmac))) {
     /* Either salt+hmac was garbled by caller or is from a curl version
      * that does things differently */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    برو out;
   }
-  else {
-    const unsigned char *salt = shmac;
-    const unsigned char *hmac = shmac + sizeof(peer->key_salt);
+  وگرنه {
+    ثابت unsigned نویسه *salt = shmac;
+    ثابت unsigned نویسه *hmac = shmac + اندازه(peer->کلید_salt);
 
     result = cf_ssl_find_peer_by_hmac(scache, salt, hmac, &peer);
-    if(result)
-      goto out;
-    if(!peer) {
+    اگر(result)
+      برو out;
+    اگر(!peer) {
       peer = cf_ssl_get_free_peer(scache);
-      if(peer) {
-        result = cf_ssl_scache_peer_init(peer, ssl_peer_key, NULL, NULL,
+      اگر(peer) {
+        result = cf_ssl_scache_peer_init(peer, ssl_peer_کلید, پوچ, پوچ,
                                          salt, hmac);
-        if(result)
-          goto out;
+        اگر(result)
+          برو out;
       }
     }
   }
 
-  if(peer) {
-    cf_scache_peer_add_session(peer, s, time(NULL));
-    s = NULL; /* peer is now owner */
+  اگر(peer) {
+    cf_scache_peer_add_session(peer, s, time(پوچ));
+    s = پوچ; /* peer is now owner */
     CURL_TRC_SSLS(data, "successfully imported ticket for peer %s, now "
                   "with %zu tickets",
-                  peer->ssl_peer_key ? peer->ssl_peer_key : "without key",
-                  Curl_llist_count(&peer->sessions));
+                  peer->ssl_peer_کلید ? peer->ssl_peer_کلید : "without key",
+                  Curl_llist_شمار(&peer->sessions));
   }
 
 out:
-  if(scache && have_lock)
+  اگر(scache && have_lock)
     Curl_ssl_scache_unlock(data);
   Curl_ssl_session_destroy(s);
-  return result;
+  بازگشت result;
 }
 
-CURLcode Curl_ssl_session_export(struct Curl_easy *data,
+CURLcode Curl_ssl_session_export(ساختار Curl_easy *data,
                                  curl_ssls_export_cb *export_fn,
-                                 void *userptr)
+                                 تهی *userptr)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct Curl_ssl_scache_peer *peer;
-  struct dynbuf sbuf, hbuf;
-  struct Curl_llist_node *n;
+  ساختار Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ساختار Curl_ssl_scache_peer *peer;
+  ساختار dynbuf sbuf, hbuf;
+  ساختار Curl_llist_گره *n;
   size_t i;
-  curl_off_t now = time(NULL);
+  curl_off_t now = time(پوچ);
   CURLcode result = CURLE_OK;
 #ifdef CURLVERBOSE
   size_t npeers = 0, ntickets = 0;
 #endif
 
-  if(!export_fn)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!export_fn)
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_ssl_scache_lock(data);
 
   curlx_dyn_init(&hbuf, (CURL_SHA256_DIGEST_LENGTH * 2) + 1);
   curlx_dyn_init(&sbuf, CURL_SSL_TICKET_MAX);
 
-  for(i = 0; scache && i < scache->peer_count; i++) {
+  برای(i = 0; scache && i < scache->peer_شمار; i++) {
     peer = &scache->peers[i];
-    if(!peer->ssl_peer_key && !peer->hmac_set)
-      continue; /* skip free entry */
-    if(!peer->exportable)
-      continue;
+    اگر(!peer->ssl_peer_کلید && !peer->hmac_set)
+      ادامه; /* skip free entry */
+    اگر(!peer->exportable)
+      ادامه;
 
     curlx_dyn_reset(&hbuf);
     cf_scache_peer_remove_expired(peer, now);
     n = Curl_llist_head(&peer->sessions);
-    if(n)
+    اگر(n)
       VERBOSE(++npeers);
-    while(n) {
-      struct Curl_ssl_session *s = Curl_node_elem(n);
-      if(!peer->hmac_set) {
+    وقتی(n) {
+      ساختار Curl_ssl_session *s = Curl_گره_elem(n);
+      اگر(!peer->hmac_set) {
         result = cf_ssl_scache_peer_set_hmac(peer);
-        if(result)
-          goto out;
+        اگر(result)
+          برو out;
       }
-      if(!curlx_dyn_len(&hbuf)) {
-        result = curlx_dyn_addn(&hbuf, peer->key_salt, sizeof(peer->key_salt));
-        if(result)
-          goto out;
-        result = curlx_dyn_addn(&hbuf, peer->key_hmac, sizeof(peer->key_hmac));
-        if(result)
-          goto out;
+      اگر(!curlx_dyn_len(&hbuf)) {
+        result = curlx_dyn_addn(&hbuf, peer->کلید_salt, اندازه(peer->کلید_salt));
+        اگر(result)
+          برو out;
+        result = curlx_dyn_addn(&hbuf, peer->کلید_hmac, اندازه(peer->کلید_hmac));
+        اگر(result)
+          برو out;
       }
       curlx_dyn_reset(&sbuf);
       result = Curl_ssl_session_pack(data, s, &sbuf);
-      if(result)
-        goto out;
+      اگر(result)
+        برو out;
 
-      result = export_fn(data, userptr, peer->ssl_peer_key,
+      result = export_fn(data, userptr, peer->ssl_peer_کلید,
                          curlx_dyn_uptr(&hbuf), curlx_dyn_len(&hbuf),
                          curlx_dyn_uptr(&sbuf), curlx_dyn_len(&sbuf),
                          s->valid_until, s->ietf_tls_id,
                          s->alpn, s->earlydata_max);
-      if(result)
-        goto out;
+      اگر(result)
+        برو out;
       VERBOSE(++ntickets);
-      n = Curl_node_next(n);
+      n = Curl_گره_next(n);
     }
   }
   result = CURLE_OK;
@@ -1364,7 +1364,7 @@ out:
   Curl_ssl_scache_unlock(data);
   curlx_dyn_free(&hbuf);
   curlx_dyn_free(&sbuf);
-  return result;
+  بازگشت result;
 }
 
 #endif /* USE_SSLS_EXPORT */

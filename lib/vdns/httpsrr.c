@@ -21,19 +21,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef USE_HTTPSRR
 
-#include "urldata.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "vdns/httpsrr.h"
-#include "curlx/strdup.h"
-#include "curlx/inet_ntop.h"
+#شامل "urldata.h"
+#شامل "connect.h"
+#شامل "curl_trc.h"
+#شامل "vdns/httpsrr.h"
+#شامل "curlx/strdup.h"
+#شامل "curlx/inet_ntop.h"
 
-static CURLcode httpsrr_decode_alpn(const uint8_t *cp, size_t len,
-                                    unsigned char *alpns)
+ایستا CURLcode httpsrr_decode_alpn(ثابت uint8_t *cp, size_t len,
+                                    unsigned نویسه *alpns)
 {
   /*
    * The wire-format value for "alpn" consists of at least one alpn-id
@@ -41,193 +41,193 @@ static CURLcode httpsrr_decode_alpn(const uint8_t *cp, size_t len,
    * are concatenated to form the SvcParamValue. These pairs MUST exactly fill
    * the SvcParamValue; otherwise, the SvcParamValue is malformed.
    */
-  int idnum = 0;
+  صحیح idnum = 0;
 
-  while(len > 0) {
+  وقتی(len > 0) {
     size_t tlen = *cp++;
-    enum alpnid id;
+    شمارش alpnid id;
     len--;
-    if(tlen > len)
-      return CURLE_BAD_CONTENT_ENCODING;
+    اگر(tlen > len)
+      بازگشت CURLE_BAD_CONTENT_ENCODING;
 
     /* we only store ALPN ids we know about */
     id = Curl_alpn2alpnid(cp, tlen);
-    if(id != ALPN_none) {
-      if(idnum == MAX_HTTPSRR_ALPNS)
-        break;
-      if(idnum && memchr(alpns, id, idnum))
+    اگر(id != ALPN_none) {
+      اگر(idnum == MAX_HTTPSRR_ALPNS)
+        بشکن;
+      اگر(idnum && memchr(alpns, id, idnum))
         /* this ALPN id is already stored */
         ;
-      else
-        alpns[idnum++] = (unsigned char)id;
+      وگرنه
+        alpns[idnum++] = (unsigned نویسه)id;
     }
     cp += tlen;
     len -= tlen;
   }
-  if(idnum < MAX_HTTPSRR_ALPNS)
+  اگر(idnum < MAX_HTTPSRR_ALPNS)
     alpns[idnum] = ALPN_none; /* terminate the list */
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 #ifdef CURLVERBOSE
 
-static CURLcode httpsrr_print_addr(struct dynbuf *dyn,
-                                   int ai_family,
-                                   const uint8_t *addr,
+ایستا CURLcode httpsrr_print_addr(ساختار dynbuf *dyn,
+                                   صحیح ai_family,
+                                   ثابت uint8_t *addr,
                                    size_t total_len)
 {
-  char buf[MAX_IPADR_LEN];
+  نویسه buf[MAX_IPADR_LEN];
   size_t i, alen = (ai_family == AF_INET6) ? 16 : 4;
-  const char *sep = "";
+  ثابت نویسه *sep = "";
   CURLcode result = CURLE_OK;
 
-  for(i = 0; (i < (total_len / alen)) && !result; ++i) {
-    if(curlx_inet_ntop(ai_family, addr + (i * alen), buf, sizeof(buf)))
+  برای(i = 0; (i < (total_len / alen)) && !result; ++i) {
+    اگر(curlx_inet_ntop(ai_family, addr + (i * alen), buf, اندازه(buf)))
       result = curlx_dyn_add(dyn, "<error parsing address>");
-    else
+    وگرنه
       result = curlx_dyn_addf(dyn, "%s%s", sep, buf);
     sep = ",";
   }
-  return result;
+  بازگشت result;
 }
 
-void Curl_httpsrr_trace(struct Curl_easy *data,
-                        struct Curl_https_rrinfo *rr)
+تهی Curl_httpsrr_trace(ساختار Curl_easy *data,
+                        ساختار Curl_https_rrinfo *rr)
 {
-  struct dynbuf tmp;
+  ساختار dynbuf tmp;
   CURLcode result;
 
-  if(!rr) {
+  اگر(!rr) {
     CURL_TRC_DNS(data, "[HTTPS] no record available");
-    return;
+    بازگشت;
   }
   curlx_dyn_init(&tmp, 1024);
   result = Curl_httpsrr_print(&tmp, rr);
-  if(!result)
+  اگر(!result)
     CURL_TRC_DNS(data, "[HTTPS] record: %s", curlx_dyn_ptr(&tmp));
-  else
+  وگرنه
     CURL_TRC_DNS(data, "[HTTPS] error printing information");
   curlx_dyn_free(&tmp);
 }
 
-CURLcode Curl_httpsrr_print(struct dynbuf *tmp,
-                            struct Curl_https_rrinfo *rr)
+CURLcode Curl_httpsrr_print(ساختار dynbuf *tmp,
+                            ساختار Curl_https_rrinfo *rr)
 {
   CURLcode result;
-  int i;
+  صحیح i;
 
   curlx_dyn_reset(tmp);
   result = curlx_dyn_addf(tmp, "%u %s", rr->priority,
                           rr->target ? rr->target : ".");
-  if(!result && rr->mandatory)
+  اگر(!result && rr->mandatory)
     result = curlx_dyn_add(tmp, " mandatory-keys(ignored)");
-  if(!result && rr->alpns[0]) {
-    const char *sep = "", *name;
+  اگر(!result && rr->alpns[0]) {
+    ثابت نویسه *sep = "", *name;
     result = curlx_dyn_add(tmp, " alpn=");
-    for(i = 0; !result && (i < 4); ++i) {
-      switch(rr->alpns[i]) {
-      case ALPN_h1:
+    برای(i = 0; !result && (i < 4); ++i) {
+      انتخاب(rr->alpns[i]) {
+      حالت ALPN_h1:
         name = "http/1.1";
-        break;
-      case ALPN_h2:
+        بشکن;
+      حالت ALPN_h2:
         name = "h2";
-        break;
-      case ALPN_h3:
+        بشکن;
+      حالت ALPN_h3:
         name = "h3";
-        break;
-      default:
-        name = NULL;
+        بشکن;
+      پیشفرض:
+        name = پوچ;
       }
-      if(name) {
+      اگر(name) {
         result = curlx_dyn_addf(tmp, "%s%s", sep, name);
         sep = ",";
       }
     }
   }
-  if(!result && rr->port_set) {
+  اگر(!result && rr->port_set) {
     result = curlx_dyn_addf(tmp, " port=%u", rr->port);
   }
-  if(!result && rr->no_def_alpn)
+  اگر(!result && rr->no_def_alpn)
     result = curlx_dyn_add(tmp, " no-default-alpn");
-  if(!result && rr->ipv6hints_len) {
+  اگر(!result && rr->ipv6hints_len) {
     result = curlx_dyn_add(tmp, " ipv6hint=");
-    if(!result)
+    اگر(!result)
       result = httpsrr_print_addr(
         tmp, AF_INET6, rr->ipv6hints, rr->ipv6hints_len);
   }
-  if(!result && rr->ipv4hints_len) {
+  اگر(!result && rr->ipv4hints_len) {
     result = curlx_dyn_add(tmp, " ipv4hint=");
-    if(!result)
+    اگر(!result)
       result = httpsrr_print_addr(
         tmp, AF_INET, rr->ipv4hints, rr->ipv4hints_len);
   }
-  if(!result && rr->echconfiglist_len)
+  اگر(!result && rr->echconfiglist_len)
     result = curlx_dyn_addf(tmp, " ech=<%zu bytes>", rr->echconfiglist_len);
 
-  return result;
+  بازگشت result;
 }
 
 #endif /* CURLVERBOSE */
 
-CURLcode Curl_httpsrr_set(struct Curl_https_rrinfo *rr,
-                          uint16_t rrkey, const uint8_t *val, size_t vlen)
+CURLcode Curl_httpsrr_set(ساختار Curl_https_rrinfo *rr,
+                          uint16_t rrkey, ثابت uint8_t *val, size_t vlen)
 {
   CURLcode result = CURLE_OK;
-  switch(rrkey) {
-  case HTTPS_RR_CODE_MANDATORY:
+  انتخاب(rrkey) {
+  حالت HTTPS_RR_CODE_MANDATORY:
     rr->mandatory = TRUE;
-    break;
-  case HTTPS_RR_CODE_ALPN: /* str_list */
+    بشکن;
+  حالت HTTPS_RR_CODE_ALPN: /* str_list */
     result = httpsrr_decode_alpn(val, vlen, rr->alpns);
-    break;
-  case HTTPS_RR_CODE_NO_DEF_ALPN:
-    if(vlen) /* no data */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    بشکن;
+  حالت HTTPS_RR_CODE_NO_DEF_ALPN:
+    اگر(vlen) /* no data */
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     rr->no_def_alpn = TRUE;
-    break;
-  case HTTPS_RR_CODE_IPV4: /* addr4 list */
-    if(!vlen || (vlen & 3)) /* the size must be 4-byte aligned */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    بشکن;
+  حالت HTTPS_RR_CODE_IPV4: /* addr4 list */
+    اگر(!vlen || (vlen & 3)) /* the size must be 4-byte aligned */
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_free(rr->ipv4hints);
     rr->ipv4hints = curlx_memdup(val, vlen);
-    if(!rr->ipv4hints)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!rr->ipv4hints)
+      بازگشت CURLE_OUT_OF_MEMORY;
     rr->ipv4hints_len = vlen;
-    break;
-  case HTTPS_RR_CODE_ECH:
-    if(!vlen)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    بشکن;
+  حالت HTTPS_RR_CODE_ECH:
+    اگر(!vlen)
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_free(rr->echconfiglist);
     rr->echconfiglist = curlx_memdup(val, vlen);
-    if(!rr->echconfiglist)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!rr->echconfiglist)
+      بازگشت CURLE_OUT_OF_MEMORY;
     rr->echconfiglist_len = vlen;
-    break;
-  case HTTPS_RR_CODE_IPV6: /* addr6 list */
-    if(!vlen || (vlen & 15)) /* the size must be 16-byte aligned */
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    بشکن;
+  حالت HTTPS_RR_CODE_IPV6: /* addr6 list */
+    اگر(!vlen || (vlen & 15)) /* the size must be 16-byte aligned */
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     curlx_free(rr->ipv6hints);
     rr->ipv6hints = curlx_memdup(val, vlen);
-    if(!rr->ipv6hints)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!rr->ipv6hints)
+      بازگشت CURLE_OUT_OF_MEMORY;
     rr->ipv6hints_len = vlen;
-    break;
-  case HTTPS_RR_CODE_PORT:
-    if(vlen != 2)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    بشکن;
+  حالت HTTPS_RR_CODE_PORT:
+    اگر(vlen != 2)
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     rr->port = (uint16_t)((val[0] << 8) | val[1]);
     rr->port_set = TRUE;
-    break;
-  default:
+    بشکن;
+  پیشفرض:
     /* unknown code */
-    break;
+    بشکن;
   }
-  return result;
+  بازگشت result;
 }
 
-void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo)
+تهی Curl_httpsrr_destroy(ساختار Curl_https_rrinfo *rrinfo)
 {
-  if(rrinfo) {
+  اگر(rrinfo) {
     curlx_free(rrinfo->target);
     curlx_free(rrinfo->echconfiglist);
     curlx_free(rrinfo->ipv4hints);
@@ -236,87 +236,87 @@ void Curl_httpsrr_destroy(struct Curl_https_rrinfo *rrinfo)
   }
 }
 
-bool Curl_httpsrr_applicable(struct Curl_easy *data,
-                             const struct Curl_https_rrinfo *rr)
+bool Curl_httpsrr_applicable(ساختار Curl_easy *data,
+                             ثابت ساختار Curl_https_rrinfo *rr)
 {
-  if(!data->conn)
-    return FALSE;
-  return Curl_httpsrr_is_for_peer(data->conn->origin, rr);
+  اگر(!data->conn)
+    بازگشت FALSE;
+  بازگشت Curl_httpsrr_is_for_peer(data->conn->origin, rr);
 }
 
-bool Curl_httpsrr_is_for_peer(struct Curl_peer *peer,
-                              const struct Curl_https_rrinfo *rr)
+bool Curl_httpsrr_is_for_peer(ساختار Curl_peer *peer,
+                              ثابت ساختار Curl_https_rrinfo *rr)
 {
-  if(!peer || !rr)
-    return FALSE;
-  return (!rr->target || !rr->target[0] ||
+  اگر(!peer || !rr)
+    بازگشت FALSE;
+  بازگشت (!rr->target || !rr->target[0] ||
           (rr->target[0] == '.' && !rr->target[1])) &&
          (!rr->port_set || rr->port == peer->port);
 }
 
 #ifdef USE_ARES
 
-static CURLcode httpsrr_opt(const ares_dns_rr_t *rr,
-                            ares_dns_rr_key_t key, size_t idx,
-                            struct Curl_https_rrinfo *hinfo)
+ایستا CURLcode httpsrr_opt(ثابت ares_dns_rr_t *rr,
+                            ares_dns_rr_کلید_t کلید, size_t idx,
+                            ساختار Curl_https_rrinfo *hinfo)
 {
-  const unsigned char *val = NULL;
+  ثابت unsigned نویسه *val = پوچ;
   unsigned short code;
   size_t len = 0;
 
-  code = ares_dns_rr_get_opt(rr, key, idx, &val, &len);
-  return Curl_httpsrr_set(hinfo, code, val, len);
+  code = ares_dns_rr_get_opt(rr, کلید, idx, &val, &len);
+  بازگشت Curl_httpsrr_set(hinfo, code, val, len);
 }
 
-CURLcode Curl_httpsrr_from_ares(const ares_dns_record_t *dnsrec,
-                                struct Curl_https_rrinfo **phinfo)
+CURLcode Curl_httpsrr_from_ares(ثابت ares_dns_record_t *dnsrec,
+                                ساختار Curl_https_rrinfo **phinfo)
 {
-  struct Curl_https_rrinfo *hinfo = NULL;
+  ساختار Curl_https_rrinfo *hinfo = پوچ;
   CURLcode result = CURLE_OUT_OF_MEMORY;
   size_t i;
 
-  hinfo = curlx_calloc(1, sizeof(*hinfo));
-  if(!hinfo)
-    goto out;
+  hinfo = curlx_calloc(1, اندازه(*hinfo));
+  اگر(!hinfo)
+    برو out;
 
-  for(i = 0; i < ares_dns_record_rr_cnt(dnsrec, ARES_SECTION_ANSWER); i++) {
-    const char *target;
+  برای(i = 0; i < ares_dns_record_rr_cnt(dnsrec, ARES_SECTION_ANSWER); i++) {
+    ثابت نویسه *target;
     size_t opt;
-    const ares_dns_rr_t *rr =
+    ثابت ares_dns_rr_t *rr =
       ares_dns_record_rr_get_const(dnsrec, ARES_SECTION_ANSWER, i);
-    if(ares_dns_rr_get_type(rr) != ARES_REC_TYPE_HTTPS)
-      continue;
+    اگر(ares_dns_rr_get_type(rr) != ARES_REC_TYPE_HTTPS)
+      ادامه;
     /* When SvcPriority is 0, the SVCB record is in AliasMode. Otherwise, it
        is in ServiceMode */
     target = ares_dns_rr_get_str(rr, ARES_RR_HTTPS_TARGET);
-    if(target && target[0]) {
+    اگر(target && target[0]) {
       curlx_free(hinfo->target);
       hinfo->target = curlx_strdup(target);
-      if(!hinfo->target) {
+      اگر(!hinfo->target) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        برو out;
       }
     }
     hinfo->priority = ares_dns_rr_get_u16(rr, ARES_RR_HTTPS_PRIORITY);
-    for(opt = 0; opt < ares_dns_rr_get_opt_cnt(rr, ARES_RR_HTTPS_PARAMS);
+    برای(opt = 0; opt < ares_dns_rr_get_opt_cnt(rr, ARES_RR_HTTPS_PARAMS);
         opt++) {
       result = httpsrr_opt(rr, ARES_RR_HTTPS_PARAMS, opt, hinfo);
-      if(result)
-        goto out;
+      اگر(result)
+        برو out;
     }
   }
   result = CURLE_OK;
 
 out:
-  if(result) {
-    *phinfo = NULL;
+  اگر(result) {
+    *phinfo = پوچ;
     Curl_httpsrr_destroy(hinfo);
   }
-  else {
+  وگرنه {
     DEBUGASSERT(hinfo);
     *phinfo = hinfo;
   }
-  return result;
+  بازگشت result;
 }
 
 #endif /* USE_ARES */

@@ -24,49 +24,49 @@
  *
  ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#اگر (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_HTTPSIG) ||                                   \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
 #define HMAC_MD5_LENGTH 16
 
-typedef CURLcode (*HMAC_hinit)(void *context);
-typedef void (*HMAC_hupdate)(void *context,
-                             const unsigned char *data,
-                             unsigned int len);
-typedef void (*HMAC_hfinal)(unsigned char *result, void *context);
+تعریفنوع CURLcode (*HMAC_hinit)(تهی *context);
+تعریفنوع تهی (*HMAC_hupdate)(تهی *context,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح len);
+تعریفنوع تهی (*HMAC_hfinal)(unsigned نویسه *result, تهی *context);
 
 /* Per-hash function HMAC parameters. */
-struct HMAC_params {
+ساختار HMAC_params {
   HMAC_hinit  hinit;       /* Initialize context procedure. */
   HMAC_hupdate hupdate;    /* Update context with data. */
   HMAC_hfinal hfinal;      /* Get final result procedure. */
-  unsigned int ctxtsize;   /* Context structure size. */
-  unsigned int maxkeylen;  /* Maximum key length (bytes). */
-  unsigned int resultlen;  /* Result length (bytes). */
+  unsigned صحیح ctxtsize;   /* Context structure size. */
+  unsigned صحیح maxkeylen;  /* Maximum key length (bytes). */
+  unsigned صحیح resultlen;  /* Result length (bytes). */
 };
 
 /* HMAC computation context. */
-struct HMAC_context {
-  const struct HMAC_params *hash; /* Hash function definition. */
-  void *hashctxt1;         /* Hash function context 1. */
-  void *hashctxt2;         /* Hash function context 2. */
+ساختار HMAC_context {
+  ثابت ساختار HMAC_params *hash; /* Hash function definition. */
+  تهی *hashctxt1;         /* Hash function context 1. */
+  تهی *hashctxt2;         /* Hash function context 2. */
 };
 
 /* Prototypes. */
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen);
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len);
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output);
+ساختار HMAC_context *Curl_HMAC_init(ثابت ساختار HMAC_params *hashparams,
+                                    ثابت unsigned نویسه *کلید,
+                                    unsigned صحیح keylen);
+تهی Curl_HMAC_update(ساختار HMAC_context *ctxt,
+                      ثابت unsigned نویسه *data,
+                      unsigned صحیح len);
+صحیح Curl_HMAC_final(ساختار HMAC_context *ctxt, unsigned نویسه *output);
 
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output);
+CURLcode Curl_hmacit(ثابت ساختار HMAC_params *hashparams,
+                     ثابت unsigned نویسه *کلید, ثابت size_t keylen,
+                     ثابت unsigned نویسه *data, size_t datalen,
+                     unsigned نویسه *output);
 #endif
 
 #endif /* HEADER_CURL_HMAC_H */

@@ -21,30 +21,30 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if defined(USE_OPENSSL) || defined(USE_SCHANNEL)
+#اگر defined(USE_OPENSSL) || defined(USE_SCHANNEL)
 /* these backends use functions from this file */
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#شامل <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#شامل <netinet/in6.h>
 #endif
 
-#include "curl_memrchr.h"
-#include "vdns/hostip.h"
-#include "vtls/hostcheck.h"
+#شامل "curl_memrchr.h"
+#شامل "vdns/hostip.h"
+#شامل "vtls/hostcheck.h"
 
 /* check the two input strings with given length, but do not
    assume they are null-terminated */
-static bool pmatch(const char *hostname, size_t hostlen,
-                   const char *pattern, size_t patternlen)
+ایستا bool pmatch(ثابت نویسه *hostname, size_t hostlen,
+                   ثابت نویسه *pattern, size_t patternlen)
 {
-  if(hostlen != patternlen)
-    return FALSE;
-  return curl_strnequal(hostname, pattern, hostlen);
+  اگر(hostlen != patternlen)
+    بازگشت FALSE;
+  بازگشت curl_strnequal(hostname, pattern, hostlen);
 }
 
 /*
@@ -73,12 +73,12 @@ static bool pmatch(const char *hostname, size_t hostlen,
  * @unittest: 1397
  */
 
-static bool hostmatch(const char *hostname,
+ایستا bool hostmatch(ثابت نویسه *hostname,
                       size_t hostlen,
-                      const char *pattern,
+                      ثابت نویسه *pattern,
                       size_t patternlen)
 {
-  const char *pattern_label_end;
+  ثابت نویسه *pattern_label_end;
 
   DEBUGASSERT(pattern);
   DEBUGASSERT(patternlen);
@@ -86,45 +86,45 @@ static bool hostmatch(const char *hostname,
   DEBUGASSERT(hostlen);
 
   /* normalize pattern and hostname by stripping off trailing dots */
-  if(hostlen > 0 && hostname[hostlen - 1] == '.')
+  اگر(hostlen > 0 && hostname[hostlen - 1] == '.')
     hostlen--;
-  if(patternlen > 0 && pattern[patternlen - 1] == '.')
+  اگر(patternlen > 0 && pattern[patternlen - 1] == '.')
     patternlen--;
 
-  if(patternlen > 2 && strncmp(pattern, "*.", 2))
-    return pmatch(hostname, hostlen, pattern, patternlen);
+  اگر(patternlen > 2 && strncmp(pattern, "*.", 2))
+    بازگشت pmatch(hostname, hostlen, pattern, patternlen);
 
   /* detect host as IP address or starting with a dot and fail if so */
-  else if(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
-    return FALSE;
+  وگرنه اگر(Curl_host_is_ipnum(hostname) || (hostlen > 0 && hostname[0] == '.'))
+    بازگشت FALSE;
 
   /* We require at least 2 dots in the pattern to avoid too wide wildcard
      match. */
   pattern_label_end = memchr(pattern, '.', patternlen);
-  if(!pattern_label_end ||
+  اگر(!pattern_label_end ||
      (memrchr(pattern, '.', patternlen) == pattern_label_end))
-    return pmatch(hostname, hostlen, pattern, patternlen);
-  else {
-    const char *hostname_label_end = memchr(hostname, '.', hostlen);
-    if(hostname_label_end) {
+    بازگشت pmatch(hostname, hostlen, pattern, patternlen);
+  وگرنه {
+    ثابت نویسه *hostname_label_end = memchr(hostname, '.', hostlen);
+    اگر(hostname_label_end) {
       size_t skiphost = hostname_label_end - hostname;
       size_t skiplen = pattern_label_end - pattern;
-      return pmatch(hostname_label_end, hostlen - skiphost,
+      بازگشت pmatch(hostname_label_end, hostlen - skiphost,
                     pattern_label_end, patternlen - skiplen);
     }
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /*
  * Curl_cert_hostcheck() returns TRUE if a match and FALSE if not.
  */
-bool Curl_cert_hostcheck(const char *match, size_t matchlen,
-                         const char *hostname, size_t hostlen)
+bool Curl_cert_hostcheck(ثابت نویسه *match, size_t matchlen,
+                         ثابت نویسه *hostname, size_t hostlen)
 {
-  if(matchlen > 0 && hostlen > 0)
-    return hostmatch(hostname, hostlen, match, matchlen);
-  return FALSE;
+  اگر(matchlen > 0 && hostlen > 0)
+    بازگشت hostmatch(hostname, hostlen, match, matchlen);
+  بازگشت FALSE;
 }
 
 #endif /* USE_OPENSSL || USE_SCHANNEL */

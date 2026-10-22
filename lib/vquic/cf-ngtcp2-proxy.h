@@ -24,27 +24,27 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_PROXY_HTTP3) && defined(USE_NGHTTP3) &&              \
   defined(USE_NGTCP2) && defined(USE_OPENSSL)
 
-CURLcode Curl_cf_ngtcp2_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                           struct Curl_easy *data,
-                                           struct Curl_peer *origin,
-                                           struct Curl_peer *peer,
-                                           struct Curl_peer *tunnel_peer,
+CURLcode Curl_cf_ngtcp2_proxy_درج_after(ساختار Curl_cfilter *cf_at,
+                                           ساختار Curl_easy *data,
+                                           ساختار Curl_peer *origin,
+                                           ساختار Curl_peer *peer,
+                                           ساختار Curl_peer *tunnel_peer,
                                            uint8_t tunnel_transport);
 
-CURLcode Curl_cf_ngtcp2_proxy_create(struct Curl_cfilter **pcf,
-                                     struct Curl_easy *data,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
+CURLcode Curl_cf_ngtcp2_proxy_create(ساختار Curl_cfilter **pcf,
+                                     ساختار Curl_easy *data,
+                                     ساختار Curl_peer *origin,
+                                     ساختار Curl_peer *peer,
                                      uint8_t transport_peer,
-                                     struct connectdata *conn,
-                                     struct Curl_sockaddr_ex *addr,
-                                     struct Curl_peer *tunnel_peer,
+                                     ساختار connectdata *conn,
+                                     ساختار Curl_sockaddr_ex *addr,
+                                     ساختار Curl_peer *tunnel_peer,
                                      uint8_t tunnel_transport);
 
 #endif

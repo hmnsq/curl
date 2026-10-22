@@ -21,43 +21,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "dict.h"
+#شامل "curl_setup.h"
+#شامل "urldata.h"
+#شامل "dict.h"
 
 #ifndef CURL_DISABLE_DICT
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#شامل <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#شامل <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#شامل <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#شامل <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#شامل <sys/param.h>
 #endif
 
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
+#شامل <sys/select.h>
+#وگرنهاگر defined(HAVE_UNISTD_H)
+#شامل <unistd.h>
 #endif
 
-#include "transfer.h"
-#include "curl_trc.h"
-#include "connect.h"
-#include "select.h"
-#include "escape.h"
+#شامل "transfer.h"
+#شامل "curl_trc.h"
+#شامل "connect.h"
+#شامل "select.h"
+#شامل "escape.h"
 
 #define DICT_MATCH   "/MATCH:"
 #define DICT_MATCH2  "/M:"
@@ -67,77 +67,77 @@
 #define DICT_DEFINE3 "/LOOKUP:"
 
 #define DYN_DICT_WORD 10000
-static char *unescape_word(const char *input)
+ایستا نویسه *unescape_word(ثابت نویسه *درون_داد)
 {
-  struct dynbuf out;
-  const char *ptr;
+  ساختار dynbuf out;
+  ثابت نویسه *ptr;
   CURLcode result = CURLE_OK;
   curlx_dyn_init(&out, DYN_DICT_WORD);
 
   /* According to RFC2229 section 2.2, these letters need to be escaped with
      \[letter] */
-  for(ptr = input; *ptr; ptr++) {
-    char ch = *ptr;
-    if((ch <= 32) || (ch == 127) ||
+  برای(ptr = درون_داد; *ptr; ptr++) {
+    نویسه ch = *ptr;
+    اگر((ch <= 32) || (ch == 127) ||
        (ch == '\'') || (ch == '\"') || (ch == '\\'))
       result = curlx_dyn_addn(&out, "\\", 1);
-    if(!result)
+    اگر(!result)
       result = curlx_dyn_addn(&out, ptr, 1);
-    if(result)
-      return NULL;
+    اگر(result)
+      بازگشت پوچ;
   }
-  return curlx_dyn_ptr(&out);
+  بازگشت curlx_dyn_ptr(&out);
 }
 
 /* sendf() sends formatted data to the server */
-static CURLcode sendf(struct Curl_easy *data,
-                      const char *fmt, ...) CURL_PRINTF(2, 3);
+ایستا CURLcode sendf(ساختار Curl_easy *data,
+                      ثابت نویسه *fmt, ...) CURL_PRINTF(2, 3);
 
-static CURLcode sendf(struct Curl_easy *data, const char *fmt, ...)
+ایستا CURLcode sendf(ساختار Curl_easy *data, ثابت نویسه *fmt, ...)
 {
   curl_socket_t sockfd = data->conn->sock[FIRSTSOCKET];
   size_t bytes_written;
   size_t write_len;
   CURLcode result = CURLE_OK;
   timediff_t timeout_ms;
-  int what;
-  char *s;
-  char *sptr;
+  صحیح what;
+  نویسه *s;
+  نویسه *sptr;
   va_list ap;
   va_start(ap, fmt);
   s = curl_mvaprintf(fmt, ap); /* returns an allocated string */
   va_end(ap);
-  if(!s)
-    return CURLE_OUT_OF_MEMORY; /* failure */
+  اگر(!s)
+    بازگشت CURLE_OUT_OF_MEMORY; /* failure */
 
   bytes_written = 0;
   write_len = strlen(s);
   sptr = s;
 
-  for(;;) {
+  برای(;;) {
     /* Write the buffer to the socket */
     result = Curl_xfer_send(data, sptr, write_len, FALSE, &bytes_written);
 
-    if(result)
-      break;
+    اگر(result)
+      بشکن;
 
     Curl_debug(data, CURLINFO_DATA_OUT, sptr, bytes_written);
 
-    if(bytes_written != write_len) {
+    اگر(bytes_written != write_len) {
       /* if not all was written at once, we must advance the pointer, decrease
          the size left and try again! */
       write_len -= bytes_written;
       sptr += bytes_written;
     }
-    else
-      break;
+    وگرنه
+      بشکن;
 
     timeout_ms = Curl_timeleft_ms(data);
-    if(timeout_ms < 0) {
+    اگر(timeout_ms < 0) {
       result = CURLE_OPERATION_TIMEDOUT;
-      break;
+      بشکن;
     }
-    if(!timeout_ms)
+    اگر(!timeout_ms)
       timeout_ms = TIMEDIFF_T_MAX;
 
     /* Do not busyloop. The entire loop thing is a workaround as it causes a
@@ -146,69 +146,69 @@ static CURLcode sendf(struct Curl_easy *data, const char *fmt, ...)
        possible to send now will be sent in the doing function repeatedly
        until the entire request is sent. */
     what = SOCKET_WRITABLE(sockfd, timeout_ms);
-    if(what < 0) {
+    اگر(what < 0) {
       result = CURLE_SEND_ERROR;
-      break;
+      بشکن;
     }
-    else if(!what) {
+    وگرنه اگر(!what) {
       result = CURLE_OPERATION_TIMEDOUT;
-      break;
+      بشکن;
     }
   }
 
   curlx_free(s); /* free the output string */
 
-  return result;
+  بازگشت result;
 }
 
-static CURLcode dict_do(struct Curl_easy *data, bool *done)
+ایستا CURLcode dict_do(ساختار Curl_easy *data, bool *done)
 {
-  char *word;
-  char *eword = NULL;
-  char *ppath;
-  char *database = NULL;
-  char *strategy = NULL;
-  char *nthdef = NULL; /* This is not part of the protocol, but required
+  نویسه *word;
+  نویسه *eword = پوچ;
+  نویسه *ppath;
+  نویسه *database = پوچ;
+  نویسه *strategy = پوچ;
+  نویسه *nthdef = پوچ; /* This is not part of the protocol, but required
                           by RFC 2229 */
   CURLcode result;
 
-  char *path;
+  نویسه *path;
 
   *done = TRUE; /* unconditionally */
 
   /* URL-decode path before further evaluation */
-  result = Curl_urldecode(data->state.up.path, 0, &path, NULL, REJECT_CTRL);
-  if(result)
-    return result;
+  result = Curl_urldecode(data->state.up.path, 0, &path, پوچ, REJECT_CTRL);
+  اگر(result)
+    بازگشت result;
 
-  if(curl_strnequal(path, DICT_MATCH, CURL_CSTRLEN(DICT_MATCH)) ||
+  اگر(curl_strnequal(path, DICT_MATCH, CURL_CSTRLEN(DICT_MATCH)) ||
      curl_strnequal(path, DICT_MATCH2, CURL_CSTRLEN(DICT_MATCH2)) ||
      curl_strnequal(path, DICT_MATCH3, CURL_CSTRLEN(DICT_MATCH3))) {
 
     word = strchr(path, ':');
-    if(word) {
+    اگر(word) {
       word++;
       database = strchr(word, ':');
-      if(database) {
-        *database++ = (char)0;
+      اگر(database) {
+        *database++ = (نویسه)0;
         strategy = strchr(database, ':');
-        if(strategy) {
-          *strategy++ = (char)0;
+        اگر(strategy) {
+          *strategy++ = (نویسه)0;
           nthdef = strchr(strategy, ':');
-          if(nthdef) {
-            *nthdef = (char)0;
+          اگر(nthdef) {
+            *nthdef = (نویسه)0;
           }
         }
       }
     }
 
-    if(!word || (*word == (char)0)) {
+    اگر(!word || (*word == (نویسه)0)) {
       infof(data, "lookup word is missing");
     }
-    eword = unescape_word((!word || (*word == (char)0)) ? "default" : word);
-    if(!eword) {
+    eword = unescape_word((!word || (*word == (نویسه)0)) ? "default" : word);
+    اگر(!eword) {
       result = CURLE_OUT_OF_MEMORY;
-      goto error;
+      برو error;
     }
 
     result = sendf(data,
@@ -218,40 +218,40 @@ static CURLcode dict_do(struct Curl_easy *data, bool *done)
                    "%s "    /* strategy */
                    "%s\r\n" /* word */
                    "QUIT\r\n",
-                   (!database || (*database == (char)0)) ? "!" : database,
-                   (!strategy || (*strategy == (char)0)) ? "." : strategy,
+                   (!database || (*database == (نویسه)0)) ? "!" : database,
+                   (!strategy || (*strategy == (نویسه)0)) ? "." : strategy,
                    eword);
 
-    if(result) {
+    اگر(result) {
       failf(data, "Failed sending DICT request");
-      goto error;
+      برو error;
     }
     Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
   }
-  else if(curl_strnequal(path, DICT_DEFINE, CURL_CSTRLEN(DICT_DEFINE)) ||
+  وگرنه اگر(curl_strnequal(path, DICT_DEFINE, CURL_CSTRLEN(DICT_DEFINE)) ||
           curl_strnequal(path, DICT_DEFINE2, CURL_CSTRLEN(DICT_DEFINE2)) ||
           curl_strnequal(path, DICT_DEFINE3, CURL_CSTRLEN(DICT_DEFINE3))) {
 
     word = strchr(path, ':');
-    if(word) {
+    اگر(word) {
       word++;
       database = strchr(word, ':');
-      if(database) {
-        *database++ = (char)0;
+      اگر(database) {
+        *database++ = (نویسه)0;
         nthdef = strchr(database, ':');
-        if(nthdef) {
-          *nthdef = (char)0;
+        اگر(nthdef) {
+          *nthdef = (نویسه)0;
         }
       }
     }
 
-    if(!word || (*word == (char)0)) {
+    اگر(!word || (*word == (نویسه)0)) {
       infof(data, "lookup word is missing");
     }
-    eword = unescape_word((!word || (*word == (char)0)) ? "default" : word);
-    if(!eword) {
+    eword = unescape_word((!word || (*word == (نویسه)0)) ? "default" : word);
+    اگر(!eword) {
       result = CURLE_OUT_OF_MEMORY;
-      goto error;
+      برو error;
     }
 
     result = sendf(data,
@@ -260,33 +260,33 @@ static CURLcode dict_do(struct Curl_easy *data, bool *done)
                    "%s "     /* database */
                    "%s\r\n"  /* word */
                    "QUIT\r\n",
-                   (!database || (*database == (char)0)) ? "!" : database,
+                   (!database || (*database == (نویسه)0)) ? "!" : database,
                    eword);
 
-    if(result) {
+    اگر(result) {
       failf(data, "Failed sending DICT request");
-      goto error;
+      برو error;
     }
     Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
   }
-  else {
+  وگرنه {
 
     ppath = strchr(path, '/');
-    if(ppath) {
-      int i;
+    اگر(ppath) {
+      صحیح i;
 
       ppath++;
-      for(i = 0; ppath[i]; i++) {
-        if(ppath[i] == ':')
+      برای(i = 0; ppath[i]; i++) {
+        اگر(ppath[i] == ':')
           ppath[i] = ' ';
       }
       result = sendf(data,
                      "CLIENT " LIBCURL_NAME " " LIBCURL_VERSION "\r\n"
                      "%s\r\n"
                      "QUIT\r\n", ppath);
-      if(result) {
+      اگر(result) {
         failf(data, "Failed sending DICT request");
-        goto error;
+        برو error;
       }
 
       Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
@@ -296,13 +296,13 @@ static CURLcode dict_do(struct Curl_easy *data, bool *done)
 error:
   curlx_free(eword);
   curlx_free(path);
-  return result;
+  بازگشت result;
 }
 
 /*
  * DICT protocol
  */
-const struct Curl_protocol Curl_protocol_dict = {
+ثابت ساختار Curl_protocol Curl_protocol_dict = {
   ZERO_NULL,                            /* setup_connection */
   dict_do,                              /* do_it */
   ZERO_NULL,                            /* done */

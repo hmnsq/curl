@@ -25,17 +25,17 @@
  ***************************************************************************/
 
 #ifdef USE_SSL
-CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
+CURLcode Curl_setopt_SSLVERSION(ساختار Curl_easy *data, CURLoption option,
                                 long arg);
-#else
+#وگرنه
 #define Curl_setopt_SSLVERSION(a, b, c) CURLE_NOT_BUILT_IN
 #endif
 
-CURLcode Curl_setstropt(struct Curl_easy *data,
-                        enum dupstring id, const char *s) WARN_UNUSED_RESULT;
-CURLcode Curl_setblobopt(struct curl_blob **blobp,
-                         const struct curl_blob *blob) WARN_UNUSED_RESULT;
-CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
+CURLcode Curl_setstropt(ساختار Curl_easy *data,
+                        شمارش dupstring id, ثابت نویسه *s) WARN_UNUSED_RESULT;
+CURLcode Curl_setblobopt(ساختار curl_blob **blobp,
+                         ثابت ساختار curl_blob *blob) WARN_UNUSED_RESULT;
+CURLcode Curl_vsetopt(ساختار Curl_easy *data, CURLoption option, va_list param)
   WARN_UNUSED_RESULT;
 
 #endif /* HEADER_CURL_SETOPT_H */

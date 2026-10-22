@@ -23,42 +23,42 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
 #ifdef HAVE_NETINET_UDP_H
-#include <netinet/udp.h>
+#شامل <netinet/udp.h>
 #endif
 
-#include <ngtcp2/ngtcp2_crypto.h>
+#شامل <ngtcp2/ngtcp2_crypto.h>
 #ifdef OPENSSL_QUIC_API2
-#include <ngtcp2/ngtcp2_crypto_ossl.h>
+#شامل <ngtcp2/ngtcp2_crypto_ossl.h>
 #endif
-#include <nghttp3/nghttp3.h>
+#شامل <nghttp3/nghttp3.h>
 #ifdef USE_OPENSSL
-#include <openssl/ssl.h>
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/quic.h>
+#شامل <openssl/ssl.h>
+#وگرنهاگر defined(USE_WOLFSSL)
+#شامل <wolfssl/options.h>
+#شامل <wolfssl/ssl.h>
+#شامل <wolfssl/quic.h>
 #endif
 
-struct Curl_cfilter;
+ساختار Curl_cfilter;
 
-#include "urldata.h"
+#شامل "urldata.h"
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_ngtcp2_create(ساختار Curl_cfilter **pcf,
+                               ساختار Curl_easy *data,
+                               ساختار Curl_peer *origin,
+                               ساختار Curl_peer *peer,
+                               ساختار connectdata *conn,
+                               ساختار Curl_sockaddr_ex *addr);
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_ngtcp2_درج_after(ساختار Curl_cfilter *cf_at,
+                                     ساختار Curl_peer *origin,
+                                     ساختار Curl_peer *peer,
+                                     ساختار Curl_cfilter **pcf);
 #endif
 
 #endif /* HEADER_CURL_VQUIC_CF_NGTCP2_H */

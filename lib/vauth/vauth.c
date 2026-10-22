@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "vauth/vauth.h"
-#include "creds.h"
-#include "curlx/multibyte.h"
-#include "url.h"
+#شامل "vauth/vauth.h"
+#شامل "creds.h"
+#شامل "curlx/multibyte.h"
+#شامل "url.h"
 
 /*
  * Curl_auth_build_spn()
@@ -46,30 +46,30 @@
  * Returns a pointer to the newly allocated SPN.
  */
 #ifndef USE_WINDOWS_SSPI
-char *Curl_auth_build_spn(const char *service, const char *host,
-                          const char *realm)
+نویسه *Curl_auth_build_spn(ثابت نویسه *service, ثابت نویسه *host,
+                          ثابت نویسه *realm)
 {
-  char *spn = NULL;
+  نویسه *spn = پوچ;
 
   /* Generate our SPN */
-  if(host && realm)
+  اگر(host && realm)
     spn = curl_maprintf("%s/%s@%s", service, host, realm);
-  else if(host)
+  وگرنه اگر(host)
     spn = curl_maprintf("%s/%s", service, host);
-  else if(realm)
+  وگرنه اگر(realm)
     spn = curl_maprintf("%s@%s", service, realm);
 
   /* Return our newly allocated SPN */
-  return spn;
+  بازگشت spn;
 }
-#else
-TCHAR *Curl_auth_build_spn(const char *service, const char *host,
-                           const char *realm)
+#وگرنه
+TCHAR *Curl_auth_build_spn(ثابت نویسه *service, ثابت نویسه *host,
+                           ثابت نویسه *realm)
 {
-  char *utf8_spn = NULL;
-  TCHAR *tchar_spn = NULL;
+  نویسه *utf8_spn = پوچ;
+  TCHAR *tchar_spn = پوچ;
 
-  (void)realm;
+  (تهی)realm;
 
   /* Note: We could use DsMakeSPN() or DsClientMakeSpnForTargetServer() rather
      than doing this ourselves but the first is only available in Windows XP
@@ -80,14 +80,14 @@ TCHAR *Curl_auth_build_spn(const char *service, const char *host,
 
   /* Generate our UTF8 based SPN */
   utf8_spn = curl_maprintf("%s/%s", service, host);
-  if(!utf8_spn)
-    return NULL;
+  اگر(!utf8_spn)
+    بازگشت پوچ;
 
   /* Allocate and return a TCHAR based SPN. */
   tchar_spn = curlx_convert_UTF8_to_tchar(utf8_spn);
   curlx_free(utf8_spn);
 
-  return tchar_spn;
+  بازگشت tchar_spn;
 }
 #endif /* USE_WINDOWS_SSPI */
 
@@ -112,67 +112,67 @@ TCHAR *Curl_auth_build_spn(const char *service, const char *host,
  *
  * Returns TRUE on success; otherwise FALSE.
  */
-bool Curl_auth_user_contains_domain(struct Curl_creds *creds)
+bool Curl_auth_user_contains_domain(ساختار Curl_creds *creds)
 {
   bool valid = FALSE;
 
-  if(Curl_creds_has_user(creds)) {
+  اگر(Curl_creds_has_user(creds)) {
     /* Check we have a domain name or UPN present */
-    const char *p = strpbrk(creds->user, "\\/@");
+    ثابت نویسه *p = strpbrk(creds->user, "\\/@");
 
     valid = p && (p > creds->user) &&
             (p < (creds->user + strlen(creds->user) - 1));
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
-  else
+#اگر defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+  وگرنه
     /* User and domain are obtained from the GSS-API credentials cache or the
        currently logged in user from Windows */
     valid = TRUE;
 #endif
 
-  return valid;
+  بازگشت valid;
 }
 
 /*
  * Curl_auth_allowed_to_host() tells if authentication, cookies or other
  * "sensitive data" can be sent to the connection's origin.
  */
-bool Curl_auth_allowed_to_host(struct Curl_easy *data)
+bool Curl_auth_allowed_to_host(ساختار Curl_easy *data)
 {
-  return Curl_auth_allowed_to_origin(data, data->state.origin);
+  بازگشت Curl_auth_allowed_to_origin(data, data->state.origin);
 }
 
-bool Curl_auth_allowed_to_origin(struct Curl_easy *data,
-                                 struct Curl_peer *origin)
+bool Curl_auth_allowed_to_origin(ساختار Curl_easy *data,
+                                 ساختار Curl_peer *origin)
 {
-  return data->set.allow_auth_to_other_hosts ||
+  بازگشت data->set.allow_auth_to_other_hosts ||
          Curl_peer_equal(data->state.initial_origin, origin);
 }
 
 #ifdef USE_NTLM
-static void ntlm_conn_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی ntlm_conn_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct ntlmdata *ntlm = entry;
-  (void)key;
-  (void)klen;
+  ساختار ntlmdata *ntlm = entry;
+  (تهی)کلید;
+  (تهی)klen;
   DEBUGASSERT(ntlm);
   Curl_auth_cleanup_ntlm(ntlm);
   curlx_free(ntlm);
 }
 
-struct ntlmdata *Curl_auth_ntlm_get(struct connectdata *conn, bool proxy)
+ساختار ntlmdata *Curl_auth_ntlm_get(ساختار connectdata *conn, bool proxy)
 {
-  const char *key = proxy ? CURL_META_NTLM_PROXY_CONN : CURL_META_NTLM_CONN;
-  struct ntlmdata *ntlm = Curl_conn_meta_get(conn, key);
-  if(!ntlm) {
-    ntlm = curlx_calloc(1, sizeof(*ntlm));
-    if(!ntlm || Curl_conn_meta_set(conn, key, ntlm, ntlm_conn_dtor))
-      return NULL;
+  ثابت نویسه *کلید = proxy ? CURL_META_NTLM_PROXY_CONN : CURL_META_NTLM_CONN;
+  ساختار ntlmdata *ntlm = Curl_conn_meta_get(conn, کلید);
+  اگر(!ntlm) {
+    ntlm = curlx_calloc(1, اندازه(*ntlm));
+    اگر(!ntlm || Curl_conn_meta_set(conn, کلید, ntlm, ntlm_conn_dtor))
+      بازگشت پوچ;
   }
-  return ntlm;
+  بازگشت ntlm;
 }
 
-void Curl_auth_ntlm_remove(struct connectdata *conn, bool proxy)
+تهی Curl_auth_ntlm_remove(ساختار connectdata *conn, bool proxy)
 {
   Curl_conn_meta_remove(conn, proxy ? CURL_META_NTLM_PROXY_CONN
                                     : CURL_META_NTLM_CONN);
@@ -180,73 +180,73 @@ void Curl_auth_ntlm_remove(struct connectdata *conn, bool proxy)
 #endif /* USE_NTLM */
 
 #ifdef USE_KERBEROS5
-static void krb5_conn_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی krb5_conn_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct kerberos5data *krb5 = entry;
-  (void)key;
-  (void)klen;
+  ساختار kerberos5data *krb5 = entry;
+  (تهی)کلید;
+  (تهی)klen;
   DEBUGASSERT(krb5);
   Curl_auth_cleanup_gssapi(krb5);
   curlx_free(krb5);
 }
 
-struct kerberos5data *Curl_auth_krb5_get(struct connectdata *conn)
+ساختار kerberos5data *Curl_auth_krb5_get(ساختار connectdata *conn)
 {
-  struct kerberos5data *krb5 = Curl_conn_meta_get(conn, CURL_META_KRB5_CONN);
-  if(!krb5) {
-    krb5 = curlx_calloc(1, sizeof(*krb5));
-    if(!krb5 ||
+  ساختار kerberos5data *krb5 = Curl_conn_meta_get(conn, CURL_META_KRB5_CONN);
+  اگر(!krb5) {
+    krb5 = curlx_calloc(1, اندازه(*krb5));
+    اگر(!krb5 ||
        Curl_conn_meta_set(conn, CURL_META_KRB5_CONN, krb5, krb5_conn_dtor))
-      return NULL;
+      بازگشت پوچ;
   }
-  return krb5;
+  بازگشت krb5;
 }
 #endif /* USE_KERBEROS5 */
 
 #ifdef USE_GSASL
-static void gsasl_conn_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی gsasl_conn_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct gsasldata *gsasl = entry;
-  (void)key;
-  (void)klen;
+  ساختار gsasldata *gsasl = entry;
+  (تهی)کلید;
+  (تهی)klen;
   DEBUGASSERT(gsasl);
   Curl_auth_gsasl_cleanup(gsasl);
   curlx_free(gsasl);
 }
 
-struct gsasldata *Curl_auth_gsasl_get(struct connectdata *conn)
+ساختار gsasldata *Curl_auth_gsasl_get(ساختار connectdata *conn)
 {
-  struct gsasldata *gsasl = Curl_conn_meta_get(conn, CURL_META_GSASL_CONN);
-  if(!gsasl) {
-    gsasl = curlx_calloc(1, sizeof(*gsasl));
-    if(!gsasl ||
+  ساختار gsasldata *gsasl = Curl_conn_meta_get(conn, CURL_META_GSASL_CONN);
+  اگر(!gsasl) {
+    gsasl = curlx_calloc(1, اندازه(*gsasl));
+    اگر(!gsasl ||
        Curl_conn_meta_set(conn, CURL_META_GSASL_CONN, gsasl, gsasl_conn_dtor))
-      return NULL;
+      بازگشت پوچ;
   }
-  return gsasl;
+  بازگشت gsasl;
 }
 #endif /* USE_GSASL */
 
 #ifdef USE_SPNEGO
-static void nego_conn_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی nego_conn_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct negotiatedata *nego = entry;
-  (void)key;
-  (void)klen;
+  ساختار negotiatedata *nego = entry;
+  (تهی)کلید;
+  (تهی)klen;
   DEBUGASSERT(nego);
   Curl_auth_cleanup_spnego(nego);
   curlx_free(nego);
 }
 
-struct negotiatedata *Curl_auth_nego_get(struct connectdata *conn, bool proxy)
+ساختار negotiatedata *Curl_auth_nego_get(ساختار connectdata *conn, bool proxy)
 {
-  const char *key = proxy ? CURL_META_NEGO_PROXY_CONN : CURL_META_NEGO_CONN;
-  struct negotiatedata *nego = Curl_conn_meta_get(conn, key);
-  if(!nego) {
-    nego = curlx_calloc(1, sizeof(*nego));
-    if(!nego || Curl_conn_meta_set(conn, key, nego, nego_conn_dtor))
-      return NULL;
+  ثابت نویسه *کلید = proxy ? CURL_META_NEGO_PROXY_CONN : CURL_META_NEGO_CONN;
+  ساختار negotiatedata *nego = Curl_conn_meta_get(conn, کلید);
+  اگر(!nego) {
+    nego = curlx_calloc(1, اندازه(*nego));
+    اگر(!nego || Curl_conn_meta_set(conn, کلید, nego, nego_conn_dtor))
+      بازگشت پوچ;
   }
-  return nego;
+  بازگشت nego;
 }
 #endif /* USE_SPNEGO */

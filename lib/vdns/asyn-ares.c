@@ -21,7 +21,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef USE_RESOLV_ARES
 
@@ -32,40 +32,40 @@
  **********************************************************************/
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#شامل <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#شامل <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#شامل <in.h>
+#شامل <inet.h>
 #endif
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "url.h"
-#include "multiif.h"
-#include "curlx/inet_pton.h"
-#include "connect.h"
-#include "select.h"
-#include "progress.h"
-#include "curlx/timediff.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include <ares.h>
+#شامل "urldata.h"
+#شامل "cfilters.h"
+#شامل "curl_addrinfo.h"
+#شامل "curl_trc.h"
+#شامل "url.h"
+#شامل "multiif.h"
+#شامل "curlx/inet_pton.h"
+#شامل "connect.h"
+#شامل "select.h"
+#شامل "progress.h"
+#شامل "curlx/timediff.h"
+#شامل "vdns/hostip.h"
+#شامل "vdns/httpsrr.h"
+#شامل <ares.h>
 
-#if ARES_VERSION < 0x011000
+#اگر ARES_VERSION < 0x011000
 #error "c-ares 1.16.0 or greater required"
 #endif
 
 #ifdef USE_HTTPSRR
-#if ARES_VERSION < 0x011c00
+#اگر ARES_VERSION < 0x011c00
 #error "c-ares 1.28.0 or greater required for HTTPSRR"
 #endif
 #define HTTPSRR_WORKS
@@ -73,31 +73,31 @@
 
 #define CARES_TIMEOUT_PER_ATTEMPT 2000
 
-static int ares_ver = 0;
+ایستا صحیح ares_ver = 0;
 
-static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
-                                           struct Curl_resolv_async *async);
-static CURLcode async_ares_set_dns_interface(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async);
-static CURLcode async_ares_set_dns_local_ip4(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async);
-static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async);
+ایستا CURLcode async_ares_set_dns_servers(ساختار Curl_easy *data,
+                                           ساختار Curl_resolv_async *async);
+ایستا CURLcode async_ares_set_dns_interface(ساختار Curl_easy *data,
+                                             ساختار Curl_resolv_async *async);
+ایستا CURLcode async_ares_set_dns_local_ip4(ساختار Curl_easy *data,
+                                             ساختار Curl_resolv_async *async);
+ایستا CURLcode async_ares_set_dns_local_ip6(ساختار Curl_easy *data,
+                                             ساختار Curl_resolv_async *async);
 
 /*
  * Curl_async_global_init() - the generic low-level asynchronous name
  * resolve API. Called from curl_global_init() to initialize global resolver
  * environment. Initializes ares library.
  */
-int Curl_async_global_init(void)
+صحیح Curl_async_global_init(تهی)
 {
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
-  if(ares_library_init(ARES_LIB_INIT_ALL)) {
-    return CURLE_FAILED_INIT;
+  اگر(ares_library_init(ARES_LIB_INIT_ALL)) {
+    بازگشت CURLE_FAILED_INIT;
   }
 #endif
   ares_version(&ares_ver);
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /*
@@ -106,30 +106,30 @@ int Curl_async_global_init(void)
  * Called from curl_global_cleanup() to destroy global resolver environment.
  * Deinitializes ares library.
  */
-void Curl_async_global_cleanup(void)
+تهی Curl_async_global_cleanup(تهی)
 {
 #ifdef CARES_HAVE_ARES_LIBRARY_CLEANUP
   ares_library_cleanup();
 #endif
 }
 
-static void sock_state_cb(void *data, ares_socket_t socket_fd,
-                          int readable, int writable)
+ایستا تهی sock_state_cb(تهی *data, ares_socket_t socket_fd,
+                          صحیح readable, صحیح writable)
 {
-  struct Curl_easy *easy = data;
-  if(!readable && !writable) {
+  ساختار Curl_easy *easy = data;
+  اگر(!readable && !writable) {
     DEBUGASSERT(easy);
     Curl_multi_will_close(easy, socket_fd);
   }
 }
 
-static CURLcode async_ares_init(struct Curl_easy *data,
-                                struct Curl_resolv_async *async)
+ایستا CURLcode async_ares_init(ساختار Curl_easy *data,
+                                ساختار Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  int status;
-  struct ares_options options;
-  int optmask = ARES_OPT_SOCK_STATE_CB;
+  ساختار async_ares_ctx *ares = &async->ares;
+  صحیح status;
+  ساختار ares_options options;
+  صحیح optmask = ARES_OPT_SOCK_STATE_CB;
   CURLcode result = CURLE_OK;
 
   /* initial status - failed */
@@ -150,46 +150,46 @@ static CURLcode async_ares_init(struct Curl_easy *data,
      overwrite c-ares' timeout.
    */
   DEBUGASSERT(ares_ver);
-  if(ares_ver < 0x011400) {
+  اگر(ares_ver < 0x011400) {
     options.timeout = CARES_TIMEOUT_PER_ATTEMPT;
     optmask |= ARES_OPT_TIMEOUTMS;
   }
 
   status = ares_init_options(&ares->channel, &options, optmask);
-  if(status != ARES_SUCCESS) {
-    ares->channel = NULL;
+  اگر(status != ARES_SUCCESS) {
+    ares->channel = پوچ;
     result = (status == ARES_ENOMEM) ? CURLE_OUT_OF_MEMORY : CURLE_FAILED_INIT;
-    goto out;
+    برو out;
   }
 
   result = async_ares_set_dns_servers(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  اگر(result && result != CURLE_NOT_BUILT_IN)
+    برو out;
 
   result = async_ares_set_dns_interface(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  اگر(result && result != CURLE_NOT_BUILT_IN)
+    برو out;
 
   result = async_ares_set_dns_local_ip4(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  اگر(result && result != CURLE_NOT_BUILT_IN)
+    برو out;
 
   result = async_ares_set_dns_local_ip6(data, async);
-  if(result && result != CURLE_NOT_BUILT_IN)
-    goto out;
+  اگر(result && result != CURLE_NOT_BUILT_IN)
+    برو out;
 
   result = CURLE_OK;
 
 out:
-  if(result && ares->channel) {
+  اگر(result && ares->channel) {
     ares_destroy(ares->channel);
-    ares->channel = NULL;
+    ares->channel = پوچ;
   }
-  return result;
+  بازگشت result;
 }
 
-void Curl_async_ares_shutdown(struct Curl_easy *data,
-                              struct Curl_resolv_async *async)
+تهی Curl_async_ares_shutdown(ساختار Curl_easy *data,
+                              ساختار Curl_resolv_async *async)
 {
   /* c-ares has a method to "cancel" operations on a channel, but
    * as reported in #18216, this does not totally reset the channel
@@ -199,32 +199,32 @@ void Curl_async_ares_shutdown(struct Curl_easy *data,
   Curl_async_ares_destroy(data, async);
 }
 
-void Curl_async_ares_destroy(struct Curl_easy *data,
-                             struct Curl_resolv_async *async)
+تهی Curl_async_ares_destroy(ساختار Curl_easy *data,
+                             ساختار Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  (void)data;
-  if(ares->channel) {
+  ساختار async_ares_ctx *ares = &async->ares;
+  (تهی)data;
+  اگر(ares->channel) {
     ares_destroy(ares->channel);
-    ares->channel = NULL;
+    ares->channel = پوچ;
   }
 }
 
-CURLcode Curl_async_pollset(struct Curl_easy *data,
-                            struct Curl_resolv_async *async,
-                            struct easy_pollset *ps)
+CURLcode Curl_async_pollset(ساختار Curl_easy *data,
+                            ساختار Curl_resolv_async *async,
+                            ساختار easy_pollset *ps)
 {
-  struct async_ares_ctx *ares = &async->ares;
+  ساختار async_ares_ctx *ares = &async->ares;
   CURLcode result = CURLE_OK;
 
-  if(ares->channel) {
+  اگر(ares->channel) {
     result = Curl_ares_pollset(data, ares->channel, ps);
-    if(!result) {
+    اگر(!result) {
       timediff_t ms = Curl_ares_timeout_ms(data, async, ares->channel);
       Curl_expire(data, ms, EXPIRE_ASYNC_NAME);
     }
   }
-  return result;
+  بازگشت result;
 }
 
 /*
@@ -234,92 +234,92 @@ CURLcode Curl_async_pollset(struct Curl_easy *data,
  *
  * Returns normal CURLcode errors.
  */
-CURLcode Curl_async_take_result(struct Curl_easy *data,
-                                struct Curl_resolv_async *async,
-                                struct Curl_dns_entry **pdns)
+CURLcode Curl_async_take_result(ساختار Curl_easy *data,
+                                ساختار Curl_resolv_async *async,
+                                ساختار Curl_dns_entry **pdns)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  struct Curl_dns_entry *dns = NULL;
+  ساختار async_ares_ctx *ares = &async->ares;
+  ساختار Curl_dns_entry *dns = پوچ;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(pdns);
-  *pdns = NULL;
-  if(!ares)
-    return CURLE_FAILED_INIT;
+  *pdns = پوچ;
+  اگر(!ares)
+    بازگشت CURLE_FAILED_INIT;
 
-  if(Curl_ares_perform(ares->channel, 0) < 0) {
+  اگر(Curl_ares_perform(ares->channel, 0) < 0) {
     result = CURLE_UNRECOVERABLE_POLL;
-    goto out;
+    برو out;
   }
 
-  if(async->queries_ongoing) {
+  اگر(async->queries_ongoing) {
     result = CURLE_AGAIN;
-    goto out;
+    برو out;
   }
 
   /* all c-ares operations done, what is the result to report? */
   result = ares->result;
-  if(ares->ares_status == ARES_SUCCESS && !result) {
+  اگر(ares->ares_status == ARES_SUCCESS && !result) {
 
-    if(CURL_DNSQ_IS_ADDR(async->dns_queries)) {
+    اگر(CURL_DNSQ_IS_ADDR(async->dns_queries)) {
       dns = Curl_dnsc_mk_addr2(data, async->dns_queries,
                                &async->ai_AAAA, &async->ai_A,
                                async->peer);
-      if(!dns) {
+      اگر(!dns) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        برو out;
       }
     }
 
 #ifdef HTTPSRR_WORKS
-    if(!dns && (async->dns_queries & CURL_DNSQ_HTTPS)) {
+    اگر(!dns && (async->dns_queries & CURL_DNSQ_HTTPS)) {
       dns = Curl_dnsc_mk_https(data, &async->httpsrr, async->peer);
-      if(!dns) {
+      اگر(!dns) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        برو out;
       }
     }
 #endif
   }
   /* if we have not found anything, report the proper
    * CURLE_COULDNT_RESOLVE_* code */
-  if(!result && !dns) {
-    const char *msg = NULL;
+  اگر(!result && !dns) {
+    ثابت نویسه *پیام = پوچ;
     /* only an authoritative "does not exist" answer from every query
        may be cached as a negative entry, not transient failures like
        timeouts or server troubles */
     async->negative_answer = !ares->transient_err &&
       ((ares->ares_status == ARES_ENOTFOUND) ||
        (ares->ares_status == ARES_ENODATA));
-    if(ares->ares_status != ARES_SUCCESS)
-      msg = ares_strerror(ares->ares_status);
-    result = Curl_async_failed(data, async, msg);
+    اگر(ares->ares_status != ARES_SUCCESS)
+      پیام = ares_strerror(ares->ares_status);
+    result = Curl_async_failed(data, async, پیام);
   }
 
   CURL_TRC_DNS(data, "[%s] ares_take_result, result=%d, ares_result=%d, "
                "ares_status=%d, dns=%sfound",
                Curl_resolv_query_str(async->dns_queries),
-               (int)result, (int)ares->result, ares->ares_status,
+               (صحیح)result, (صحیح)ares->result, ares->ares_status,
                dns ? "" : "not ");
 
 out:
-  if(result != CURLE_AGAIN)
+  اگر(result != CURLE_AGAIN)
     ares->result = result;
-  *pdns = result ? NULL : dns;
-  return result;
+  *pdns = result ? پوچ : dns;
+  بازگشت result;
 }
 
-static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
+ایستا timediff_t async_ares_poll_timeout(ساختار async_ares_ctx *ares,
                                           timediff_t timeout_ms)
 {
-  struct timeval *ares_calced, time_buf, max_timeout;
-  int itimeout_ms;
+  ساختار timeval *ares_calced, time_buf, max_timeout;
+  صحیح itimeout_ms;
 
-#if TIMEDIFF_T_MAX > INT_MAX
+#اگر TIMEDIFF_T_MAX > INT_MAX
   itimeout_ms = (timeout_ms > INT_MAX) ? INT_MAX :
-                 ((timeout_ms < 0) ? -1 : (int)timeout_ms);
-#else
-  itimeout_ms = (int)timeout_ms;
+                 ((timeout_ms < 0) ? -1 : (صحیح)timeout_ms);
+#وگرنه
+  itimeout_ms = (صحیح)timeout_ms;
 #endif
   max_timeout.tv_sec = itimeout_ms / 1000;
   max_timeout.tv_usec = (itimeout_ms % 1000) * 1000;
@@ -329,10 +329,10 @@ static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
   /* use the timeout period ares returned to us above if less than one
      second is left, otherwise use 1000ms to make sure the progress callback
      gets called frequent enough */
-  if(!ares_calced->tv_sec)
-    return (timediff_t)(ares_calced->tv_usec / 1000);
-  else
-    return 1000;
+  اگر(!ares_calced->tv_sec)
+    بازگشت (timediff_t)(ares_calced->tv_usec / 1000);
+  وگرنه
+    بازگشت 1000;
 }
 
 /*
@@ -346,121 +346,121 @@ static timediff_t async_ares_poll_timeout(struct async_ares_ctx *ares,
  * Returns CURLE_COULDNT_RESOLVE_HOST if the host was not resolved,
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred, or other errors.
  */
-CURLcode Curl_async_await(struct Curl_easy *data, uint32_t resolv_id,
-                          struct Curl_dns_entry **pdns)
+CURLcode Curl_async_await(ساختار Curl_easy *data, uint32_t resolv_id,
+                          ساختار Curl_dns_entry **pdns)
 {
-  struct Curl_resolv_async *async = Curl_async_get(data, resolv_id);
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  struct curltime start = *Curl_pgrs_now(data);
+  ساختار Curl_resolv_async *async = Curl_async_get(data, resolv_id);
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
+  ساختار curltime start = *Curl_pgrs_now(data);
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(pdns);
-  *pdns = NULL; /* clear on entry */
+  *pdns = پوچ; /* clear on entry */
 
-  if(!ares)
-    return CURLE_FAILED_INIT;
+  اگر(!ares)
+    بازگشت CURLE_FAILED_INIT;
 
   /* Wait for the name resolve query to complete or time out. */
-  while(!result) {
+  وقتی(!result) {
     timediff_t timeout_ms;
 
     timeout_ms = Curl_timeleft_ms(data);
-    if(!timeout_ms) { /* no applicable timeout from `data`*/
+    اگر(!timeout_ms) { /* no applicable timeout from `data`*/
       timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &start);
-      if(elapsed_ms < CURL_TIMEOUT_RESOLVE_MS)
+      اگر(elapsed_ms < CURL_TIMEOUT_RESOLVE_MS)
         timeout_ms = CURL_TIMEOUT_RESOLVE_MS - elapsed_ms;
-      else
+      وگرنه
         timeout_ms = -1;
     }
 
-    if(timeout_ms < 0) {
+    اگر(timeout_ms < 0) {
       result = CURLE_OPERATION_TIMEDOUT;
-      break;
+      بشکن;
     }
 
-    if(Curl_ares_perform(ares->channel,
+    اگر(Curl_ares_perform(ares->channel,
                          async_ares_poll_timeout(ares, timeout_ms)) < 0) {
       result = CURLE_UNRECOVERABLE_POLL;
-      break;
+      بشکن;
     }
 
     result = Curl_async_take_result(data, async, pdns);
-    if(result == CURLE_AGAIN)
+    اگر(result == CURLE_AGAIN)
       result = CURLE_OK;
-    else if(result || *pdns)
-      break;
+    وگرنه اگر(result || *pdns)
+      بشکن;
 
-    if(Curl_pgrsUpdate(data)) {
+    اگر(Curl_pgrsUpdate(data)) {
       result = CURLE_ABORTED_BY_CALLBACK;
-      break;
+      بشکن;
     }
   }
 
-  if(result)
+  اگر(result)
     ares_cancel(ares->channel);
-  return result;
+  بازگشت result;
 }
 
 #define CARES_MAX_ADDRS 256
 
-static bool async_ares_addr_seen(const struct Curl_addrinfo *cafirst,
-                                 int family, size_t ss_size,
-                                 const void *addr)
+ایستا bool async_ares_addr_seen(ثابت ساختار Curl_addrinfo *cafirst,
+                                 صحیح family, size_t ss_size,
+                                 ثابت تهی *addr)
 {
-  const struct Curl_addrinfo *ca;
-  for(ca = cafirst; ca; ca = ca->ai_next) {
-    if((ca->ai_family == family) &&
+  ثابت ساختار Curl_addrinfo *ca;
+  برای(ca = cafirst; ca; ca = ca->ai_next) {
+    اگر((ca->ai_family == family) &&
        ((size_t)ca->ai_addrlen == ss_size) &&
        !memcmp(ca->ai_addr, addr, ss_size))
-      return TRUE;
+      بازگشت TRUE;
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /*
  * async_ares_node2addr() converts an address list provided by c-ares
  * to an internal libcurl compatible list.
  */
-static struct Curl_addrinfo *async_ares_node2addr(
-  struct ares_addrinfo_node *node)
+ایستا ساختار Curl_addrinfo *async_ares_node2addr(
+  ساختار ares_addrinfo_گره *گره)
 {
   /* traverse the ares_addrinfo_node list */
-  struct ares_addrinfo_node *ai;
-  struct Curl_addrinfo *cafirst = NULL;
-  struct Curl_addrinfo *calast = NULL;
-  int error = 0;
-  unsigned int naddrs = 0;
+  ساختار ares_addrinfo_گره *ai;
+  ساختار Curl_addrinfo *cafirst = پوچ;
+  ساختار Curl_addrinfo *calast = پوچ;
+  صحیح error = 0;
+  unsigned صحیح naddrs = 0;
 
-  for(ai = node; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
+  برای(ai = گره; ai && (naddrs < CARES_MAX_ADDRS); ai = ai->ai_next) {
     size_t ss_size;
-    struct Curl_addrinfo *ca;
+    ساختار Curl_addrinfo *ca;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
+    اگر(ai->ai_family == AF_INET)
+      ss_size = اندازه(ساختار sockaddr_in);
 #ifdef USE_IPV6
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
+    وگرنه اگر(ai->ai_family == AF_INET6)
+      ss_size = اندازه(ساختار sockaddr_in6);
 #endif
-    else
-      continue;
+    وگرنه
+      ادامه;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    اگر(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      ادامه;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    اگر((size_t)ai->ai_addrlen < ss_size)
+      ادامه;
 
     /* ignore duplicate addresses already collected */
-    if(async_ares_addr_seen(cafirst, ai->ai_family, ss_size, ai->ai_addr))
-      continue;
+    اگر(async_ares_addr_seen(cafirst, ai->ai_family, ss_size, ai->ai_addr))
+      ادامه;
 
-    ca = curlx_malloc(sizeof(struct Curl_addrinfo) + ss_size);
-    if(!ca) {
+    ca = curlx_malloc(اندازه(ساختار Curl_addrinfo) + ss_size);
+    اگر(!ca) {
       error = EAI_MEMORY;
-      break;
+      بشکن;
     }
 
     /* copy each structure member individually, member ordering,
@@ -471,107 +471,107 @@ static struct Curl_addrinfo *async_ares_node2addr(
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
     ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addr      = پوچ;
+    ca->ai_canonname = پوچ;
+    ca->ai_next      = پوچ;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
+    ca->ai_addr = (تهی *)((نویسه *)ca + اندازه(ساختار Curl_addrinfo));
     memcpy(ca->ai_addr, ai->ai_addr, ss_size);
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    اگر(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
+    اگر(calast)
       calast->ai_next = ca;
     calast = ca;
     ++naddrs;
   }
 
   /* if we failed, destroy the Curl_addrinfo list */
-  if(error) {
+  اگر(error) {
     Curl_freeaddrinfo(cafirst);
-    cafirst = NULL;
+    cafirst = پوچ;
   }
 
-  return cafirst;
+  بازگشت cafirst;
 }
 
-static void async_ares_A_cb(void *user_data, int status, int timeouts,
-                            struct ares_addrinfo *ares_ai)
+ایستا تهی async_ares_A_cb(تهی *user_data, صحیح status, صحیح timeouts,
+                            ساختار ares_addrinfo *ares_ai)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ساختار Curl_resolv_async *async = user_data;
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
 
-  (void)timeouts;
-  if(!async)
-    return;
+  (تهی)timeouts;
+  اگر(!async)
+    بازگشت;
 
   async->dns_responses |= CURL_DNSQ_A;
   async->queries_ongoing--;
   async->done = !async->queries_ongoing;
-  if(status == ARES_SUCCESS) {
+  اگر(status == ARES_SUCCESS) {
     ares->ares_status = ARES_SUCCESS;
     async->ai_A = async_ares_node2addr(ares_ai->nodes);
     ares_freeaddrinfo(ares_ai);
   }
-  else {
-    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  وگرنه {
+    اگر((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
       ares->transient_err = TRUE;
-    if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
+    اگر(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
       ares->ares_status = status;
   }
 }
 
 #ifdef CURLRES_IPV6
-static void async_ares_AAAA_cb(void *user_data, int status, int timeouts,
-                               struct ares_addrinfo *ares_ai)
+ایستا تهی async_ares_AAAA_cb(تهی *user_data, صحیح status, صحیح timeouts,
+                               ساختار ares_addrinfo *ares_ai)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ساختار Curl_resolv_async *async = user_data;
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
 
-  (void)timeouts;
-  if(!async)
-    return;
+  (تهی)timeouts;
+  اگر(!async)
+    بازگشت;
 
   async->dns_responses |= CURL_DNSQ_AAAA;
   async->queries_ongoing--;
   async->done = !async->queries_ongoing;
-  if(status == ARES_SUCCESS) {
+  اگر(status == ARES_SUCCESS) {
     ares->ares_status = ARES_SUCCESS;
     async->ai_AAAA = async_ares_node2addr(ares_ai->nodes);
     ares_freeaddrinfo(ares_ai);
   }
-  else {
-    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  وگرنه {
+    اگر((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
       ares->transient_err = TRUE;
-    if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
+    اگر(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
       ares->ares_status = status;
   }
 }
 #endif /* CURLRES_IPV6 */
 
 #ifdef USE_HTTPSRR
-static void async_ares_rr_done(void *user_data, ares_status_t status,
+ایستا تهی async_ares_rr_done(تهی *user_data, ares_status_t status,
                                size_t timeouts,
-                               const ares_dns_record_t *dnsrec)
+                               ثابت ares_dns_record_t *dnsrec)
 {
-  struct Curl_resolv_async *async = user_data;
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ساختار Curl_resolv_async *async = user_data;
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
 
-  if(!async)
-    return;
+  اگر(!async)
+    بازگشت;
 
-  (void)timeouts;
+  (تهی)timeouts;
   async->dns_responses |= CURL_DNSQ_HTTPS;
   async->queries_ongoing--;
   async->done = !async->queries_ongoing;
   ares->ares_status = status;
-  if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+  اگر((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
     ares->transient_err = TRUE;
-  if((ARES_SUCCESS != status) || !dnsrec)
-    return;
+  اگر((ARES_SUCCESS != status) || !dnsrec)
+    بازگشت;
   ares->result = Curl_httpsrr_from_ares(dnsrec, &async->httpsrr);
 }
 #endif /* USE_HTTPSRR */
@@ -581,46 +581,46 @@ static void async_ares_rr_done(void *user_data, ares_status_t status,
  *
  * Starts a name resolve for the given hostname and port number.
  */
-CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
-                                struct Curl_resolv_async *async)
+CURLcode Curl_async_getaddrinfo(ساختار Curl_easy *data,
+                                ساختار Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = &async->ares;
-  char service[12];
-  int socktype;
+  ساختار async_ares_ctx *ares = &async->ares;
+  نویسه service[12];
+  صحیح socktype;
   CURLcode result = CURLE_OK;
 
-  if(ares->channel) {
+  اگر(ares->channel) {
     DEBUGASSERT(0);
     result = CURLE_FAILED_INIT;
-    goto out;
+    برو out;
   }
 
   result = async_ares_init(data, async);
-  if(result)
-    goto out;
+  اگر(result)
+    برو out;
 
   result = Curl_resolv_announce_start(data, ares->channel);
-  if(result)
-    goto out;
+  اگر(result)
+    برو out;
 
-#if defined(CURLVERBOSE) && ARES_VERSION >= 0x011800 /* >= v1.24.0 */
-  if(CURL_TRC_DNS_is_verbose(data)) {
-    char *csv = ares_get_servers_csv(ares->channel);
+#اگر defined(CURLVERBOSE) && ARES_VERSION >= 0x011800 /* >= v1.24.0 */
+  اگر(CURL_TRC_DNS_is_verbose(data)) {
+    نویسه *csv = ares_get_servers_csv(ares->channel);
     CURL_TRC_DNS(data, "ares: servers=%s", csv);
     ares_free_string(csv);
   }
 #endif
 
-  curl_msnprintf(service, sizeof(service), "%d", async->peer->port);
+  curl_msnprintf(service, اندازه(service), "%d", async->peer->port);
   socktype =
     (Curl_conn_get_transport(data, data->conn) == TRNSPRT_TCP) ?
     SOCK_STREAM : SOCK_DGRAM;
 
 #ifdef CURLRES_IPV6
-  if(async->dns_queries & CURL_DNSQ_AAAA) {
-    struct ares_addrinfo_hints hints;
+  اگر(async->dns_queries & CURL_DNSQ_AAAA) {
+    ساختار ares_addrinfo_hints hints;
 
-    memset(&hints, 0, sizeof(hints));
+    memset(&hints, 0, اندازه(hints));
     CURL_TRC_DNS(data, "[AAAA] ares: query records for %s",
                  async->peer->hostname);
     hints.ai_family = PF_INET6;
@@ -632,10 +632,10 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
   }
 #endif /* CURLRES_IPV6 */
 
-  if(async->dns_queries & CURL_DNSQ_A) {
-    struct ares_addrinfo_hints hints;
+  اگر(async->dns_queries & CURL_DNSQ_A) {
+    ساختار ares_addrinfo_hints hints;
 
-    memset(&hints, 0, sizeof(hints));
+    memset(&hints, 0, اندازه(hints));
     CURL_TRC_DNS(data, "[A] ares: query records for %s",
                  async->peer->hostname);
     hints.ai_family = PF_INET;
@@ -647,13 +647,13 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
   }
 
 #ifdef USE_HTTPSRR
-  if(async->dns_queries & CURL_DNSQ_HTTPS) {
-    char *https_name = NULL;
-    if(async->peer->port != 443) {
+  اگر(async->dns_queries & CURL_DNSQ_HTTPS) {
+    نویسه *https_name = پوچ;
+    اگر(async->peer->port != 443) {
       https_name = curl_maprintf("_%u._https.%s",
                                  async->peer->port, async->peer->hostname);
-      if(!https_name)
-        return CURLE_OUT_OF_MEMORY;
+      اگر(!https_name)
+        بازگشت CURLE_OUT_OF_MEMORY;
     }
     CURL_TRC_DNS(data, "[HTTPS] ares: query records for %s",
                  https_name ? https_name : async->peer->hostname);
@@ -661,14 +661,14 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data,
     ares_query_dnsrec(ares->channel,
                       https_name ? https_name : async->peer->hostname,
                       ARES_CLASS_IN, ARES_REC_TYPE_HTTPS,
-                      async_ares_rr_done, async, NULL);
+                      async_ares_rr_done, async, پوچ);
     curlx_free(https_name);
   }
 #endif /* USE_HTTPSRR */
 
 out:
   ares->result = result;
-  return result ? result : (async->queries_ongoing ? CURLE_AGAIN : CURLE_OK);
+  بازگشت result ? result : (async->queries_ongoing ? CURLE_AGAIN : CURLE_OK);
 }
 
 /* Set what DNS server are is to use. This is called in 2 situations:
@@ -677,111 +677,111 @@ out:
  *    we need to destroy and create the are channel anew, if there is one.
  * 2. When we lazy init the ares channel and NULL means that there
  *    are no preferences and we do not reset any existing channel. */
-static CURLcode async_ares_set_dns_servers(struct Curl_easy *data,
-                                           struct Curl_resolv_async *async)
+ایستا CURLcode async_ares_set_dns_servers(ساختار Curl_easy *data,
+                                           ساختار Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
   CURLcode result = CURLE_NOT_BUILT_IN;
-  const char *servers = CURL_EASY_STR(data, STRING_DNS_SERVERS);
-  int ares_result = ARES_SUCCESS;
+  ثابت نویسه *servers = CURL_EASY_STR(data, STRING_DNS_SERVERS);
+  صحیح ares_result = ARES_SUCCESS;
 
 #ifdef DEBUGBUILD
-  if(getenv("CURL_DNS_SERVER"))
+  اگر(getenv("CURL_DNS_SERVER"))
     servers = getenv("CURL_DNS_SERVER");
 #endif
 
-  if(!servers)
-    return CURLE_OK;
+  اگر(!servers)
+    بازگشت CURLE_OK;
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
+  اگر(ares && ares->channel)
     ares_result = ares_set_servers_ports_csv(ares->channel, servers);
-  switch(ares_result) {
-  case ARES_SUCCESS:
+  انتخاب(ares_result) {
+  حالت ARES_SUCCESS:
     result = CURLE_OK;
-    break;
-  case ARES_ENOMEM:
+    بشکن;
+  حالت ARES_ENOMEM:
     result = CURLE_OUT_OF_MEMORY;
-    break;
-  case ARES_ENOTINITIALIZED:
-  case ARES_ENODATA:
-  case ARES_EBADSTR:
-  default:
+    بشکن;
+  حالت ARES_ENOTINITIALIZED:
+  حالت ARES_ENODATA:
+  حالت ARES_EBADSTR:
+  پیشفرض:
     DEBUGF(infof(data, "bad servers set"));
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    break;
+    بشکن;
   }
-  return result;
+  بازگشت result;
 }
 
-static CURLcode async_ares_set_dns_interface(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async)
+ایستا CURLcode async_ares_set_dns_interface(ساختار Curl_easy *data,
+                                             ساختار Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  const char *interf = CURL_EASY_STR(data, STRING_DNS_INTERFACE);
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
+  ثابت نویسه *interf = CURL_EASY_STR(data, STRING_DNS_INTERFACE);
 
-  if(!interf)
+  اگر(!interf)
     interf = "";
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
+  اگر(ares && ares->channel)
     ares_set_local_dev(ares->channel, interf);
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static CURLcode async_ares_set_dns_local_ip4(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async)
+ایستا CURLcode async_ares_set_dns_local_ip4(ساختار Curl_easy *data,
+                                             ساختار Curl_resolv_async *async)
 {
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  struct in_addr a4;
-  const char *local_ip4 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4);
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
+  ساختار in_addr a4;
+  ثابت نویسه *local_ip4 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP4);
 
-  if(!local_ip4 || (local_ip4[0] == 0)) {
+  اگر(!local_ip4 || (local_ip4[0] == 0)) {
     a4.s_addr = 0; /* disabled: do not bind to a specific address */
   }
-  else {
-    if(curlx_inet_pton(AF_INET, local_ip4, &a4) != 1) {
+  وگرنه {
+    اگر(curlx_inet_pton(AF_INET, local_ip4, &a4) != 1) {
       DEBUGF(infof(data, "bad DNS IPv4 address"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
 
   /* if channel is not there yet, this is a parameter check */
-  if(ares && ares->channel)
+  اگر(ares && ares->channel)
     ares_set_local_ip4(ares->channel, ntohl(a4.s_addr));
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static CURLcode async_ares_set_dns_local_ip6(struct Curl_easy *data,
-                                             struct Curl_resolv_async *async)
+ایستا CURLcode async_ares_set_dns_local_ip6(ساختار Curl_easy *data,
+                                             ساختار Curl_resolv_async *async)
 {
 #ifdef USE_IPV6
-  struct async_ares_ctx *ares = async ? &async->ares : NULL;
-  unsigned char a6[INET6_ADDRSTRLEN];
-  const char *local_ip6 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6);
+  ساختار async_ares_ctx *ares = async ? &async->ares : پوچ;
+  unsigned نویسه a6[INET6_ADDRSTRLEN];
+  ثابت نویسه *local_ip6 = CURL_EASY_STR(data, STRING_DNS_LOCAL_IP6);
 
-  if(!local_ip6 || (local_ip6[0] == 0)) {
+  اگر(!local_ip6 || (local_ip6[0] == 0)) {
     /* disabled: do not bind to a specific address */
-    memset(a6, 0, sizeof(a6));
+    memset(a6, 0, اندازه(a6));
   }
-  else {
-    if(curlx_inet_pton(AF_INET6, local_ip6, a6) != 1) {
+  وگرنه {
+    اگر(curlx_inet_pton(AF_INET6, local_ip6, a6) != 1) {
       DEBUGF(infof(data, "bad DNS IPv6 address"));
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
     }
   }
 
   /* if channel is not there, this is a parameter check */
-  if(ares && ares->channel)
+  اگر(ares && ares->channel)
     ares_set_local_ip6(ares->channel, a6);
 
-  return CURLE_OK;
-#else /* no IPv6 support */
-  (void)data;
-  (void)async;
-  return CURLE_NOT_BUILT_IN;
+  بازگشت CURLE_OK;
+#وگرنه /* no IPv6 support */
+  (تهی)data;
+  (تهی)async;
+  بازگشت CURLE_NOT_BUILT_IN;
 #endif
 }
 

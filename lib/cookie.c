@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
 
-#include "urldata.h"
-#include "cookie.h"
-#include "psl.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "slist.h"
-#include "curl_share.h"
-#include "strcase.h"
-#include "curl_fopen.h"
-#include "curl_get_line.h"
-#include "curl_memrchr.h"
-#include "parsedate.h"
-#include "curlx/strdup.h"
-#include "curlx/dynbuf.h"
-#include "llist.h"
-#include "curlx/strparse.h"
+#شامل "urldata.h"
+#شامل "cookie.h"
+#شامل "psl.h"
+#شامل "curl_trc.h"
+#شامل "transfer.h"
+#شامل "slist.h"
+#شامل "curl_share.h"
+#شامل "strcase.h"
+#شامل "curl_fopen.h"
+#شامل "curl_get_line.h"
+#شامل "curl_memrchr.h"
+#شامل "parsedate.h"
+#شامل "curlx/strdup.h"
+#شامل "curlx/dynbuf.h"
+#شامل "llist.h"
+#شامل "curlx/strparse.h"
 
 /* number of seconds in 400 days */
 #define COOKIES_MAXAGE (400 * 24 * 3600)
@@ -50,40 +50,40 @@
 
    For the sake of easier testing, align the capped time to an even 60 second
    boundary. */
-static void cap_expires(time_t now, struct Cookie *co)
+ایستا تهی cap_expires(time_t now, ساختار Cookie *co)
 {
-  if(co->expires && (TIME_T_MAX - COOKIES_MAXAGE - 30) > now) {
+  اگر(co->expires && (TIME_T_MAX - COOKIES_MAXAGE - 30) > now) {
     timediff_t cap = now + COOKIES_MAXAGE;
-    if(co->expires > cap) {
+    اگر(co->expires > cap) {
       cap += 30;
       co->expires = (cap / 60) * 60;
     }
   }
 }
 
-static void freecookie(struct Cookie *co, bool maintoo)
+ایستا تهی freecookie(ساختار Cookie *co, bool maintoo)
 {
   curlx_free(co->domain);
   curlx_free(co->path);
   curlx_free(co->name);
-  curlx_free(co->value);
-  if(maintoo)
+  curlx_free(co->مقدار);
+  اگر(maintoo)
     curlx_free(co);
 }
 
-static bool cookie_tailmatch(const char *cookie_domain,
-                             const size_t cookie_domain_len,
-                             const char *hostname)
+ایستا bool cookie_tailmatch(ثابت نویسه *cookie_domain,
+                             ثابت size_t cookie_domain_len,
+                             ثابت نویسه *hostname)
 {
   size_t hostname_len = strlen(hostname);
 
-  if(hostname_len < cookie_domain_len)
-    return FALSE;
+  اگر(hostname_len < cookie_domain_len)
+    بازگشت FALSE;
 
-  if(!curl_strnequal(cookie_domain,
+  اگر(!curl_strnequal(cookie_domain,
                      hostname + hostname_len - cookie_domain_len,
                      cookie_domain_len))
-    return FALSE;
+    بازگشت FALSE;
 
   /*
    * A lead char of cookie_domain is not '.'.
@@ -93,18 +93,18 @@ static bool cookie_tailmatch(const char *cookie_domain,
    * header when making HTTP requests to example.com, www.example.com, and
    * www.corp.example.com.
    */
-  if(hostname_len == cookie_domain_len)
-    return TRUE;
-  if('.' == *(hostname + hostname_len - cookie_domain_len - 1))
-    return TRUE;
-  return FALSE;
+  اگر(hostname_len == cookie_domain_len)
+    بازگشت TRUE;
+  اگر('.' == *(hostname + hostname_len - cookie_domain_len - 1))
+    بازگشت TRUE;
+  بازگشت FALSE;
 }
 
 /*
  * matching cookie path and URL path
  * RFC6265 5.1.4 Paths and Path-Match
  */
-static bool pathmatch(const char *cookie_path, const char *uri_path)
+ایستا bool pathmatch(ثابت نویسه *cookie_path, ثابت نویسه *uri_path)
 {
   size_t cookie_path_len;
   size_t uri_path_len;
@@ -112,13 +112,13 @@ static bool pathmatch(const char *cookie_path, const char *uri_path)
 
   /* cookie_path must not have last '/' separator. ex: /sample */
   cookie_path_len = strlen(cookie_path);
-  if(cookie_path_len == 1) {
+  اگر(cookie_path_len == 1) {
     /* cookie_path must be '/' */
-    return TRUE;
+    بازگشت TRUE;
   }
 
   /* #-fragments are already cut off! */
-  if(strlen(uri_path) == 0 || uri_path[0] != '/')
+  اگر(strlen(uri_path) == 0 || uri_path[0] != '/')
     uri_path = "/";
 
   /*
@@ -133,119 +133,119 @@ static bool pathmatch(const char *cookie_path, const char *uri_path)
 
   uri_path_len = strlen(uri_path);
 
-  if(uri_path_len < cookie_path_len)
-    goto pathmatched;
+  اگر(uri_path_len < cookie_path_len)
+    برو pathmatched;
 
   /* not using checkprefix() because matching should be case-sensitive */
-  if(strncmp(cookie_path, uri_path, cookie_path_len))
-    goto pathmatched;
+  اگر(strncmp(cookie_path, uri_path, cookie_path_len))
+    برو pathmatched;
 
   /* The cookie-path and the uri-path are identical. */
-  if(cookie_path_len == uri_path_len) {
+  اگر(cookie_path_len == uri_path_len) {
     ret = TRUE;
-    goto pathmatched;
+    برو pathmatched;
   }
 
   /* here, cookie_path_len < uri_path_len */
-  if(uri_path[cookie_path_len] == '/') {
+  اگر(uri_path[cookie_path_len] == '/') {
     ret = TRUE;
-    goto pathmatched;
+    برو pathmatched;
   }
 
 pathmatched:
-  return ret;
+  بازگشت ret;
 }
 
 /*
  * Return the top-level domain, for optimal hashing.
  */
-static const char *get_top_domain(const char * const domain, size_t *outlen)
+ایستا ثابت نویسه *get_بالاترین_domain(ثابت نویسه * ثابت domain, size_t *outlen)
 {
   size_t len = 0;
-  const char *first = NULL, *last;
+  ثابت نویسه *first = پوچ, *last;
 
-  if(domain) {
+  اگر(domain) {
     len = strlen(domain);
     last = memrchr(domain, '.', len);
-    if(last) {
+    اگر(last) {
       first = memrchr(domain, '.', (last - domain));
-      if(first)
+      اگر(first)
         len -= (++first - domain);
     }
   }
 
-  if(outlen)
+  اگر(outlen)
     *outlen = len;
 
-  return first ? first : domain;
+  بازگشت first ? first : domain;
 }
 
 /* Avoid C1001, an "internal error" with MSVC14 */
-#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#اگر defined(_MSC_VER) && (_MSC_VER == 1900)
 #pragma optimize("", off)
 #endif
 
 /*
  * A case-insensitive hash for the cookie domains.
  */
-static size_t cookie_hash_domain(const char *domain, const size_t len)
+ایستا size_t cookie_hash_domain(ثابت نویسه *domain, ثابت size_t len)
 {
-  const char *end = domain + len;
+  ثابت نویسه *end = domain + len;
   size_t h = 5381;
 
-  while(domain < end) {
+  وقتی(domain < end) {
     size_t j = (size_t)Curl_raw_toupper(*domain++);
     h += h << 5;
     h ^= j;
   }
 
-  return (h % COOKIE_HASH_SIZE);
+  بازگشت (h % COOKIE_HASH_SIZE);
 }
 
-#if defined(_MSC_VER) && (_MSC_VER == 1900)
+#اگر defined(_MSC_VER) && (_MSC_VER == 1900)
 #pragma optimize("", on)
 #endif
 
 /*
  * Hash this domain.
  */
-static size_t cookiehash(const char * const domain)
+ایستا size_t cookiehash(ثابت نویسه * ثابت domain)
 {
-  const char *top;
+  ثابت نویسه *بالاترین;
   size_t len;
 
-  if(!domain || Curl_host_is_ipnum(domain))
-    return 0;
+  اگر(!domain || Curl_host_is_ipnum(domain))
+    بازگشت 0;
 
-  top = get_top_domain(domain, &len);
-  return cookie_hash_domain(top, len);
+  بالاترین = get_بالاترین_domain(domain, &len);
+  بازگشت cookie_hash_domain(بالاترین, len);
 }
 
 /*
  * cookie path sanitize
  */
-static char *sanitize_cookie_path(const char *cookie_path, size_t len)
+ایستا نویسه *sanitize_cookie_path(ثابت نویسه *cookie_path, size_t len)
 {
   /* some sites send path attribute within '"'. */
-  if(len && (cookie_path[0] == '\"')) {
+  اگر(len && (cookie_path[0] == '\"')) {
     cookie_path++;
     len--;
 
-    if(len && (cookie_path[len - 1] == '\"'))
+    اگر(len && (cookie_path[len - 1] == '\"'))
       len--;
   }
 
   /* RFC6265 5.2.4 The Path Attribute */
-  if(!len || (cookie_path[0] != '/'))
+  اگر(!len || (cookie_path[0] != '/'))
     /* Let cookie-path be the default-path. */
-    return curlx_strdup("/");
+    بازگشت curlx_strdup("/");
 
   /* remove trailing slash when path is non-empty */
   /* convert /hoge/ to /hoge */
-  if(len > 1 && cookie_path[len - 1] == '/')
+  اگر(len > 1 && cookie_path[len - 1] == '/')
     len--;
 
-  return curlx_memdup0(cookie_path, len);
+  بازگشت curlx_memdup0(cookie_path, len);
 }
 
 /*
@@ -253,13 +253,13 @@ static char *sanitize_cookie_path(const char *cookie_path, size_t len)
  *
  * A thin wrapper around curlx_memdup0().
  */
-static CURLcode strstore(char **str, const char *newstr, size_t len)
+ایستا CURLcode strstore(نویسه **str, ثابت نویسه *newstr, size_t len)
 {
   DEBUGASSERT(str);
   *str = curlx_memdup0(newstr, len);
-  if(!*str)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  اگر(!*str)
+    بازگشت CURLE_OUT_OF_MEMORY;
+  بازگشت CURLE_OK;
 }
 
 /*
@@ -271,11 +271,11 @@ static CURLcode strstore(char **str, const char *newstr, size_t len)
  * more cookies expire, then processing will exit early in case this timestamp
  * is in the future.
  */
-static void remove_expired(struct CookieInfo *ci)
+ایستا تهی remove_expired(ساختار CookieInfo *ci)
 {
-  struct Cookie *co;
-  curl_off_t now = (curl_off_t)time(NULL);
-  unsigned int i;
+  ساختار Cookie *co;
+  curl_off_t now = (curl_off_t)time(پوچ);
+  unsigned صحیح i;
 
   /*
    * If the earliest expiration timestamp in the jar is in the future we can
@@ -285,26 +285,26 @@ static void remove_expired(struct CookieInfo *ci)
    * expiration is the max offset, then perform the safe fallback of checking
    * all cookies.
    */
-  if(now < ci->next_expiration &&
+  اگر(now < ci->next_expiration &&
      ci->next_expiration != CURL_OFF_T_MAX)
-    return;
-  else
+    بازگشت;
+  وگرنه
     ci->next_expiration = CURL_OFF_T_MAX;
 
-  for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    struct Curl_llist_node *n;
-    struct Curl_llist_node *e = NULL;
+  برای(i = 0; i < COOKIE_HASH_SIZE; i++) {
+    ساختار Curl_llist_گره *n;
+    ساختار Curl_llist_گره *e = پوچ;
 
-    for(n = Curl_llist_head(&ci->cookielist[i]); n; n = e) {
-      co = Curl_node_elem(n);
-      e = Curl_node_next(n);
-      if(co->expires) {
-        if(co->expires < now) {
-          Curl_node_remove(n);
+    برای(n = Curl_llist_head(&ci->cookielist[i]); n; n = e) {
+      co = Curl_گره_elem(n);
+      e = Curl_گره_next(n);
+      اگر(co->expires) {
+        اگر(co->expires < now) {
+          Curl_گره_remove(n);
           freecookie(co, TRUE);
           ci->numcookies--;
         }
-        else if(co->expires < ci->next_expiration)
+        وگرنه اگر(co->expires < ci->next_expiration)
           /*
            * If this cookie has an expiration timestamp earlier than what we
            * have seen so far then record it for the next round of expirations.
@@ -317,21 +317,21 @@ static void remove_expired(struct CookieInfo *ci)
 
 #ifndef USE_LIBPSL
 /* Make sure domain contains a dot or is localhost. */
-static bool bad_domain(const char *domain, size_t len)
+ایستا bool bad_domain(ثابت نویسه *domain, size_t len)
 {
-  if((len == 9) && curl_strnequal(domain, "localhost", 9))
-    return FALSE;
-  else {
+  اگر((len == 9) && curl_strnequal(domain, "localhost", 9))
+    بازگشت FALSE;
+  وگرنه {
     /* there must be a dot present, but that dot must not be a trailing dot */
-    const char *dot = memchr(domain, '.', len);
-    if(dot) {
+    ثابت نویسه *dot = memchr(domain, '.', len);
+    اگر(dot) {
       size_t i = dot - domain;
-      if((len - i) > 1)
+      اگر((len - i) > 1)
         /* the dot is not the last byte */
-        return FALSE;
+        بازگشت FALSE;
     }
   }
-  return TRUE;
+  بازگشت TRUE;
 }
 #endif
 
@@ -343,17 +343,17 @@ static bool bad_domain(const char *domain, size_t len)
    double-quotes fine. The prime reason for filtering out control bytes is that
    some HTTP servers return 400 for requests that contain such.
  */
-static bool invalid_octets(const char *ptr, size_t len)
+ایستا bool invalid_octets(ثابت نویسه *ptr, size_t len)
 {
-  const unsigned char *p = (const unsigned char *)ptr;
+  ثابت unsigned نویسه *p = (ثابت unsigned نویسه *)ptr;
   /* Reject all bytes \x01 - \x1f + \x7f */
-  while(len && *p) {
-    if((*p < 0x20) || (*p == 0x7f))
-      return TRUE;
+  وقتی(len && *p) {
+    اگر((*p < 0x20) || (*p == 0x7f))
+      بازگشت TRUE;
     p++;
     len--;
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /* The maximum length we accept a date string for the 'expire' keyword. The
@@ -362,107 +362,107 @@ static bool invalid_octets(const char *ptr, size_t len)
 #define MAX_DATE_LENGTH 80
 
 #define COOKIE_NAME   0
-#define COOKIE_VALUE  1
+#define COOKIE_مقدار  1
 #define COOKIE_DOMAIN 2
 #define COOKIE_PATH   3
 
 #define COOKIE_PIECES 4 /* the list above */
 
-static CURLcode storecookie(struct Cookie *co, const struct Curl_str *cp,
-                            const char *path, const char *domain)
+ایستا CURLcode storecookie(ساختار Cookie *co, ثابت ساختار Curl_str *cp,
+                            ثابت نویسه *path, ثابت نویسه *domain)
 {
   CURLcode result;
   result = strstore(&co->name, curlx_str(&cp[COOKIE_NAME]),
                     curlx_strlen(&cp[COOKIE_NAME]));
-  if(!result)
-    result = strstore(&co->value, curlx_str(&cp[COOKIE_VALUE]),
-                      curlx_strlen(&cp[COOKIE_VALUE]));
-  if(!result) {
+  اگر(!result)
+    result = strstore(&co->مقدار, curlx_str(&cp[COOKIE_مقدار]),
+                      curlx_strlen(&cp[COOKIE_مقدار]));
+  اگر(!result) {
     size_t plen = 0;
-    if(curlx_strlen(&cp[COOKIE_PATH])) {
+    اگر(curlx_strlen(&cp[COOKIE_PATH])) {
       path = curlx_str(&cp[COOKIE_PATH]);
       plen = curlx_strlen(&cp[COOKIE_PATH]);
     }
-    else if(path) {
+    وگرنه اگر(path) {
       /* No path was given in the header line, set the default */
-      const char *endslash = strrchr(path, '/');
-      if(endslash)
+      ثابت نویسه *endslash = strrchr(path, '/');
+      اگر(endslash)
         plen = endslash - path + 1; /* include end slash */
-      else
+      وگرنه
         plen = strlen(path);
     }
 
-    if(path) {
+    اگر(path) {
       co->path = sanitize_cookie_path(path, plen);
-      if(!co->path)
+      اگر(!co->path)
         result = CURLE_OUT_OF_MEMORY;
     }
   }
-  if(!result) {
-    if(curlx_strlen(&cp[COOKIE_DOMAIN]))
+  اگر(!result) {
+    اگر(curlx_strlen(&cp[COOKIE_DOMAIN]))
       result = strstore(&co->domain, curlx_str(&cp[COOKIE_DOMAIN]),
                         curlx_strlen(&cp[COOKIE_DOMAIN]));
-    else if(domain) {
+    وگرنه اگر(domain) {
       /* no domain was given in the header line, set the default */
       co->domain = curlx_strdup(domain);
-      if(!co->domain)
+      اگر(!co->domain)
         result = CURLE_OUT_OF_MEMORY;
     }
   }
-  return result;
+  بازگشت result;
 }
 
 /*
  * Parse the first name/value pair of the cookie header, which is the actual
  * cookie name and value.
  */
-static bool parse_first_pair(struct Curl_easy *data, struct Cookie *co,
-                             struct Curl_str *cookie,
-                             struct Curl_str *name,
-                             struct Curl_str *val,
+ایستا bool parse_first_pair(ساختار Curl_easy *data, ساختار Cookie *co,
+                             ساختار Curl_str *cookie,
+                             ساختار Curl_str *name,
+                             ساختار Curl_str *val,
                              bool sep)
 {
   /* The first name/value pair is the actual cookie name */
-  if(!sep || !curlx_strlen(name)) {
+  اگر(!sep || !curlx_strlen(name)) {
     infof(data, "invalid cookie, dropped");
-    return FALSE;
+    بازگشت FALSE;
   }
 
   /*
    * Check for too long individual name or contents. Chrome and Firefox
    * support 4095 or 4096 bytes combo
    */
-  if((curlx_strlen(name) + curlx_strlen(val)) > MAX_NAME) {
+  اگر((curlx_strlen(name) + curlx_strlen(val)) > MAX_NAME) {
     infof(data, "oversized cookie dropped, name/val %zu + %zu bytes",
           curlx_strlen(name), curlx_strlen(val));
-    return FALSE;
+    بازگشت FALSE;
   }
 
   /* Check if we have a reserved prefix set. */
-  if(!strncmp("__Secure-", curlx_str(name), 9))
+  اگر(!strncmp("__Secure-", curlx_str(name), 9))
     co->prefix_secure = TRUE;
-  else if(!strncmp("__Host-", curlx_str(name), 7))
+  وگرنه اگر(!strncmp("__Host-", curlx_str(name), 7))
     co->prefix_host = TRUE;
 
   cookie[COOKIE_NAME] = *name;
-  cookie[COOKIE_VALUE] = *val;
-  return TRUE;
+  cookie[COOKIE_مقدار] = *val;
+  بازگشت TRUE;
 }
 
-static bool parse_domain(struct Curl_easy *data, struct Cookie *co,
-                         struct Curl_str *cookie_domain,
-                         struct Curl_str *val,
-                         const char **domainp)
+ایستا bool parse_domain(ساختار Curl_easy *data, ساختار Cookie *co,
+                         ساختار Curl_str *cookie_domain,
+                         ساختار Curl_str *val,
+                         ثابت نویسه **domainp)
 {
   bool is_ip;
-  const char *domain = *domainp;
-  const char *v = curlx_str(val);
+  ثابت نویسه *domain = *domainp;
+  ثابت نویسه *v = curlx_str(val);
   /*
    * Now, we make sure that our host is within the given domain, or
    * the given domain is not valid and thus cannot be set.
    */
 
-  if('.' == *v)
+  اگر('.' == *v)
     curlx_str_nudge(val, 1);
 
 #ifndef USE_LIBPSL
@@ -471,7 +471,7 @@ static bool parse_domain(struct Curl_easy *data, struct Cookie *co,
    * TLD or otherwise "protected" suffix. To reduce risk, we require a
    * dot OR the exact hostname being "localhost".
    */
-  if(bad_domain(curlx_str(val), curlx_strlen(val))) {
+  اگر(bad_domain(curlx_str(val), curlx_strlen(val))) {
     *domainp = ":";
     domain = ":";
   }
@@ -479,62 +479,62 @@ static bool parse_domain(struct Curl_easy *data, struct Cookie *co,
 
   is_ip = Curl_host_is_ipnum(domain ? domain : curlx_str(val));
 
-  if(!domain ||
+  اگر(!domain ||
      (is_ip &&
       !strncmp(curlx_str(val), domain, curlx_strlen(val)) &&
       (curlx_strlen(val) == strlen(domain))) ||
      (!is_ip && cookie_tailmatch(curlx_str(val),
                                   curlx_strlen(val), domain))) {
     *cookie_domain = *val;
-    if(!is_ip)
+    اگر(!is_ip)
       co->tailmatch = TRUE; /* we always do that if the domain name was
                                given */
   }
-  else {
+  وگرنه {
     /*
      * We did not get a tailmatch and then the attempted set domain is
      * not a domain to which the current host belongs. Mark as bad.
      */
     infof(data, "skipped cookie with bad tailmatch domain: %s",
           curlx_str(val));
-    return FALSE;
+    بازگشت FALSE;
   }
-  return TRUE;
+  بازگشت TRUE;
 }
 
-static void parse_maxage(struct Cookie *co, struct Curl_str *val,
+ایستا تهی parse_maxage(ساختار Cookie *co, ساختار Curl_str *val,
                          time_t *nowp)
 {
-  int rc;
-  const char *maxage = curlx_str(val);
-  if(*maxage == '\"')
+  صحیح rc;
+  ثابت نویسه *maxage = curlx_str(val);
+  اگر(*maxage == '\"')
     maxage++;
-  rc = curlx_str_number(&maxage, &co->expires, CURL_OFF_T_MAX);
-  if(!*nowp)
-    *nowp = time(NULL);
-  switch(rc) {
-  case STRE_OVERFLOW:
+  rc = curlx_str_عدد(&maxage, &co->expires, CURL_OFF_T_MAX);
+  اگر(!*nowp)
+    *nowp = time(پوچ);
+  انتخاب(rc) {
+  حالت STRE_OVERFLOW:
     /* overflow, used max value */
     co->expires = CURL_OFF_T_MAX;
-    break;
-  default:
+    بشکن;
+  پیشفرض:
     /* negative or otherwise bad, expire */
     co->expires = 1;
-    break;
-  case STRE_OK:
-    if(!co->expires)
+    بشکن;
+  حالت STRE_OK:
+    اگر(!co->expires)
       co->expires = 1; /* expire now */
-    else if(CURL_OFF_T_MAX - *nowp < co->expires)
+    وگرنه اگر(CURL_OFF_T_MAX - *nowp < co->expires)
       /* would overflow */
       co->expires = CURL_OFF_T_MAX;
-    else
+    وگرنه
       co->expires += *nowp;
-    break;
+    بشکن;
   }
   cap_expires(*nowp, co);
 }
 
-static void parse_expires(struct Cookie *co, struct Curl_str *val,
+ایستا تهی parse_expires(ساختار Cookie *co, ساختار Curl_str *val,
                           time_t *nowp)
 {
   /*
@@ -543,129 +543,129 @@ static void parse_expires(struct Cookie *co, struct Curl_str *val,
    * If the date cannot get parsed for whatever reason, the cookie
    * will be treated as a session cookie
    */
-  if(!co->expires && (curlx_strlen(val) < MAX_DATE_LENGTH)) {
-    char dbuf[MAX_DATE_LENGTH + 1];
+  اگر(!co->expires && (curlx_strlen(val) < MAX_DATE_LENGTH)) {
+    نویسه dbuf[MAX_DATE_LENGTH + 1];
     time_t date = 0;
     memcpy(dbuf, curlx_str(val), curlx_strlen(val));
     dbuf[curlx_strlen(val)] = 0;
-    if(!Curl_getdate_capped(dbuf, &date)) {
-      if(!date)
+    اگر(!Curl_getdate_capped(dbuf, &date)) {
+      اگر(!date)
         date++;
       co->expires = (curl_off_t)date;
     }
-    else
+    وگرنه
       co->expires = 0;
-    if(!*nowp)
-      *nowp = time(NULL);
+    اگر(!*nowp)
+      *nowp = time(پوچ);
     cap_expires(*nowp, co);
   }
 }
 
 /* this function returns errors on OOM etc, not for cookie format problems */
-static CURLcode
-parse_cookie_header(struct Curl_easy *data,
-                    struct Cookie *co,
+ایستا CURLcode
+parse_cookie_header(ساختار Curl_easy *data,
+                    ساختار Cookie *co,
                     bool *okay, /* if the cookie was fine */
-                    const char *ptr, /* the header */
-                    const char *domain, /* default domain */
+                    ثابت نویسه *ptr, /* the header */
+                    ثابت نویسه *domain, /* default domain */
                     /* full path used when this cookie is set */
-                    const char *path,
+                    ثابت نویسه *path,
                     bool secure_origin)
 {
   /* This line was read off an HTTP-header */
   time_t now = 0;
   size_t linelength = strlen(ptr);
   CURLcode result = CURLE_OK;
-  struct Curl_str cookie[COOKIE_PIECES];
+  ساختار Curl_str cookie[COOKIE_PIECES];
   *okay = FALSE;
-  if(linelength > MAX_COOKIE_LINE)
+  اگر(linelength > MAX_COOKIE_سطر)
     /* discard overly long lines at once */
-    return CURLE_OK;
+    بازگشت CURLE_OK;
 
   /* memset instead of initializer because gcc 4.8.1 is silly */
-  memset(cookie, 0, sizeof(cookie));
-  do {
-    struct Curl_str name;
+  memset(cookie, 0, اندازه(cookie));
+  انجامبده {
+    ساختار Curl_str name;
 
     /* we have a <name>=<value> pair or a stand-alone word here */
-    int rc = curlx_str_cspn(&ptr, &name, ";\r\n=");
-    if(!rc || (rc == STRE_SHORT)) {
-      struct Curl_str val;
+    صحیح rc = curlx_str_cspn(&ptr, &name, ";\r\n=");
+    اگر(!rc || (rc == STRE_SHORT)) {
+      ساختار Curl_str val;
       bool sep = FALSE;
       curlx_str_trimblanks(&name);
 
-      if(invalid_octets(curlx_str(&name), curlx_strlen(&name))) {
+      اگر(invalid_octets(curlx_str(&name), curlx_strlen(&name))) {
         infof(data, "invalid octets in name, cookie dropped");
-        return CURLE_OK;
+        بازگشت CURLE_OK;
       }
 
-      if(!curlx_str_single(&ptr, '=')) {
+      اگر(!curlx_str_single(&ptr, '=')) {
         sep = TRUE; /* a '=' was used */
-        if(!curlx_str_cspn(&ptr, &val, ";\r\n"))
+        اگر(!curlx_str_cspn(&ptr, &val, ";\r\n"))
           curlx_str_trimblanks(&val);
 
-        if(invalid_octets(curlx_str(&val), curlx_strlen(&val))) {
+        اگر(invalid_octets(curlx_str(&val), curlx_strlen(&val))) {
           infof(data, "invalid octets in value, cookie dropped");
-          return CURLE_OK;
+          بازگشت CURLE_OK;
         }
       }
-      else
+      وگرنه
         curlx_str_init(&val);
 
-      if(!curlx_strlen(&cookie[COOKIE_NAME])) {
-        if(!parse_first_pair(data, co, cookie, &name, &val, sep))
-          return CURLE_OK;
+      اگر(!curlx_strlen(&cookie[COOKIE_NAME])) {
+        اگر(!parse_first_pair(data, co, cookie, &name, &val, sep))
+          بازگشت CURLE_OK;
       }
 
       /* whether there's separator or not */
-      else if(curlx_str_casecompare(&name, "secure")) {
-        if(secure_origin)
+      وگرنه اگر(curlx_str_casecompare(&name, "secure")) {
+        اگر(secure_origin)
           co->secure = TRUE;
-        else {
+        وگرنه {
           infof(data, "skipped cookie because not 'secure'");
-          return CURLE_OK;
+          بازگشت CURLE_OK;
         }
       }
-      else if(curlx_str_casecompare(&name, "httponly"))
+      وگرنه اگر(curlx_str_casecompare(&name, "httponly"))
         co->httponly = TRUE;
-      else if(sep) {
+      وگرنه اگر(sep) {
         /* only if a separating equals sign is present */
-        if(curlx_str_casecompare(&name, "path"))
+        اگر(curlx_str_casecompare(&name, "path"))
           cookie[COOKIE_PATH] = val;
-        else if(curlx_str_casecompare(&name, "domain")) {
-          if(curlx_strlen(&val) &&
+        وگرنه اگر(curlx_str_casecompare(&name, "domain")) {
+          اگر(curlx_strlen(&val) &&
              !parse_domain(data, co, &cookie[COOKIE_DOMAIN], &val, &domain))
-            return CURLE_OK;
+            بازگشت CURLE_OK;
         }
-        else if(curlx_str_casecompare(&name, "max-age") && curlx_strlen(&val))
+        وگرنه اگر(curlx_str_casecompare(&name, "max-age") && curlx_strlen(&val))
           parse_maxage(co, &val, &now);
-        else if(curlx_str_casecompare(&name, "expires") && curlx_strlen(&val))
+        وگرنه اگر(curlx_str_casecompare(&name, "expires") && curlx_strlen(&val))
           parse_expires(co, &val, &now);
       }
     }
-  } while(!curlx_str_single(&ptr, ';'));
+  } وقتی(!curlx_str_single(&ptr, ';'));
 
-  if(curlx_strlen(&cookie[COOKIE_NAME])) {
+  اگر(curlx_strlen(&cookie[COOKIE_NAME])) {
     /* the header was fine, now store the data */
     result = storecookie(co, &cookie[0], path, domain);
-    if(!result)
+    اگر(!result)
       *okay = TRUE;
   }
-  return result;
+  بازگشت result;
 }
 
-static CURLcode parse_netscape(struct Cookie *co,
-                               const struct CookieInfo *ci,
+ایستا CURLcode parse_netscape(ساختار Cookie *co,
+                               ثابت ساختار CookieInfo *ci,
                                bool *okay,
-                               const char *lineptr,
+                               ثابت نویسه *lineptr,
                                bool secure_origin)
 {
   /*
    * This line is NOT an HTTP header style line, we do offer support for
    * reading the odd netscape cookies-file format here
    */
-  const char *ptr, *next;
-  int fields;
+  ثابت نویسه *ptr, *next;
+  صحیح fields;
   size_t len;
   *okay = FALSE;
 
@@ -675,121 +675,121 @@ static CURLcode parse_netscape(struct Cookie *co,
    * Firefox's cookie files, they are prefixed #HttpOnly_ and the rest
    * remains as usual, so we skip 10 characters of the line.
    */
-  if(!strncmp(lineptr, "#HttpOnly_", 10)) {
+  اگر(!strncmp(lineptr, "#HttpOnly_", 10)) {
     lineptr += 10;
     co->httponly = TRUE;
   }
 
-  if(lineptr[0] == '#')
+  اگر(lineptr[0] == '#')
     /* do not even try the comments */
-    return CURLE_OK;
+    بازگشت CURLE_OK;
 
   /*
    * Now loop through the fields and init the struct we already have
    * allocated
    */
   fields = 0;
-  for(next = lineptr; next; fields++) {
+  برای(next = lineptr; next; fields++) {
     ptr = next;
     len = strcspn(ptr, "\t\r\n");
-    next = (ptr[len] == '\t' ? &ptr[len + 1] : NULL);
-    switch(fields) {
-    case 0:
-      if(ptr[0] == '.') { /* skip preceding dots */
+    next = (ptr[len] == '\t' ? &ptr[len + 1] : پوچ);
+    انتخاب(fields) {
+    حالت 0:
+      اگر(ptr[0] == '.') { /* skip preceding dots */
         ptr++;
         len--;
       }
       co->domain = curlx_memdup0(ptr, len);
-      if(!co->domain)
-        return CURLE_OUT_OF_MEMORY;
-      break;
-    case 1:
+      اگر(!co->domain)
+        بازگشت CURLE_OUT_OF_MEMORY;
+      بشکن;
+    حالت 1:
       /*
        * flag: A TRUE/FALSE value indicating if all machines within a given
        * domain can access the variable. Set TRUE when the cookie says
        * .example.com and to false when the domain is complete www.example.com
        */
       co->tailmatch = !!curl_strnequal(ptr, "TRUE", len);
-      break;
-    case 2:
+      بشکن;
+    حالت 2:
       /* The file format allows the path field to remain not filled in */
-      if(strncmp("TRUE", ptr, len) && strncmp("FALSE", ptr, len)) {
+      اگر(strncmp("TRUE", ptr, len) && strncmp("FALSE", ptr, len)) {
         /* only if the path does not look like a boolean option! */
         co->path = sanitize_cookie_path(ptr, len);
-        if(!co->path)
-          return CURLE_OUT_OF_MEMORY;
-        break;
+        اگر(!co->path)
+          بازگشت CURLE_OUT_OF_MEMORY;
+        بشکن;
       }
-      else {
+      وگرنه {
         /* this does not look like a path, make one up! */
         co->path = curlx_strdup("/");
-        if(!co->path)
-          return CURLE_OUT_OF_MEMORY;
+        اگر(!co->path)
+          بازگشت CURLE_OUT_OF_MEMORY;
       }
       fields++; /* add a field and fall down to secure */
       FALLTHROUGH();
-    case 3:
+    حالت 3:
       co->secure = FALSE;
-      if(curl_strnequal(ptr, "TRUE", len)) {
-        if(secure_origin || ci->running)
+      اگر(curl_strnequal(ptr, "TRUE", len)) {
+        اگر(secure_origin || ci->running)
           co->secure = TRUE;
-        else
-          return CURLE_OK;
+        وگرنه
+          بازگشت CURLE_OK;
       }
-      break;
-    case 4:
-      if(curlx_str_number(&ptr, &co->expires, CURL_OFF_T_MAX))
-        return CURLE_OK;
-      break;
-    case 5:
+      بشکن;
+    حالت 4:
+      اگر(curlx_str_عدد(&ptr, &co->expires, CURL_OFF_T_MAX))
+        بازگشت CURLE_OK;
+      بشکن;
+    حالت 5:
       co->name = curlx_memdup0(ptr, len);
-      if(!co->name)
-        return CURLE_OUT_OF_MEMORY;
-      else {
+      اگر(!co->name)
+        بازگشت CURLE_OUT_OF_MEMORY;
+      وگرنه {
         /* For Netscape file format cookies we check prefix on the name.
            These prefixes are matched case sensitively, same as on the
            header path and as the 6265bis document specifies. */
-        if(!strncmp("__Secure-", co->name, 9))
+        اگر(!strncmp("__Secure-", co->name, 9))
           co->prefix_secure = TRUE;
-        else if(!strncmp("__Host-", co->name, 7))
+        وگرنه اگر(!strncmp("__Host-", co->name, 7))
           co->prefix_host = TRUE;
       }
-      break;
-    case 6:
-      co->value = curlx_memdup0(ptr, len);
-      if(!co->value)
-        return CURLE_OUT_OF_MEMORY;
-      break;
+      بشکن;
+    حالت 6:
+      co->مقدار = curlx_memdup0(ptr, len);
+      اگر(!co->مقدار)
+        بازگشت CURLE_OUT_OF_MEMORY;
+      بشکن;
     }
   }
-  if(fields == 6) {
+  اگر(fields == 6) {
     /* we got a cookie with blank contents, fix it */
-    co->value = curlx_strdup("");
-    if(!co->value)
-      return CURLE_OUT_OF_MEMORY;
-    else
+    co->مقدار = curlx_strdup("");
+    اگر(!co->مقدار)
+      بازگشت CURLE_OUT_OF_MEMORY;
+    وگرنه
       fields++;
   }
 
-  if(fields != 7)
+  اگر(fields != 7)
     /* we did not find the sufficient number of fields */
-    return CURLE_OK;
+    بازگشت CURLE_OK;
 
   /* Reject control octets in the name or value, matching the filtering done
      for cookies set over HTTP. A cookie loaded from a file is later sent in
      request headers, so the same bytes that make a server reject a request
      must not slip in through the file. */
-  if(invalid_octets(co->name, strlen(co->name)) ||
-     invalid_octets(co->value, strlen(co->value)))
-    return CURLE_OK;
+  اگر(invalid_octets(co->name, strlen(co->name)) ||
+     invalid_octets(co->مقدار, strlen(co->مقدار)))
+    بازگشت CURLE_OK;
 
   *okay = TRUE;
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static bool is_public_suffix(struct Curl_easy *data,
-                             struct Cookie *co,
-                             const char *domain)
+ایستا bool is_public_suffix(ساختار Curl_easy *data,
+                             ساختار Cookie *co,
+                             ثابت نویسه *domain)
 {
 #ifdef USE_LIBPSL
   /*
@@ -802,102 +802,102 @@ static bool is_public_suffix(struct Curl_easy *data,
   DEBUGF(infof(data, "PSL check set-cookie '%s' for domain=%s in %s",
                co->name, co->domain ? co->domain : "[blank]",
                domain ? domain : "[file]"));
-  if(!co->domain || Curl_host_is_ipnum(co->domain))
-    return FALSE;
+  اگر(!co->domain || Curl_host_is_ipnum(co->domain))
+    بازگشت FALSE;
 
-  else {
+  وگرنه {
     bool acceptable = FALSE;
-    char lcase[256];
-    char lcookie[256];
+    نویسه lcase[256];
+    نویسه lcookie[256];
     size_t dlen = domain ? strlen(domain) : 0;
     size_t clen = strlen(co->domain);
 
     /* trim trailing dots */
-    if(dlen && (domain[dlen - 1] == '.'))
+    اگر(dlen && (domain[dlen - 1] == '.'))
       dlen--;
-    if(clen && (co->domain[clen - 1] == '.'))
+    اگر(clen && (co->domain[clen - 1] == '.'))
       clen--;
 
-    if((dlen < sizeof(lcase)) && (clen < sizeof(lcookie))) {
-      const psl_ctx_t *psl = Curl_psl_use(data);
-      if(psl) {
+    اگر((dlen < اندازه(lcase)) && (clen < اندازه(lcookie))) {
+      ثابت psl_ctx_t *psl = Curl_psl_use(data);
+      اگر(psl) {
         /* the PSL check requires lowercase domain name and pattern */
         Curl_strntolower(lcookie, co->domain, clen);
         lcookie[clen] = 0;
-        if(domain) {
+        اگر(domain) {
           Curl_strntolower(lcase, domain, dlen);
           lcase[dlen] = 0;
           acceptable = psl_is_cookie_domain_acceptable(psl, lcase, lcookie);
 
           /* if the cookie is acceptable, but is set for a PSL domain, then it
              cannot be tailmatching */
-          if(acceptable && co->tailmatch &&
+          اگر(acceptable && co->tailmatch &&
              curl_strequal(co->domain, domain) &&
              psl_is_public_suffix(psl, lcookie))
             co->tailmatch = FALSE;
         }
-        else {
+        وگرنه {
           bool suffix = psl_is_public_suffix(psl, lcookie);
           acceptable = TRUE;
-          if(suffix)
+          اگر(suffix)
             /* switch off tailmatching when set for a PSL domain */
             co->tailmatch = FALSE;
         }
         Curl_psl_release(data);
       }
-      else
+      وگرنه
         infof(data, "libpsl problem, rejecting cookie for safety");
     }
 
-    if(!acceptable) {
+    اگر(!acceptable) {
       infof(data, "cookie '%s' dropped, domain '%s' must not "
             "set cookies for '%s'", co->name,
             domain ? domain : "[file]", co->domain);
-      return TRUE;
+      بازگشت TRUE;
     }
   }
-#else
-  (void)data;
-  (void)co;
-  (void)domain;
+#وگرنه
+  (تهی)data;
+  (تهی)co;
+  (تهی)domain;
   DEBUGF(infof(data, "NO PSL to check set-cookie '%s' for domain=%s in %s",
                co->name, co->domain, domain ? domain : "[file]"));
 #endif
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /* returns TRUE when replaced */
-static bool replace_existing(struct Curl_easy *data,
-                             struct Cookie *co,
-                             const struct CookieInfo *ci,
+ایستا bool replace_existing(ساختار Curl_easy *data,
+                             ساختار Cookie *co,
+                             ثابت ساختار CookieInfo *ci,
                              bool secure,
                              bool *replacep)
 {
   bool replace_old = FALSE;
-  struct Curl_llist_node *replace_n = NULL;
-  struct Curl_llist_node *n;
+  ساختار Curl_llist_گره *replace_n = پوچ;
+  ساختار Curl_llist_گره *n;
   size_t myhash = cookiehash(co->domain);
-  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_node_next(n)) {
-    struct Cookie *clist = Curl_node_elem(n);
-    if(!strcmp(clist->name, co->name)) {
+  برای(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_گره_next(n)) {
+    ساختار Cookie *clist = Curl_گره_elem(n);
+    اگر(!strcmp(clist->name, co->name)) {
       /* the names are identical */
       bool matching_domains = FALSE;
 
-      if(clist->domain && co->domain) {
-        if(cookie_tailmatch(clist->domain, strlen(clist->domain),
+      اگر(clist->domain && co->domain) {
+        اگر(cookie_tailmatch(clist->domain, strlen(clist->domain),
                             co->domain) ||
            cookie_tailmatch(co->domain, strlen(co->domain), clist->domain))
           /* The existing one is a tail of the new or vice versa */
           matching_domains = TRUE;
       }
-      else if(!clist->domain && !co->domain)
+      وگرنه اگر(!clist->domain && !co->domain)
         matching_domains = TRUE;
 
-      if(matching_domains && /* the domains were identical */
+      اگر(matching_domains && /* the domains were identical */
          clist->path && co->path && /* both have paths */
          clist->secure && !co->secure && !secure) {
         size_t cllen;
-        const char *sep = NULL;
+        ثابت نویسه *sep = پوچ;
 
         /*
          * A non-secure cookie may not overlay an existing secure cookie.
@@ -907,70 +907,70 @@ static bool replace_existing(struct Curl_easy *data,
          */
 
         DEBUGASSERT(clist->path[0]);
-        if(clist->path[0])
+        اگر(clist->path[0])
           sep = strchr(clist->path + 1, '/');
-        if(sep)
+        اگر(sep)
           cllen = sep - clist->path;
-        else
+        وگرنه
           cllen = strlen(clist->path);
 
-        if(!strncmp(clist->path, co->path, cllen)) {
+        اگر(!strncmp(clist->path, co->path, cllen)) {
           infof(data, "cookie '%s' for domain '%s' dropped, would "
                 "overlay an existing cookie", co->name, co->domain);
-          return FALSE;
+          بازگشت FALSE;
         }
       }
     }
 
-    if(!replace_n && !strcmp(clist->name, co->name)) {
+    اگر(!replace_n && !strcmp(clist->name, co->name)) {
       /* the names are identical */
 
-      if(clist->domain && co->domain) {
-        if(curl_strequal(clist->domain, co->domain) &&
+      اگر(clist->domain && co->domain) {
+        اگر(curl_strequal(clist->domain, co->domain) &&
            (clist->tailmatch == co->tailmatch))
           /* The domains are identical */
           replace_old = TRUE;
       }
-      else if(!clist->domain && !co->domain)
+      وگرنه اگر(!clist->domain && !co->domain)
         replace_old = TRUE;
 
-      if(replace_old) {
+      اگر(replace_old) {
         /* the domains were identical */
 
-        if(clist->path && co->path &&
+        اگر(clist->path && co->path &&
            strcmp(clist->path, co->path))
           replace_old = FALSE;
-        else if(!clist->path != !co->path)
+        وگرنه اگر(!clist->path != !co->path)
           replace_old = FALSE;
       }
 
-      if(replace_old && !co->livecookie && clist->livecookie) {
+      اگر(replace_old && !co->livecookie && clist->livecookie) {
         /*
          * Both cookies matched fine, except that the already present cookie
          * is "live", which means it was set from a header, while the new one
          * was read from a file and thus is not "live". "live" cookies are
          * preferred so the new cookie is freed.
          */
-        return FALSE;
+        بازگشت FALSE;
       }
-      if(replace_old)
+      اگر(replace_old)
         replace_n = n;
     }
   }
-  if(replace_n) {
-    struct Cookie *repl = Curl_node_elem(replace_n);
+  اگر(replace_n) {
+    ساختار Cookie *repl = Curl_گره_elem(replace_n);
 
     /* when replacing, creationtime is kept from old */
     co->creationtime = repl->creationtime;
 
     /* unlink the old */
-    Curl_node_remove(replace_n);
+    Curl_گره_remove(replace_n);
 
     /* free the old cookie */
     freecookie(repl, TRUE);
   }
   *replacep = replace_old;
-  return TRUE;
+  بازگشت TRUE;
 }
 
 /*
@@ -981,18 +981,18 @@ static bool replace_existing(struct Curl_easy *data,
  * IPv6 address.
  *
  */
-CURLcode Curl_cookie_add(struct Curl_easy *data,
-                         struct CookieInfo *ci,
-                         const char *lineptr, /* first character of the line */
-                         const char *domain,  /* default domain */
-                         const char *path,    /* full path used when this
+CURLcode Curl_cookie_add(ساختار Curl_easy *data,
+                         ساختار CookieInfo *ci,
+                         ثابت نویسه *lineptr, /* first character of the line */
+                         ثابت نویسه *domain,  /* default domain */
+                         ثابت نویسه *path,    /* full path used when this
                                                  cookie is set, used to get
                                                  default path for the cookie
                                                  unless set */
-                         const int flags)
+                         ثابت صحیح flags)
 {
-  struct Cookie comem;
-  struct Cookie *co;
+  ساختار Cookie comem;
+  ساختار Cookie *co;
   size_t myhash;
   CURLcode result;
   bool replaces = FALSE;
@@ -1000,48 +1000,48 @@ CURLcode Curl_cookie_add(struct Curl_easy *data,
 
   DEBUGASSERT(data);
   DEBUGASSERT(MAX_SET_COOKIE_AMOUNT <= 255); /* counter is an unsigned char */
-  if(data->req.setcookies >= MAX_SET_COOKIE_AMOUNT)
-    return CURLE_OK; /* silently ignore */
+  اگر(data->req.setcookies >= MAX_SET_COOKIE_AMOUNT)
+    بازگشت CURLE_OK; /* silently ignore */
 
   co = &comem;
-  memset(co, 0, sizeof(comem));
+  memset(co, 0, اندازه(comem));
 
-  if(flags & COOKIE_HTTPHEADER)
+  اگر(flags & COOKIE_HTTPHEADER)
     result = parse_cookie_header(data, co, &okay,
                                  lineptr, domain, path, flags & COOKIE_SECURE);
-  else
+  وگرنه
     result = parse_netscape(co, ci, &okay, lineptr, flags & COOKIE_SECURE);
 
-  if(result || !okay)
-    goto fail;
+  اگر(result || !okay)
+    برو fail;
 
-  if(co->prefix_secure && !co->secure)
+  اگر(co->prefix_secure && !co->secure)
     /* The __Secure- prefix only requires that the cookie be set secure */
-    goto fail;
+    برو fail;
 
-  if(!(flags & COOKIE_NOPSL) && is_public_suffix(data, co, domain))
-    goto fail;
+  اگر(!(flags & COOKIE_NOPSL) && is_public_suffix(data, co, domain))
+    برو fail;
 
-  if(co->prefix_host) {
+  اگر(co->prefix_host) {
     /*
      * The __Host- prefix requires the cookie to be secure, have a "/" path
      * and not have a domain set.
      */
-    if(co->secure && co->path && !strcmp(co->path, "/") && !co->tailmatch)
+    اگر(co->secure && co->path && !strcmp(co->path, "/") && !co->tailmatch)
       ;
-    else
-      goto fail;
+    وگرنه
+      برو fail;
   }
 
-  if(!ci->running &&    /* read from a file */
+  اگر(!ci->running &&    /* read from a file */
      ci->newsession &&  /* clean session cookies */
      !co->expires)      /* this is a session cookie */
-    goto fail;
+    برو fail;
 
   co->livecookie = ci->running;
   co->creationtime = ++ci->lastct;
 
-  if(!(flags & COOKIE_NOEXPIRE))
+  اگر(!(flags & COOKIE_NOEXPIRE))
     remove_expired(ci);
 
   /*
@@ -1049,45 +1049,45 @@ CURLcode Curl_cookie_add(struct Curl_easy *data,
    * an already existing cookie, which it may if the previous have the same
    * domain and path as this.
    */
-  if(!replace_existing(data, co, ci, flags & COOKIE_SECURE, &replaces))
-    goto fail;
+  اگر(!replace_existing(data, co, ci, flags & COOKIE_SECURE, &replaces))
+    برو fail;
 
   /* clone the stack struct into heap */
-  co = curlx_memdup(&comem, sizeof(comem));
-  if(!co) {
+  co = curlx_memdup(&comem, اندازه(comem));
+  اگر(!co) {
     co = &comem;
     result = CURLE_OUT_OF_MEMORY;
-    goto fail; /* bail out if we are this low on memory */
+    برو fail; /* bail out if we are this low on memory */
   }
 
   /* add this cookie to the list */
   myhash = cookiehash(co->domain);
-  Curl_llist_append(&ci->cookielist[myhash], co, &co->node);
+  Curl_llist_append(&ci->cookielist[myhash], co, &co->گره);
 
-  if(ci->running)
+  اگر(ci->running)
     /* Only show this when NOT reading the cookies from a file */
     infof(data, "%s cookie %s=\"%s\" for domain %s, path %s, "
           "expire %" FMT_OFF_T,
-          replaces ? "Replaced" : "Added", co->name, co->value,
+          replaces ? "Replaced" : "Added", co->name, co->مقدار,
           co->domain, co->path, co->expires);
 
-  if(!replaces)
+  اگر(!replaces)
     ci->numcookies++; /* one more cookie in the jar */
 
   /*
    * Now that we have added a new cookie to the jar, update the expiration
    * tracker in case it is the next one to expire.
    */
-  if(co->expires && (co->expires < ci->next_expiration))
+  اگر(co->expires && (co->expires < ci->next_expiration))
     ci->next_expiration = co->expires;
 
-  if(flags & COOKIE_HTTPHEADER)
+  اگر(flags & COOKIE_HTTPHEADER)
     data->req.setcookies++;
 
-  return result;
+  بازگشت result;
 fail:
   freecookie(co, FALSE);
-  return result;
+  بازگشت result;
 }
 
 /*
@@ -1104,24 +1104,24 @@ fail:
  *
  * Returns NULL on out of memory.
  */
-struct CookieInfo *Curl_cookie_init(void)
+ساختار CookieInfo *Curl_cookie_init(تهی)
 {
-  int i;
-  struct CookieInfo *ci = curlx_calloc(1, sizeof(struct CookieInfo));
-  if(!ci)
-    return NULL;
+  صحیح i;
+  ساختار CookieInfo *ci = curlx_calloc(1, اندازه(ساختار CookieInfo));
+  اگر(!ci)
+    بازگشت پوچ;
 
   /* This does not use the destructor callback since we want to add
      and remove to lists while keeping the cookie struct intact */
-  for(i = 0; i < COOKIE_HASH_SIZE; i++)
-    Curl_llist_init(&ci->cookielist[i], NULL);
+  برای(i = 0; i < COOKIE_HASH_SIZE; i++)
+    Curl_llist_init(&ci->cookielist[i], پوچ);
   /*
    * Initialize the next_expiration time to signal that we do not have enough
    * information yet.
    */
   ci->next_expiration = CURL_OFF_T_MAX;
 
-  return ci;
+  بازگشت ci;
 }
 
 /*
@@ -1133,12 +1133,12 @@ struct CookieInfo *Curl_cookie_init(void)
  * If 'flags' has the COOKIE_NOSESSION bit set, discard all "session cookies"
  * read from file.
  */
-static CURLcode cookie_load(struct Curl_easy *data, const char *file,
-                            struct CookieInfo *ci, int flags)
+ایستا CURLcode cookie_load(ساختار Curl_easy *data, ثابت نویسه *file,
+                            ساختار CookieInfo *ci, صحیح flags)
 {
-  FILE *handle = NULL;
+  FILE *handle = پوچ;
   CURLcode result = CURLE_OK;
-  FILE *fp = NULL;
+  FILE *fp = پوچ;
   DEBUGASSERT(ci);
   DEBUGASSERT(data);
   DEBUGASSERT(file);
@@ -1146,56 +1146,56 @@ static CURLcode cookie_load(struct Curl_easy *data, const char *file,
   ci->newsession = !!(flags & COOKIE_NOSESSION); /* new session? */
   ci->running = FALSE; /* this is not running, this is init */
 
-  if(file && *file) {
-    if(!strcmp(file, "-"))
+  اگر(file && *file) {
+    اگر(!strcmp(file, "-"))
       fp = stdin;
-    else {
+    وگرنه {
       fp = curlx_fopen(file, "rb");
-      if(!fp)
+      اگر(!fp)
         infof(data, "WARNING: failed to open cookie file \"%s\"", file);
-      else {
+      وگرنه {
         curlx_struct_stat stat;
-        if((curlx_fstat(fileno(fp), &stat) != -1) && S_ISDIR(stat.st_mode)) {
+        اگر((curlx_fstat(fileno(fp), &stat) != -1) && S_ISDIR(stat.st_mode)) {
           curlx_fclose(fp);
-          fp = NULL;
+          fp = پوچ;
           infof(data, "WARNING: cookie filename points to a directory: \"%s\"",
                 file);
         }
-        else
+        وگرنه
           handle = fp;
       }
     }
   }
 
-  if(fp) {
-    struct dynbuf buf;
+  اگر(fp) {
+    ساختار dynbuf buf;
     bool eof = FALSE;
     /* get_netscape_format() uses curl_maprintf(), which returns at most
        DYN_APRINTF - 1 bytes. cookie_output() adds a newline (CRLF on Windows),
        and this dynbuf needs one more byte for its null-terminator. This is a
        cap, not an allocation. */
     curlx_dyn_init(&buf, DYN_APRINTF + 2);
-    do {
-      result = Curl_get_line(&buf, fp, &eof);
-      if(!result) {
-        const char *lineptr = curlx_dyn_ptr(&buf);
+    انجامبده {
+      result = Curl_get_سطر(&buf, fp, &eof);
+      اگر(!result) {
+        ثابت نویسه *lineptr = curlx_dyn_ptr(&buf);
         bool headerline = FALSE;
-        if(checkprefix("Set-Cookie:", lineptr)) {
+        اگر(checkprefix("Set-Cookie:", lineptr)) {
           /* This is a cookie line, get it! */
           lineptr += 11;
           headerline = TRUE;
           curlx_str_passblanks(&lineptr);
         }
 
-        result = Curl_cookie_add(data, ci, lineptr, NULL, NULL,
+        result = Curl_cookie_add(data, ci, lineptr, پوچ, پوچ,
                                  (headerline ? COOKIE_HTTPHEADER : 0) |
                                  COOKIE_NOEXPIRE | COOKIE_SECURE |
                                  (flags & COOKIE_NOPSL));
         /* Ignore individual cookie problems unless we ran out of memory */
-        if(result != CURLE_OUT_OF_MEMORY)
+        اگر(result != CURLE_OUT_OF_MEMORY)
           result = CURLE_OK;
       }
-    } while(!result && !eof);
+    } وقتی(!result && !eof);
     curlx_dyn_free(&buf); /* free the line buffer */
 
     /*
@@ -1204,41 +1204,41 @@ static CURLcode cookie_load(struct Curl_easy *data, const char *file,
      */
     remove_expired(ci);
 
-    if(handle)
+    اگر(handle)
       curlx_fclose(handle);
   }
   data->state.cookie_engine = TRUE;
   ci->running = TRUE; /* now, we are running */
 
-  return result;
+  بازگشت result;
 }
 
 /*
  * Load cookies from all given cookie files (CURLOPT_COOKIEFILE).
  */
-CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
-                               int flags)
+CURLcode Curl_cookie_loadfiles(ساختار Curl_easy *data,
+                               صحیح flags)
 {
   CURLcode result = CURLE_OK;
-  struct curl_slist *list = data->state.cookielist;
-  if(list) {
+  ساختار curl_slist *list = data->state.cookielist;
+  اگر(list) {
     Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-    if(!data->cookies)
+    اگر(!data->cookies)
       data->cookies = Curl_cookie_init();
-    if(!data->cookies)
+    اگر(!data->cookies)
       result = CURLE_OUT_OF_MEMORY;
-    else {
+    وگرنه {
       data->state.cookie_engine = TRUE;
-      while(list) {
+      وقتی(list) {
         result = cookie_load(data, list->data, data->cookies, flags);
-        if(result)
-          break;
+        اگر(result)
+          بشکن;
         list = list->next;
       }
     }
     Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
   }
-  return result;
+  بازگشت result;
 }
 
 /*
@@ -1249,35 +1249,35 @@ CURLcode Curl_cookie_loadfiles(struct Curl_easy *data,
  * with the creationtime as the tiebreaker. The creationtime is guaranteed to
  * be unique per cookie, so we know we will get an ordering at that point.
  */
-static int cookie_sort(const void *p1, const void *p2)
+ایستا صحیح cookie_sort(ثابت تهی *p1, ثابت تهی *p2)
 {
-  const struct Cookie *c1 = *(const struct Cookie * const *)p1;
-  const struct Cookie *c2 = *(const struct Cookie * const *)p2;
+  ثابت ساختار Cookie *c1 = *(ثابت ساختار Cookie * ثابت *)p1;
+  ثابت ساختار Cookie *c2 = *(ثابت ساختار Cookie * ثابت *)p2;
   size_t l1, l2;
 
   /* 1 - compare cookie path lengths */
   l1 = c1->path ? strlen(c1->path) : 0;
   l2 = c2->path ? strlen(c2->path) : 0;
 
-  if(l1 != l2)
-    return (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
+  اگر(l1 != l2)
+    بازگشت (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
 
   /* 2 - compare cookie domain lengths */
   l1 = c1->domain ? strlen(c1->domain) : 0;
   l2 = c2->domain ? strlen(c2->domain) : 0;
 
-  if(l1 != l2)
-    return (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
+  اگر(l1 != l2)
+    بازگشت (l2 > l1) ? 1 : -1; /* avoid size_t <=> int conversions */
 
   /* 3 - compare cookie name lengths */
   l1 = c1->name ? strlen(c1->name) : 0;
   l2 = c2->name ? strlen(c2->name) : 0;
 
-  if(l1 != l2)
-    return (l2 > l1) ? 1 : -1;
+  اگر(l1 != l2)
+    بازگشت (l2 > l1) ? 1 : -1;
 
   /* 4 - compare cookie creation time */
-  return (c2->creationtime > c1->creationtime) ? 1 : -1;
+  بازگشت (c2->creationtime > c1->creationtime) ? 1 : -1;
 }
 
 /*
@@ -1285,17 +1285,17 @@ static int cookie_sort(const void *p1, const void *p2)
  *
  * Helper function to sort cookies according to creation time.
  */
-static int cookie_sort_ct(const void *p1, const void *p2)
+ایستا صحیح cookie_sort_ct(ثابت تهی *p1, ثابت تهی *p2)
 {
-  const struct Cookie *c1 = *(const struct Cookie * const *)p1;
-  const struct Cookie *c2 = *(const struct Cookie * const *)p2;
+  ثابت ساختار Cookie *c1 = *(ثابت ساختار Cookie * ثابت *)p1;
+  ثابت ساختار Cookie *c2 = *(ثابت ساختار Cookie * ثابت *)p2;
 
-  return (c2->creationtime > c1->creationtime) ? 1 : -1;
+  بازگشت (c2->creationtime > c1->creationtime) ? 1 : -1;
 }
 
-bool Curl_secure_context(struct Curl_easy *data, const char *host)
+bool Curl_secure_context(ساختار Curl_easy *data, ثابت نویسه *host)
 {
-  return Curl_xfer_is_secure(data) ||
+  بازگشت Curl_xfer_is_secure(data) ||
     curl_strequal("localhost", host) ||
     !strcmp(host, "127.0.0.1") ||
     !strcmp(host, "::1");
@@ -1311,37 +1311,37 @@ bool Curl_secure_context(struct Curl_easy *data, const char *host)
  *
  * 'okay' is TRUE when there is a list returned.
  */
-CURLcode Curl_cookie_getlist(struct Curl_easy *data,
+CURLcode Curl_cookie_getlist(ساختار Curl_easy *data,
                              bool *okay,
-                             const char *host,
-                             struct Curl_llist *list)
+                             ثابت نویسه *host,
+                             ساختار Curl_llist *list)
 {
   size_t matches = 0;
-  const bool is_ip = Curl_host_is_ipnum(host);
-  const size_t myhash = cookiehash(host);
-  struct Curl_llist_node *n;
-  const bool secure = Curl_secure_context(data, host);
-  struct CookieInfo *ci = data->cookies;
-  const char *path = data->state.up.path;
+  ثابت bool is_ip = Curl_host_is_ipnum(host);
+  ثابت size_t myhash = cookiehash(host);
+  ساختار Curl_llist_گره *n;
+  ثابت bool secure = Curl_secure_context(data, host);
+  ساختار CookieInfo *ci = data->cookies;
+  ثابت نویسه *path = data->state.up.path;
   CURLcode result = CURLE_OK;
   *okay = FALSE;
 
-  Curl_llist_init(list, NULL);
+  Curl_llist_init(list, پوچ);
 
-  if(!ci || !Curl_llist_count(&ci->cookielist[myhash]))
-    return CURLE_OK; /* no cookie struct or no cookies in the struct */
+  اگر(!ci || !Curl_llist_شمار(&ci->cookielist[myhash]))
+    بازگشت CURLE_OK; /* no cookie struct or no cookies in the struct */
 
   /* at first, remove expired cookies */
   remove_expired(ci);
 
-  for(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_node_next(n)) {
-    struct Cookie *co = Curl_node_elem(n);
+  برای(n = Curl_llist_head(&ci->cookielist[myhash]); n; n = Curl_گره_next(n)) {
+    ساختار Cookie *co = Curl_گره_elem(n);
 
     /* if the cookie requires we are secure we must only continue if we are! */
-    if(co->secure ? secure : TRUE) {
+    اگر(co->secure ? secure : TRUE) {
 
       /* now check if the domain is correct */
-      if(!co->domain ||
+      اگر(!co->domain ||
          (co->tailmatch && !is_ip &&
           cookie_tailmatch(co->domain, strlen(co->domain), host)) ||
          ((!co->tailmatch || is_ip) && curl_strequal(host, co->domain))) {
@@ -1354,63 +1354,63 @@ CURLcode Curl_cookie_getlist(struct Curl_easy *data,
          * now check the left part of the path with the cookies path
          * requirement
          */
-        if(!co->path || pathmatch(co->path, path)) {
+        اگر(!co->path || pathmatch(co->path, path)) {
 
           /*
            * This is a match and we add it to the return-linked-list
            */
           Curl_llist_append(list, co, &co->getnode);
           matches++;
-          if(matches >= MAX_COOKIE_SEND_AMOUNT) {
+          اگر(matches >= MAX_COOKIE_SEND_AMOUNT) {
             infof(data, "Included max number of cookies (%zu) in request!",
                   matches);
-            break;
+            بشکن;
           }
         }
       }
     }
   }
 
-  if(matches) {
+  اگر(matches) {
     /*
      * Now we need to make sure that if there is a name appearing more than
      * once, the longest specified path version comes first. To make this the
      * swiftest way, we sort them all based on path length.
      */
-    struct Cookie **array;
+    ساختار Cookie **array;
     size_t i;
 
     /* alloc an array and store all cookie pointers */
-    array = curlx_malloc(sizeof(struct Cookie *) * matches);
-    if(!array) {
+    array = curlx_malloc(اندازه(ساختار Cookie *) * matches);
+    اگر(!array) {
       result = CURLE_OUT_OF_MEMORY;
-      goto fail;
+      برو fail;
     }
 
     n = Curl_llist_head(list);
 
-    for(i = 0; n; n = Curl_node_next(n))
-      array[i++] = Curl_node_elem(n);
+    برای(i = 0; n; n = Curl_گره_next(n))
+      array[i++] = Curl_گره_elem(n);
 
     /* now sort the cookie pointers in path length order */
-    qsort(array, matches, sizeof(struct Cookie *), cookie_sort);
+    qsort(array, matches, اندازه(ساختار Cookie *), cookie_sort);
 
     /* remake the linked list order according to the new order */
-    Curl_llist_destroy(list, NULL);
+    Curl_llist_destroy(list, پوچ);
 
-    for(i = 0; i < matches; i++)
+    برای(i = 0; i < matches; i++)
       Curl_llist_append(list, array[i], &array[i]->getnode);
 
     curlx_free(array); /* remove the temporary data again */
   }
 
   *okay = TRUE;
-  return CURLE_OK; /* success */
+  بازگشت CURLE_OK; /* success */
 
 fail:
   /* failure, clear up the allocated chain and return NULL */
-  Curl_llist_destroy(list, NULL);
-  return result; /* error */
+  Curl_llist_destroy(list, پوچ);
+  بازگشت result; /* error */
 }
 
 /*
@@ -1418,16 +1418,16 @@ fail:
  *
  * Clear all existing cookies and reset the counter.
  */
-void Curl_cookie_clearall(struct CookieInfo *ci)
+تهی Curl_cookie_clearall(ساختار CookieInfo *ci)
 {
-  if(ci) {
-    unsigned int i;
-    for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-      struct Curl_llist_node *n;
-      for(n = Curl_llist_head(&ci->cookielist[i]); n;) {
-        struct Cookie *c = Curl_node_elem(n);
-        struct Curl_llist_node *e = Curl_node_next(n);
-        Curl_node_remove(n);
+  اگر(ci) {
+    unsigned صحیح i;
+    برای(i = 0; i < COOKIE_HASH_SIZE; i++) {
+      ساختار Curl_llist_گره *n;
+      برای(n = Curl_llist_head(&ci->cookielist[i]); n;) {
+        ساختار Cookie *c = Curl_گره_elem(n);
+        ساختار Curl_llist_گره *e = Curl_گره_next(n);
+        Curl_گره_remove(n);
         freecookie(c, TRUE);
         n = e;
       }
@@ -1441,22 +1441,22 @@ void Curl_cookie_clearall(struct CookieInfo *ci)
  *
  * Free all session cookies in the cookies list.
  */
-void Curl_cookie_clearsess(struct CookieInfo *ci)
+تهی Curl_cookie_clearsess(ساختار CookieInfo *ci)
 {
-  unsigned int i;
+  unsigned صحیح i;
 
-  if(!ci)
-    return;
+  اگر(!ci)
+    بازگشت;
 
-  for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    struct Curl_llist_node *n = Curl_llist_head(&ci->cookielist[i]);
-    struct Curl_llist_node *e = NULL;
+  برای(i = 0; i < COOKIE_HASH_SIZE; i++) {
+    ساختار Curl_llist_گره *n = Curl_llist_head(&ci->cookielist[i]);
+    ساختار Curl_llist_گره *e = پوچ;
 
-    for(; n; n = e) {
-      struct Cookie *curr = Curl_node_elem(n);
-      e = Curl_node_next(n); /* in case the node is removed, get it early */
-      if(!curr->expires) {
-        Curl_node_remove(n);
+    برای(; n; n = e) {
+      ساختار Cookie *curr = Curl_گره_elem(n);
+      e = Curl_گره_next(n); /* in case the node is removed, get it early */
+      اگر(!curr->expires) {
+        Curl_گره_remove(n);
         freecookie(curr, TRUE);
         ci->numcookies--;
       }
@@ -1469,9 +1469,9 @@ void Curl_cookie_clearsess(struct CookieInfo *ci)
  *
  * Free a "cookie object" previous created with Curl_cookie_init().
  */
-void Curl_cookie_cleanup(struct CookieInfo *ci)
+تهی Curl_cookie_cleanup(ساختار CookieInfo *ci)
 {
-  if(ci) {
+  اگر(ci) {
     Curl_cookie_clearall(ci);
     curlx_free(ci); /* free the base struct as well */
   }
@@ -1484,9 +1484,9 @@ void Curl_cookie_cleanup(struct CookieInfo *ci)
  * Function returns a char * to a formatted line. The caller is responsible
  * for freeing the returned pointer.
  */
-static char *get_netscape_format(const struct Cookie *co)
+ایستا نویسه *get_netscape_format(ثابت ساختار Cookie *co)
 {
-  return curl_maprintf(
+  بازگشت curl_maprintf(
     "%s"               /* httponly preamble */
     "%s%s\t"           /* domain */
     "%s\t"             /* tailmatch */
@@ -1494,7 +1494,7 @@ static char *get_netscape_format(const struct Cookie *co)
     "%s\t"             /* secure */
     "%" FMT_OFF_T "\t" /* expires */
     "%s\t"             /* name */
-    "%s",              /* value */
+    "%s",              /*مقدار*/
     co->httponly ? "#HttpOnly_" : "",
     /*
      * Make sure all domains are prefixed with a dot if they allow
@@ -1507,7 +1507,7 @@ static char *get_netscape_format(const struct Cookie *co)
     co->secure ? "TRUE" : "FALSE",
     co->expires,
     co->name,
-    co->value ? co->value : "");
+    co->مقدار ? co->مقدار : "");
 }
 
 /*
@@ -1518,31 +1518,31 @@ static char *get_netscape_format(const struct Cookie *co)
  *
  * The function returns non-zero on write failure.
  */
-static CURLcode cookie_output(struct Curl_easy *data,
-                              struct CookieInfo *ci,
-                              const char *filename)
+ایستا CURLcode cookie_output(ساختار Curl_easy *data,
+                              ساختار CookieInfo *ci,
+                              ثابت نویسه *filename)
 {
-  FILE *out = NULL;
+  FILE *out = پوچ;
   bool use_stdout = FALSE;
-  char *tempstore = NULL;
+  نویسه *tempstore = پوچ;
   CURLcode result = CURLE_OK;
 
-  if(!ci)
+  اگر(!ci)
     /* no cookie engine alive */
-    return CURLE_OK;
+    بازگشت CURLE_OK;
 
   /* at first, remove expired cookies */
   remove_expired(ci);
 
-  if(!strcmp("-", filename)) {
+  اگر(!strcmp("-", filename)) {
     /* use stdout */
     out = stdout;
     use_stdout = TRUE;
   }
-  else {
+  وگرنه {
     result = Curl_fopen(data, filename, &out, &tempstore);
-    if(result)
-      goto error;
+    اگر(result)
+      برو error;
   }
 
   fputs("# Netscape HTTP Cookie File\n"
@@ -1550,36 +1550,36 @@ static CURLcode cookie_output(struct Curl_easy *data,
         "# This file was generated by libcurl! Edit at your own risk.\n\n",
         out);
 
-  if(ci->numcookies) {
-    unsigned int i;
+  اگر(ci->numcookies) {
+    unsigned صحیح i;
     size_t nvalid = 0;
-    struct Cookie **array;
-    struct Curl_llist_node *n;
+    ساختار Cookie **array;
+    ساختار Curl_llist_گره *n;
 
-    array = curlx_calloc(1, sizeof(struct Cookie *) * ci->numcookies);
-    if(!array) {
+    array = curlx_calloc(1, اندازه(ساختار Cookie *) * ci->numcookies);
+    اگر(!array) {
       result = CURLE_OUT_OF_MEMORY;
-      goto error;
+      برو error;
     }
 
     /* only sort the cookies with a domain property */
-    for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-      for(n = Curl_llist_head(&ci->cookielist[i]); n; n = Curl_node_next(n)) {
-        struct Cookie *co = Curl_node_elem(n);
-        if(!co->domain)
-          continue;
+    برای(i = 0; i < COOKIE_HASH_SIZE; i++) {
+      برای(n = Curl_llist_head(&ci->cookielist[i]); n; n = Curl_گره_next(n)) {
+        ساختار Cookie *co = Curl_گره_elem(n);
+        اگر(!co->domain)
+          ادامه;
         array[nvalid++] = co;
       }
     }
 
-    qsort(array, nvalid, sizeof(struct Cookie *), cookie_sort_ct);
+    qsort(array, nvalid, اندازه(ساختار Cookie *), cookie_sort_ct);
 
-    for(i = 0; i < nvalid; i++) {
-      char *format_ptr = get_netscape_format(array[i]);
-      if(!format_ptr) {
+    برای(i = 0; i < nvalid; i++) {
+      نویسه *format_ptr = get_netscape_format(array[i]);
+      اگر(!format_ptr) {
         curlx_free(array);
         result = CURLE_OUT_OF_MEMORY;
-        goto error;
+        برو error;
       }
       curl_mfprintf(out, "%s\n", format_ptr);
       curlx_free(format_ptr);
@@ -1588,12 +1588,12 @@ static CURLcode cookie_output(struct Curl_easy *data,
     curlx_free(array);
   }
 
-  if(!use_stdout) {
+  اگر(!use_stdout) {
     curlx_fclose(out);
-    out = NULL;
-    if(tempstore && curlx_rename(tempstore, filename)) {
+    out = پوچ;
+    اگر(tempstore && curlx_rename(tempstore, filename)) {
       result = CURLE_WRITE_ERROR;
-      goto error;
+      برو error;
     }
   }
 
@@ -1603,96 +1603,96 @@ static CURLcode cookie_output(struct Curl_easy *data,
    * error block below.
    */
   curlx_free(tempstore);
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 
 error:
-  if(out && !use_stdout)
+  اگر(out && !use_stdout)
     curlx_fclose(out);
-  if(tempstore) {
+  اگر(tempstore) {
     unlink(tempstore);
     curlx_free(tempstore);
   }
-  return result;
+  بازگشت result;
 }
 
-static struct curl_slist *cookie_list(const struct Curl_easy *data)
+ایستا ساختار curl_slist *cookie_list(ثابت ساختار Curl_easy *data)
 {
-  struct curl_slist *list = NULL;
-  struct curl_slist *beg;
-  struct curl_slist **tail = &list;
-  unsigned int i;
-  struct Curl_llist_node *n;
+  ساختار curl_slist *list = پوچ;
+  ساختار curl_slist *beg;
+  ساختار curl_slist **tail = &list;
+  unsigned صحیح i;
+  ساختار Curl_llist_گره *n;
 
-  if(!data->cookies || (data->cookies->numcookies == 0))
-    return NULL;
+  اگر(!data->cookies || (data->cookies->numcookies == 0))
+    بازگشت پوچ;
 
   /* at first, remove expired cookies */
   remove_expired(data->cookies);
 
-  for(i = 0; i < COOKIE_HASH_SIZE; i++) {
-    for(n = Curl_llist_head(&data->cookies->cookielist[i]); n;
-        n = Curl_node_next(n)) {
-      struct Cookie *c = Curl_node_elem(n);
-      char *line;
-      if(!c->domain)
-        continue;
-      line = get_netscape_format(c);
-      if(!line) {
+  برای(i = 0; i < COOKIE_HASH_SIZE; i++) {
+    برای(n = Curl_llist_head(&data->cookies->cookielist[i]); n;
+        n = Curl_گره_next(n)) {
+      ساختار Cookie *c = Curl_گره_elem(n);
+      نویسه *سطر;
+      اگر(!c->domain)
+        ادامه;
+      سطر = get_netscape_format(c);
+      اگر(!سطر) {
         curl_slist_free_all(list);
-        return NULL;
+        بازگشت پوچ;
       }
-      beg = Curl_slist_append_nodup(NULL, line);
-      if(!beg) {
-        curlx_free(line);
+      beg = Curl_slist_append_nodup(پوچ, سطر);
+      اگر(!beg) {
+        curlx_free(سطر);
         curl_slist_free_all(list);
-        return NULL;
+        بازگشت پوچ;
       }
       *tail = beg;
       tail = &beg->next;
     }
   }
 
-  return list;
+  بازگشت list;
 }
 
-struct curl_slist *Curl_cookie_list(struct Curl_easy *data)
+ساختار curl_slist *Curl_cookie_list(ساختار Curl_easy *data)
 {
-  struct curl_slist *list;
+  ساختار curl_slist *list;
   Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
   list = cookie_list(data);
   Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
-  return list;
+  بازگشت list;
 }
 
-void Curl_flush_cookies(struct Curl_easy *data, bool cleanup)
+تهی Curl_flush_cookies(ساختار Curl_easy *data, bool cleanup)
 {
   Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
   /* only save the cookie file if a transfer was started (cookies->running is
      set), as otherwise the cookies were not completely initialized and there
      might be cookie files that were not loaded so saving the file is the
      wrong thing. */
-  if(data->cookies) {
-    const char *cookiejar = CURL_EASY_STR(data, STRING_COOKIEJAR);
-    if(cookiejar && data->cookies->running) {
+  اگر(data->cookies) {
+    ثابت نویسه *cookiejar = CURL_EASY_STR(data, STRING_COOKIEJAR);
+    اگر(cookiejar && data->cookies->running) {
       /* if we have a destination file for all the cookies to get dumped to */
       CURLcode result = cookie_output(data, data->cookies, cookiejar);
-      if(result)
+      اگر(result)
         infof(data, "WARNING: failed to save cookies in %s: %s",
               cookiejar, curl_easy_strerror(result));
     }
 
-    if(cleanup && (!data->share || (data->cookies != data->share->cookies))) {
+    اگر(cleanup && (!data->share || (data->cookies != data->share->cookies))) {
       Curl_cookie_cleanup(data->cookies);
-      data->cookies = NULL;
+      data->cookies = پوچ;
     }
   }
   Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 }
 
-void Curl_cookie_run(struct Curl_easy *data)
+تهی Curl_cookie_run(ساختار Curl_easy *data)
 {
   Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-  if(data->cookies)
+  اگر(data->cookies)
     data->cookies->running = TRUE;
   Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 }

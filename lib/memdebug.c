@@ -21,26 +21,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef CURL_MEMDEBUG
 
-#include <stddef.h>  /* for offsetof() */
+#شامل <stddef.h>  /* for offsetof() */
 
-#include "urldata.h"
-#include "curl_threads.h"
-#include "curlx/win32-fopen.h"  /* for CURLX_FOPEN_*() */
+#شامل "urldata.h"
+#شامل "curl_threads.h"
+#شامل "curlx/win32-fopen.h"  /* for CURLX_FOPEN_*() */
 
 #ifdef USE_BACKTRACE
-#include <backtrace.h>
+#شامل <backtrace.h>
 #endif
 
-struct memdebug {
+ساختار memdebug {
   size_t size;
-  union {
+  اجتماع {
     curl_off_t o;
-    double d;
-    void *p;
+    دوگانه d;
+    تهی *p;
   } mem[1];
   /* I am hoping this is the thing with the strictest alignment
    * requirements. That also means we waste some space :-( */
@@ -54,64 +54,64 @@ struct memdebug {
  * Do not use these with multi-threaded test programs!
  */
 
-FILE *curl_dbg_logfile = NULL;
-static bool registered_cleanup = FALSE; /* atexit registered cleanup */
-static bool memlimit = FALSE; /* enable memory limit */
-static long memsize = 0;  /* set number of mallocs allowed */
+FILE *curl_dbg_logfile = پوچ;
+ایستا bool registered_cleanup = FALSE; /* atexit registered cleanup */
+ایستا bool memlimit = FALSE; /* enable memory limit */
+ایستا long memsize = 0;  /* set number of mallocs allowed */
 #ifdef USE_BACKTRACE
-static struct backtrace_state *btstate;
+ایستا ساختار backtrace_state *btstate;
 #endif
 
-static char membuf[10000];
-static size_t memwidx = 0; /* write index */
+ایستا نویسه membuf[10000];
+ایستا size_t memwidx = 0; /* write index */
 
 #ifdef USE_MUTEX
-static bool dbg_mutex_init = 0;
-static curl_mutex_t dbg_mutex;
+ایستا bool dbg_mutex_init = 0;
+ایستا curl_mutex_t dbg_mutex;
 #endif
 
-static bool curl_dbg_lock(void)
+ایستا bool curl_dbg_lock(تهی)
 {
 #ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+  اگر(dbg_mutex_init) {
     Curl_mutex_acquire(&dbg_mutex);
-    return TRUE;
+    بازگشت TRUE;
   }
 #endif
-  return FALSE;
+  بازگشت FALSE;
 }
 
-static void curl_dbg_unlock(bool was_locked)
+ایستا تهی curl_dbg_unlock(bool was_locked)
 {
 #ifdef USE_MUTEX
-  if(was_locked)
+  اگر(was_locked)
     Curl_mutex_release(&dbg_mutex);
-#else
-  (void)was_locked;
+#وگرنه
+  (تهی)was_locked;
 #endif
 }
 
-static void curl_dbg_log_locked(const char *format, ...) CURL_PRINTF(1, 2);
+ایستا تهی curl_dbg_log_locked(ثابت نویسه *format, ...) CURL_PRINTF(1, 2);
 
 /* LeakSantizier (LSAN) calls _exit() instead of exit() when a leak is detected
    on exit so the logfile must be closed explicitly or data could be lost.
    Though _exit() does not call atexit handlers such as this, LSAN's call to
    _exit() comes after the atexit handlers are called. curl/curl#6620 */
-static void curl_dbg_cleanup(void)
+ایستا تهی curl_dbg_cleanup(تهی)
 {
   bool locked = curl_dbg_lock();
-  if(curl_dbg_logfile &&
+  اگر(curl_dbg_logfile &&
      curl_dbg_logfile != stderr &&
      curl_dbg_logfile != stdout) {
-    if(memwidx)
+    اگر(memwidx)
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
     /* !checksrc! disable BANNEDFUNC 1 */
     fclose(curl_dbg_logfile);
   }
-  curl_dbg_logfile = NULL;
+  curl_dbg_logfile = پوچ;
   curl_dbg_unlock(locked);
 #ifdef USE_MUTEX
-  if(dbg_mutex_init) {
+  اگر(dbg_mutex_init) {
     Curl_mutex_destroy(&dbg_mutex);
     dbg_mutex_init = FALSE;
   }
@@ -119,266 +119,266 @@ static void curl_dbg_cleanup(void)
 }
 
 #ifdef USE_BACKTRACE
-static void error_bt_callback(void *data, const char *message,
-                              int error_number)
+ایستا تهی error_bt_callback(تهی *data, ثابت نویسه *message,
+                              صحیح error_عدد)
 {
-  (void)data;
-  if(error_number == -1)
+  (تهی)data;
+  اگر(error_عدد == -1)
     curl_dbg_log("compile with -g\n\n");
-  else
-    curl_dbg_log("Backtrace error %d: %s\n", error_number, message);
+  وگرنه
+    curl_dbg_log("Backtrace error %d: %s\n", error_عدد, message);
 }
 
-static int full_callback(void *data, uintptr_t pc, const char *pathname,
-                         int line_number, const char *function)
+ایستا صحیح full_callback(تهی *data, uintptr_t pc, ثابت نویسه *pathname,
+                         صحیح سطر_عدد, ثابت نویسه *function)
 {
-  (void)data;
-  (void)pc;
-  if(pathname || function || line_number)
-    curl_dbg_log("BT %s:%d -- %s\n", pathname, line_number, function);
-  return 0;
+  (تهی)data;
+  (تهی)pc;
+  اگر(pathname || function || سطر_عدد)
+    curl_dbg_log("BT %s:%d -- %s\n", pathname, سطر_عدد, function);
+  بازگشت 0;
 }
 
-static void dump_bt(void)
+ایستا تهی dump_bt(تهی)
 {
-  backtrace_full(btstate, 0, full_callback, error_bt_callback, NULL);
+  backtrace_full(btstate, 0, full_callback, error_bt_callback, پوچ);
 }
-#else
+#وگرنه
 #define dump_bt() /* nothing to do */
 #endif
 
 /* this sets the log filename */
-void curl_dbg_memdebug(const char *logname)
+تهی curl_dbg_memdebug(ثابت نویسه *logname)
 {
-  if(!curl_dbg_logfile) {
-    if(logname && *logname)
-      curl_dbg_logfile = CURLX_FOPEN_LOW(logname, FOPEN_WRITETEXT);
+  اگر(!curl_dbg_logfile) {
+    اگر(logname && *logname)
+      curl_dbg_logfile = CURLX_FOPEN_کم(logname, FOPEN_WRITETEXT);
 #ifdef MEMDEBUG_LOG_SYNC
     /* Flush the log file after every line so the log is not lost in a crash */
-    if(curl_dbg_logfile)
-      setbuf(curl_dbg_logfile, (char *)NULL);
+    اگر(curl_dbg_logfile)
+      setbuf(curl_dbg_logfile, (نویسه *)پوچ);
 #endif
   }
 #ifdef USE_MUTEX
-  if(!dbg_mutex_init) {
+  اگر(!dbg_mutex_init) {
     dbg_mutex_init = TRUE;
     Curl_mutex_init(&dbg_mutex);
   }
 #endif
 #ifdef USE_BACKTRACE
-  btstate = backtrace_create_state(NULL, 0, error_bt_callback, NULL);
+  btstate = backtrace_create_state(پوچ, 0, error_bt_callback, پوچ);
 #endif
-  if(!registered_cleanup)
+  اگر(!registered_cleanup)
     registered_cleanup = !atexit(curl_dbg_cleanup);
 }
 
 /* This function sets the number of malloc() calls that should return
    successfully! */
-void curl_dbg_memlimit(long limit)
+تهی curl_dbg_memlimit(long limit)
 {
-  if(!memlimit) {
+  اگر(!memlimit) {
     memlimit = TRUE;
     memsize = limit;
   }
 }
 
 /* returns TRUE if this is not allowed! */
-static bool countcheck(const char *func, int line, const char *source)
+ایستا bool countcheck(ثابت نویسه *func, صحیح سطر, ثابت نویسه *source)
 {
   /* if source is NULL, then the call is made internally and this check
      should not be made */
-  if(memlimit && source) {
-    if(!memsize) {
+  اگر(memlimit && source) {
+    اگر(!memsize) {
       /* log to file */
-      curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, line, func);
+      curl_dbg_log("LIMIT %s:%d %s reached memlimit\n", source, سطر, func);
       /* log to stderr also */
       curl_mfprintf(stderr, "LIMIT %s:%d %s reached memlimit\n",
-                    source, line, func);
+                    source, سطر, func);
       dump_bt();
       fflush(curl_dbg_logfile); /* because it might crash now */
       /* !checksrc! disable ERRNOVAR 1 */
       errno = ENOMEM;
-      return TRUE; /* RETURN ERROR! */
+      بازگشت TRUE; /* RETURN ERROR! */
     }
-    else
+    وگرنه
       memsize--; /* countdown */
   }
 
-  return FALSE; /* allow this */
+  بازگشت FALSE; /* allow this */
 }
 
 ALLOC_FUNC
-void *curl_dbg_malloc(size_t wantedsize, int line, const char *source)
+تهی *curl_dbg_malloc(size_t wantedsize, صحیح سطر, ثابت نویسه *source)
 {
-  struct memdebug *mem;
+  ساختار memdebug *mem;
   size_t size;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("malloc", line, source))
-    return NULL;
+  اگر(countcheck("malloc", سطر, source))
+    بازگشت پوچ;
 
   /* alloc at least 64 bytes */
-  size = sizeof(struct memdebug) + wantedsize;
+  size = اندازه(ساختار memdebug) + wantedsize;
 
   mem = Curl_cmalloc(size);
-  if(mem) {
+  اگر(mem) {
     mem->size = wantedsize;
   }
 
-  if(source)
+  اگر(source)
     curl_dbg_log("MEM %s:%d malloc(%zu) = %p\n",
-                 source, line, wantedsize,
-                 mem ? (void *)mem->mem : (void *)0);
+                 source, سطر, wantedsize,
+                 mem ? (تهی *)mem->mem : (تهی *)0);
 
-  return mem ? mem->mem : NULL;
+  بازگشت mem ? mem->mem : پوچ;
 }
 
 ALLOC_FUNC
-void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
-                      int line, const char *source)
+تهی *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
+                      صحیح سطر, ثابت نویسه *source)
 {
-  struct memdebug *mem;
+  ساختار memdebug *mem;
   size_t size, user_size;
 
   DEBUGASSERT(wanted_elements != 0);
   DEBUGASSERT(wanted_size != 0);
 
-  if(countcheck("calloc", line, source))
-    return NULL;
+  اگر(countcheck("calloc", سطر, source))
+    بازگشت پوچ;
 
   /* alloc at least 64 bytes */
   user_size = wanted_size * wanted_elements;
-  size = sizeof(struct memdebug) + user_size;
+  size = اندازه(ساختار memdebug) + user_size;
 
   mem = Curl_ccalloc(1, size);
-  if(mem)
+  اگر(mem)
     mem->size = user_size;
 
-  if(source)
+  اگر(source)
     curl_dbg_log("MEM %s:%d calloc(%zu,%zu) = %p\n",
-                 source, line, wanted_elements, wanted_size,
-                 mem ? (void *)mem->mem : (void *)0);
+                 source, سطر, wanted_elements, wanted_size,
+                 mem ? (تهی *)mem->mem : (تهی *)0);
 
-  return mem ? mem->mem : NULL;
+  بازگشت mem ? mem->mem : پوچ;
 }
 
 ALLOC_FUNC
-char *curl_dbg_strdup(const char *str, int line, const char *source)
+نویسه *curl_dbg_strdup(ثابت نویسه *str, صحیح سطر, ثابت نویسه *source)
 {
-  char *mem;
+  نویسه *mem;
   size_t len;
 
   DEBUGASSERT(str);
 
-  if(countcheck("strdup", line, source))
-    return NULL;
+  اگر(countcheck("strdup", سطر, source))
+    بازگشت پوچ;
 
   len = strlen(str) + 1;
 
-  mem = curl_dbg_malloc(len, 0, NULL); /* NULL prevents logging */
-  if(mem)
+  mem = curl_dbg_malloc(len, 0, پوچ); /* NULL prevents logging */
+  اگر(mem)
     memcpy(mem, str, len);
 
-  if(source)
+  اگر(source)
     curl_dbg_log("MEM %s:%d strdup(%p) (%zu) = %p\n",
-                 source, line, (const void *)str, len, (const void *)mem);
+                 source, سطر, (ثابت تهی *)str, len, (ثابت تهی *)mem);
 
-  return mem;
+  بازگشت mem;
 }
 
-#if defined(_WIN32) && defined(UNICODE)
+#اگر defined(_WIN32) && defined(UNICODE)
 ALLOC_FUNC
-wchar_t *curl_dbg_wcsdup(const wchar_t *str, int line, const char *source)
+wchar_t *curl_dbg_wcsdup(ثابت wchar_t *str, صحیح سطر, ثابت نویسه *source)
 {
   wchar_t *mem;
   size_t wsiz, bsiz;
 
   DEBUGASSERT(str);
 
-  if(countcheck("wcsdup", line, source))
-    return NULL;
+  اگر(countcheck("wcsdup", سطر, source))
+    بازگشت پوچ;
 
   wsiz = wcslen(str) + 1;
-  bsiz = wsiz * sizeof(wchar_t);
+  bsiz = wsiz * اندازه(wchar_t);
 
-  mem = curl_dbg_malloc(bsiz, 0, NULL); /* NULL prevents logging */
-  if(mem)
+  mem = curl_dbg_malloc(bsiz, 0, پوچ); /* NULL prevents logging */
+  اگر(mem)
     memcpy(mem, str, bsiz);
 
-  if(source)
+  اگر(source)
     curl_dbg_log("MEM %s:%d wcsdup(%p) (%zu) = %p\n",
-                source, line, (const void *)str, bsiz, (void *)mem);
+                source, سطر, (ثابت تهی *)str, bsiz, (تهی *)mem);
 
-  return mem;
+  بازگشت mem;
 }
 #endif
 
 /* We provide a realloc() that accepts a NULL as pointer, which then
    performs a malloc(). In order to work with ares. */
-void *curl_dbg_realloc(void *ptr, size_t wantedsize,
-                       int line, const char *source)
+تهی *curl_dbg_realloc(تهی *ptr, size_t wantedsize,
+                       صحیح سطر, ثابت نویسه *source)
 {
-  struct memdebug *mem = NULL;
+  ساختار memdebug *mem = پوچ;
   bool was_locked;
 
-  size_t size = sizeof(struct memdebug) + wantedsize;
+  size_t size = اندازه(ساختار memdebug) + wantedsize;
 
   DEBUGASSERT(wantedsize != 0);
 
-  if(countcheck("realloc", line, source))
-    return NULL;
+  اگر(countcheck("realloc", سطر, source))
+    بازگشت پوچ;
 
   /* need to realloc under lock, as we get out-of-order log
    * entries otherwise, since another thread might alloc the
    * memory released by realloc() before otherwise would log it. */
   was_locked = curl_dbg_lock();
 #ifdef __INTEL_COMPILER
-#  pragma warning(push)
+#  pragma warning(افزودن)
 #  pragma warning(disable:1684)
    /* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-  if(ptr)
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+  اگر(ptr)
+    mem = (تهی *)((نویسه *)ptr - offsetof(ساختار memdebug, mem));
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(pop)
+#  pragma warning(برداشت)
 #endif
 
   mem = Curl_crealloc(mem, size);
-  if(source)
+  اگر(source)
     curl_dbg_log_locked("MEM %s:%d realloc(%p, %zu) = %p\n",
-                        source, line, (void *)ptr, wantedsize,
-                        mem ? (void *)mem->mem : (void *)0);
+                        source, سطر, (تهی *)ptr, wantedsize,
+                        mem ? (تهی *)mem->mem : (تهی *)0);
 
   curl_dbg_unlock(was_locked);
-  if(mem) {
+  اگر(mem) {
     mem->size = wantedsize;
-    return mem->mem;
+    بازگشت mem->mem;
   }
 
-  return NULL;
+  بازگشت پوچ;
 }
 
-void curl_dbg_free(void *ptr, int line, const char *source)
+تهی curl_dbg_free(تهی *ptr, صحیح سطر, ثابت نویسه *source)
 {
-  if(ptr) {
-    struct memdebug *mem;
+  اگر(ptr) {
+    ساختار memdebug *mem;
 
-    if(source)
-      curl_dbg_log("MEM %s:%d free(%p)\n", source, line, (void *)ptr);
+    اگر(source)
+      curl_dbg_log("MEM %s:%d free(%p)\n", source, سطر, (تهی *)ptr);
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(push)
+#  pragma warning(افزودن)
 #  pragma warning(disable:1684)
    /* 1684: conversion from pointer to same-sized integral type */
 #endif
 
-    mem = (void *)((char *)ptr - offsetof(struct memdebug, mem));
+    mem = (تهی *)((نویسه *)ptr - offsetof(ساختار memdebug, mem));
 
 #ifdef __INTEL_COMPILER
-#  pragma warning(pop)
+#  pragma warning(برداشت)
 #endif
 
     /* free for real */
@@ -386,160 +386,160 @@ void curl_dbg_free(void *ptr, int line, const char *source)
   }
 }
 
-curl_socket_t curl_dbg_socket(int domain, int type, int protocol,
-                              int line, const char *source)
+curl_socket_t curl_dbg_socket(صحیح domain, صحیح type, صحیح protocol,
+                              صحیح سطر, ثابت نویسه *source)
 {
   curl_socket_t sockfd;
 
-  if(countcheck("socket", line, source))
-    return CURL_SOCKET_BAD;
+  اگر(countcheck("socket", سطر, source))
+    بازگشت CURL_SOCKET_BAD;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   sockfd = socket(domain, type, protocol);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  اگر(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d socket() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 source, سطر, sockfd);
 
-  return sockfd;
+  بازگشت sockfd;
 }
 
 #ifdef HAVE_SOCKETPAIR
-int curl_dbg_socketpair(int domain, int type, int protocol,
+صحیح curl_dbg_socketpair(صحیح domain, صحیح type, صحیح protocol,
                         curl_socket_t socket_vector[2],
-                        int line, const char *source)
+                        صحیح سطر, ثابت نویسه *source)
 {
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = socketpair(domain, type, protocol, socket_vector);
+  صحیح res = socketpair(domain, type, protocol, socket_vector);
 
-  if(source && (res == 0))
+  اگر(source && (res == 0))
     curl_dbg_log("FD %s:%d socketpair() = "
                  "%" FMT_SOCKET_T " %" FMT_SOCKET_T "\n",
-                 source, line, socket_vector[0], socket_vector[1]);
+                 source, سطر, socket_vector[0], socket_vector[1]);
 
-  return res;
+  بازگشت res;
 }
 #endif
 
-curl_socket_t curl_dbg_accept(curl_socket_t s, void *saddr, void *saddrlen,
-                              int line, const char *source)
+curl_socket_t curl_dbg_accept(curl_socket_t s, تهی *saddr, تهی *saddrlen,
+                              صحیح سطر, ثابت نویسه *source)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  ساختار sockaddr *addr = (ساختار sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept(s, addr, addrlen);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  اگر(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 source, سطر, sockfd);
 
-  return sockfd;
+  بازگشت sockfd;
 }
 
 #ifdef HAVE_ACCEPT4
-curl_socket_t curl_dbg_accept4(curl_socket_t s, void *saddr, void *saddrlen,
-                               int flags,
-                               int line, const char *source)
+curl_socket_t curl_dbg_accept4(curl_socket_t s, تهی *saddr, تهی *saddrlen,
+                               صحیح flags,
+                               صحیح سطر, ثابت نویسه *source)
 {
-  struct sockaddr *addr = (struct sockaddr *)saddr;
+  ساختار sockaddr *addr = (ساختار sockaddr *)saddr;
   curl_socklen_t *addrlen = (curl_socklen_t *)saddrlen;
 
   /* !checksrc! disable BANNEDFUNC 1 */
   curl_socket_t sockfd = accept4(s, addr, addrlen, flags);
 
-  if(source && (sockfd != CURL_SOCKET_BAD))
+  اگر(source && (sockfd != CURL_SOCKET_BAD))
     curl_dbg_log("FD %s:%d accept() = %" FMT_SOCKET_T "\n",
-                 source, line, sockfd);
+                 source, سطر, sockfd);
 
-  return sockfd;
+  بازگشت sockfd;
 }
 #endif
 
 /* separate function to allow libcurl to mark a "faked" close */
-void curl_dbg_mark_sclose(curl_socket_t sockfd, int line, const char *source)
+تهی curl_dbg_mark_sclose(curl_socket_t sockfd, صحیح سطر, ثابت نویسه *source)
 {
-  if(source)
+  اگر(source)
     curl_dbg_log("FD %s:%d sclose(%" FMT_SOCKET_T ")\n",
-                 source, line, sockfd);
+                 source, سطر, sockfd);
 }
 
 /* this is our own defined way to close sockets on *ALL* platforms */
-int curl_dbg_sclose(curl_socket_t sockfd, int line, const char *source)
+صحیح curl_dbg_sclose(curl_socket_t sockfd, صحیح سطر, ثابت نویسه *source)
 {
-  curl_dbg_mark_sclose(sockfd, line, source);
-  return CURL_SCLOSE(sockfd);
+  curl_dbg_mark_sclose(sockfd, سطر, source);
+  بازگشت CURL_SCLOSE(sockfd);
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fopen(const char *file, const char *mode,
-                     int line, const char *source)
+FILE *curl_dbg_fopen(ثابت نویسه *file, ثابت نویسه *mode,
+                     صحیح سطر, ثابت نویسه *source)
 {
-  FILE *res = CURLX_FOPEN_LOW(file, mode);
-  if(source)
+  FILE *res = CURLX_FOPEN_کم(file, mode);
+  اگر(source)
     curl_dbg_log("FILE %s:%d fopen(\"%s\",\"%s\") = %p\n",
-                 source, line, file, mode, (void *)res);
+                 source, سطر, file, mode, (تهی *)res);
 
-  return res;
+  بازگشت res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_freopen(const char *file, const char *mode, FILE *fh,
-                       int line, const char *source)
+FILE *curl_dbg_freopen(ثابت نویسه *file, ثابت نویسه *mode, FILE *fh,
+                       صحیح سطر, ثابت نویسه *source)
 {
-  FILE *res = CURLX_FREOPEN_LOW(file, mode, fh);
-  if(source)
+  FILE *res = CURLX_FREOPEN_کم(file, mode, fh);
+  اگر(source)
     curl_dbg_log("FILE %s:%d freopen(\"%s\",\"%s\",%p) = %p\n",
-                 source, line, file, mode, (void *)fh, (void *)res);
+                 source, سطر, file, mode, (تهی *)fh, (تهی *)res);
 
-  return res;
+  بازگشت res;
 }
 
 ALLOC_FUNC
-FILE *curl_dbg_fdopen(int filedes, const char *mode,
-                      int line, const char *source)
+FILE *curl_dbg_fdopen(صحیح filedes, ثابت نویسه *mode,
+                      صحیح سطر, ثابت نویسه *source)
 {
-  FILE *res = CURLX_FDOPEN_LOW(filedes, mode);
-  if(source)
+  FILE *res = CURLX_FDOPEN_کم(filedes, mode);
+  اگر(source)
     curl_dbg_log("FILE %s:%d fdopen(\"%d\",\"%s\") = %p\n",
-                 source, line, filedes, mode, (void *)res);
-  return res;
+                 source, سطر, filedes, mode, (تهی *)res);
+  بازگشت res;
 }
 
-int curl_dbg_fclose(FILE *file, int line, const char *source)
+صحیح curl_dbg_fclose(FILE *file, صحیح سطر, ثابت نویسه *source)
 {
-  int res;
+  صحیح res;
 
   DEBUGASSERT(file);
 
-  if(source)
-    curl_dbg_log("FILE %s:%d fclose(%p)\n", source, line, (void *)file);
+  اگر(source)
+    curl_dbg_log("FILE %s:%d fclose(%p)\n", source, سطر, (تهی *)file);
 
   /* !checksrc! disable BANNEDFUNC 1 */
   res = fclose(file);
 
-  return res;
+  بازگشت res;
 }
 
-static void curl_dbg_vlog(const char * const fmt,
+ایستا تهی curl_dbg_vlog(ثابت نویسه * ثابت fmt,
                           va_list ap) CURL_PRINTF(1, 0);
 
-static void curl_dbg_vlog(const char * const fmt, va_list ap)
+ایستا تهی curl_dbg_vlog(ثابت نویسه * ثابت fmt, va_list ap)
 {
-  char buf[1024];
-  size_t nchars = curl_mvsnprintf(buf, sizeof(buf), fmt, ap);
+  نویسه buf[1024];
+  size_t nchars = curl_mvsnprintf(buf, اندازه(buf), fmt, ap);
 
-  if(nchars > (int)sizeof(buf) - 1)
-    nchars = (int)sizeof(buf) - 1;
+  اگر(nchars > (صحیح)اندازه(buf) - 1)
+    nchars = (صحیح)اندازه(buf) - 1;
 
-  if(nchars > 0) {
-    if(sizeof(membuf) - nchars < memwidx) {
+  اگر(nchars > 0) {
+    اگر(اندازه(membuf) - nchars < memwidx) {
       /* flush */
       fwrite(membuf, 1, memwidx, curl_dbg_logfile);
       fflush(curl_dbg_logfile);
       memwidx = 0;
     }
-    if(memwidx) {
+    اگر(memwidx) {
       /* the previous line ends with a newline */
       DEBUGASSERT(membuf[memwidx - 1] == '\n');
     }
@@ -548,12 +548,12 @@ static void curl_dbg_vlog(const char * const fmt, va_list ap)
   }
 }
 
-static void curl_dbg_log_locked(const char *format, ...)
+ایستا تهی curl_dbg_log_locked(ثابت نویسه *format, ...)
 {
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  اگر(!curl_dbg_logfile)
+    بازگشت;
 
   va_start(ap, format);
   curl_dbg_vlog(format, ap);
@@ -561,13 +561,13 @@ static void curl_dbg_log_locked(const char *format, ...)
 }
 
 /* this does the writing to the memory tracking log file */
-void curl_dbg_log(const char *format, ...)
+تهی curl_dbg_log(ثابت نویسه *format, ...)
 {
   bool was_locked;
   va_list ap;
 
-  if(!curl_dbg_logfile)
-    return;
+  اگر(!curl_dbg_logfile)
+    بازگشت;
 
   was_locked = curl_dbg_lock();
   va_start(ap, format);

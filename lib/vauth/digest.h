@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
 
-#define DIGEST_MAX_VALUE_LENGTH           256
+#define DIGEST_MAX_مقدار_LENGTH           256
 #define DIGEST_MAX_CONTENT_LENGTH         1024
 
-struct Curl_str;
+ساختار Curl_str;
 
 /* This is used to extract the realm from a challenge message */
-bool Curl_auth_digest_get_pair(const char *str, struct Curl_str *value,
-                               char *content, const char **endptr);
+bool Curl_auth_digest_get_pair(ثابت نویسه *str, ساختار Curl_str *مقدار,
+                               نویسه *content, ثابت نویسه **endptr);
 
 #endif
 

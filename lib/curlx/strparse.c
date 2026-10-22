@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/strparse.h"
+#شامل "curlx/strparse.h"
 
-void curlx_str_init(struct Curl_str *out)
+تهی curlx_str_init(ساختار Curl_str *out)
 {
-  out->str = NULL;
+  out->str = پوچ;
   out->len = 0;
 }
 
-void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
+تهی curlx_str_assign(ساختار Curl_str *out, ثابت نویسه *str, size_t len)
 {
   out->str = str;
   out->len = len;
@@ -37,7 +37,7 @@ void curlx_str_assign(struct Curl_str *out, const char *str, size_t len)
 
 /* remove bytes from the end of the string, never remove more bytes than what
    the string holds! */
-void curlx_str_trim(struct Curl_str *out, size_t len)
+تهی curlx_str_trim(ساختار Curl_str *out, size_t len)
 {
   DEBUGASSERT(out);
   DEBUGASSERT(out->len >= len);
@@ -46,10 +46,10 @@ void curlx_str_trim(struct Curl_str *out, size_t len)
 
 /* Get a word until the first DELIM or end of string. At least one byte long.
    return non-zero on error. If 'max' is zero, it will always return error. */
-int curlx_str_until(const char **linep, struct Curl_str *out,
-                    const size_t max, char delim)
+صحیح curlx_str_until(ثابت نویسه **linep, ساختار Curl_str *out,
+                    ثابت size_t max, نویسه delim)
 {
-  const char *s;
+  ثابت نویسه *s;
   size_t len = 0;
   DEBUGASSERT(linep);
   DEBUGASSERT(*linep);
@@ -58,97 +58,97 @@ int curlx_str_until(const char **linep, struct Curl_str *out,
   s = *linep;
 
   curlx_str_init(out);
-  while(*s && (*s != delim)) {
+  وقتی(*s && (*s != delim)) {
     s++;
-    if(++len > max) {
-      return STRE_BIG;
+    اگر(++len > max) {
+      بازگشت STRE_BIG;
     }
   }
-  if(!len)
-    return STRE_SHORT;
+  اگر(!len)
+    بازگشت STRE_SHORT;
   out->str = *linep;
   out->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  بازگشت STRE_OK;
 }
 
 /* Get a word until the first space or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_word(const char **linep, struct Curl_str *out, const size_t max)
+صحیح curlx_str_word(ثابت نویسه **linep, ساختار Curl_str *out, ثابت size_t max)
 {
-  return curlx_str_until(linep, out, max, ' ');
+  بازگشت curlx_str_until(linep, out, max, ' ');
 }
 
 /* Get a word until a newline byte or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_untilnl(const char **linep, struct Curl_str *out,
-                      const size_t max)
+صحیح curlx_str_untilnl(ثابت نویسه **linep, ساختار Curl_str *out,
+                      ثابت size_t max)
 {
-  const char *s = *linep;
+  ثابت نویسه *s = *linep;
   size_t len = 0;
   DEBUGASSERT(linep && *linep && out && max);
 
   curlx_str_init(out);
-  while(*s && !ISNEWLINE(*s)) {
+  وقتی(*s && !ISNEWLINE(*s)) {
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    اگر(++len > max)
+      بازگشت STRE_BIG;
   }
-  if(!len)
-    return STRE_SHORT;
+  اگر(!len)
+    بازگشت STRE_SHORT;
   out->str = *linep;
   out->len = len;
   *linep = s; /* point to the first byte after the word */
-  return STRE_OK;
+  بازگشت STRE_OK;
 }
 
 /* Get a "quoted" word. Escaped quotes are supported.
    return non-zero on error */
-int curlx_str_quotedword(const char **linep, struct Curl_str *out,
-                         const size_t max)
+صحیح curlx_str_quotedword(ثابت نویسه **linep, ساختار Curl_str *out,
+                         ثابت size_t max)
 {
-  const char *s = *linep;
+  ثابت نویسه *s = *linep;
   size_t len = 0;
   DEBUGASSERT(linep && *linep && out && max);
 
   curlx_str_init(out);
-  if(*s != '\"')
-    return STRE_BEGQUOTE;
+  اگر(*s != '\"')
+    بازگشت STRE_BEGQUOTE;
   s++;
-  while(*s && (*s != '\"')) {
-    if(*s == '\\' && s[1]) {
+  وقتی(*s && (*s != '\"')) {
+    اگر(*s == '\\' && s[1]) {
       s++;
-      if(++len > max)
-        return STRE_BIG;
+      اگر(++len > max)
+        بازگشت STRE_BIG;
     }
     s++;
-    if(++len > max)
-      return STRE_BIG;
+    اگر(++len > max)
+      بازگشت STRE_BIG;
   }
-  if(*s != '\"')
-    return STRE_ENDQUOTE;
+  اگر(*s != '\"')
+    بازگشت STRE_ENDQUOTE;
   out->str = (*linep) + 1;
   out->len = len;
   *linep = s + 1;
-  return STRE_OK;
+  بازگشت STRE_OK;
 }
 
 /* Advance over a single character.
    return non-zero on error */
-int curlx_str_single(const char **linep, char byte)
+صحیح curlx_str_single(ثابت نویسه **linep, نویسه byte)
 {
   DEBUGASSERT(linep && *linep);
-  if(**linep != byte)
-    return STRE_BYTE;
+  اگر(**linep != byte)
+    بازگشت STRE_BYTE;
   (*linep)++; /* move over it */
-  return STRE_OK;
+  بازگشت STRE_OK;
 }
 
 /* Advance over a single space.
    return non-zero on error */
-int curlx_str_singlespace(const char **linep)
+صحیح curlx_str_singlespace(ثابت نویسه **linep)
 {
-  return curlx_str_single(linep, ' ');
+  بازگشت curlx_str_single(linep, ' ');
 }
 
 /* given an ASCII character and max ascii, return TRUE if valid */
@@ -158,7 +158,7 @@ int curlx_str_singlespace(const char **linep)
 /* We use 16 for the zero index (and the necessary bitwise AND in the loop)
    to be able to have a non-zero value there to make valid_digit() able to
    use the info */
-const unsigned char curlx_hexasciitable[] = {
+ثابت unsigned نویسه curlx_hexasciitable[] = {
   16, 1, 2, 3, 4, 5, 6, 7, 8, 9, /* 0x30: 0 - 9 */
   0, 0, 0, 0, 0, 0, 0,
   10, 11, 12, 13, 14, 15,        /* 0x41: A - F */
@@ -167,156 +167,156 @@ const unsigned char curlx_hexasciitable[] = {
 };
 
 /* no support for 0x prefix nor leading spaces */
-static int str_num_base(const char **linep, curl_off_t *nump, curl_off_t max,
-                        int base) /* 8, 10 or 16, nothing else */
+ایستا صحیح str_رقم_base(ثابت نویسه **linep, curl_off_t *nump, curl_off_t max,
+                        صحیح base) /* 8, 10 or 16, nothing else */
 {
-  curl_off_t num = 0;
-  const char *p;
-  int m = (base == 10) ? '9' :   /* the largest digit possible */
+  curl_off_t رقم = 0;
+  ثابت نویسه *p;
+  صحیح m = (base == 10) ? '9' :   /* the largest digit possible */
     (base == 16) ? 'f' : '7';
   DEBUGASSERT(linep && *linep && nump);
   DEBUGASSERT((base == 8) || (base == 10) || (base == 16));
   DEBUGASSERT(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
   *nump = 0;
   p = *linep;
-  if(!valid_digit(*p, m))
-    return STRE_NO_NUM;
-  if(max < base) {
+  اگر(!valid_digit(*p, m))
+    بازگشت STRE_NO_رقم;
+  اگر(max < base) {
     /* special-case low max scenario because check needs to be different */
-    do {
-      int n = curlx_hexval(*p++);
-      num = (num * base) + n;
-      if(num > max)
-        return STRE_OVERFLOW;
-    } while(valid_digit(*p, m));
+    انجامبده {
+      صحیح n = curlx_hexval(*p++);
+      رقم = (رقم * base) + n;
+      اگر(رقم > max)
+        بازگشت STRE_OVERFLOW;
+    } وقتی(valid_digit(*p, m));
   }
-  else {
+  وگرنه {
     curl_off_t cutoff = (max - (base - 1)) / base;
-    while(valid_digit(*p, m)) {
-      if(num <= cutoff)
-        num = (num * base) + curlx_hexval(*p++);
-      else {
-        int n = curlx_hexval(*p++);
-        if(num > ((max - n) / base))
-          return STRE_OVERFLOW;
-        num = (num * base) + n;
+    وقتی(valid_digit(*p, m)) {
+      اگر(رقم <= cutoff)
+        رقم = (رقم * base) + curlx_hexval(*p++);
+      وگرنه {
+        صحیح n = curlx_hexval(*p++);
+        اگر(رقم > ((max - n) / base))
+          بازگشت STRE_OVERFLOW;
+        رقم = (رقم * base) + n;
       }
     }
   }
-  *nump = num;
+  *nump = رقم;
   *linep = p;
-  return STRE_OK;
+  بازگشت STRE_OK;
 }
 
 /* Get an unsigned decimal number with no leading space or minus. Leading
    zeroes are accepted. return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max)
+صحیح curlx_str_عدد(ثابت نویسه **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 10);
+  بازگشت str_رقم_base(linep, nump, max, 10);
 }
 
 /* Get an unsigned hexadecimal number with no leading space or minus and no
    "0x" support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max)
+صحیح curlx_str_hex(ثابت نویسه **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 16);
+  بازگشت str_رقم_base(linep, nump, max, 16);
 }
 
 /* Get an unsigned octal number with no leading space or minus and no "0"
    prefix support. Leading zeroes are accepted. return non-zero on error */
-int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max)
+صحیح curlx_str_octal(ثابت نویسه **linep, curl_off_t *nump, curl_off_t max)
 {
-  return str_num_base(linep, nump, max, 8);
+  بازگشت str_رقم_base(linep, nump, max, 8);
 }
 
 /*
  * Parse a positive number up to 63-bit number written in ASCII. Skip leading
  * blanks. No support for prefixes.
  */
-int curlx_str_numblanks(const char **str, curl_off_t *num)
+صحیح curlx_str_numblanks(ثابت نویسه **str, curl_off_t *رقم)
 {
   curlx_str_passblanks(str);
-  return curlx_str_number(str, num, CURL_OFF_T_MAX);
+  بازگشت curlx_str_عدد(str, رقم, CURL_OFF_T_MAX);
 }
 
 /* CR or LF
    return non-zero on error */
-int curlx_str_newline(const char **linep)
+صحیح curlx_str_newline(ثابت نویسه **linep)
 {
   DEBUGASSERT(linep && *linep);
-  if(ISNEWLINE(**linep)) {
+  اگر(ISNEWLINE(**linep)) {
     (*linep)++;
-    return STRE_OK; /* yessir */
+    بازگشت STRE_OK; /* yessir */
   }
-  return STRE_NEWLINE;
+  بازگشت STRE_NEWLINE;
 }
 
 #ifndef WITHOUT_LIBCURL
 /* case insensitive compare that the parsed string matches the given string.
    Returns non-zero on match. */
-int curlx_str_casecompare(struct Curl_str *str, const char *check)
+صحیح curlx_str_casecompare(ساختار Curl_str *str, ثابت نویسه *check)
 {
   size_t clen = check ? strlen(check) : 0;
-  return ((str->len == clen) && curl_strnequal(str->str, check, clen));
+  بازگشت ((str->len == clen) && curl_strnequal(str->str, check, clen));
 }
 #endif
 
 /* case sensitive string compare. Returns non-zero on match. */
-int curlx_str_cmp(struct Curl_str *str, const char *check)
+صحیح curlx_str_cmp(ساختار Curl_str *str, ثابت نویسه *check)
 {
-  if(check) {
+  اگر(check) {
     size_t clen = strlen(check);
-    return ((str->len == clen) && !strncmp(str->str, check, clen));
+    بازگشت ((str->len == clen) && !strncmp(str->str, check, clen));
   }
-  return !!str->len;
+  بازگشت !!str->len;
 }
 
 /* Trim off 'num' number of bytes from the beginning (left side) of the
    string. If 'num' is larger than the string, return error. */
-int curlx_str_nudge(struct Curl_str *str, size_t num)
+صحیح curlx_str_nudge(ساختار Curl_str *str, size_t رقم)
 {
-  if(num <= str->len) {
-    str->str += num;
-    str->len -= num;
-    return STRE_OK;
+  اگر(رقم <= str->len) {
+    str->str += رقم;
+    str->len -= رقم;
+    بازگشت STRE_OK;
   }
-  return STRE_OVERFLOW;
+  بازگشت STRE_OVERFLOW;
 }
 
 /* Get the following character sequence that consists only of bytes not
    present in the 'reject' string. Like strcspn(). */
-int curlx_str_cspn(const char **linep, struct Curl_str *out,
-                   const char *reject)
+صحیح curlx_str_cspn(ثابت نویسه **linep, ساختار Curl_str *out,
+                   ثابت نویسه *reject)
 {
-  const char *s = *linep;
+  ثابت نویسه *s = *linep;
   size_t len;
   DEBUGASSERT(linep && *linep);
 
   len = strcspn(s, reject);
-  if(len) {
+  اگر(len) {
     out->str = s;
     out->len = len;
     *linep = &s[len];
-    return STRE_OK;
+    بازگشت STRE_OK;
   }
   curlx_str_init(out);
-  return STRE_SHORT;
+  بازگشت STRE_SHORT;
 }
 
 /* remove ISBLANK()s from both ends of the string */
-void curlx_str_trimblanks(struct Curl_str *out)
+تهی curlx_str_trimblanks(ساختار Curl_str *out)
 {
-  while(out->len && ISBLANK(*out->str))
+  وقتی(out->len && ISBLANK(*out->str))
     curlx_str_nudge(out, 1);
 
   /* trim trailing spaces and tabs */
-  while(out->len && ISBLANK(out->str[out->len - 1]))
+  وقتی(out->len && ISBLANK(out->str[out->len - 1]))
     out->len--;
 }
 
 /* increase the pointer until it has moved over all blanks */
-void curlx_str_passblanks(const char **linep)
+تهی curlx_str_passblanks(ثابت نویسه **linep)
 {
-  while(ISBLANK(**linep))
+  وقتی(ISBLANK(**linep))
     (*linep)++; /* move over it */
 }

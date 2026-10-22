@@ -21,11 +21,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "parsedate.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#شامل "parsedate.h"
+#شامل "curlx/strparse.h"
+#شامل "curlx/strcopy.h"
 
 /* A brief summary of the date string formats this parser groks:
 
@@ -79,13 +79,13 @@
    20040911 +0200
  */
 
-#if !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
+#اگر !defined(CURL_DISABLE_PARSEDATE) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_FILE) || defined(USE_GNUTLS)
 /* These names are also used by FTP and FILE code */
-const char * const Curl_wkday[] = {
+ثابت نویسه * ثابت Curl_wkday[] = {
   "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 };
-const char * const Curl_month[] = {
+ثابت نویسه * ثابت Curl_month[] = {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
@@ -96,14 +96,14 @@ const char * const Curl_month[] = {
 
 #ifndef CURL_DISABLE_PARSEDATE
 
-#if SIZEOF_TIME_T < 5
+#اگر SIZEOF_TIME_T < 5
 #define PARSEDATE_LATER  1
 #endif
-#if SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
+#اگر SIZEOF_TIME_T < 5 || defined(HAVE_TIME_T_UNSIGNED)
 #define PARSEDATE_SOONER 2
 #endif
 
-struct tzinfo {
+ساختار tzinfo {
   uint32_t tz;
   int16_t offset; /* +/- in minutes */
 };
@@ -111,7 +111,7 @@ struct tzinfo {
 #define DST (-60)     /* offset for daylight savings time */
 
 /* alpha-sorted list of single-letter time zones, A - Z */
-static const int16_t tzone[] = {
+ایستا ثابت int16_t tzone[] = {
   -1 * 60,            /* Alpha */
   -2 * 60,            /* Bravo */
   -3 * 60,            /* Charlie */
@@ -150,7 +150,7 @@ static const int16_t tzone[] = {
 #define MKTZ(a,b,c,d) (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
 /* three-letter time zones */
-static const struct tzinfo tzthree[] = {
+ایستا ثابت ساختار tzinfo tzthree[] = {
   { MKTZ('A', 'D', 'T', '\0'),   240 + DST }, /* Atlantic Daylight */
   { MKTZ('A', 'S', 'T', '\0'),   240 },       /* Atlantic Standard */
   { MKTZ('B', 'S', 'T', '\0'),     0 + DST }, /* British Summer */
@@ -183,7 +183,7 @@ static const struct tzinfo tzthree[] = {
 };
 
 /* four-letter time zones */
-static const struct tzinfo tzfoura[] = {
+ایستا ثابت ساختار tzinfo tzfoura[] = {
   { MKTZ('A', 'H', 'S', 'T'),  600 },       /* Alaska-Hawaii Standard */
   { MKTZ('C', 'E', 'S', 'T'),  -60 + DST }, /* Central European Summer */
   { MKTZ('E', 'A', 'D', 'T'), -600 + DST }, /* Eastern Australian Daylight */
@@ -208,124 +208,124 @@ static const struct tzinfo tzfoura[] = {
 
    @unittest 4781
 */
-UNITTEST int checkday(const char *check, size_t len);
-UNITTEST int checkday(const char *check, size_t len)
+UNITTEST صحیح checkday(ثابت نویسه *check, size_t len);
+UNITTEST صحیح checkday(ثابت نویسه *check, size_t len)
 {
-  int day = -1;
-  if(len < 3)
-    return -1; /* too short */
+  صحیح day = -1;
+  اگر(len < 3)
+    بازگشت -1; /* too short */
 
-  switch(LOWERCASE(check[1])) {
-  case 'o': /* monday */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
+  انتخاب(LOWERCASE(check[1])) {
+  حالت 'o': /* monday */
+    اگر((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[2]) == 'n')
       day = 0;
-    break;
-  case 'u': /* tuesday or sunday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
+    بشکن;
+  حالت 'u': /* tuesday or sunday */
+    اگر((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'e')
       day = 1;
-    else if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
+    وگرنه اگر((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 'n')
       day = 6;
-    break;
-  case 'e': /* wednesday */
-    if((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
+    بشکن;
+  حالت 'e': /* wednesday */
+    اگر((LOWERCASE(check[0]) == 'w') && LOWERCASE(check[2]) == 'd')
       day = 2;
-    break;
-  case 'h': /* thursday */
-    if((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
+    بشکن;
+  حالت 'h': /* thursday */
+    اگر((LOWERCASE(check[0]) == 't') && LOWERCASE(check[2]) == 'u')
       day = 3;
-    break;
-  case 'r': /* friday */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
+    بشکن;
+  حالت 'r': /* friday */
+    اگر((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[2]) == 'i')
       day = 4;
-    break;
-  case 'a': /* saturday */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
+    بشکن;
+  حالت 'a': /* saturday */
+    اگر((LOWERCASE(check[0]) == 's') && LOWERCASE(check[2]) == 't')
       day = 5;
-    break;
+    بشکن;
   }
-  if((len > 3) && (day != -1)) {
+  اگر((len > 3) && (day != -1)) {
     /* when more than three letters are provided, verify the tail name case
        insensitively */
-    static const char * const daysuffix[] = {
+    ایستا ثابت نویسه * ثابت daysuffix[] = {
       /* without the leading three letters */
       "day", "sday", "nesday", "rsday", "day", "urday", "day"
     };
 
     size_t wlen = strlen(daysuffix[day]);
-    if(((len - 3) != wlen) ||
+    اگر(((len - 3) != wlen) ||
        !curl_strnequal(&check[3], daysuffix[day], wlen))
-      return -1;
+      بازگشت -1;
   }
-  return day;
+  بازگشت day;
 }
 
 /* @unittest 4781 */
 
-UNITTEST int checkmonth(const char *check, size_t len);
-UNITTEST int checkmonth(const char *check, size_t len)
+UNITTEST صحیح checkmonth(ثابت نویسه *check, size_t len);
+UNITTEST صحیح checkmonth(ثابت نویسه *check, size_t len)
 {
-  if(len != 3)
-    return -1; /* not a month */
+  اگر(len != 3)
+    بازگشت -1; /* not a month */
 
-  switch(LOWERCASE(check[2])) {
-  case 'n': /* jan, jun */
-    if(LOWERCASE(check[0]) == 'j') {
+  انتخاب(LOWERCASE(check[2])) {
+  حالت 'n': /* jan, jun */
+    اگر(LOWERCASE(check[0]) == 'j') {
       uint8_t c2 = LOWERCASE(check[1]);
-      if(c2 == 'a')
-        return 0;
-      else if(c2 == 'u')
-        return 5;
+      اگر(c2 == 'a')
+        بازگشت 0;
+      وگرنه اگر(c2 == 'u')
+        بازگشت 5;
     }
-    break;
-  case 'b': /* feb */
-    if((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
-      return 1;
-    break;
-  case 'r': /* mar, apr */
-    if(LOWERCASE(check[0]) == 'm') {
-      if(LOWERCASE(check[1]) == 'a')
-        return 2;
+    بشکن;
+  حالت 'b': /* feb */
+    اگر((LOWERCASE(check[0]) == 'f') && LOWERCASE(check[1]) == 'e')
+      بازگشت 1;
+    بشکن;
+  حالت 'r': /* mar, apr */
+    اگر(LOWERCASE(check[0]) == 'm') {
+      اگر(LOWERCASE(check[1]) == 'a')
+        بازگشت 2;
     }
-    else if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
-      return 3;
-    break;
-  case 'y': /* may */
-    if((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
-      return 4;
-    break;
-  case 'l': /* jul */
-    if((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
-      return 6;
-    break;
-  case 'g': /* aug */
-    if((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
-      return 7;
-    break;
-  case 'p': /* sep */
-    if((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
-      return 8;
-    break;
-  case 't': /* oct */
-    if((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
-      return 9;
-    break;
-  case 'v': /* nov */
-    if((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
-      return 10;
-    break;
-  case 'c': /* dec */
-    if((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
-      return 11;
-    break;
+    وگرنه اگر((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'p')
+      بازگشت 3;
+    بشکن;
+  حالت 'y': /* may */
+    اگر((LOWERCASE(check[0]) == 'm') && LOWERCASE(check[1]) == 'a')
+      بازگشت 4;
+    بشکن;
+  حالت 'l': /* jul */
+    اگر((LOWERCASE(check[0]) == 'j') && LOWERCASE(check[1]) == 'u')
+      بازگشت 6;
+    بشکن;
+  حالت 'g': /* aug */
+    اگر((LOWERCASE(check[0]) == 'a') && LOWERCASE(check[1]) == 'u')
+      بازگشت 7;
+    بشکن;
+  حالت 'p': /* sep */
+    اگر((LOWERCASE(check[0]) == 's') && LOWERCASE(check[1]) == 'e')
+      بازگشت 8;
+    بشکن;
+  حالت 't': /* oct */
+    اگر((LOWERCASE(check[0]) == 'o') && LOWERCASE(check[1]) == 'c')
+      بازگشت 9;
+    بشکن;
+  حالت 'v': /* nov */
+    اگر((LOWERCASE(check[0]) == 'n') && LOWERCASE(check[1]) == 'o')
+      بازگشت 10;
+    بشکن;
+  حالت 'c': /* dec */
+    اگر((LOWERCASE(check[0]) == 'd') && LOWERCASE(check[1]) == 'e')
+      بازگشت 11;
+    بشکن;
   }
-  return -1; /* return the offset or -1, no real offset is -1 */
+  بازگشت -1; /* return the offset or -1, no real offset is -1 */
 }
 
-static int tzcompare(const void *m1, const void *m2)
+ایستا صحیح tzcompare(ثابت تهی *m1, ثابت تهی *m2)
 {
-  const struct tzinfo *tz1 = m1;
-  const struct tzinfo *tz2 = m2;
-  return tz1->tz - tz2->tz;
+  ثابت ساختار tzinfo *tz1 = m1;
+  ثابت ساختار tzinfo *tz2 = m2;
+  بازگشت tz1->tz - tz2->tz;
 }
 
 /* return the time zone offset between GMT and the input one, in number of
@@ -333,73 +333,73 @@ static int tzcompare(const void *m1, const void *m2)
 
    @unittest 4781
 */
-UNITTEST int checktz(const char *check, size_t len);
-UNITTEST int checktz(const char *check, size_t len)
+UNITTEST صحیح checktz(ثابت نویسه *check, size_t len);
+UNITTEST صحیح checktz(ثابت نویسه *check, size_t len)
 {
-  char first;
-  if(len > 4)
-    return -1;
+  نویسه first;
+  اگر(len > 4)
+    بازگشت -1;
   first = check[0];
-  if(first < 'A')
-    return -1;
-  if(len == 1) {
+  اگر(first < 'A')
+    بازگشت -1;
+  اگر(len == 1) {
     /* short-cut single letter names */
-    if((first > 'Z') || (first == 'J'))
-      return -1; /* no such tz */
-    return tzone[first - 'A'] * 60;
+    اگر((first > 'Z') || (first == 'J'))
+      بازگشت -1; /* no such tz */
+    بازگشت tzone[first - 'A'] * 60;
   }
-  else if(len == 2) {
+  وگرنه اگر(len == 2) {
     /* two-letter names */
-    if(check[1] == 'T') {
-      if(first == 'N')
-        return 11 * 60 * 60;
-      else if(first == 'U')
-        return 0;
+    اگر(check[1] == 'T') {
+      اگر(first == 'N')
+        بازگشت 11 * 60 * 60;
+      وگرنه اگر(first == 'U')
+        بازگشت 0;
     }
-    return -1; /* nope */
+    بازگشت -1; /* nope */
   }
-  else if(len == 3) {
+  وگرنه اگر(len == 3) {
     /* three-letter name */
-    const struct tzinfo *what;
-    struct tzinfo find;
-    if(first > 'Y')
-      return -1;
+    ثابت ساختار tzinfo *what;
+    ساختار tzinfo find;
+    اگر(first > 'Y')
+      بازگشت -1;
     find.tz = MKTZ(first, check[1], check[2], 0);
     what = bsearch(&find, tzthree, CURL_ARRAYSIZE(tzthree),
-                   sizeof(tzthree[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+                   اندازه(tzthree[0]), tzcompare);
+    اگر(what)
+      بازگشت what->offset * 60;
   }
-  else {
+  وگرنه {
     /* four-letter name */
-    const struct tzinfo *what;
-    struct tzinfo find;
-    if(first > 'W')
-      return -1;
+    ثابت ساختار tzinfo *what;
+    ساختار tzinfo find;
+    اگر(first > 'W')
+      بازگشت -1;
     find.tz = MKTZ(first, check[1], check[2], check[3]);
     what = bsearch(&find, tzfoura, CURL_ARRAYSIZE(tzfoura),
-                   sizeof(tzfoura[0]), tzcompare);
-    if(what)
-      return what->offset * 60;
+                   اندازه(tzfoura[0]), tzcompare);
+    اگر(what)
+      بازگشت what->offset * 60;
   }
-  return -1;
+  بازگشت -1;
 }
 
-static void skip(const char **date)
+ایستا تهی skip(ثابت نویسه **date)
 {
   /* skip everything that are not letters or digits */
-  while(**date && !ISALNUM(**date))
+  وقتی(**date && !ISALNUM(**date))
     (*date)++;
 }
 
 /* each field is exactly -1 when unknown */
-struct when {
-  int wday;  /* day of the week, 0-6 (mon-sun) */
-  int mon;   /* month of the year, 0-11 */
-  int mday;  /* day of month, 1 - 31 */
-  int dsecs; /* number of seconds into the day */
-  int year;  /* year, >= 1583 */
-  int tzoff; /* time zone offset in seconds */
+ساختار when {
+  صحیح wday;  /* day of the week, 0-6 (mon-sun) */
+  صحیح mon;   /* month of the year, 0-11 */
+  صحیح mday;  /* day of month, 1 - 31 */
+  صحیح dsecs; /* number of seconds into the day */
+  صحیح year;  /* year, >= 1583 */
+  صحیح tzoff; /* time zone offset in seconds */
 };
 
 /* (1969 / 4) - (1969 / 100) + (1969 / 400) = 492 - 19 + 4 = 477 */
@@ -410,60 +410,60 @@ struct when {
  * time2epoch: time stamp to seconds since epoch in GMT time zone. Similar to
  * mktime but for GMT only.
  */
-static curl_off_t time2epoch(struct when *w)
+ایستا curl_off_t time2epoch(ساختار when *w)
 {
-  static const int cumulative_days[12] = {
+  ایستا ثابت صحیح cumulative_days[12] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
   };
-  int y = w->year - (w->mon <= 1);
-  int leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
+  صحیح y = w->year - (w->mon <= 1);
+  صحیح leap_days = (y / 4) - (y / 100) + (y / 400) - LEAP_DAYS_BEFORE_1969;
   curl_off_t days = (curl_off_t)(w->year - 1970) * 365 + leap_days +
     cumulative_days[w->mon] + w->mday - 1;
 
-  return (days * SECONDS_PER_DAY) + w->dsecs;
+  بازگشت (days * SECONDS_PER_DAY) + w->dsecs;
 }
 
 /* Returns the value of a single-digit or two-digit decimal number, return
    then pointer to after the number. The 'date' pointer is known to point to a
    digit. */
-static int oneortwodigit(const char *date, const char **endp)
+ایستا صحیح oneortwodigit(ثابت نویسه *date, ثابت نویسه **endp)
 {
-  int num = date[0] - '0';
-  if(ISDIGIT(date[1])) {
+  صحیح رقم = date[0] - '0';
+  اگر(ISDIGIT(date[1])) {
     *endp = &date[2];
-    return (num * 10) + (date[1] - '0');
+    بازگشت (رقم * 10) + (date[1] - '0');
   }
   *endp = &date[1];
-  return num;
+  بازگشت رقم;
 }
 
 /* HH:MM:SS or HH:MM and accept single-digits too */
-static bool match_time(const char *date, struct when *w, char **endp)
+ایستا bool match_time(ثابت نویسه *date, ساختار when *w, نویسه **endp)
 {
-  const char *p;
-  int hh, mm, ss = 0;
+  ثابت نویسه *p;
+  صحیح hh, mm, ss = 0;
   hh = oneortwodigit(date, &p);
-  if((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
+  اگر((hh < 24) && (*p == ':') && ISDIGIT(p[1])) {
     mm = oneortwodigit(&p[1], &p);
-    if(mm < 60) {
-      if((*p == ':') && ISDIGIT(p[1])) {
+    اگر(mm < 60) {
+      اگر((*p == ':') && ISDIGIT(p[1])) {
         ss = oneortwodigit(&p[1], &p);
-        if(ss <= 60) {
+        اگر(ss <= 60) {
           /* valid HH:MM:SS */
-          goto match;
+          برو match;
         }
       }
-      else {
+      وگرنه {
         /* valid HH:MM */
-        goto match;
+        برو match;
       }
     }
   }
-  return FALSE; /* not a time string */
+  بازگشت FALSE; /* not a time string */
 match:
   w->dsecs = (hh * 3600) + (mm * 60) + ss;
-  *endp = (char *)CURL_UNCONST(p);
-  return TRUE;
+  *endp = (نویسه *)CURL_UNCONST(p);
+  بازگشت TRUE;
 }
 
 /*
@@ -480,68 +480,68 @@ match:
 /* Wednesday is the longest name this parser knows about */
 #define NAME_LEN 10
 
-static void initwhen(struct when *w)
+ایستا تهی initwhen(ساختار when *w)
 {
   w->wday = w->mon = w->mday = w->dsecs = w->year = w->tzoff = -1;
 }
 
-static int datestring(const char **datep, struct when *w)
+ایستا صحیح datestring(ثابت نویسه **datep, ساختار when *w)
 {
   /* a name coming up */
   size_t len = 0;
-  const char *p = *datep;
-  while(ISALPHA(p[len]) && (len < NAME_LEN))
+  ثابت نویسه *p = *datep;
+  وقتی(ISALPHA(p[len]) && (len < NAME_LEN))
     len++;
 
-  if(len != NAME_LEN) {
-    if(w->wday == -1) {
+  اگر(len != NAME_LEN) {
+    اگر(w->wday == -1) {
       w->wday = checkday(p, len);
-      if(w->wday != -1)
-        goto found;
+      اگر(w->wday != -1)
+        برو found;
     }
-    if(w->mon == -1) {
+    اگر(w->mon == -1) {
       w->mon = checkmonth(p, len);
-      if(w->mon != -1)
-        goto found;
+      اگر(w->mon != -1)
+        برو found;
     }
-    if(w->tzoff == -1) {
+    اگر(w->tzoff == -1) {
       /* this must be a time zone string */
       w->tzoff = checktz(p, len);
-      if(w->tzoff != -1)
-        goto found;
+      اگر(w->tzoff != -1)
+        برو found;
     }
   }
-  return PARSEDATE_FAIL; /* bad string */
+  بازگشت PARSEDATE_FAIL; /* bad string */
 found:
   *datep += len;
-  return PARSEDATE_OK;
+  بازگشت PARSEDATE_OK;
 }
 
-static int datenum(const char *indate, const char **datep, struct when *w)
+ایستا صحیح datenum(ثابت نویسه *indate, ثابت نویسه **datep, ساختار when *w)
 {
   /* a digit */
-  unsigned int val;
-  char *end;
-  const char *date = *datep;
+  unsigned صحیح val;
+  نویسه *end;
+  ثابت نویسه *date = *datep;
 
-  if((w->dsecs == -1) && match_time(date, w, &end)) {
+  اگر((w->dsecs == -1) && match_time(date, w, &end)) {
     /* time stamp */
     date = end;
   }
-  else {
+  وگرنه {
     bool found = FALSE;
     curl_off_t lval;
-    int num_digits = 0;
-    const char *p = *datep;
-    if(curlx_str_number(&p, &lval, 99999999))
-      return PARSEDATE_FAIL;
+    صحیح رقم_digits = 0;
+    ثابت نویسه *p = *datep;
+    اگر(curlx_str_عدد(&p, &lval, 99999999))
+      بازگشت PARSEDATE_FAIL;
 
     /* we know num_digits cannot be larger than 8 */
-    num_digits = (int)(p - *datep);
-    val = (unsigned int)lval;
+    رقم_digits = (صحیح)(p - *datep);
+    val = (unsigned صحیح)lval;
 
-    if((w->tzoff == -1) &&
-       (num_digits == 4) &&
+    اگر((w->tzoff == -1) &&
+       (رقم_digits == 4) &&
        (val <= 1400) &&
        (indate < date) &&
        (date[-1] == '+' || date[-1] == '-')) {
@@ -561,160 +561,160 @@ static int datenum(const char *indate, const char **datep, struct when *w)
       w->tzoff = date[-1] == '+' ? -w->tzoff : w->tzoff;
     }
 
-    else if((num_digits == 8) && (w->year == -1) &&
+    وگرنه اگر((رقم_digits == 8) && (w->year == -1) &&
             (w->mon == -1) && (w->mday == -1)) {
       /* 8 digits, no year, month or day yet. This is YYYYMMDD */
       found = TRUE;
       w->year = val / 10000;
       w->mon = ((val % 10000) / 100) - 1; /* month is 0 - 11 */
-      if(w->mon > 11)
-        return PARSEDATE_FAIL;
+      اگر(w->mon > 11)
+        بازگشت PARSEDATE_FAIL;
       w->mday = val % 100;
     }
 
-    if(!found && (w->mday == -1)) {
-      if((val > 0) && (val < 32)) {
+    اگر(!found && (w->mday == -1)) {
+      اگر((val > 0) && (val < 32)) {
         w->mday = val;
         found = TRUE;
       }
     }
 
-    if(!found && (w->year == -1)) {
+    اگر(!found && (w->year == -1)) {
       w->year = val;
       found = TRUE;
-      if(w->year < 100) {
-        if(w->year > 70)
+      اگر(w->year < 100) {
+        اگر(w->year > 70)
           w->year += 1900;
-        else
+        وگرنه
           w->year += 2000;
       }
     }
 
-    if(!found)
-      return PARSEDATE_FAIL;
+    اگر(!found)
+      بازگشت PARSEDATE_FAIL;
 
     date = p;
   }
   *datep = date;
-  return PARSEDATE_OK;
+  بازگشت PARSEDATE_OK;
 }
 
-static bool datecheck(struct when *w)
+ایستا bool datecheck(ساختار when *w)
 {
-  if(w->dsecs == -1)
+  اگر(w->dsecs == -1)
     w->dsecs = 0; /* no time available, make it zero */
 
-  if((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
+  اگر((w->mday == -1) || (w->mon == -1) || (w->year == -1) ||
     /* lacks vital info, fail */
      (w->year < 1583) ||
      /* The Gregorian calendar was introduced 1582 */
      (w->mday > 31) /* too long month */ )
-    return TRUE;
+    بازگشت TRUE;
 
-  return FALSE;
+  بازگشت FALSE;
 }
 
-static void tzadjust(curl_off_t *tp, struct when *w)
+ایستا تهی tzadjust(curl_off_t *tp, ساختار when *w)
 {
-  if(w->tzoff == -1) /* unknown tz means no offset */
+  اگر(w->tzoff == -1) /* unknown tz means no offset */
     w->tzoff = 0;
 
   /* Add the time zone diff between local time zone and GMT. */
-  if((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
+  اگر((w->tzoff > 0) && (*tp > (curl_off_t)(CURL_OFF_T_MAX - w->tzoff)))
     *tp = CURL_OFF_T_MAX;
-  else
+  وگرنه
     *tp += w->tzoff;
   /* this needs no minimum check since we require a year > 1582 */
 }
 
-static int mktimet(curl_off_t seconds, time_t *output)
+ایستا صحیح mktimet(curl_off_t seconds, time_t *output)
 {
-#if SIZEOF_TIME_T < 5
-  if(seconds > TIME_T_MAX) {
+#اگر SIZEOF_TIME_T < 5
+  اگر(seconds > TIME_T_MAX) {
     *output = TIME_T_MAX;
-    return PARSEDATE_LATER;
+    بازگشت PARSEDATE_LATER;
   }
-  else if(seconds < TIME_T_MIN) {
+  وگرنه اگر(seconds < TIME_T_MIN) {
     *output = TIME_T_MIN;
-    return PARSEDATE_SOONER;
+    بازگشت PARSEDATE_SOONER;
   }
-#elif defined(HAVE_TIME_T_UNSIGNED)
-  if(seconds < 0) {
+#وگرنهاگر defined(HAVE_TIME_T_UNSIGNED)
+  اگر(seconds < 0) {
     *output = 0;
-    return PARSEDATE_SOONER;
+    بازگشت PARSEDATE_SOONER;
   }
 #endif
   *output = (time_t)seconds;
-  return PARSEDATE_OK;
+  بازگشت PARSEDATE_OK;
 }
 
-static int parsedate(const char *date, time_t *output)
+ایستا صحیح parsedate(ثابت نویسه *date, time_t *output)
 {
   curl_off_t seconds = 0;
-  const char *indate = date; /* save the original pointer */
-  int part = 0; /* max 6 parts */
-  int rc = 0;
-  struct when w;
+  ثابت نویسه *indate = date; /* save the original pointer */
+  صحیح part = 0; /* max 6 parts */
+  صحیح rc = 0;
+  ساختار when w;
   initwhen(&w);
 
-  while(*date && (part < 6)) {
+  وقتی(*date && (part < 6)) {
     skip(&date);
 
-    if(ISALPHA(*date))
+    اگر(ISALPHA(*date))
       rc = datestring(&date, &w);
-    else if(ISDIGIT(*date))
+    وگرنه اگر(ISDIGIT(*date))
       rc = datenum(indate, &date, &w);
-    if(rc)
-      return rc;
+    اگر(rc)
+      بازگشت rc;
 
     part++;
   }
 
-  if(datecheck(&w))
-    return PARSEDATE_FAIL;
+  اگر(datecheck(&w))
+    بازگشت PARSEDATE_FAIL;
 
   seconds = time2epoch(&w); /* get number of seconds */
   tzadjust(&seconds, &w); /* handle the time zone offset */
   rc = mktimet(seconds, output); /* squeeze seconds into a time_t */
 
-  return rc;
+  بازگشت rc;
 }
-#else
+#وگرنه
 /* disabled */
-static int parsedate(const char *date, time_t *output)
+ایستا صحیح parsedate(ثابت نویسه *date, time_t *output)
 {
-  (void)date;
+  (تهی)date;
   *output = 0;
-  return PARSEDATE_OK; /* a lie */
+  بازگشت PARSEDATE_OK; /* a lie */
 }
 #endif
 
-time_t curl_getdate(const char *p, const time_t *unused)
+time_t curl_getdate(ثابت نویسه *p, ثابت time_t *unused)
 {
   time_t parsed = -1;
-  int rc;
-  (void)unused; /* legacy argument from the past that we ignore */
+  صحیح rc;
+  (تهی)unused; /* legacy argument from the past that we ignore */
 
-  if(!p)
-    return -1;
+  اگر(!p)
+    بازگشت -1;
 
   rc = parsedate(p, &parsed);
-  if(rc == PARSEDATE_OK) {
-    if(parsed == (time_t)-1)
+  اگر(rc == PARSEDATE_OK) {
+    اگر(parsed == (time_t)-1)
       /* avoid returning -1 for a working scenario */
       parsed++;
-    return parsed;
+    بازگشت parsed;
   }
   /* everything else is fail */
-  return -1;
+  بازگشت -1;
 }
 
 /* Curl_getdate_capped() differs from curl_getdate() in that this will return
    TIME_T_MAX in case the parsed time value was too big, instead of an
    error. Returns non-zero on error. */
 
-int Curl_getdate_capped(const char *p, time_t *tp)
+صحیح Curl_getdate_capped(ثابت نویسه *p, time_t *tp)
 {
-  int rc = parsedate(p, tp);
-  return (rc == PARSEDATE_FAIL);
+  صحیح rc = parsedate(p, tp);
+  بازگشت (rc == PARSEDATE_FAIL);
 }

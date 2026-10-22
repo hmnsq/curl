@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef USE_SSH
 
-#include "urldata.h"
+#شامل "urldata.h"
 
-struct ssh_conn;
+ساختار ssh_conn;
 
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir,
-                             char **path);
+CURLcode Curl_getworkingpath(ساختار Curl_easy *data,
+                             ثابت نویسه *homedir,
+                             نویسه **path);
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir);
+CURLcode Curl_get_pathname(ثابت نویسه **cpp, نویسه **path, ثابت نویسه *homedir);
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(ساختار Curl_easy *data,
+                        ثابت نویسه *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep);
 
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps);
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc);
+CURLcode Curl_ssh_pollset(ساختار Curl_easy *data, ساختار easy_pollset *ps);
+CURLcode Curl_ssh_setup_pkey(ساختار Curl_easy *data, ساختار ssh_conn *sshc);
 
 #endif /* USE_SSH */
 #endif /* HEADER_CURL_VSSH_VSSH_H */

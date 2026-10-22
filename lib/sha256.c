@@ -22,19 +22,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
+#اگر !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_sha256.h"
+#شامل "curl_sha256.h"
 
 #ifdef USE_MBEDTLS
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#شامل <mbedtls/version.h>
+#اگر MBEDTLS_VERSION_عدد < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
-#include <psa/crypto_config.h>
+#شامل <psa/crypto_config.h>
 #endif
 
 /* Please keep the SSL backend-specific #if branches in this order:
@@ -51,200 +51,200 @@
  */
 
 #ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#شامل <openssl/evp.h>
 
-struct ossl_sha256_ctx {
+ساختار ossl_sha256_ctx {
   EVP_MD_CTX *openssl_ctx;
 };
-typedef struct ossl_sha256_ctx my_sha256_ctx;
+تعریفنوع ساختار ossl_sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+ایستا CURLcode my_sha256_init(تهی *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   ctx->openssl_ctx = EVP_MD_CTX_new();
-  if(!ctx->openssl_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!ctx->openssl_ctx)
+    بازگشت CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+  اگر(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), پوچ)) {
     EVP_MD_CTX_free(ctx->openssl_ctx);
-    return CURLE_FAILED_INIT;
+    بازگشت CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+ایستا تهی my_sha256_update(تهی *in,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   EVP_DigestUpdate(ctx->openssl_ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+ایستا تهی my_sha256_final(unsigned نویسه *digest, تهی *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, NULL);
+  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, پوچ);
   EVP_MD_CTX_free(ctx->openssl_ctx);
 }
 
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/sha256.h>
+#وگرنهاگر defined(USE_WOLFSSL)
+#شامل <wolfssl/options.h>
+#شامل <wolfssl/wolfcrypt/sha256.h>
 
-typedef struct wc_Sha256 my_sha256_ctx;
+تعریفنوع ساختار wc_Sha256 my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+ایستا CURLcode my_sha256_init(تهی *in)
 {
-  if(wc_InitSha256(in))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  اگر(wc_InitSha256(in))
+    بازگشت CURLE_FAILED_INIT;
+  بازگشت CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+ایستا تهی my_sha256_update(تهی *in,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح length)
 {
-  (void)wc_Sha256Update(in, data, (word32)length);
+  (تهی)wc_Sha256Update(in, data, (word32)length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+ایستا تهی my_sha256_final(unsigned نویسه *digest, تهی *in)
 {
-  (void)wc_Sha256Final(in, digest);
+  (تهی)wc_Sha256Final(in, digest);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/sha2.h>
-#include <nettle/version.h>
+#وگرنهاگر defined(USE_GNUTLS)
+#شامل <nettle/sha2.h>
+#شامل <nettle/version.h>
 
-typedef struct sha256_ctx my_sha256_ctx;
+تعریفنوع ساختار sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+ایستا CURLcode my_sha256_init(تهی *ctx)
 {
   sha256_init(ctx);
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+ایستا تهی my_sha256_update(تهی *ctx,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح length)
 {
   sha256_update(ctx, length, data);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+ایستا تهی my_sha256_final(unsigned نویسه *digest, تهی *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#اگر NETTLE_VERSION_MAJOR >= 4
   sha256_digest(ctx, digest);
-#else
+#وگرنه
   sha256_digest(ctx, SHA256_DIGEST_SIZE, digest);
 #endif
 }
 
-#elif defined(USE_MBEDTLS) && \
+#وگرنهاگر defined(USE_MBEDTLS) && \
   defined(PSA_WANT_ALG_SHA_256) && PSA_WANT_ALG_SHA_256
-#include <psa/crypto.h>
+#شامل <psa/crypto.h>
 
-typedef psa_hash_operation_t my_sha256_ctx;
+تعریفنوع psa_hash_operation_t my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+ایستا CURLcode my_sha256_init(تهی *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  اگر(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
+    بازگشت CURLE_OUT_OF_MEMORY;
+  بازگشت CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+ایستا تهی my_sha256_update(تهی *ctx,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح length)
 {
-  (void)psa_hash_update(ctx, data, length);
+  (تهی)psa_hash_update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+ایستا تهی my_sha256_final(unsigned نویسه *digest, تهی *ctx)
 {
   size_t actual_length;
-  (void)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
+  (تهی)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
                         &actual_length);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#وگرنهاگر (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) || \
       (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000)
-#include <CommonCrypto/CommonDigest.h>
+#شامل <CommonCrypto/CommonDigest.h>
 
-typedef CC_SHA256_CTX my_sha256_ctx;
+تعریفنوع CC_SHA256_CTX my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+ایستا CURLcode my_sha256_init(تهی *ctx)
 {
-  (void)CC_SHA256_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  (تهی)CC_SHA256_Init(ctx);  /* always returns 1 */
+  بازگشت CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+ایستا تهی my_sha256_update(تهی *ctx,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح length)
 {
-  (void)CC_SHA256_Update(ctx, data, length);
+  (تهی)CC_SHA256_Update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+ایستا تهی my_sha256_final(unsigned نویسه *digest, تهی *ctx)
 {
-  (void)CC_SHA256_Final(digest, ctx);
+  (تهی)CC_SHA256_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#وگرنهاگر defined(USE_WIN32_CRYPTO)
+#شامل <wincrypt.h>
 
-struct sha256_ctx {
+ساختار sha256_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct sha256_ctx my_sha256_ctx;
+تعریفنوع ساختار sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+ایستا CURLcode my_sha256_init(تهی *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+  اگر(!CryptAcquireContext(&ctx->hCryptProv, پوچ, پوچ, PROV_RSA_AES,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+  اگر(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    بازگشت CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+ایستا تهی my_sha256_update(تهی *in,
+                             ثابت unsigned نویسه *data,
+                             unsigned صحیح length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  CryptHashData(ctx->hHash, (const BYTE *)data, length, 0);
+  CryptHashData(ctx->hHash, (ثابت BYTE *)data, length, 0);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+ایستا تهی my_sha256_final(unsigned نویسه *digest, تهی *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   unsigned long length = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == CURL_SHA256_DIGEST_LENGTH)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, پوچ, &length, 0);
+  اگر(length == CURL_SHA256_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  اگر(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  اگر(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#وگرنه
 
 /* When no other crypto library is available we use this code segment */
 
@@ -257,34 +257,34 @@ static void my_sha256_final(unsigned char *digest, void *in)
    (((unsigned long)(a)[2]) <<  8) | \
     ((unsigned long)(a)[3]))
 #define WPA_PUT_BE32(a, val)                                         \
-  do {                                                               \
-    (a)[0] = (unsigned char)((((unsigned long)(val)) >> 24) & 0xff); \
-    (a)[1] = (unsigned char)((((unsigned long)(val)) >> 16) & 0xff); \
-    (a)[2] = (unsigned char)((((unsigned long)(val)) >>  8) & 0xff); \
-    (a)[3] = (unsigned char)(((unsigned long)(val)) & 0xff);         \
-  } while(0)
+  انجامبده {                                                               \
+    (a)[0] = (unsigned نویسه)((((unsigned long)(val)) >> 24) & 0xff); \
+    (a)[1] = (unsigned نویسه)((((unsigned long)(val)) >> 16) & 0xff); \
+    (a)[2] = (unsigned نویسه)((((unsigned long)(val)) >>  8) & 0xff); \
+    (a)[3] = (unsigned نویسه)(((unsigned long)(val)) & 0xff);         \
+  } وقتی(0)
 
 #define WPA_PUT_BE64(a, val)                            \
-  do {                                                  \
-    (a)[0] = (unsigned char)(((uint64_t)(val)) >> 56);  \
-    (a)[1] = (unsigned char)(((uint64_t)(val)) >> 48);  \
-    (a)[2] = (unsigned char)(((uint64_t)(val)) >> 40);  \
-    (a)[3] = (unsigned char)(((uint64_t)(val)) >> 32);  \
-    (a)[4] = (unsigned char)(((uint64_t)(val)) >> 24);  \
-    (a)[5] = (unsigned char)(((uint64_t)(val)) >> 16);  \
-    (a)[6] = (unsigned char)(((uint64_t)(val)) >>  8);  \
-    (a)[7] = (unsigned char)(((uint64_t)(val)) & 0xff); \
-  } while(0)
+  انجامبده {                                                  \
+    (a)[0] = (unsigned نویسه)(((uint64_t)(val)) >> 56);  \
+    (a)[1] = (unsigned نویسه)(((uint64_t)(val)) >> 48);  \
+    (a)[2] = (unsigned نویسه)(((uint64_t)(val)) >> 40);  \
+    (a)[3] = (unsigned نویسه)(((uint64_t)(val)) >> 32);  \
+    (a)[4] = (unsigned نویسه)(((uint64_t)(val)) >> 24);  \
+    (a)[5] = (unsigned نویسه)(((uint64_t)(val)) >> 16);  \
+    (a)[6] = (unsigned نویسه)(((uint64_t)(val)) >>  8);  \
+    (a)[7] = (unsigned نویسه)(((uint64_t)(val)) & 0xff); \
+  } وقتی(0)
 
-struct sha256_state {
+ساختار sha256_state {
   uint64_t length;
   unsigned long state[8], curlen;
-  unsigned char buf[64];
+  unsigned نویسه buf[64];
 };
-typedef struct sha256_state my_sha256_ctx;
+تعریفنوع ساختار sha256_state my_sha256_ctx;
 
 /* The K array */
-static const unsigned long K[64] = {
+ایستا ثابت unsigned long K[64] = {
   0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
   0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
   0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
@@ -316,33 +316,33 @@ static const unsigned long K[64] = {
 #define Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
 
 /* Compress 512 bits */
-static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
+ایستا صحیح sha256_compress(ساختار sha256_state *md, ثابت unsigned نویسه *buf)
 {
   unsigned long S[8], W[64];
-  int i;
+  صحیح i;
 
   /* Copy state into S */
-  for(i = 0; i < 8; i++) {
+  برای(i = 0; i < 8; i++) {
     S[i] = md->state[i];
   }
   /* copy the state into 512 bits into W[0..15] */
-  for(i = 0; i < 16; i++)
+  برای(i = 0; i < 16; i++)
     W[i] = WPA_GET_BE32(buf + (4 * i));
   /* fill W[16..63] */
-  for(i = 16; i < 64; i++) {
+  برای(i = 16; i < 64; i++) {
     W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
   }
 
   /* Compress */
 #define RND(a, b, c, d, e, f, g, h, i)                                   \
-  do {                                                                   \
+  انجامبده {                                                                   \
     unsigned long t0 = h + Sigma1(e) + Sha256_Ch(e, f, g) + K[i] + W[i]; \
     unsigned long t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
     d += t0;                                                             \
     h = t0 + t1;                                                         \
-  } while(0)
+  } وقتی(0)
 
-  for(i = 0; i < 64; ++i) {
+  برای(i = 0; i < 64; ++i) {
     unsigned long t;
     RND(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i);
     t = S[7];
@@ -357,17 +357,17 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
   }
 
   /* Feedback */
-  for(i = 0; i < 8; i++) {
+  برای(i = 0; i < 8; i++) {
     md->state[i] = md->state[i] + S[i];
   }
 
-  return 0;
+  بازگشت 0;
 }
 
 /* Initialize the hash state */
-static CURLcode my_sha256_init(void *in)
+ایستا CURLcode my_sha256_init(تهی *in)
 {
-  struct sha256_state *md = (struct sha256_state *)in;
+  ساختار sha256_state *md = (ساختار sha256_state *)in;
   md->curlen = 0;
   md->length = 0;
   md->state[0] = 0x6A09E667UL;
@@ -379,7 +379,7 @@ static CURLcode my_sha256_init(void *in)
   md->state[6] = 0x1F83D9ABUL;
   md->state[7] = 0x5BE0CD19UL;
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /* Process a block of memory though the hash
@@ -387,33 +387,33 @@ static CURLcode my_sha256_init(void *in)
    @param in     The data to hash
    @param inlen  The length of the data (octets)
  */
-static void my_sha256_update(void *ctx,
-                             const unsigned char *in,
-                             unsigned int len)
+ایستا تهی my_sha256_update(تهی *ctx,
+                             ثابت unsigned نویسه *in,
+                             unsigned صحیح len)
 {
   unsigned long inlen = len;
   unsigned long n;
-  struct sha256_state *md = (struct sha256_state *)ctx;
+  ساختار sha256_state *md = (ساختار sha256_state *)ctx;
 #define CURL_SHA256_BLOCK_SIZE 64
-  if(md->curlen > sizeof(md->buf))
-    return;
-  while(inlen > 0) {
-    if(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
-      if(sha256_compress(md, in) < 0)
-        return;
+  اگر(md->curlen > اندازه(md->buf))
+    بازگشت;
+  وقتی(inlen > 0) {
+    اگر(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
+      اگر(sha256_compress(md, in) < 0)
+        بازگشت;
       md->length += CURL_SHA256_BLOCK_SIZE * 8;
       in += CURL_SHA256_BLOCK_SIZE;
       inlen -= CURL_SHA256_BLOCK_SIZE;
     }
-    else {
+    وگرنه {
       n = CURLMIN(inlen, (CURL_SHA256_BLOCK_SIZE - md->curlen));
       memcpy(md->buf + md->curlen, in, n);
       md->curlen += n;
       in += n;
       inlen -= n;
-      if(md->curlen == CURL_SHA256_BLOCK_SIZE) {
-        if(sha256_compress(md, md->buf) < 0)
-          return;
+      اگر(md->curlen == CURL_SHA256_BLOCK_SIZE) {
+        اگر(sha256_compress(md, md->buf) < 0)
+          بازگشت;
         md->length += 8 * CURL_SHA256_BLOCK_SIZE;
         md->curlen = 0;
       }
@@ -426,26 +426,26 @@ static void my_sha256_update(void *ctx,
    @param out [out] The destination of the hash (32 bytes)
    @return 0 if successful
  */
-static void my_sha256_final(unsigned char *out, void *ctx)
+ایستا تهی my_sha256_final(unsigned نویسه *out, تهی *ctx)
 {
-  struct sha256_state *md = ctx;
-  int i;
+  ساختار sha256_state *md = ctx;
+  صحیح i;
 
-  if(md->curlen >= sizeof(md->buf))
-    return;
+  اگر(md->curlen >= اندازه(md->buf))
+    بازگشت;
 
   /* Increase the length of the message */
   md->length += md->curlen * 8;
 
   /* Append the '1' bit */
-  md->buf[md->curlen++] = (unsigned char)0x80;
+  md->buf[md->curlen++] = (unsigned نویسه)0x80;
 
   /* If the length is currently above 56 bytes we append zeros
    * then compress. Then we can fall back to padding zeros and length
    * encoding like normal.
    */
-  if(md->curlen > 56) {
-    while(md->curlen < 64) {
+  اگر(md->curlen > 56) {
+    وقتی(md->curlen < 64) {
       md->buf[md->curlen++] = 0;
     }
     sha256_compress(md, md->buf);
@@ -453,7 +453,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   }
 
   /* Pad up to 56 bytes of zeroes */
-  while(md->curlen < 56) {
+  وقتی(md->curlen < 56) {
     md->buf[md->curlen++] = 0;
   }
 
@@ -462,7 +462,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   sha256_compress(md, md->buf);
 
   /* Copy output */
-  for(i = 0; i < 8; i++)
+  برای(i = 0; i < 8; i++)
     WPA_PUT_BE32(out + (4 * i), md->state[i]);
 }
 
@@ -481,30 +481,30 @@ static void my_sha256_final(unsigned char *out, void *ctx)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(unsigned نویسه *output, ثابت unsigned نویسه *درون_داد,
                        size_t len)
 {
   CURLcode result;
   my_sha256_ctx ctx;
 
   result = my_sha256_init(&ctx);
-  if(!result) {
-    do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_sha256_update(&ctx, input, ilen);
+  اگر(!result) {
+    انجامبده {
+      unsigned صحیح ilen = (unsigned صحیح)CURLMIN(len, UINT_MAX);
+      my_sha256_update(&ctx, درون_داد, ilen);
       len -= ilen;
-      input += ilen;
-    } while(len);
+      درون_داد += ilen;
+    } وقتی(len);
     my_sha256_final(output, &ctx);
   }
-  return result;
+  بازگشت result;
 }
 
-const struct HMAC_params Curl_HMAC_SHA256 = {
+ثابت ساختار HMAC_params Curl_HMAC_SHA256 = {
   my_sha256_init,        /* Hash initialization function. */
   my_sha256_update,      /* Hash update function. */
   my_sha256_final,       /* Hash computation end function. */
-  sizeof(my_sha256_ctx), /* Size of hash context structure. */
+  اندازه(my_sha256_ctx), /* Size of hash context structure. */
   64,                    /* Maximum key length. */
   32                     /* Result size. */
 };

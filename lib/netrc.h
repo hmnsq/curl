@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifndef CURL_DISABLE_NETRC
 
-#include "curlx/dynbuf.h"
+#شامل "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+ساختار Curl_easy;
+ساختار Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
+ساختار store_netrc {
+  ساختار dynbuf filebuf;
+  نویسه *filename;
   BIT(loaded);
 };
 
-typedef enum {
+تعریفنوع شمارش {
   NETRC_OK,
   NETRC_NO_MATCH,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
@@ -47,19 +47,19 @@ typedef enum {
   NETRC_LAST /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+ثابت نویسه *Curl_netrc_strerror(NETRCcode ret);
+تهی Curl_netrc_init(ساختار store_netrc *store);
+تهی Curl_netrc_cleanup(ساختار store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_scan(ساختار Curl_easy *data,
+                          ساختار store_netrc *store,
+                          ثابت نویسه *hostname,
+                          ثابت نویسه *user,
+                          ثابت نویسه *netrcfile,
+                          ساختار Curl_creds **pcreds);
+#وگرنه
 /* disabled */
 #define Curl_netrc_init(x)
 #define Curl_netrc_cleanup(x)

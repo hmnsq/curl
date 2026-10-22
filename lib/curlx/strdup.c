@@ -21,13 +21,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef _WIN32
-#include <wchar.h>
+#شامل <wchar.h>
 #endif
 
-#include "curlx/strdup.h"
+#شامل "curlx/strdup.h"
 
 #ifdef _WIN32
 /***************************************************************************
@@ -40,14 +40,14 @@
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-wchar_t *curlx_wcsdup(const wchar_t *src)
+wchar_t *curlx_wcsdup(ثابت wchar_t *src)
 {
   size_t length = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  اگر(length > (SIZE_MAX / اندازه(wchar_t)) - 1)
+    بازگشت (wchar_t *)پوچ; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  بازگشت (wchar_t *)curlx_memdup(src, (length + 1) * اندازه(wchar_t));
 }
 #endif
 
@@ -61,15 +61,15 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup(const void *src, size_t length)
+تهی *curlx_memdup(ثابت تهی *src, size_t length)
 {
-  void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  تهی *buffer = curlx_malloc(length);
+  اگر(!buffer)
+    بازگشت پوچ; /* fail */
 
   memcpy(buffer, src, length);
 
-  return buffer;
+  بازگشت buffer;
 }
 
 /***************************************************************************
@@ -82,42 +82,42 @@ void *curlx_memdup(const void *src, size_t length)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup0(const char *src, size_t length)
+تهی *curlx_memdup0(ثابت نویسه *src, size_t length)
 {
-  char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  نویسه *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : پوچ;
+  اگر(!buf)
+    بازگشت پوچ;
+  اگر(length) {
     DEBUGASSERT(src); /* must never be NULL */
     memcpy(buf, src, length);
   }
   buf[length] = 0;
-  return buf;
+  بازگشت buf;
 }
 
 #ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
+ایستا تهی *(* ثابت فرار p_curlx_memset)(تهی *buf, صحیح val,
                                                size_t size) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
-void curlx_memzero_low(void *buf, size_t size)
+تهی curlx_memzero_کم(تهی *buf, size_t size)
 {
-  if(buf)
+  اگر(buf)
     p_curlx_memset(buf, 0, size);
 }
 #endif
 
 /* Fill 'buf' with zeroes. */
-void curlx_memzero(void *buf, size_t size)
+تهی curlx_memzero(تهی *buf, size_t size)
 {
-  if(buf)
-    curlx_memzero_low(buf, size);
+  اگر(buf)
+    curlx_memzero_کم(buf, size);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
-void curlx_strzero(void *buf)
+تهی curlx_strzero(تهی *buf)
 {
-  if(buf)
-    curlx_memzero_low(buf, strlen(buf));
+  اگر(buf)
+    curlx_memzero_کم(buf, strlen(buf));
 }

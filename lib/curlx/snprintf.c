@@ -21,27 +21,27 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/snprintf.h"
+#شامل "curlx/snprintf.h"
 
 #ifdef _WIN32
-#include <stdarg.h>
+#شامل <stdarg.h>
 
 /* Simplified wrapper for the Windows platform to use the correct symbol and
    ensuring null-termination. Omit returning a length to keep it simple. */
-void curlx_win32_snprintf(char *buf, size_t maxlen, const char *fmt, ...)
+تهی curlx_win32_snprintf(نویسه *buf, size_t maxlen, ثابت نویسه *fmt, ...)
 {
   va_list ap;
-  if(!maxlen)
-    return;
+  اگر(!maxlen)
+    بازگشت;
   va_start(ap, fmt);
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
+#pragma GCC diagnostic افزودن
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
   /* !checksrc! disable BANNEDFUNC 1 */
-  (void)vsnprintf(buf, maxlen, fmt, ap);
+  (تهی)vsnprintf(buf, maxlen, fmt, ap);
 #ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic برداشت
 #endif
   buf[maxlen - 1] = 0;
   va_end(ap);

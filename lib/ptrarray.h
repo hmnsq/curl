@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 /* An array of pointers with up to UINT32_MAX entries */
-struct ptrarray {
-  void **data; /* #capacity array of pointers */
+ساختار ptrarray {
+  تهی **data; /* #capacity array of pointers */
   uint32_t n;
   uint32_t capacity;
 };
 
-void Curl_ptrarray_init(struct ptrarray *pa);
+تهی Curl_ptrarray_init(ساختار ptrarray *pa);
 
-void Curl_ptrarray_clear(struct ptrarray *pa);
+تهی Curl_ptrarray_clear(ساختار ptrarray *pa);
 
-uint32_t Curl_ptrarray_count(struct ptrarray *pa);
+uint32_t Curl_ptrarray_شمار(ساختار ptrarray *pa);
 
-CURLcode Curl_ptrarray_add(struct ptrarray *pa, void *ptr);
+CURLcode Curl_ptrarray_add(ساختار ptrarray *pa, تهی *ptr);
 
-void *Curl_ptrarray_remove(struct ptrarray *pa, uint32_t idx);
+تهی *Curl_ptrarray_remove(ساختار ptrarray *pa, uint32_t idx);
 
-void *Curl_ptrarray_get(struct ptrarray *pa, uint32_t idx);
+تهی *Curl_ptrarray_get(ساختار ptrarray *pa, uint32_t idx);
 
-#define CURL_PTRARRAY_COUNT(a)    ((a)->n)
-#define CURL_PTRARRAY_GET(a, i)   (((i) < ((a)->n)) ? (a)->data[(i)] : NULL)
+#define CURL_PTRARRAY_شمار(a)    ((a)->n)
+#define CURL_PTRARRAY_GET(a, i)   (((i) < ((a)->n)) ? (a)->data[(i)] : پوچ)
 
 #endif /* HEADER_CURL_PTRARRAY_H */

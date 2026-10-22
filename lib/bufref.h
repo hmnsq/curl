@@ -27,23 +27,23 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+ساختار bufref {
+  تهی (*dtor)(تهی *);         /* Associated destructor. */
+  ثابت unsigned نویسه *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
 #ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
+  صحیح signature;                /* Detect API use mistakes. */
 #endif
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+تهی Curl_bufref_init(ساختار bufref *br);
+تهی Curl_bufref_set(ساختار bufref *br, ثابت تهی *ptr, size_t len,
+                     تهی (*dtor)(تهی *));
+ثابت نویسه *Curl_bufref_ptr(ثابت ساختار bufref *br);
+ثابت unsigned نویسه *Curl_bufref_uptr(ثابت ساختار bufref *br);
+size_t Curl_bufref_len(ثابت ساختار bufref *br);
+CURLcode Curl_bufref_memdup0(ساختار bufref *br, ثابت تهی *ptr, size_t len);
+تهی Curl_bufref_free(ساختار bufref *br);
 
 /* return a strdup() version of the buffer */
 #define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))

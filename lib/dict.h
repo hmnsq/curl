@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_DICT
-extern const struct Curl_protocol Curl_protocol_dict;
+بیرونی ثابت ساختار Curl_protocol Curl_protocol_dict;
 #endif
 
 #endif /* HEADER_CURL_DICT_H */

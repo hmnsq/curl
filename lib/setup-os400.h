@@ -37,50 +37,50 @@
  * function puts() does not output the implicit trailing newline.
  */
 
-#include <stdio.h>      /* Be sure it is loaded. */
+#شامل <stdio.h>      /* Be sure it is loaded. */
 #undef puts
 #define puts(s) (fputs(s, stdout) == EOF ? EOF : putchar('\n'))
 
 /* System API wrapper prototypes & definitions to support ASCII parameters. */
 
-#include <sys/socket.h>
-#include <netdb.h>
-#include <gskssl.h>
-#include <qsoasync.h>
-#include <gssapi.h>
+#شامل <sys/socket.h>
+#شامل <netdb.h>
+#شامل <gskssl.h>
+#شامل <qsoasync.h>
+#شامل <gssapi.h>
 
 #ifdef BUILDING_LIBCURL
 
-extern int Curl_getaddrinfo_a(const char *nodename,
-                              const char *servname,
-                              const struct addrinfo *hints,
-                              struct addrinfo **res);
+بیرونی صحیح Curl_getaddrinfo_a(ثابت نویسه *nodename,
+                              ثابت نویسه *servname,
+                              ثابت ساختار addrinfo *hints,
+                              ساختار addrinfo **res);
 #define getaddrinfo             Curl_getaddrinfo_a
 
 /* Note socklen_t must be used as this is declared before curl_socklen_t */
-extern int Curl_getnameinfo_a(const struct sockaddr *sa,
+بیرونی صحیح Curl_getnameinfo_a(ثابت ساختار sockaddr *sa,
                               socklen_t salen,
-                              char *nodename, socklen_t nodenamelen,
-                              char *servname, socklen_t servnamelen,
-                              int flags);
+                              نویسه *nodename, socklen_t nodenamelen,
+                              نویسه *servname, socklen_t servnamelen,
+                              صحیح flags);
 #define getnameinfo             Curl_getnameinfo_a
 
 /* GSSAPI wrappers. */
 
-extern OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_status,
+بیرونی OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_status,
                                         gss_buffer_t in_name,
                                         gss_OID in_name_type,
                                         gss_name_t *out_name);
 #define gss_import_name         Curl_gss_import_name_a
 
-extern OM_uint32 Curl_gss_display_status_a(OM_uint32 *minor_status,
-                                           OM_uint32 status_value,
-                                           int status_type, gss_OID mech_type,
-                                           gss_msg_ctx_t *message_context,
+بیرونی OM_uint32 Curl_gss_display_status_a(OM_uint32 *minor_status,
+                                           OM_uint32 status_مقدار,
+                                           صحیح status_type, gss_OID mech_type,
+                                           gss_پیام_ctx_t *message_context,
                                            gss_buffer_t status_string);
 #define gss_display_status      Curl_gss_display_status_a
 
-extern OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_status,
+بیرونی OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_status,
                                              gss_cred_id_t cred_handle,
                                              gss_ctx_id_t *context_handle,
                                              gss_name_t target_name,
@@ -88,28 +88,28 @@ extern OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_status,
                                              gss_flags_t req_flags,
                                              OM_uint32 time_req,
                                              gss_channel_bindings_t
-                                             input_chan_bindings,
-                                             gss_buffer_t input_token,
+                                             درون_داد_chan_bindings,
+                                             gss_buffer_t درون_داد_token,
                                              gss_OID *actual_mech_type,
                                              gss_buffer_t output_token,
                                              gss_flags_t *ret_flags,
                                              OM_uint32 *time_rec);
 #define gss_init_sec_context    Curl_gss_init_sec_context_a
 
-extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
+بیرونی OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
                                                gss_ctx_id_t *context_handle,
                                                gss_buffer_t output_token);
 #define gss_delete_sec_context  Curl_gss_delete_sec_context_a
 
 /* LDAP wrappers. */
 
-#define BerValue                struct berval
+#define Ber_مقدار                ساختار berval
 
 #define ldap_url_parse          ldap_url_parse_utf8
 #define ldap_init               Curl_ldap_init_a
 #define ldap_simple_bind_s      Curl_ldap_simple_bind_s_a
-#define ldap_search_s           Curl_ldap_search_s_a
-#define ldap_get_values_len     Curl_ldap_get_values_len_a
+#define ldap_جستجو_s           Curl_ldap_جستجو_s_a
+#define ldap_get_مقادیر_len     Curl_ldap_get_مقادیر_len_a
 #define ldap_err2string         Curl_ldap_err2string_a
 #define ldap_get_dn             Curl_ldap_get_dn_a
 #define ldap_first_attribute    Curl_ldap_first_attribute_a
@@ -118,14 +118,14 @@ extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
 /* Some socket functions must be wrapped to process textual addresses
    like AF_UNIX. */
 
-extern int Curl_os400_connect(int sd, struct sockaddr *destaddr, int addrlen);
-extern int Curl_os400_bind(int sd, struct sockaddr *localaddr, int addrlen);
-extern int Curl_os400_sendto(int sd, char *buffer, int buflen, int flags,
-                             const struct sockaddr *dstaddr, int addrlen);
-extern int Curl_os400_recvfrom(int sd, char *buffer, int buflen, int flags,
-                               struct sockaddr *fromaddr, int *addrlen);
-extern int Curl_os400_getpeername(int sd, struct sockaddr *addr, int *addrlen);
-extern int Curl_os400_getsockname(int sd, struct sockaddr *addr, int *addrlen);
+بیرونی صحیح Curl_os400_connect(صحیح sd, ساختار sockaddr *destaddr, صحیح addrlen);
+بیرونی صحیح Curl_os400_bind(صحیح sd, ساختار sockaddr *localaddr, صحیح addrlen);
+بیرونی صحیح Curl_os400_sendto(صحیح sd, نویسه *buffer, صحیح buflen, صحیح flags,
+                             ثابت ساختار sockaddr *dstaddr, صحیح addrlen);
+بیرونی صحیح Curl_os400_recvfrom(صحیح sd, نویسه *buffer, صحیح buflen, صحیح flags,
+                               ساختار sockaddr *fromaddr, صحیح *addrlen);
+بیرونی صحیح Curl_os400_getpeername(صحیح sd, ساختار sockaddr *addr, صحیح *addrlen);
+بیرونی صحیح Curl_os400_getsockname(صحیح sd, ساختار sockaddr *addr, صحیح *addrlen);
 
 #define connect                 Curl_os400_connect
 #define bind                    Curl_os400_bind

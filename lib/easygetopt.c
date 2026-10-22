@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#include "easyoptions.h"
+#شامل "easyoptions.h"
 
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+ایستا ثابت ساختار curl_easyoption *lookup(ثابت نویسه *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
-    do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+  اگر(name || id) {
+    ثابت ساختار curl_easyoption *o = &Curl_easyopts[0];
+    انجامبده {
+      اگر(name) {
+        اگر(curl_strequal(o->name, name))
+          بازگشت o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      وگرنه {
+        اگر((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          بازگشت o;
       }
       o++;
-    } while(o->name);
+    } وقتی(o->name);
   }
-  return NULL;
+  بازگشت پوچ;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+ثابت ساختار curl_easyoption *curl_easy_option_by_name(ثابت نویسه *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  بازگشت lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+ثابت ساختار curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  بازگشت lookup(پوچ, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+ثابت ساختار curl_easyoption *curl_easy_option_next(
+  ثابت ساختار curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  اگر(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    اگر(prev->name)
+      بازگشت prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  وگرنه اگر(!prev)
+    بازگشت &Curl_easyopts[0];
+  بازگشت پوچ;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#وگرنه
+ثابت ساختار curl_easyoption *curl_easy_option_by_name(ثابت نویسه *name)
 {
-  (void)name;
-  return NULL;
+  (تهی)name;
+  بازگشت پوچ;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+ثابت ساختار curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  (void)id;
-  return NULL;
+  (تهی)id;
+  بازگشت پوچ;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+ثابت ساختار curl_easyoption *curl_easy_option_next(
+  ثابت ساختار curl_easyoption *prev)
 {
-  (void)prev;
-  return NULL;
+  (تهی)prev;
+  بازگشت پوچ;
 }
 #endif

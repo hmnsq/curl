@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 /* Use a larger type even for 32-bit time_t systems so that we can keep
    microsecond accuracy in it */
-typedef curl_off_t timediff_t;
+تعریفنوع curl_off_t timediff_t;
 #define FMT_TIMEDIFF_T FMT_OFF_T
 
 #define TIMEDIFF_T_MAX CURL_OFF_T_MAX
@@ -41,11 +41,11 @@ typedef curl_off_t timediff_t;
  *    tv with 0 in both fields IF ms == 0 (eg. 0ms timeout -> polling select)
  *    tv with converted fields IF ms > 0 (eg. >0ms timeout -> waiting select)
  */
-struct timeval *curlx_mstotv(struct timeval *tv, timediff_t ms);
+ساختار timeval *curlx_mstotv(ساختار timeval *tv, timediff_t ms);
 
 /*
  * Converts a timeval structure into number of milliseconds.
  */
-timediff_t curlx_tvtoms(struct timeval *tv);
+timediff_t curlx_tvtoms(ساختار timeval *tv);
 
 #endif /* HEADER_CURL_TIMEDIFF_H */

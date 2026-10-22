@@ -34,51 +34,51 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "imap.h"
+#شامل "curl_setup.h"
+#شامل "urldata.h"
+#شامل "imap.h"
 
 #ifndef CURL_DISABLE_IMAP
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#شامل <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#شامل <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#شامل <in.h>
+#شامل <inet.h>
 #endif
 
-#include "curlx/dynbuf.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "mime.h"
-#include "curlx/strparse.h"
-#include "strcase.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "curlx/strcopy.h"
+#شامل "curlx/dynbuf.h"
+#شامل "sendf.h"
+#شامل "curl_trc.h"
+#شامل "progress.h"
+#شامل "transfer.h"
+#شامل "escape.h"
+#شامل "pingpong.h"
+#شامل "mime.h"
+#شامل "curlx/strparse.h"
+#شامل "strcase.h"
+#شامل "vtls/vtls.h"
+#شامل "cfilters.h"
+#شامل "connect.h"
+#شامل "select.h"
+#شامل "url.h"
+#شامل "bufref.h"
+#شامل "curl_sasl.h"
+#شامل "curlx/strcopy.h"
 
 /* meta key for storing protocol meta at easy handle */
 #define CURL_META_IMAP_EASY   "meta:proto:imap:easy"
 /* meta key for storing protocol meta at connection */
 #define CURL_META_IMAP_CONN   "meta:proto:imap:conn"
 
-typedef enum {
+تعریفنوع شمارش {
   IMAP_STOP,         /* do nothing state, stops the state machine */
   IMAP_SERVERGREET,  /* waiting for the initial greeting immediately after
                         a connect */
@@ -94,21 +94,21 @@ typedef enum {
   IMAP_FETCH_FINAL,
   IMAP_APPEND,
   IMAP_APPEND_FINAL,
-  IMAP_SEARCH,
+  IMAP_جستجو,
   IMAP_LOGOUT,
   IMAP_LAST          /* never used */
 } imapstate;
 
 /* imap_conn is used for struct connection-oriented data */
-struct imap_conn {
-  struct pingpong pp;
-  struct SASL sasl;           /* SASL-related parameters */
-  char *mailbox;              /* The last selected mailbox */
+ساختار imap_conn {
+  ساختار pingpong pp;
+  ساختار SASL sasl;           /* SASL-related parameters */
+  نویسه *mailbox;              /* The last selected mailbox */
   imapstate state;            /* Always use imap.c:state() to change state! */
-  unsigned int mb_uidvalidity; /* UIDVALIDITY parsed from select response */
-  char resptag[5];            /* Response tag to wait for */
-  unsigned char preftype;     /* Preferred authentication type */
-  unsigned char cmdid;        /* Last used command ID */
+  unsigned صحیح mb_uidvalidity; /* UIDVALIDITY parsed from select response */
+  نویسه resptag[5];            /* Response tag to wait for */
+  unsigned نویسه preftype;     /* Preferred authentication type */
+  unsigned نویسه cmdid;        /* Last used command ID */
   BIT(ssldone);               /* Is connect() over SSL done? */
   BIT(preauth);               /* Is this connection PREAUTH? */
   BIT(tls_supported);         /* StartTLS capability supported by server */
@@ -121,17 +121,17 @@ struct imap_conn {
    connection-oriented must be in imap_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct IMAP {
+ساختار IMAP {
   curl_pp_transfer transfer;
-  char *mailbox;          /* Mailbox to select */
-  char *uid;              /* Message UID to fetch */
-  char *mindex;           /* Index in mail box of mail to fetch */
-  char *section;          /* Message SECTION to fetch */
-  char *partial;          /* Message PARTIAL to fetch */
-  char *query;            /* Query to search for */
-  char *custom;           /* Custom request */
-  char *custom_params;    /* Parameters for the custom request */
-  unsigned int uidvalidity; /* UIDVALIDITY to check in select */
+  نویسه *mailbox;          /* Mailbox to select */
+  نویسه *uid;              /* Message UID to fetch */
+  نویسه *mindex;           /* Index in mail box of mail to fetch */
+  نویسه *section;          /* Message SECTION to fetch */
+  نویسه *partial;          /* Message PARTIAL to fetch */
+  نویسه *query;            /* Query to search for */
+  نویسه *custom;           /* Custom request */
+  نویسه *custom_params;    /* Parameters for the custom request */
+  unsigned صحیح uidvalidity; /* UIDVALIDITY to check in select */
   BIT(uidvalidity_set);
 };
 
@@ -139,9 +139,9 @@ struct IMAP {
 #define IMAP_RESP_NOT_OK   2
 #define IMAP_RESP_PREAUTH  3
 
-struct ulbits {
-  int bit;
-  const char *flag;
+ساختار ulbits {
+  صحیح bit;
+  ثابت نویسه *flag;
 };
 
 /***********************************************************************
@@ -152,12 +152,12 @@ struct ulbits {
  *
  * Designed to never block.
  */
-static CURLcode imap_sendf(struct Curl_easy *data,
-                           struct imap_conn *imapc,
-                           const char *fmt, ...) CURL_PRINTF(3, 4);
-static CURLcode imap_sendf(struct Curl_easy *data,
-                           struct imap_conn *imapc,
-                           const char *fmt, ...)
+ایستا CURLcode imap_sendf(ساختار Curl_easy *data,
+                           ساختار imap_conn *imapc,
+                           ثابت نویسه *fmt, ...) CURL_PRINTF(3, 4);
+ایستا CURLcode imap_sendf(ساختار Curl_easy *data,
+                           ساختار imap_conn *imapc,
+                           ثابت نویسه *fmt, ...)
 {
   CURLcode result = CURLE_OK;
   va_list ap;
@@ -165,14 +165,14 @@ static CURLcode imap_sendf(struct Curl_easy *data,
   DEBUGASSERT(fmt);
 
   /* Calculate the tag based on the connection ID and command ID */
-  curl_msnprintf(imapc->resptag, sizeof(imapc->resptag), "%c%03d",
+  curl_msnprintf(imapc->resptag, اندازه(imapc->resptag), "%c%03d",
                  'A' + curlx_sltosi((long)(data->conn->connection_id % 26)),
                  ++imapc->cmdid);
 
   va_start(ap, fmt);
   result = Curl_pp_vsendf(data, &imapc->pp, imapc->resptag, fmt, ap);
   va_end(ap);
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -185,67 +185,67 @@ static CURLcode imap_sendf(struct Curl_easy *data,
  * The returned string needs to be freed.
  *
  */
-static char *imap_atom(const char *str, bool escape_only)
+ایستا نویسه *imap_atom(ثابت نویسه *str, bool escape_only)
 {
-  struct dynbuf line;
+  ساختار dynbuf سطر;
   size_t nclean;
   size_t len;
 
-  if(!str)
-    return NULL;
+  اگر(!str)
+    بازگشت پوچ;
 
   len = strlen(str);
   nclean = strcspn(str, "() {%*]\\\"");
-  if(len == nclean)
+  اگر(len == nclean)
     /* nothing to escape, return a strdup */
-    return curlx_strdup(str);
+    بازگشت curlx_strdup(str);
 
-  curlx_dyn_init(&line, 2000);
+  curlx_dyn_init(&سطر, 2000);
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  اگر(!escape_only && curlx_dyn_addn(&سطر, "\"", 1))
+    بازگشت پوچ;
 
-  while(*str) {
-    if((*str == '\\' || *str == '"') &&
-       curlx_dyn_addn(&line, "\\", 1))
-      return NULL;
-    if(curlx_dyn_addn(&line, str, 1))
-      return NULL;
+  وقتی(*str) {
+    اگر((*str == '\\' || *str == '"') &&
+       curlx_dyn_addn(&سطر, "\\", 1))
+      بازگشت پوچ;
+    اگر(curlx_dyn_addn(&سطر, str, 1))
+      بازگشت پوچ;
     str++;
   }
 
-  if(!escape_only && curlx_dyn_addn(&line, "\"", 1))
-    return NULL;
+  اگر(!escape_only && curlx_dyn_addn(&سطر, "\"", 1))
+    بازگشت پوچ;
 
-  return curlx_dyn_ptr(&line);
+  بازگشت curlx_dyn_ptr(&سطر);
 }
 
 /*
  * Finds the start of a literal '{size}' in line, skipping over quoted strings.
  */
-static const char *imap_find_literal(const char *line, size_t len)
+ایستا ثابت نویسه *imap_find_literal(ثابت نویسه *سطر, size_t len)
 {
-  const char *end = line + len;
+  ثابت نویسه *end = سطر + len;
   bool in_quote = FALSE;
 
-  while(line < end) {
-    if(in_quote) {
-      if(*line == '\\' && (line + 1) < end) {
-        line += 2;
-        continue;
+  وقتی(سطر < end) {
+    اگر(in_quote) {
+      اگر(*سطر == '\\' && (سطر + 1) < end) {
+        سطر += 2;
+        ادامه;
       }
-      if(*line == '"')
+      اگر(*سطر == '"')
         in_quote = FALSE;
     }
-    else {
-      if(*line == '"')
+    وگرنه {
+      اگر(*سطر == '"')
         in_quote = TRUE;
-      else if(*line == '{')
-        return line;
+      وگرنه اگر(*سطر == '{')
+        بازگشت سطر;
     }
-    line++;
+    سطر++;
   }
-  return NULL;
+  بازگشت پوچ;
 }
 
 /***********************************************************************
@@ -258,35 +258,35 @@ static const char *imap_find_literal(const char *line, size_t len)
  *
  * The "* " marker is assumed to have already been checked by the caller.
  */
-static bool imap_matchresp(const char *line, size_t len, const char *cmd)
+ایستا bool imap_matchresp(ثابت نویسه *سطر, size_t len, ثابت نویسه *cmd)
 {
-  const char *end = line + len;
+  ثابت نویسه *end = سطر + len;
   size_t cmd_len = strlen(cmd);
 
   /* Skip the untagged response marker */
-  line += 2;
+  سطر += 2;
 
   /* Do we have a number after the marker? */
-  if(line < end && ISDIGIT(*line)) {
+  اگر(سطر < end && ISDIGIT(*سطر)) {
     /* Skip the number */
-    do
-      line++;
-    while(line < end && ISDIGIT(*line));
+    انجامبده
+      سطر++;
+    وقتی(سطر < end && ISDIGIT(*سطر));
 
     /* Do we have the space character? */
-    if(line == end || *line != ' ')
-      return FALSE;
+    اگر(سطر == end || *سطر != ' ')
+      بازگشت FALSE;
 
-    line++;
+    سطر++;
   }
 
   /* Does the command name match and is it followed by a space character or at
      the end of line? */
-  if(line + cmd_len <= end && curl_strnequal(line, cmd, cmd_len) &&
-     (line[cmd_len] == ' ' || line + cmd_len + 2 == end))
-    return TRUE;
+  اگر(سطر + cmd_len <= end && curl_strnequal(سطر, cmd, cmd_len) &&
+     (سطر[cmd_len] == ' ' || سطر + cmd_len + 2 == end))
+    بازگشت TRUE;
 
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /***********************************************************************
@@ -296,50 +296,50 @@ static bool imap_matchresp(const char *line, size_t len, const char *cmd)
  * Checks whether the given string is a valid tagged, untagged or continuation
  * response which can be processed by the response handler.
  */
-static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+ایستا bool imap_endofresp(ساختار Curl_easy *data, ساختار connectdata *conn,
+                           ثابت نویسه *سطر, size_t len, صحیح *resp)
 {
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  const char *id;
+  ساختار imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ثابت نویسه *id;
   size_t id_len;
 
   DEBUGASSERT(imapc);
   DEBUGASSERT(imap);
-  if(!imapc || !imap)
-    return FALSE;
+  اگر(!imapc || !imap)
+    بازگشت FALSE;
 
   /* Do we have a tagged command response? */
   id = imapc->resptag;
   id_len = strlen(id);
-  if(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
-    line += id_len + 1;
+  اگر(len >= id_len + 1 && !memcmp(id, سطر, id_len) && سطر[id_len] == ' ') {
+    سطر += id_len + 1;
     len -= id_len + 1;
 
-    if(len >= 2 && !memcmp(line, "OK", 2))
+    اگر(len >= 2 && !memcmp(سطر, "OK", 2))
       *resp = IMAP_RESP_OK;
-    else if(len >= 7 && !memcmp(line, "PREAUTH", 7))
+    وگرنه اگر(len >= 7 && !memcmp(سطر, "PREAUTH", 7))
       *resp = IMAP_RESP_PREAUTH;
-    else
+    وگرنه
       *resp = IMAP_RESP_NOT_OK;
 
-    return TRUE;
+    بازگشت TRUE;
   }
 
   /* Do we have an untagged command response? */
-  if(len >= 2 && !memcmp("* ", line, 2)) {
-    switch(imapc->state) {
+  اگر(len >= 2 && !memcmp("* ", سطر, 2)) {
+    انتخاب(imapc->state) {
     /* States which are interested in untagged responses */
-    case IMAP_CAPABILITY:
-      if(!imap_matchresp(line, len, "CAPABILITY"))
-        return FALSE;
-      break;
+    حالت IMAP_CAPABILITY:
+      اگر(!imap_matchresp(سطر, len, "CAPABILITY"))
+        بازگشت FALSE;
+      بشکن;
 
-    case IMAP_LIST:
-      if((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
-         (imap->custom && !imap_matchresp(line, len, imap->custom) &&
+    حالت IMAP_LIST:
+      اگر((!imap->custom && !imap_matchresp(سطر, len, "LIST")) ||
+         (imap->custom && !imap_matchresp(سطر, len, imap->custom) &&
           (!curl_strequal(imap->custom, "STORE") ||
-           !imap_matchresp(line, len, "FETCH")) &&
+           !imap_matchresp(سطر, len, "FETCH")) &&
           !curl_strequal(imap->custom, "SELECT") &&
           !curl_strequal(imap->custom, "EXAMINE") &&
           !curl_strequal(imap->custom, "SEARCH") &&
@@ -348,56 +348,56 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
           !curl_strequal(imap->custom, "UID") &&
           !curl_strequal(imap->custom, "GETQUOTAROOT") &&
           !curl_strequal(imap->custom, "NOOP")))
-        return FALSE;
-      break;
+        بازگشت FALSE;
+      بشکن;
 
-    case IMAP_SELECT:
+    حالت IMAP_SELECT:
       /* SELECT is special in that its untagged responses do not have a
          common prefix so accept anything! */
-      break;
+      بشکن;
 
-    case IMAP_FETCH:
-      if(!imap_matchresp(line, len, "FETCH"))
-        return FALSE;
-      break;
+    حالت IMAP_FETCH:
+      اگر(!imap_matchresp(سطر, len, "FETCH"))
+        بازگشت FALSE;
+      بشکن;
 
-    case IMAP_SEARCH:
-      if(!imap_matchresp(line, len, "SEARCH"))
-        return FALSE;
-      break;
+    حالت IMAP_جستجو:
+      اگر(!imap_matchresp(سطر, len, "SEARCH"))
+        بازگشت FALSE;
+      بشکن;
 
     /* Ignore other untagged responses */
-    default:
-      return FALSE;
+    پیشفرض:
+      بازگشت FALSE;
     }
 
     *resp = '*';
-    return TRUE;
+    بازگشت TRUE;
   }
 
   /* Do we have a continuation response? This should be a + symbol followed by
      a space and optionally some text as per RFC-3501 for the AUTHENTICATE and
      APPEND commands and as outlined in Section 4. Examples of RFC-4959 but
      some email servers ignore this and only send a single + instead. */
-  if(!imap->custom && ((len == 3 && line[0] == '+') ||
-                       (len >= 2 && !memcmp("+ ", line, 2)))) {
-    switch(imapc->state) {
+  اگر(!imap->custom && ((len == 3 && سطر[0] == '+') ||
+                       (len >= 2 && !memcmp("+ ", سطر, 2)))) {
+    انتخاب(imapc->state) {
     /* States which are interested in continuation responses */
-    case IMAP_AUTHENTICATE:
-    case IMAP_APPEND:
+    حالت IMAP_AUTHENTICATE:
+    حالت IMAP_APPEND:
       *resp = '+';
-      break;
+      بشکن;
 
-    default:
+    پیشفرض:
       failf(data, "Unexpected continuation response");
       *resp = -1;
-      break;
+      بشکن;
     }
 
-    return TRUE;
+    بازگشت TRUE;
   }
 
-  return FALSE; /* Nothing for us */
+  بازگشت FALSE; /* Nothing for us */
 }
 
 /***********************************************************************
@@ -406,38 +406,38 @@ static bool imap_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
+ایستا CURLcode imap_get_message(ساختار Curl_easy *data, ساختار bufref *out)
 {
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  char *message;
+  نویسه *message;
   size_t len;
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
 
   message = curlx_dyn_ptr(&imapc->pp.recvbuf);
   len = imapc->pp.nfinal;
-  if(len > 2) {
+  اگر(len > 2) {
     /* Find the start of the message */
     len -= 2;
-    for(message += 2; ISBLANK(*message); message++, len--)
+    برای(message += 2; ISBLANK(*message); message++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
-        break;
+    وقتی(len--)
+      اگر(!ISNEWLINE(message[len]) && !ISBLANK(message[len]))
+        بشکن;
 
     /* Terminate the message */
     message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    Curl_bufref_set(out, message, len, پوچ);
   }
-  else
+  وگرنه
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_set(out, "", 0, پوچ);
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /***********************************************************************
@@ -446,13 +446,13 @@ static CURLcode imap_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change IMAP state!
  */
-static void imap_state(struct Curl_easy *data,
-                       struct imap_conn *imapc,
+ایستا تهی imap_state(ساختار Curl_easy *data,
+                       ساختار imap_conn *imapc,
                        imapstate newstate)
 {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#اگر defined(DEBUGBUILD) && defined(CURLVERBOSE)
   /* for debug purposes */
-  static const char * const names[] = {
+  ایستا ثابت نویسه * ثابت names[] = {
     "STOP",
     "SERVERGREET",
     "CAPABILITY",
@@ -471,11 +471,11 @@ static void imap_state(struct Curl_easy *data,
     /* LAST */
   };
 
-  if(imapc->state != newstate)
+  اگر(imapc->state != newstate)
     infof(data, "IMAP %p state change from %s to %s",
-          (void *)imapc, names[imapc->state], names[newstate]);
-#else
-  (void)data;
+          (تهی *)imapc, names[imapc->state], names[newstate]);
+#وگرنه
+  (تهی)data;
 #endif
   imapc->state = newstate;
 }
@@ -487,8 +487,8 @@ static void imap_state(struct Curl_easy *data,
  * Sends the CAPABILITY command in order to obtain a list of server side
  * supported capabilities.
  */
-static CURLcode imap_perform_capability(struct Curl_easy *data,
-                                        struct imap_conn *imapc)
+ایستا CURLcode imap_perform_capability(ساختار Curl_easy *data,
+                                        ساختار imap_conn *imapc)
 {
   CURLcode result = CURLE_OK;
 
@@ -499,10 +499,10 @@ static CURLcode imap_perform_capability(struct Curl_easy *data,
   /* Send the CAPABILITY command */
   result = imap_sendf(data, imapc, "CAPABILITY");
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_CAPABILITY);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -511,16 +511,16 @@ static CURLcode imap_perform_capability(struct Curl_easy *data,
  *
  * Sends the STARTTLS command to start the upgrade to TLS.
  */
-static CURLcode imap_perform_starttls(struct Curl_easy *data,
-                                      struct imap_conn *imapc)
+ایستا CURLcode imap_perform_starttls(ساختار Curl_easy *data,
+                                      ساختار imap_conn *imapc)
 {
   /* Send the STARTTLS command */
   CURLcode result = imap_sendf(data, imapc, "STARTTLS");
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_STARTTLS);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -529,20 +529,20 @@ static CURLcode imap_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct imap_conn *imapc,
-                                         struct connectdata *conn)
+ایستا CURLcode imap_perform_upgrade_tls(ساختار Curl_easy *data,
+                                         ساختار imap_conn *imapc,
+                                         ساختار connectdata *conn)
 {
 #ifdef USE_SSL
   /* Start the SSL connection */
   CURLcode result;
   bool ssldone = FALSE;
 
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  اگر(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     result = Curl_ssl_cfilter_add(
       data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+    اگر(result)
+      برو out;
     /* Change the connection handler */
     conn->scheme = &Curl_scheme_imaps;
   }
@@ -550,19 +550,19 @@ static CURLcode imap_perform_upgrade_tls(struct Curl_easy *data,
   DEBUGASSERT(!imapc->ssldone);
   result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
   DEBUGF(infof(data, "imap_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+               (صحیح)result, ssldone));
+  اگر(!result && ssldone) {
     imapc->ssldone = ssldone;
     /* perform CAPA now, changes imapc->state out of IMAP_UPGRADETLS */
     result = imap_perform_capability(data, imapc);
   }
 out:
-  return result;
-#else
-  (void)data;
-  (void)imapc;
-  (void)conn;
-  return CURLE_NOT_BUILT_IN;
+  بازگشت result;
+#وگرنه
+  (تهی)data;
+  (تهی)imapc;
+  (تهی)conn;
+  بازگشت CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -572,20 +572,20 @@ out:
  *
  * Sends a clear text LOGIN command to authenticate with.
  */
-static CURLcode imap_perform_login(struct Curl_easy *data,
-                                   struct imap_conn *imapc,
-                                   struct connectdata *conn)
+ایستا CURLcode imap_perform_login(ساختار Curl_easy *data,
+                                   ساختار imap_conn *imapc,
+                                   ساختار connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  char *user;
-  char *passwd;
+  نویسه *user;
+  نویسه *passwd;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!conn->creds) {
+  اگر(!conn->creds) {
     imap_state(data, imapc, IMAP_STOP);
 
-    return result;
+    بازگشت result;
   }
 
   /* Make sure the username and password are in the correct atom format */
@@ -600,10 +600,10 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
   curlx_strzero(passwd);
   curlx_free(passwd);
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_LOGIN);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -613,28 +613,28 @@ static CURLcode imap_perform_login(struct Curl_easy *data,
  * Sends an AUTHENTICATE command allowing the client to login with the given
  * SASL authentication mechanism.
  */
-static CURLcode imap_perform_authenticate(struct Curl_easy *data,
-                                          const char *mech,
-                                          const struct bufref *initresp)
+ایستا CURLcode imap_perform_authenticate(ساختار Curl_easy *data,
+                                          ثابت نویسه *mech,
+                                          ثابت ساختار bufref *initresp)
 {
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
   CURLcode result = CURLE_OK;
-  const char *ir = Curl_bufref_ptr(initresp);
+  ثابت نویسه *ir = Curl_bufref_ptr(initresp);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(ir) {
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
+  اگر(ir) {
     /* Send the AUTHENTICATE command with the initial response */
     result = imap_sendf(data, imapc, "AUTHENTICATE %s %s",
                         mech, *ir ? ir : "=");
   }
-  else {
+  وگرنه {
     /* Send the AUTHENTICATE command */
     result = imap_sendf(data, imapc, "AUTHENTICATE %s", mech);
   }
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -643,17 +643,17 @@ static CURLcode imap_perform_authenticate(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode imap_continue_authenticate(struct Curl_easy *data,
-                                           const char *mech,
-                                           const struct bufref *resp)
+ایستا CURLcode imap_continue_authenticate(ساختار Curl_easy *data,
+                                           ثابت نویسه *mech,
+                                           ثابت ساختار bufref *resp)
 {
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
-  (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
+  (تهی)mech;
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
+  بازگشت Curl_pp_sendf(data, &imapc->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -662,16 +662,16 @@ static CURLcode imap_continue_authenticate(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
-                                         const char *mech)
+ایستا CURLcode imap_cancel_authenticate(ساختار Curl_easy *data,
+                                         ثابت نویسه *mech)
 {
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
-  (void)mech;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  return Curl_pp_sendf(data, &imapc->pp, "*");
+  (تهی)mech;
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
+  بازگشت Curl_pp_sendf(data, &imapc->pp, "*");
 }
 
 /***********************************************************************
@@ -682,34 +682,34 @@ static CURLcode imap_cancel_authenticate(struct Curl_easy *data,
  * authentication mechanism, falling back to clear text should a common
  * mechanism not be available between the client and server.
  */
-static CURLcode imap_perform_authentication(struct Curl_easy *data,
-                                            struct imap_conn *imapc)
+ایستا CURLcode imap_perform_authentication(ساختار Curl_easy *data,
+                                            ساختار imap_conn *imapc)
 {
   CURLcode result = CURLE_OK;
   saslprogress progress;
 
   /* Check if already authenticated OR if there is enough data to authenticate
      with and end the connect phase if we do not */
-  if(imapc->preauth ||
+  اگر(imapc->preauth ||
      !Curl_sasl_can_authenticate(&imapc->sasl, data)) {
     imap_state(data, imapc, IMAP_STOP);
-    return result;
+    بازگشت result;
   }
 
   /* Calculate the SASL login details */
   result = Curl_sasl_start(&imapc->sasl, data, (bool)imapc->ir_supported,
                            &progress);
-  if(!result) {
-    if(progress == SASL_INPROGRESS)
+  اگر(!result) {
+    اگر(progress == SASL_INPROGRESS)
       imap_state(data, imapc, IMAP_AUTHENTICATE);
-    else if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+    وگرنه اگر(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
       /* Perform clear text authentication */
       result = imap_perform_login(data, imapc, data->conn);
-    else
+    وگرنه
       result = Curl_sasl_is_blocked(&imapc->sasl, data);
   }
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -718,22 +718,22 @@ static CURLcode imap_perform_authentication(struct Curl_easy *data,
  *
  * Sends a LIST command or an alternative custom request.
  */
-static CURLcode imap_perform_list(struct Curl_easy *data,
-                                  struct imap_conn *imapc,
-                                  struct IMAP *imap)
+ایستا CURLcode imap_perform_list(ساختار Curl_easy *data,
+                                  ساختار imap_conn *imapc,
+                                  ساختار IMAP *imap)
 {
   CURLcode result = CURLE_OK;
 
-  if(imap->custom)
+  اگر(imap->custom)
     /* Send the custom request */
     result = imap_sendf(data, imapc, "%s%s", imap->custom,
                         imap->custom_params ? imap->custom_params : "");
-  else {
+  وگرنه {
     /* Make sure the mailbox is in the correct atom format if necessary */
-    char *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
+    نویسه *mailbox = imap->mailbox ? imap_atom(imap->mailbox, TRUE)
                                   : curlx_strdup("");
-    if(!mailbox)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!mailbox)
+      بازگشت CURLE_OUT_OF_MEMORY;
 
     /* Send the LIST command */
     result = imap_sendf(data, imapc, "LIST \"%s\" *", mailbox);
@@ -741,10 +741,10 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
     curlx_free(mailbox);
   }
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_LIST);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -753,37 +753,37 @@ static CURLcode imap_perform_list(struct Curl_easy *data,
  *
  * Sends a SELECT command to ask the server to change the selected mailbox.
  */
-static CURLcode imap_perform_select(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+ایستا CURLcode imap_perform_select(ساختار Curl_easy *data,
+                                    ساختار imap_conn *imapc,
+                                    ساختار IMAP *imap)
 {
   CURLcode result = CURLE_OK;
-  char *mailbox;
+  نویسه *mailbox;
 
   /* Invalidate old information as we are switching mailboxes */
   curlx_safefree(imapc->mailbox);
   imapc->mb_uidvalidity_set = FALSE;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
+  اگر(!imap->mailbox) {
     failf(data, "Cannot SELECT without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+    بازگشت CURLE_URL_MALFORMAT;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!mailbox)
+    بازگشت CURLE_OUT_OF_MEMORY;
 
   /* Send the SELECT command */
   result = imap_sendf(data, imapc, "SELECT %s", mailbox);
 
   curlx_free(mailbox);
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_SELECT);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -792,41 +792,41 @@ static CURLcode imap_perform_select(struct Curl_easy *data,
  *
  * Sends a FETCH command to initiate the download of a message.
  */
-static CURLcode imap_perform_fetch(struct Curl_easy *data,
-                                   struct imap_conn *imapc,
-                                   struct IMAP *imap)
+ایستا CURLcode imap_perform_fetch(ساختار Curl_easy *data,
+                                   ساختار imap_conn *imapc,
+                                   ساختار IMAP *imap)
 {
   CURLcode result = CURLE_OK;
   /* Check we have a UID */
-  if(imap->uid) {
+  اگر(imap->uid) {
 
     /* Send the FETCH command */
-    if(imap->partial)
+    اگر(imap->partial)
       result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]<%s>",
                           imap->uid, imap->section ? imap->section : "",
                           imap->partial);
-    else
+    وگرنه
       result = imap_sendf(data, imapc, "UID FETCH %s BODY[%s]",
                           imap->uid, imap->section ? imap->section : "");
   }
-  else if(imap->mindex) {
+  وگرنه اگر(imap->mindex) {
     /* Send the FETCH command */
-    if(imap->partial)
+    اگر(imap->partial)
       result = imap_sendf(data, imapc, "FETCH %s BODY[%s]<%s>",
                           imap->mindex, imap->section ? imap->section : "",
                           imap->partial);
-    else
+    وگرنه
       result = imap_sendf(data, imapc, "FETCH %s BODY[%s]",
                           imap->mindex, imap->section ? imap->section : "");
   }
-  else {
+  وگرنه {
     failf(data, "Cannot FETCH without a UID.");
-    return CURLE_URL_MALFORMAT;
+    بازگشت CURLE_URL_MALFORMAT;
   }
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_FETCH);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -835,96 +835,96 @@ static CURLcode imap_perform_fetch(struct Curl_easy *data,
  *
  * Sends an APPEND command to initiate the upload of a message.
  */
-static CURLcode imap_perform_append(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+ایستا CURLcode imap_perform_append(ساختار Curl_easy *data,
+                                    ساختار imap_conn *imapc,
+                                    ساختار IMAP *imap)
 {
   CURLcode result = CURLE_OK;
-  char *mailbox;
-  struct dynbuf flags;
+  نویسه *mailbox;
+  ساختار dynbuf flags;
 
   /* Check we have a mailbox */
-  if(!imap->mailbox) {
+  اگر(!imap->mailbox) {
     failf(data, "Cannot APPEND without a mailbox.");
-    return CURLE_URL_MALFORMAT;
+    بازگشت CURLE_URL_MALFORMAT;
   }
 
 #ifndef CURL_DISABLE_MIME
   /* Prepare the mime data if some. */
-  if(IS_MIME_POST(data)) {
+  اگر(IS_MIME_POST(data)) {
     curl_mimepart *postp = data->set.mimepostp;
 
     /* Use the whole structure as data. */
-    postp->flags &= ~(unsigned int)MIME_BODY_ONLY;
+    postp->flags &= ~(unsigned صحیح)MIME_BODY_ONLY;
 
     /* Add external headers and mime version. */
     curl_mime_headers(postp, data->set.headers, 0);
-    result = Curl_mime_prepare_headers(data, postp, NULL,
-                                       NULL, MIMESTRATEGY_MAIL);
+    result = Curl_mime_prepare_headers(data, postp, پوچ,
+                                       پوچ, MIMESTRATEGY_MAIL);
 
-    if(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
+    اگر(!result && !Curl_checkheaders(data, STRCONST("Mime-Version")))
       result = Curl_mime_add_header(&postp->curlheaders, "Mime-Version: 1.0");
-    if(!result)
+    اگر(!result)
       result = Curl_creader_set_mime(data, postp);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-  else
+  وگرنه
 #endif
   {
     result = Curl_creader_set_fread(data, data->state.infilesize);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
 
   /* Check we know the size of the upload. This takes all readers
    * into account. Especially crlf conversions which make the size
    * unpredictable, e.g. -1. */
   data->state.infilesize = Curl_creader_total_length(data);
-  if(data->state.infilesize < 0) {
-    if(data->set.crlf)
+  اگر(data->state.infilesize < 0) {
+    اگر(data->set.crlf)
       failf(data, "Cannot APPEND with CRLF conversion making size unknown");
-    else
+    وگرنه
       failf(data, "Cannot APPEND with unknown input file size");
-    return CURLE_UPLOAD_FAILED;
+    بازگشت CURLE_UPLOAD_FAILED;
   }
 
   /* Make sure the mailbox is in the correct atom format */
   mailbox = imap_atom(imap->mailbox, FALSE);
-  if(!mailbox)
-    return CURLE_OUT_OF_MEMORY;
+  اگر(!mailbox)
+    بازگشت CURLE_OUT_OF_MEMORY;
 
   /* Generate flags string and send the APPEND command */
   curlx_dyn_init(&flags, 100);
-  if(data->set.upload_flags) {
-    int i;
-    struct ulbits ulflag[] = {
+  اگر(data->set.upload_flags) {
+    صحیح i;
+    ساختار ulbits ulflag[] = {
       { CURLULFLAG_ANSWERED, "Answered" },
       { CURLULFLAG_DELETED, "Deleted" },
       { CURLULFLAG_DRAFT, "Draft" },
       { CURLULFLAG_FLAGGED, "Flagged" },
       { CURLULFLAG_SEEN, "Seen" },
-      { 0, NULL }
+      { 0, پوچ }
     };
 
     result = CURLE_OUT_OF_MEMORY;
-    if(curlx_dyn_add(&flags, " (")) {
-      goto cleanup;
+    اگر(curlx_dyn_add(&flags, " (")) {
+      برو cleanup;
     }
 
-    for(i = 0; ulflag[i].bit; i++) {
-      if(data->set.upload_flags & ulflag[i].bit &&
+    برای(i = 0; ulflag[i].bit; i++) {
+      اگر(data->set.upload_flags & ulflag[i].bit &&
          ((curlx_dyn_len(&flags) > 2 && curlx_dyn_add(&flags, " ")) ||
           curlx_dyn_add(&flags, "\\") ||
           curlx_dyn_add(&flags, ulflag[i].flag)))
-        goto cleanup;
+        برو cleanup;
     }
 
-    if(curlx_dyn_add(&flags, ")"))
-      goto cleanup;
+    اگر(curlx_dyn_add(&flags, ")"))
+      برو cleanup;
   }
-  else if(curlx_dyn_add(&flags, ""))
-    goto cleanup;
+  وگرنه اگر(curlx_dyn_add(&flags, ""))
+    برو cleanup;
 
   result = imap_sendf(data, imapc, "APPEND %s%s {%" FMT_OFF_T "}",
                       mailbox, curlx_dyn_ptr(&flags), data->state.infilesize);
@@ -933,10 +933,10 @@ cleanup:
   curlx_dyn_free(&flags);
   curlx_free(mailbox);
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_APPEND);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -945,25 +945,25 @@ cleanup:
  *
  * Sends a SEARCH command.
  */
-static CURLcode imap_perform_search(struct Curl_easy *data,
-                                    struct imap_conn *imapc,
-                                    struct IMAP *imap)
+ایستا CURLcode imap_perform_جستجو(ساختار Curl_easy *data,
+                                    ساختار imap_conn *imapc,
+                                    ساختار IMAP *imap)
 {
   CURLcode result = CURLE_OK;
 
   /* Check we have a query string */
-  if(!imap->query) {
+  اگر(!imap->query) {
     failf(data, "Cannot SEARCH without a query string.");
-    return CURLE_URL_MALFORMAT;
+    بازگشت CURLE_URL_MALFORMAT;
   }
 
   /* Send the SEARCH command */
   result = imap_sendf(data, imapc, "SEARCH %s", imap->query);
 
-  if(!result)
-    imap_state(data, imapc, IMAP_SEARCH);
+  اگر(!result)
+    imap_state(data, imapc, IMAP_جستجو);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -972,268 +972,268 @@ static CURLcode imap_perform_search(struct Curl_easy *data,
  *
  * Performs the logout action prior to sclose() being called.
  */
-static CURLcode imap_perform_logout(struct Curl_easy *data,
-                                    struct imap_conn *imapc)
+ایستا CURLcode imap_perform_logout(ساختار Curl_easy *data,
+                                    ساختار imap_conn *imapc)
 {
   /* Send the LOGOUT command */
   CURLcode result = imap_sendf(data, imapc, "LOGOUT");
 
-  if(!result)
+  اگر(!result)
     imap_state(data, imapc, IMAP_LOGOUT);
 
-  return result;
+  بازگشت result;
 }
 
 /* For the initial server greeting */
-static CURLcode imap_state_servergreet_resp(struct Curl_easy *data,
-                                            struct imap_conn *imapc,
-                                            int imapcode,
+ایستا CURLcode imap_state_servergreet_resp(ساختار Curl_easy *data,
+                                            ساختار imap_conn *imapc,
+                                            صحیح imapcode,
                                             imapstate instate)
 {
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode == IMAP_RESP_PREAUTH) {
+  اگر(imapcode == IMAP_RESP_PREAUTH) {
     /* PREAUTH */
     imapc->preauth = TRUE;
     infof(data, "PREAUTH connection, already authenticated");
   }
-  else if(imapcode != IMAP_RESP_OK) {
+  وگرنه اگر(imapcode != IMAP_RESP_OK) {
     failf(data, "Got unexpected imap-server response");
-    return CURLE_WEIRD_SERVER_REPLY;
+    بازگشت CURLE_WEIRD_SERVER_REPLY;
   }
 
-  return imap_perform_capability(data, imapc);
+  بازگشت imap_perform_capability(data, imapc);
 }
 
 /* For CAPABILITY responses */
-static CURLcode imap_state_capability_resp(struct Curl_easy *data,
-                                           struct imap_conn *imapc,
-                                           int imapcode,
+ایستا CURLcode imap_state_capability_resp(ساختار Curl_easy *data,
+                                           ساختار imap_conn *imapc,
+                                           صحیح imapcode,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  ثابت نویسه *سطر = curlx_dyn_ptr(&imapc->pp.recvbuf);
 
-  (void)instate;
+  (تهی)instate;
 
   /* Do we have an untagged response? */
-  if(imapcode == '*') {
-    line += 2;
+  اگر(imapcode == '*') {
+    سطر += 2;
 
     /* Loop through the data line */
-    for(;;) {
+    برای(;;) {
       size_t wordlen;
-      while(*line && (ISBLANK(*line) || ISNEWLINE(*line)))
-        line++;
+      وقتی(*سطر && (ISBLANK(*سطر) || ISNEWLINE(*سطر)))
+        سطر++;
 
-      if(!*line)
-        break;
+      اگر(!*سطر)
+        بشکن;
 
       /* Extract the word */
-      for(wordlen = 0; line[wordlen] && !ISBLANK(line[wordlen]) &&
-                       !ISNEWLINE(line[wordlen]);)
+      برای(wordlen = 0; سطر[wordlen] && !ISBLANK(سطر[wordlen]) &&
+                       !ISNEWLINE(سطر[wordlen]);)
         wordlen++;
 
       /* Does the server support the STARTTLS capability? */
-      if(wordlen == 8 && curl_strnequal(line, "STARTTLS", 8))
+      اگر(wordlen == 8 && curl_strnequal(سطر, "STARTTLS", 8))
         imapc->tls_supported = TRUE;
 
       /* Has the server explicitly disabled clear text authentication? */
-      else if(wordlen == 13 && curl_strnequal(line, "LOGINDISABLED", 13))
+      وگرنه اگر(wordlen == 13 && curl_strnequal(سطر, "LOGINDISABLED", 13))
         imapc->login_disabled = TRUE;
 
       /* Does the server support the SASL-IR capability? */
-      else if(wordlen == 7 && curl_strnequal(line, "SASL-IR", 7))
+      وگرنه اگر(wordlen == 7 && curl_strnequal(سطر, "SASL-IR", 7))
         imapc->ir_supported = TRUE;
 
       /* Do we have a SASL based authentication mechanism? */
-      else if(wordlen > 5 && curl_strnequal(line, "AUTH=", 5)) {
+      وگرنه اگر(wordlen > 5 && curl_strnequal(سطر, "AUTH=", 5)) {
         size_t llen;
         unsigned short mechbit;
 
-        line += 5;
+        سطر += 5;
         wordlen -= 5;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(سطر, wordlen, &llen);
+        اگر(mechbit && llen == wordlen)
           imapc->sasl.authmechs |= mechbit;
       }
 
-      line += wordlen;
+      سطر += wordlen;
     }
   }
-  else if(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
+  وگرنه اگر(data->set.use_ssl && !Curl_conn_is_ssl(data->conn, FIRSTSOCKET)) {
     /* PREAUTH is not compatible with STARTTLS. */
-    if(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
+    اگر(imapcode == IMAP_RESP_OK && imapc->tls_supported && !imapc->preauth) {
       /* Switch to TLS connection now */
       result = imap_perform_starttls(data, imapc);
     }
-    else if(data->set.use_ssl <= CURLUSESSL_TRY)
+    وگرنه اگر(data->set.use_ssl <= CURLUSESSL_TRY)
       result = imap_perform_authentication(data, imapc);
-    else {
+    وگرنه {
       failf(data, "STARTTLS not available.");
       result = CURLE_USE_SSL_FAILED;
     }
   }
-  else
+  وگرنه
     result = imap_perform_authentication(data, imapc);
 
-  return result;
+  بازگشت result;
 }
 
 /* For STARTTLS responses */
-static CURLcode imap_state_starttls_resp(struct Curl_easy *data,
-                                         struct imap_conn *imapc,
-                                         int imapcode,
+ایستا CURLcode imap_state_starttls_resp(ساختار Curl_easy *data,
+                                         ساختار imap_conn *imapc,
+                                         صحیح imapcode,
                                          imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
-  (void)instate;
+  (تهی)instate;
 
   /* Pipelining in response is forbidden. */
-  if(imapc->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  اگر(imapc->pp.overflow)
+    بازگشت CURLE_WEIRD_SERVER_REPLY;
 
-  if(imapcode != IMAP_RESP_OK) {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
+  اگر(imapcode != IMAP_RESP_OK) {
+    اگر(data->set.use_ssl != CURLUSESSL_TRY) {
       failf(data, "STARTTLS denied");
       result = CURLE_USE_SSL_FAILED;
     }
-    else
+    وگرنه
       result = imap_perform_authentication(data, imapc);
   }
-  else
+  وگرنه
     imap_state(data, imapc, IMAP_UPGRADETLS);
 
-  return result;
+  بازگشت result;
 }
 
 /* For SASL authentication responses */
-static CURLcode imap_state_auth_resp(struct Curl_easy *data,
-                                     struct imap_conn *imapc,
-                                     int imapcode,
+ایستا CURLcode imap_state_auth_resp(ساختار Curl_easy *data,
+                                     ساختار imap_conn *imapc,
+                                     صحیح imapcode,
                                      imapstate instate)
 {
   CURLcode result = CURLE_OK;
   saslprogress progress;
 
-  (void)instate;
+  (تهی)instate;
 
   result = Curl_sasl_continue(&imapc->sasl, data, imapcode, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
+  اگر(!result)
+    انتخاب(progress) {
+    حالت SASL_DONE:
       imap_state(data, imapc, IMAP_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
-      if(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
+      بشکن;
+    حالت SASL_IDLE:            /* No mechanism left after cancellation */
+      اگر(!imapc->login_disabled && (imapc->preftype & IMAP_TYPE_CLEARTEXT))
         /* Perform clear text authentication */
         result = imap_perform_login(data, imapc, data->conn);
-      else {
+      وگرنه {
         failf(data, "Authentication cancelled");
         result = CURLE_LOGIN_DENIED;
       }
-      break;
-    default:
-      break;
+      بشکن;
+    پیشفرض:
+      بشکن;
     }
 
-  return result;
+  بازگشت result;
 }
 
 /* For LOGIN responses */
-static CURLcode imap_state_login_resp(struct Curl_easy *data,
-                                      struct imap_conn *imapc,
-                                      int imapcode,
+ایستا CURLcode imap_state_login_resp(ساختار Curl_easy *data,
+                                      ساختار imap_conn *imapc,
+                                      صحیح imapcode,
                                       imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode != IMAP_RESP_OK) {
+  اگر(imapcode != IMAP_RESP_OK) {
     failf(data, "Access denied. %c", imapcode);
     result = CURLE_LOGIN_DENIED;
   }
-  else
+  وگرنه
     /* End of connect phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  بازگشت result;
 }
 
 /* Detect IMAP listings vs. downloading a single email */
-static bool is_custom_fetch_listing_match(const char *params)
+ایستا bool is_custom_fetch_listing_match(ثابت نویسه *params)
 {
   /* match " 1:* (FLAGS ..." or " 1,2,3 (FLAGS ..." */
-  if(*params++ != ' ')
-    return FALSE;
+  اگر(*params++ != ' ')
+    بازگشت FALSE;
 
-  while(ISDIGIT(*params)) {
+  وقتی(ISDIGIT(*params)) {
     params++;
-    if(*params == 0)
-      return FALSE;
+    اگر(*params == 0)
+      بازگشت FALSE;
   }
-  if(*params == ':')
-    return TRUE;
-  if(*params == ',')
-    return TRUE;
-  return FALSE;
+  اگر(*params == ':')
+    بازگشت TRUE;
+  اگر(*params == ',')
+    بازگشت TRUE;
+  بازگشت FALSE;
 }
 
-static bool is_custom_fetch_listing(struct IMAP *imap)
+ایستا bool is_custom_fetch_listing(ساختار IMAP *imap)
 {
   /* filter out "UID FETCH 1:* (FLAGS ..." queries to list emails */
-  if(!imap->custom)
-    return FALSE;
-  else if(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
-    const char *p = imap->custom_params;
-    return is_custom_fetch_listing_match(p);
+  اگر(!imap->custom)
+    بازگشت FALSE;
+  وگرنه اگر(curl_strequal(imap->custom, "FETCH") && imap->custom_params) {
+    ثابت نویسه *p = imap->custom_params;
+    بازگشت is_custom_fetch_listing_match(p);
   }
-  else if(curl_strequal(imap->custom, "UID") && imap->custom_params &&
+  وگرنه اگر(curl_strequal(imap->custom, "UID") && imap->custom_params &&
           curl_strnequal(imap->custom_params, " FETCH ", 7)) {
-    const char *p = imap->custom_params + 6;
-    return is_custom_fetch_listing_match(p);
+    ثابت نویسه *p = imap->custom_params + 6;
+    بازگشت is_custom_fetch_listing_match(p);
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /* For LIST and SEARCH responses */
-static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
-                                           struct imap_conn *imapc,
-                                           int imapcode,
+ایستا CURLcode imap_state_listsearch_resp(ساختار Curl_easy *data,
+                                           ساختار imap_conn *imapc,
+                                           صحیح imapcode,
                                            imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  ثابت نویسه *سطر = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
   DEBUGASSERT(imap);
-  if(!imap)
-    return CURLE_FAILED_INIT;
-  (void)instate;
+  اگر(!imap)
+    بازگشت CURLE_FAILED_INIT;
+  (تهی)instate;
 
-  if(imapcode == '*' && is_custom_fetch_listing(imap)) {
+  اگر(imapcode == '*' && is_custom_fetch_listing(imap)) {
     /* custom FETCH or UID FETCH for listing is not handled here */
   }
-  else if(imapcode == '*') {
+  وگرنه اگر(imapcode == '*') {
     /* Check if this response contains a literal (e.g. FETCH responses with
        body data). Literal syntax is {size}\r\n */
-    const char *cr = memchr(line, '\r', len);
-    size_t line_len = cr ? (size_t)(cr - line) : len;
-    const char *ptr = imap_find_literal(line, line_len);
-    if(ptr) {
+    ثابت نویسه *cr = memchr(سطر, '\r', len);
+    size_t سطر_len = cr ? (size_t)(cr - سطر) : len;
+    ثابت نویسه *ptr = imap_find_literal(سطر, سطر_len);
+    اگر(ptr) {
       curl_off_t size = 0;
       bool parsed = FALSE;
       ptr++;
-      if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+      اگر(!curlx_str_عدد(&ptr, &size, CURL_OFF_T_MAX) &&
          !curlx_str_single(&ptr, '}'))
         parsed = TRUE;
 
-      if(parsed) {
-        struct pingpong *pp = &imapc->pp;
+      اگر(parsed) {
+        ساختار pingpong *pp = &imapc->pp;
         size_t buffer_len = curlx_dyn_len(&pp->recvbuf);
         size_t after_header = buffer_len - pp->nfinal;
 
@@ -1241,12 +1241,12 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
         infof(data, "Found %" FMT_OFF_T " bytes to download", size);
 
         /* First write the header line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
-        if(result)
-          return result;
+        result = Curl_client_write(data, CLIENTWRITE_BODY, سطر, len);
+        اگر(result)
+          بازگشت result;
 
         /* Handle data already in buffer after the header line */
-        if(after_header > 0) {
+        اگر(after_header > 0) {
           /* There is already data in the buffer that is part of the literal
              body or subsequent responses */
           size_t chunk = after_header;
@@ -1256,48 +1256,48 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
           pp->nfinal = 0; /* done */
 
           /* Limit chunk to the literal size */
-          if((curl_off_t)chunk > size)
+          اگر((curl_off_t)chunk > size)
             chunk = (size_t)size;
 
-          if(chunk) {
+          اگر(chunk) {
             /* Write the literal body data */
             result = Curl_client_write(data, CLIENTWRITE_BODY,
                                        curlx_dyn_ptr(&pp->recvbuf), chunk);
-            if(result)
-              return result;
+            اگر(result)
+              بازگشت result;
           }
 
           /* Handle remaining data in buffer (either more literal data or
              subsequent responses) */
-          if(after_header > chunk) {
+          اگر(after_header > chunk) {
             /* Keep the data after the literal body */
             pp->overflow = after_header - chunk;
             curlx_dyn_tail(&pp->recvbuf, pp->overflow);
           }
-          else {
+          وگرنه {
             pp->overflow = 0;
             curlx_dyn_reset(&pp->recvbuf);
           }
         }
-        else {
+        وگرنه {
           /* No data in buffer yet, reset overflow */
           pp->overflow = 0;
         }
 
-        if((CURL_OFF_T_MAX - size) < (curl_off_t)len)
+        اگر((CURL_OFF_T_MAX - size) < (curl_off_t)len)
           /* unlikely to actually be a transfer this big, but avoid integer
              overflow */
           size = CURL_OFF_T_MAX;
-        else
+        وگرنه
           size += len;
 
         /* Progress size includes both header line and literal body */
         Curl_pgrsSetDownloadSize(data, size);
 
-        if(data->req.bytecount == size)
+        اگر(data->req.bytecount == size)
           /* All data already transferred (header + literal body) */
           Curl_xfer_setup_nop(data);
-        else {
+        وگرنه {
           /* Setup to receive the literal body data.
              maxdownload and transfer size include both header line and
              literal body */
@@ -1307,114 +1307,114 @@ static CURLcode imap_state_listsearch_resp(struct Curl_easy *data,
         /* End of DO phase */
         imap_state(data, imapc, IMAP_STOP);
       }
-      else {
+      وگرنه {
         /* Failed to parse literal, write the line */
-        result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+        result = Curl_client_write(data, CLIENTWRITE_BODY, سطر, len);
       }
     }
-    else {
+    وگرنه {
       /* No literal, write the line as-is */
-      result = Curl_client_write(data, CLIENTWRITE_BODY, line, len);
+      result = Curl_client_write(data, CLIENTWRITE_BODY, سطر, len);
     }
   }
-  else if(imapcode != IMAP_RESP_OK)
+  وگرنه اگر(imapcode != IMAP_RESP_OK)
     result = CURLE_QUOTE_ERROR;
-  else
+  وگرنه
     /* End of DO phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  بازگشت result;
 }
 
 /* For SELECT responses */
-static CURLcode imap_state_select_resp(struct Curl_easy *data,
-                                       struct imap_conn *imapc,
-                                       struct IMAP *imap,
-                                       int imapcode,
+ایستا CURLcode imap_state_select_resp(ساختار Curl_easy *data,
+                                       ساختار imap_conn *imapc,
+                                       ساختار IMAP *imap,
+                                       صحیح imapcode,
                                        imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode == '*') {
+  اگر(imapcode == '*') {
     /* See if this is an UIDVALIDITY response */
-    const char *line = curlx_dyn_ptr(&imapc->pp.recvbuf);
+    ثابت نویسه *سطر = curlx_dyn_ptr(&imapc->pp.recvbuf);
     size_t len = curlx_dyn_len(&imapc->pp.recvbuf);
-    if((len >= 18) && checkprefix("OK [UIDVALIDITY ", &line[2])) {
-      curl_off_t value;
-      const char *p = &line[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
-      if(!curlx_str_number(&p, &value, UINT_MAX)) {
-        imapc->mb_uidvalidity = (unsigned int)value;
+    اگر((len >= 18) && checkprefix("OK [UIDVALIDITY ", &سطر[2])) {
+      curl_off_t مقدار;
+      ثابت نویسه *p = &سطر[2] + CURL_CSTRLEN("OK [UIDVALIDITY ");
+      اگر(!curlx_str_عدد(&p, &مقدار, UINT_MAX)) {
+        imapc->mb_uidvalidity = (unsigned صحیح)مقدار;
         imapc->mb_uidvalidity_set = TRUE;
       }
     }
   }
-  else if(imapcode == IMAP_RESP_OK) {
+  وگرنه اگر(imapcode == IMAP_RESP_OK) {
     /* Check if the UIDVALIDITY has been specified and matches */
-    if(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
+    اگر(imap->uidvalidity_set && imapc->mb_uidvalidity_set &&
        (imap->uidvalidity != imapc->mb_uidvalidity)) {
       failf(data, "Mailbox UIDVALIDITY has changed");
       result = CURLE_REMOTE_FILE_NOT_FOUND;
     }
-    else {
+    وگرنه {
       /* Note the currently opened mailbox on this connection */
       DEBUGASSERT(!imapc->mailbox);
       imapc->mailbox = curlx_strdup(imap->mailbox);
-      if(!imapc->mailbox)
-        return CURLE_OUT_OF_MEMORY;
+      اگر(!imapc->mailbox)
+        بازگشت CURLE_OUT_OF_MEMORY;
 
-      if(imap->custom)
+      اگر(imap->custom)
         result = imap_perform_list(data, imapc, imap);
-      else if(imap->query)
-        result = imap_perform_search(data, imapc, imap);
-      else
+      وگرنه اگر(imap->query)
+        result = imap_perform_جستجو(data, imapc, imap);
+      وگرنه
         result = imap_perform_fetch(data, imapc, imap);
     }
   }
-  else {
+  وگرنه {
     failf(data, "Select failed");
     result = CURLE_LOGIN_DENIED;
   }
 
-  return result;
+  بازگشت result;
 }
 
 /* For the (first line of the) FETCH responses */
-static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
-                                      struct imap_conn *imapc,
-                                      int imapcode,
+ایستا CURLcode imap_state_fetch_resp(ساختار Curl_easy *data,
+                                      ساختار imap_conn *imapc,
+                                      صحیح imapcode,
                                       imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  struct pingpong *pp = &imapc->pp;
-  const char *ptr = curlx_dyn_ptr(&imapc->pp.recvbuf);
+  ساختار pingpong *pp = &imapc->pp;
+  ثابت نویسه *ptr = curlx_dyn_ptr(&imapc->pp.recvbuf);
   size_t len = imapc->pp.nfinal;
   bool parsed = FALSE;
   curl_off_t size = 0;
 
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode != '*') {
+  اگر(imapcode != '*') {
     Curl_pgrsSetDownloadSize(data, -1);
     imap_state(data, imapc, IMAP_STOP);
-    return CURLE_REMOTE_FILE_NOT_FOUND;
+    بازگشت CURLE_REMOTE_FILE_NOT_FOUND;
   }
 
   /* Something like this is received "* 1 FETCH (BODY[TEXT] {2021}\r" so parse
      the continuation data contained within the curly brackets */
   ptr = imap_find_literal(ptr, len);
-  if(ptr) {
+  اگر(ptr) {
     ptr++;
-    if(!curlx_str_number(&ptr, &size, CURL_OFF_T_MAX) &&
+    اگر(!curlx_str_عدد(&ptr, &size, CURL_OFF_T_MAX) &&
        !curlx_str_single(&ptr, '}'))
       parsed = TRUE;
   }
 
-  if(parsed) {
+  اگر(parsed) {
     infof(data, "Found %" FMT_OFF_T " bytes to download", size);
     Curl_pgrsSetDownloadSize(data, size);
 
-    if(pp->overflow) {
+    اگر(pp->overflow) {
       /* At this point there is a data in the receive buffer that is body
          content, send it as body and then skip it. Do note that there may
          even be additional "headers" after the body. */
@@ -1424,46 +1424,46 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
       curlx_dyn_tail(&pp->recvbuf, chunk);
       pp->nfinal = 0; /* done */
 
-      if((curl_off_t)chunk > size)
+      اگر((curl_off_t)chunk > size)
         /* The conversion from curl_off_t to size_t is always fine here */
         chunk = (size_t)size;
 
-      if(!chunk) {
+      اگر(!chunk) {
         /* no size, we are done with the data */
         imap_state(data, imapc, IMAP_STOP);
-        return CURLE_OK;
+        بازگشت CURLE_OK;
       }
       result = Curl_client_write(data, CLIENTWRITE_BODY,
                                  curlx_dyn_ptr(&pp->recvbuf), chunk);
-      if(result)
-        return result;
+      اگر(result)
+        بازگشت result;
 
       infof(data, "Written %zu bytes, %" FMT_OFF_T
             " bytes are left for transfer", chunk, (curl_off_t)(size - chunk));
 
       /* Have we used the entire overflow or part of it?*/
-      if(pp->overflow > chunk) {
+      اگر(pp->overflow > chunk) {
         /* remember the remaining trailing overflow data */
         pp->overflow -= chunk;
         curlx_dyn_tail(&pp->recvbuf, pp->overflow);
       }
-      else {
+      وگرنه {
         pp->overflow = 0; /* handled */
         /* Free the cache */
         curlx_dyn_reset(&pp->recvbuf);
       }
     }
 
-    if(data->req.bytecount == size)
+    اگر(data->req.bytecount == size)
       /* The entire data is already transferred! */
       Curl_xfer_setup_nop(data);
-    else {
+    وگرنه {
       /* IMAP download */
       data->req.maxdownload = size;
       Curl_xfer_setup_recv(data, FIRSTSOCKET, size);
     }
   }
-  else {
+  وگرنه {
     /* We do not know how to parse this line */
     failf(data, "Failed to parse FETCH response.");
     result = CURLE_WEIRD_SERVER_REPLY;
@@ -1472,41 +1472,41 @@ static CURLcode imap_state_fetch_resp(struct Curl_easy *data,
   /* End of DO phase */
   imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  بازگشت result;
 }
 
 /* For final FETCH responses performed after the download */
-static CURLcode imap_state_fetch_final_resp(struct Curl_easy *data,
-                                            struct imap_conn *imapc,
-                                            int imapcode,
+ایستا CURLcode imap_state_fetch_final_resp(ساختار Curl_easy *data,
+                                            ساختار imap_conn *imapc,
+                                            صحیح imapcode,
                                             imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode != IMAP_RESP_OK)
+  اگر(imapcode != IMAP_RESP_OK)
     result = CURLE_WEIRD_SERVER_REPLY;
-  else
+  وگرنه
     /* End of DONE phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  بازگشت result;
 }
 
 /* For APPEND responses */
-static CURLcode imap_state_append_resp(struct Curl_easy *data,
-                                       struct imap_conn *imapc,
-                                       int imapcode,
+ایستا CURLcode imap_state_append_resp(ساختار Curl_easy *data,
+                                       ساختار imap_conn *imapc,
+                                       صحیح imapcode,
                                        imapstate instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode != '+') {
+  اگر(imapcode != '+') {
     result = CURLE_UPLOAD_FAILED;
   }
-  else {
+  وگرنه {
     /* Set the progress upload size */
     Curl_pgrsSetUploadSize(data, data->state.infilesize);
 
@@ -1517,170 +1517,170 @@ static CURLcode imap_state_append_resp(struct Curl_easy *data,
     imap_state(data, imapc, IMAP_STOP);
   }
 
-  return result;
+  بازگشت result;
 }
 
 /* For final APPEND responses performed after the upload */
-static CURLcode imap_state_append_final_resp(struct Curl_easy *data,
-                                             struct imap_conn *imapc,
-                                             int imapcode,
+ایستا CURLcode imap_state_append_final_resp(ساختار Curl_easy *data,
+                                             ساختار imap_conn *imapc,
+                                             صحیح imapcode,
                                              imapstate instate)
 {
   CURLcode result = CURLE_OK;
 
-  (void)instate;
+  (تهی)instate;
 
-  if(imapcode != IMAP_RESP_OK)
+  اگر(imapcode != IMAP_RESP_OK)
     result = CURLE_UPLOAD_FAILED;
-  else
+  وگرنه
     /* End of DONE phase */
     imap_state(data, imapc, IMAP_STOP);
 
-  return result;
+  بازگشت result;
 }
 
-static CURLcode imap_pp_statemachine(struct Curl_easy *data,
-                                     struct connectdata *conn)
+ایستا CURLcode imap_pp_statemachine(ساختار Curl_easy *data,
+                                     ساختار connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  int imapcode;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
-  struct pingpong *pp;
+  صحیح imapcode;
+  ساختار imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ساختار pingpong *pp;
   size_t nread = 0;
 
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  اگر(!imapc || !imap)
+    بازگشت CURLE_FAILED_INIT;
   pp = &imapc->pp;
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not IMAP */
 upgrade_tls:
-  if(imapc->state == IMAP_UPGRADETLS) {
+  اگر(imapc->state == IMAP_UPGRADETLS) {
     result = imap_perform_upgrade_tls(data, imapc, conn);
-    if(result || (imapc->state == IMAP_UPGRADETLS))
-      return result;
+    اگر(result || (imapc->state == IMAP_UPGRADETLS))
+      بازگشت result;
   }
 
   /* Flush any data that needs to be sent */
-  if(pp->sendleft)
-    return Curl_pp_flushsend(data, pp);
+  اگر(pp->sendleft)
+    بازگشت Curl_pp_flushsend(data, pp);
 
-  do {
+  انجامبده {
     /* Read the response from the server */
     result = Curl_pp_readresp(data, FIRSTSOCKET, pp, &imapcode, &nread);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
 
     /* Was there an error parsing the response line? */
-    if(imapcode == -1)
-      return CURLE_WEIRD_SERVER_REPLY;
+    اگر(imapcode == -1)
+      بازگشت CURLE_WEIRD_SERVER_REPLY;
 
-    if(!imapcode)
-      break;
+    اگر(!imapcode)
+      بشکن;
 
     /* We have now received a full IMAP server response */
-    switch(imapc->state) {
-    case IMAP_SERVERGREET:
+    انتخاب(imapc->state) {
+    حالت IMAP_SERVERGREET:
       result = imap_state_servergreet_resp(data, imapc,
                                            imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_CAPABILITY:
+    حالت IMAP_CAPABILITY:
       result = imap_state_capability_resp(data, imapc, imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_STARTTLS:
+    حالت IMAP_STARTTLS:
       result = imap_state_starttls_resp(data, imapc, imapcode, imapc->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (imapc->state == IMAP_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      اگر(!result && (imapc->state == IMAP_UPGRADETLS))
+        برو upgrade_tls;
+      بشکن;
 
-    case IMAP_AUTHENTICATE:
+    حالت IMAP_AUTHENTICATE:
       result = imap_state_auth_resp(data, imapc, imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_LOGIN:
+    حالت IMAP_LOGIN:
       result = imap_state_login_resp(data, imapc, imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_LIST:
-    case IMAP_SEARCH:
+    حالت IMAP_LIST:
+    حالت IMAP_جستجو:
       result = imap_state_listsearch_resp(data, imapc, imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_SELECT:
+    حالت IMAP_SELECT:
       result = imap_state_select_resp(data, imapc, imap,
                                       imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_FETCH:
+    حالت IMAP_FETCH:
       result = imap_state_fetch_resp(data, imapc, imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_FETCH_FINAL:
+    حالت IMAP_FETCH_FINAL:
       result = imap_state_fetch_final_resp(data, imapc,
                                            imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_APPEND:
+    حالت IMAP_APPEND:
       result = imap_state_append_resp(data, imapc, imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_APPEND_FINAL:
+    حالت IMAP_APPEND_FINAL:
       result = imap_state_append_final_resp(data, imapc,
                                             imapcode, imapc->state);
-      break;
+      بشکن;
 
-    case IMAP_LOGOUT:
-    default:
+    حالت IMAP_LOGOUT:
+    پیشفرض:
       /* internal error */
       imap_state(data, imapc, IMAP_STOP);
-      break;
+      بشکن;
     }
-  } while(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
+  } وقتی(!result && imapc->state != IMAP_STOP && Curl_pp_moredata(pp));
 
-  return result;
+  بازگشت result;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode imap_multi_statemach(struct Curl_easy *data, bool *done)
+ایستا CURLcode imap_multi_statemach(ساختار Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
 
   *done = FALSE;
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
   result = Curl_pp_statemach(data, &imapc->pp, FALSE, FALSE);
   *done = (imapc->state == IMAP_STOP);
 
-  return result;
+  بازگشت result;
 }
 
-static CURLcode imap_block_statemach(struct Curl_easy *data,
-                                     struct imap_conn *imapc,
+ایستا CURLcode imap_block_statemach(ساختار Curl_easy *data,
+                                     ساختار imap_conn *imapc,
                                      bool disconnecting)
 {
   CURLcode result = CURLE_OK;
 
-  while(imapc->state != IMAP_STOP && !result)
+  وقتی(imapc->state != IMAP_STOP && !result)
     result = Curl_pp_statemach(data, &imapc->pp, TRUE, disconnecting);
 
-  return result;
+  بازگشت result;
 }
 
 /* For the IMAP "protocol connect" and "doing" phases only */
-static CURLcode imap_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+ایستا CURLcode imap_pollset(ساختار Curl_easy *data,
+                             ساختار easy_pollset *ps)
 {
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
-  return imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
+  بازگشت imapc ? Curl_pp_pollset(data, &imapc->pp, ps) : CURLE_OK;
 }
 
-static void imap_easy_reset(struct IMAP *imap)
+ایستا تهی imap_easy_reset(ساختار IMAP *imap)
 {
   curlx_safefree(imap->mailbox);
   curlx_safefree(imap->uid);
@@ -1702,11 +1702,11 @@ static void imap_easy_reset(struct IMAP *imap)
  * Portable test of whether the specified char is a "bchar" as defined in the
  * grammar of RFC-5092.
  */
-static bool imap_is_bchar(char ch)
+ایستا bool imap_is_bchar(نویسه ch)
 {
   /* Performing the alnum check first with macro is faster because of ASCII
      arithmetic */
-  return ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
+  بازگشت ch && (ISALNUM(ch) || strchr(":@/&=-._~!$\'()*+,%", ch));
 }
 
 /***********************************************************************
@@ -1715,61 +1715,61 @@ static bool imap_is_bchar(char ch)
  *
  * Parse the URL login options.
  */
-static CURLcode imap_parse_url_options(struct connectdata *conn,
-                                       struct imap_conn *imapc)
+ایستا CURLcode imap_parse_url_options(ساختار connectdata *conn,
+                                       ساختار imap_conn *imapc)
 {
   CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  ثابت نویسه *ptr = conn->options;
   bool prefer_login = FALSE;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  وقتی(!result && ptr && *ptr) {
+    ثابت نویسه *کلید = ptr;
+    ثابت نویسه *مقدار;
 
-    while(*ptr && *ptr != '=')
+    وقتی(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    مقدار = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    وقتی(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=+LOGIN", 11)) {
+    اگر(curl_strnequal(کلید, "AUTH=+LOGIN", 11)) {
       /* User prefers plaintext LOGIN over any SASL, including SASL LOGIN */
       prefer_login = TRUE;
       imapc->sasl.prefmech = SASL_AUTH_NONE;
     }
-    else if(curl_strnequal(key, "AUTH=", 5)) {
+    وگرنه اگر(curl_strnequal(کلید, "AUTH=", 5)) {
       prefer_login = FALSE;
       result = Curl_sasl_parse_url_auth_option(&imapc->sasl,
-                                               value, ptr - value);
+                                               مقدار, ptr - مقدار);
     }
-    else {
+    وگرنه {
       prefer_login = FALSE;
       result = CURLE_URL_MALFORMAT;
     }
 
-    if(*ptr == ';')
+    اگر(*ptr == ';')
       ptr++;
   }
 
-  if(prefer_login)
+  اگر(prefer_login)
     imapc->preftype = IMAP_TYPE_CLEARTEXT;
-  else {
-    switch(imapc->sasl.prefmech) {
-    case SASL_AUTH_NONE:
+  وگرنه {
+    انتخاب(imapc->sasl.prefmech) {
+    حالت SASL_AUTH_NONE:
       imapc->preftype = IMAP_TYPE_NONE;
-      break;
-    case SASL_AUTH_DEFAULT:
+      بشکن;
+    حالت SASL_AUTH_DEFAULT:
       imapc->preftype = IMAP_TYPE_ANY;
-      break;
-    default:
+      بشکن;
+    پیشفرض:
       imapc->preftype = IMAP_TYPE_SASL;
-      break;
+      بشکن;
     }
   }
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -1779,123 +1779,123 @@ static CURLcode imap_parse_url_options(struct connectdata *conn,
  * Parse the URL path into separate path components.
  *
  */
-static CURLcode imap_parse_url_path(struct Curl_easy *data,
-                                    struct IMAP *imap)
+ایستا CURLcode imap_parse_url_path(ساختار Curl_easy *data,
+                                    ساختار IMAP *imap)
 {
   /* The imap struct is already initialized in imap_connect() */
   CURLcode result = CURLE_OK;
-  const char *begin = &data->state.up.path[1]; /* skip leading slash */
-  const char *ptr = begin;
+  ثابت نویسه *begin = &data->state.up.path[1]; /* skip leading slash */
+  ثابت نویسه *ptr = begin;
 
   /* See how much of the URL is a valid path and decode it */
-  while(imap_is_bchar(*ptr))
+  وقتی(imap_is_bchar(*ptr))
     ptr++;
 
-  if(ptr != begin) {
+  اگر(ptr != begin) {
     /* Remove the trailing slash if present */
-    const char *end = ptr;
-    if(end > begin && end[-1] == '/')
+    ثابت نویسه *end = ptr;
+    اگر(end > begin && end[-1] == '/')
       end--;
 
-    result = Curl_urldecode(begin, end - begin, &imap->mailbox, NULL,
+    result = Curl_urldecode(begin, end - begin, &imap->mailbox, پوچ,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
   }
-  else
-    imap->mailbox = NULL;
+  وگرنه
+    imap->mailbox = پوچ;
 
   /* There can be any number of parameters in the form ";NAME=VALUE" */
-  while(*ptr == ';') {
-    char *name;
-    char *value;
+  وقتی(*ptr == ';') {
+    نویسه *name;
+    نویسه *مقدار;
     size_t valuelen;
 
     /* Find the length of the name parameter */
     begin = ++ptr;
-    while(*ptr && *ptr != '=')
+    وقتی(*ptr && *ptr != '=')
       ptr++;
 
-    if(!*ptr)
-      return CURLE_URL_MALFORMAT;
+    اگر(!*ptr)
+      بازگشت CURLE_URL_MALFORMAT;
 
     /* Decode the name parameter */
-    result = Curl_urldecode(begin, ptr - begin, &name, NULL,
+    result = Curl_urldecode(begin, ptr - begin, &name, پوچ,
                             REJECT_CTRL);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
 
     /* Find the length of the value parameter */
     begin = ++ptr;
-    while(imap_is_bchar(*ptr))
+    وقتی(imap_is_bchar(*ptr))
       ptr++;
 
     /* Decode the value parameter */
-    result = Curl_urldecode(begin, ptr - begin, &value, &valuelen,
+    result = Curl_urldecode(begin, ptr - begin, &مقدار, &valuelen,
                             REJECT_CTRL);
-    if(result) {
+    اگر(result) {
       curlx_free(name);
-      return result;
+      بازگشت result;
     }
 
-    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, value));
+    DEBUGF(infof(data, "IMAP URL parameter '%s' = '%s'", name, مقدار));
 
     /* Process the known hierarchical parameters (UIDVALIDITY, UID, SECTION
        and PARTIAL) stripping of the trailing slash character if it is
        present.
 
        Note: Unknown parameters trigger a URL_MALFORMAT error. */
-    if(valuelen > 0 && value[valuelen - 1] == '/')
-      value[valuelen - 1] = '\0';
-    if(valuelen) {
-      if(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
-        curl_off_t num;
-        const char *p = (const char *)value;
-        if(!curlx_str_number(&p, &num, UINT_MAX)) {
-          imap->uidvalidity = (unsigned int)num;
+    اگر(valuelen > 0 && مقدار[valuelen - 1] == '/')
+      مقدار[valuelen - 1] = '\0';
+    اگر(valuelen) {
+      اگر(curl_strequal(name, "UIDVALIDITY") && !imap->uidvalidity_set) {
+        curl_off_t رقم;
+        ثابت نویسه *p = (ثابت نویسه *)مقدار;
+        اگر(!curlx_str_عدد(&p, &رقم, UINT_MAX)) {
+          imap->uidvalidity = (unsigned صحیح)رقم;
           imap->uidvalidity_set = TRUE;
         }
-        curlx_free(value);
+        curlx_free(مقدار);
       }
-      else if(curl_strequal(name, "UID") && !imap->uid) {
-        imap->uid = value;
+      وگرنه اگر(curl_strequal(name, "UID") && !imap->uid) {
+        imap->uid = مقدار;
       }
-      else if(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
-        imap->mindex = value;
+      وگرنه اگر(curl_strequal(name, "MAILINDEX") && !imap->mindex) {
+        imap->mindex = مقدار;
       }
-      else if(curl_strequal(name, "SECTION") && !imap->section) {
-        imap->section = value;
+      وگرنه اگر(curl_strequal(name, "SECTION") && !imap->section) {
+        imap->section = مقدار;
       }
-      else if(curl_strequal(name, "PARTIAL") && !imap->partial) {
-        imap->partial = value;
+      وگرنه اگر(curl_strequal(name, "PARTIAL") && !imap->partial) {
+        imap->partial = مقدار;
       }
-      else {
+      وگرنه {
         curlx_free(name);
-        curlx_free(value);
-        return CURLE_URL_MALFORMAT;
+        curlx_free(مقدار);
+        بازگشت CURLE_URL_MALFORMAT;
       }
     }
-    else
+    وگرنه
       /* blank? */
-      curlx_free(value);
+      curlx_free(مقدار);
     curlx_free(name);
   }
 
   /* Does the URL contain a query parameter? Only valid when we have a mailbox
      and no UID as per RFC-5092 */
-  if(imap->mailbox && !imap->uid && !imap->mindex) {
+  اگر(imap->mailbox && !imap->uid && !imap->mindex) {
     /* Get the query parameter, URL decoded */
     CURLUcode uc = curl_url_get(data->state.uh, CURLUPART_QUERY, &imap->query,
                                 CURLU_URLDECODE);
-    if(uc == CURLUE_OUT_OF_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(uc == CURLUE_OUT_OF_MEMORY)
+      بازگشت CURLE_OUT_OF_MEMORY;
   }
 
   /* Any extra stuff at the end of the URL is an error */
-  if(*ptr)
-    return CURLE_URL_MALFORMAT;
+  اگر(*ptr)
+    بازگشت CURLE_URL_MALFORMAT;
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /***********************************************************************
@@ -1904,34 +1904,34 @@ static CURLcode imap_parse_url_path(struct Curl_easy *data,
  *
  * Parse the custom request.
  */
-static CURLcode imap_parse_custom_request(struct Curl_easy *data,
-                                          struct IMAP *imap)
+ایستا CURLcode imap_parse_custom_request(ساختار Curl_easy *data,
+                                          ساختار IMAP *imap)
 {
   CURLcode result = CURLE_OK;
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  ثابت نویسه *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
 
-  if(custom) {
+  اگر(custom) {
     /* URL decode the custom request */
-    result = Curl_urldecode(custom, 0, &imap->custom, NULL, REJECT_CTRL);
+    result = Curl_urldecode(custom, 0, &imap->custom, پوچ, REJECT_CTRL);
 
     /* Extract the parameters if specified */
-    if(!result) {
-      const char *params = imap->custom;
+    اگر(!result) {
+      ثابت نویسه *params = imap->custom;
 
-      while(*params && *params != ' ')
+      وقتی(*params && *params != ' ')
         params++;
 
-      if(*params) {
+      اگر(*params) {
         imap->custom_params = curlx_strdup(params);
         imap->custom[params - imap->custom] = '\0';
 
-        if(!imap->custom_params)
+        اگر(!imap->custom_params)
           result = CURLE_OUT_OF_MEMORY;
       }
     }
   }
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -1944,30 +1944,30 @@ static CURLcode imap_parse_custom_request(struct Curl_easy *data,
  * The variable 'done' points to will be TRUE if the protocol-layer connect
  * phase is done when this function returns, or FALSE if not.
  */
-static CURLcode imap_connect(struct Curl_easy *data, bool *done)
+ایستا CURLcode imap_connect(ساختار Curl_easy *data, bool *done)
 {
-  struct imap_conn *imapc =
+  ساختار imap_conn *imapc =
     Curl_conn_meta_get(data->conn, CURL_META_IMAP_CONN);
   CURLcode result = CURLE_OK;
 
   *done = FALSE; /* default to not done yet */
-  if(!imapc)
-    return CURLE_FAILED_INIT;
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
 
   /* Parse the URL options */
   result = imap_parse_url_options(data->conn, imapc);
-  if(result)
-    return result;
+  اگر(result)
+    بازگشت result;
 
   /* Start off waiting for the server greeting response */
   imap_state(data, imapc, IMAP_SERVERGREET);
 
   /* Start off with an response id of '*' */
-  curlx_strcopy(imapc->resptag, sizeof(imapc->resptag), STRCONST("*"));
+  curlx_strcopy(imapc->resptag, اندازه(imapc->resptag), STRCONST("*"));
 
   result = imap_multi_statemach(data, done);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -1979,25 +1979,25 @@ static CURLcode imap_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
+ایستا CURLcode imap_done(ساختار Curl_easy *data, CURLcode status,
                           bool premature)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ساختار connectdata *conn = data->conn;
+  ساختار imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
 
-  if(!imapc)
-    return CURLE_FAILED_INIT;
-  if(!imap)
-    return CURLE_OK;
+  اگر(!imapc)
+    بازگشت CURLE_FAILED_INIT;
+  اگر(!imap)
+    بازگشت CURLE_OK;
 
-  if(status || premature) {
+  اگر(status || premature) {
     CURL_TRC_M(data, "IMAP done, not finalizing transfer");
     connclose(conn); /* marked for closure */
     result = status;         /* use the already set error code */
   }
-  else if(!data->set.connect_only &&
+  وگرنه اگر(!data->set.connect_only &&
           ((!imap->custom && (imap->uid || imap->mindex)) ||
            (imap->custom && data->req.maxdownload > 0) ||
            data->state.upload || IS_MIME_POST(data))) {
@@ -2005,22 +2005,22 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
        For custom commands, check if we set up a download which indicates
        a FETCH-like command with literal data. */
 
-    if(!data->state.upload && !IS_MIME_POST(data))
+    اگر(!data->state.upload && !IS_MIME_POST(data))
       imap_state(data, imapc, IMAP_FETCH_FINAL);
-    else {
+    وگرنه {
       /* End the APPEND command first by sending an empty line */
       result = Curl_pp_sendf(data, &imapc->pp, "%s", "");
-      if(!result)
+      اگر(!result)
         imap_state(data, imapc, IMAP_APPEND_FINAL);
     }
 
     /* Run the state-machine */
-    if(!result)
+    اگر(!result)
       result = imap_block_statemach(data, imapc, FALSE);
   }
 
   imap_easy_reset(imap);
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -2030,21 +2030,21 @@ static CURLcode imap_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for IMAP. Fetch or append a message, or do
  * other things according to the options previously setup.
  */
-static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
+ایستا CURLcode imap_perform(ساختار Curl_easy *data, bool *connected,
                              bool *dophase_done)
 {
   /* This is IMAP and no proxy */
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ساختار connectdata *conn = data->conn;
+  ساختار imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   bool selected = FALSE;
 
   DEBUGF(infof(data, "DO phase starts"));
-  if(!imapc || !imap)
-    return CURLE_FAILED_INIT;
+  اگر(!imapc || !imap)
+    بازگشت CURLE_FAILED_INIT;
 
-  if(data->req.no_body) {
+  اگر(data->req.no_body) {
     /* Requested no body means no transfer */
     imap->transfer = PPTRANSFER_INFO;
   }
@@ -2053,7 +2053,7 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
 
   /* Determine if the requested mailbox (with the same UIDVALIDITY if set)
      has already been selected on this connection */
-  if(imap->mailbox && imapc->mailbox &&
+  اگر(imap->mailbox && imapc->mailbox &&
      (!strcmp(imap->mailbox, imapc->mailbox) ||
       (curl_strequal(imap->mailbox, "INBOX") &&
        curl_strequal(imapc->mailbox, "INBOX"))) &&
@@ -2062,52 +2062,52 @@ static CURLcode imap_perform(struct Curl_easy *data, bool *connected,
     selected = TRUE;
 
   /* Start the first command in the DO phase */
-  if(data->state.upload || IS_MIME_POST(data))
+  اگر(data->state.upload || IS_MIME_POST(data))
     /* APPEND can be executed directly */
     result = imap_perform_append(data, imapc, imap);
-  else if(imap->custom && (selected || !imap->mailbox))
+  وگرنه اگر(imap->custom && (selected || !imap->mailbox))
     /* Custom command using the same mailbox or no mailbox */
     result = imap_perform_list(data, imapc, imap);
-  else if(!imap->custom && selected && (imap->uid || imap->mindex))
+  وگرنه اگر(!imap->custom && selected && (imap->uid || imap->mindex))
     /* FETCH from the same mailbox */
     result = imap_perform_fetch(data, imapc, imap);
-  else if(!imap->custom && selected && imap->query)
+  وگرنه اگر(!imap->custom && selected && imap->query)
     /* SEARCH the current mailbox */
-    result = imap_perform_search(data, imapc, imap);
-  else if(imap->mailbox && !selected &&
+    result = imap_perform_جستجو(data, imapc, imap);
+  وگرنه اگر(imap->mailbox && !selected &&
           (imap->custom || imap->uid || imap->mindex || imap->query))
     /* SELECT the mailbox */
     result = imap_perform_select(data, imapc, imap);
-  else
+  وگرنه
     /* LIST */
     result = imap_perform_list(data, imapc, imap);
 
-  if(result)
-    return result;
+  اگر(result)
+    بازگشت result;
 
   /* Run the state-machine */
   result = imap_multi_statemach(data, dophase_done);
 
   *connected = Curl_conn_is_connected(conn, FIRSTSOCKET);
 
-  if(*dophase_done)
+  اگر(*dophase_done)
     DEBUGF(infof(data, "DO phase is complete"));
 
-  return result;
+  بازگشت result;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode imap_dophase_done(struct Curl_easy *data,
-                                  struct IMAP *imap,
+ایستا CURLcode imap_dophase_done(ساختار Curl_easy *data,
+                                  ساختار IMAP *imap,
                                   bool connected)
 {
-  (void)connected;
+  (تهی)connected;
 
-  if(imap->transfer != PPTRANSFER_BODY)
+  اگر(imap->transfer != PPTRANSFER_BODY)
     /* no data to transfer */
     Curl_xfer_setup_nop(data);
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /***********************************************************************
@@ -2119,8 +2119,8 @@ static CURLcode imap_dophase_done(struct Curl_easy *data,
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode imap_regular_transfer(struct Curl_easy *data,
-                                      struct IMAP *imap,
+ایستا CURLcode imap_regular_transfer(ساختار Curl_easy *data,
+                                      ساختار IMAP *imap,
                                       bool *dophase_done)
 {
   CURLcode result = CURLE_OK;
@@ -2136,10 +2136,10 @@ static CURLcode imap_regular_transfer(struct Curl_easy *data,
   result = imap_perform(data, &connected, dophase_done);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
+  اگر(!result && *dophase_done)
     result = imap_dophase_done(data, imap, connected);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -2151,27 +2151,27 @@ static CURLcode imap_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode imap_do(struct Curl_easy *data, bool *done)
+ایستا CURLcode imap_do(ساختار Curl_easy *data, bool *done)
 {
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   CURLcode result = CURLE_OK;
   *done = FALSE; /* default to false */
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  اگر(!imap)
+    بازگشت CURLE_FAILED_INIT;
   /* Parse the URL path */
   result = imap_parse_url_path(data, imap);
-  if(result)
-    return result;
+  اگر(result)
+    بازگشت result;
 
   /* Parse the custom request */
   result = imap_parse_custom_request(data, imap);
-  if(result)
-    return result;
+  اگر(result)
+    بازگشت result;
 
   result = imap_regular_transfer(data, imap, done);
 
-  return result;
+  بازگشت result;
 }
 
 /***********************************************************************
@@ -2181,12 +2181,12 @@ static CURLcode imap_do(struct Curl_easy *data, bool *done)
  * Disconnect from an IMAP server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode imap_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+ایستا CURLcode imap_disconnect(ساختار Curl_easy *data,
+                                ساختار connectdata *conn, bool dead_connection)
 {
-  struct imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
+  ساختار imap_conn *imapc = Curl_conn_meta_get(conn, CURL_META_IMAP_CONN);
 
-  if(imapc &&
+  اگر(imapc &&
      /* We cannot send quit unconditionally. If this connection is stale or
         bad in any way (pingpong has pending data to send),
         sending quit and waiting around here will make the
@@ -2194,53 +2194,53 @@ static CURLcode imap_disconnect(struct Curl_easy *data,
      !dead_connection && conn->bits.protoconnstart &&
      !Curl_pp_needs_flush(data, &imapc->pp) &&
      !imap_perform_logout(data, imapc))
-    (void)imap_block_statemach(data, imapc, TRUE); /* ignore errors */
+    (تهی)imap_block_statemach(data, imapc, TRUE); /* ignore errors */
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode imap_doing(struct Curl_easy *data, bool *dophase_done)
+ایستا CURLcode imap_doing(ساختار Curl_easy *data, bool *dophase_done)
 {
-  struct IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
+  ساختار IMAP *imap = Curl_meta_get(data, CURL_META_IMAP_EASY);
   CURLcode result;
 
-  if(!imap)
-    return CURLE_FAILED_INIT;
+  اگر(!imap)
+    بازگشت CURLE_FAILED_INIT;
 
   result = imap_multi_statemach(data, dophase_done);
-  if(result)
+  اگر(result)
     DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
+  وگرنه اگر(*dophase_done) {
     result = imap_dophase_done(data, imap, FALSE /* not connected */);
 
     DEBUGF(infof(data, "DO phase is complete"));
   }
 
-  return result;
+  بازگشت result;
 }
 
-static void imap_easy_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی imap_easy_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct IMAP *imap = entry;
-  (void)key;
-  (void)klen;
+  ساختار IMAP *imap = entry;
+  (تهی)کلید;
+  (تهی)klen;
   imap_easy_reset(imap);
   curlx_free(imap);
 }
 
-static void imap_conn_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی imap_conn_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct imap_conn *imapc = entry;
-  (void)key;
-  (void)klen;
+  ساختار imap_conn *imapc = entry;
+  (تهی)کلید;
+  (تهی)klen;
   Curl_pp_disconnect(&imapc->pp);
   curlx_safefree(imapc->mailbox);
   curlx_free(imapc);
 }
 
 /* SASL parameters for the imap protocol */
-static const struct SASLproto saslimap = {
+ایستا ثابت ساختار SASLproto saslimap = {
   "imap",                     /* The service name */
   imap_perform_authenticate,  /* Send authentication command */
   imap_continue_authenticate, /* Send authentication continuation */
@@ -2253,16 +2253,16 @@ static const struct SASLproto saslimap = {
   SASL_FLAG_BASE64            /* Configuration flags */
 };
 
-static CURLcode imap_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ایستا CURLcode imap_setup_connection(ساختار Curl_easy *data,
+                                      ساختار connectdata *conn)
 {
-  struct imap_conn *imapc;
-  struct pingpong *pp;
-  struct IMAP *imap;
+  ساختار imap_conn *imapc;
+  ساختار pingpong *pp;
+  ساختار IMAP *imap;
 
-  imapc = curlx_calloc(1, sizeof(*imapc));
-  if(!imapc)
-    return CURLE_OUT_OF_MEMORY;
+  imapc = curlx_calloc(1, اندازه(*imapc));
+  اگر(!imapc)
+    بازگشت CURLE_OUT_OF_MEMORY;
 
   pp = &imapc->pp;
   PINGPONG_SETUP(pp, imap_pp_statemachine, imap_endofresp);
@@ -2273,21 +2273,21 @@ static CURLcode imap_setup_connection(struct Curl_easy *data,
 
   Curl_pp_init(pp, Curl_pgrs_now(data));
 
-  if(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  اگر(Curl_conn_meta_set(conn, CURL_META_IMAP_CONN, imapc, imap_conn_dtor))
+    بازگشت CURLE_OUT_OF_MEMORY;
 
-  imap = curlx_calloc(1, sizeof(struct IMAP));
-  if(!imap ||
+  imap = curlx_calloc(1, اندازه(ساختار IMAP));
+  اگر(!imap ||
      Curl_meta_set(data, CURL_META_IMAP_EASY, imap, imap_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /*
  * IMAP protocol.
  */
-const struct Curl_protocol Curl_protocol_imap = {
+ثابت ساختار Curl_protocol Curl_protocol_imap = {
   imap_setup_connection,            /* setup_connection */
   imap_do,                          /* do_it */
   imap_done,                        /* done */

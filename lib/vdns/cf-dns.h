@@ -23,49 +23,49 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct Curl_dns_entry;
-struct Curl_addrinfo;
-struct Curl_peer;
+ساختار Curl_easy;
+ساختار connectdata;
+ساختار Curl_dns_entry;
+ساختار Curl_addrinfo;
+ساختار Curl_peer;
 
-CURLcode Curl_conn_dns_add_addr_resolve(struct Curl_easy *data,
-                                        struct connectdata *conn,
+CURLcode Curl_conn_dns_add_addr_resolve(ساختار Curl_easy *data,
+                                        ساختار connectdata *conn,
                                         int8_t sockindex,
-                                        struct Curl_peer *peer,
+                                        ساختار Curl_peer *peer,
                                         uint8_t dns_queries,
                                         uint8_t transport);
 
-CURLcode Curl_conn_dns_addr_result(struct connectdata *conn,
+CURLcode Curl_conn_dns_addr_result(ساختار connectdata *conn,
                                    int8_t sockindex,
-                                   struct Curl_peer *peer);
+                                   ساختار Curl_peer *peer);
 
-const struct Curl_addrinfo *Curl_conn_dns_get_ai(struct Curl_easy *data,
-                                                 struct Curl_peer *peer,
+ثابت ساختار Curl_addrinfo *Curl_conn_dns_get_ai(ساختار Curl_easy *data,
+                                                 ساختار Curl_peer *peer,
                                                  int8_t sockindex,
-                                                 int ai_family,
-                                                 unsigned int index);
+                                                 صحیح ai_family,
+                                                 unsigned صحیح index);
 
 #ifdef USE_HTTPSRR
-CURLcode Curl_conn_dns_add_https_resolve(struct Curl_easy *data,
-                                         struct connectdata *conn,
+CURLcode Curl_conn_dns_add_https_resolve(ساختار Curl_easy *data,
+                                         ساختار connectdata *conn,
                                          int8_t sockindex,
-                                         struct Curl_peer *peer);
+                                         ساختار Curl_peer *peer);
 
-const struct Curl_https_rrinfo *
-Curl_conn_dns_get_https(struct Curl_easy *data,
+ثابت ساختار Curl_https_rrinfo *
+Curl_conn_dns_get_https(ساختار Curl_easy *data,
                         int8_t sockindex,
-                        struct Curl_peer *peer);
-bool Curl_conn_dns_resolved_https(struct Curl_easy *data,
+                        ساختار Curl_peer *peer);
+bool Curl_conn_dns_resolved_https(ساختار Curl_easy *data,
                                   int8_t sockindex,
-                                  struct Curl_peer *peer);
-#else
-#define Curl_conn_dns_get_https(a, b, c)        NULL
+                                  ساختار Curl_peer *peer);
+#وگرنه
+#define Curl_conn_dns_get_https(a, b, c)        پوچ
 #define Curl_conn_dns_resolved_https(a, b, c)   TRUE
 #endif
 
-extern struct Curl_cftype Curl_cft_dns;
+بیرونی ساختار Curl_cftype Curl_cft_dns;
 
 #endif /* HEADER_CURL_CF_DNS_H */

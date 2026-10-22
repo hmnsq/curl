@@ -23,28 +23,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#اگر !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 
-#include <quiche.h>
-#include <openssl/ssl.h>
+#شامل <quiche.h>
+#شامل <openssl/ssl.h>
 
-struct Curl_cfilter;
-struct Curl_easy;
+ساختار Curl_cfilter;
+ساختار Curl_easy;
 
-void Curl_quiche_ver(char *p, size_t len);
+تهی Curl_quiche_ver(نویسه *p, size_t len);
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr);
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf);
+CURLcode Curl_cf_quiche_create(ساختار Curl_cfilter **pcf,
+                               ساختار Curl_easy *data,
+                               ساختار Curl_peer *origin,
+                               ساختار Curl_peer *peer,
+                               ساختار connectdata *conn,
+                               ساختار Curl_sockaddr_ex *addr);
+CURLcode Curl_cf_quiche_درج_after(ساختار Curl_cfilter *cf_at,
+                                     ساختار Curl_peer *origin,
+                                     ساختار Curl_peer *peer,
+                                     ساختار Curl_cfilter **pcf);
 
 #endif
 

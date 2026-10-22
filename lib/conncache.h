@@ -24,16 +24,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "uint-bset.h"
-#include "uint-table.h"
-#include "curlx/timeval.h"
+#شامل "uint-bset.h"
+#شامل "uint-table.h"
+#شامل "curlx/timeval.h"
 
-struct connectdata;
-struct Curl_easy;
-struct curl_pollfds;
-struct Curl_waitfds;
-struct Curl_multi;
-struct Curl_share;
+ساختار connectdata;
+ساختار Curl_easy;
+ساختار curl_pollfds;
+ساختار Curl_waitfds;
+ساختار Curl_multi;
+ساختار Curl_share;
 
 /**
  * Close and destroy the connection.
@@ -44,63 +44,63 @@ struct Curl_share;
  * Takes ownership of `conn`.
  * `data` should not be attached to a connection.
  */
-void Curl_conn_close(struct Curl_easy *data,
-                     struct connectdata *conn,
+تهی Curl_conn_close(ساختار Curl_easy *data,
+                     ساختار connectdata *conn,
                      bool aborted);
 
-struct cpool {
-  struct uint32_tbl conns; /* connections added to this pool */
-  struct uint32_bset idles; /* pool_ids of conns being idle */
-  struct Curl_hash dest2bundle; /* conn destination sets */
+ساختار cpool {
+  ساختار uint32_tbl conns; /* connections added to this pool */
+  ساختار uint32_bset idles; /* pool_ids of conns being idle */
+  ساختار Curl_hash dest2bundle; /* conn destination sets */
   curl_off_t next_connection_id;
   curl_off_t next_easy_id;
-  struct curltime last_cleanup;
-  struct Curl_share *share; /* != NULL if pool belongs to share */
+  ساختار curltime last_cleanup;
+  ساختار Curl_share *share; /* != NULL if pool belongs to share */
   BIT(locked);
   BIT(initialized);
   BIT(in_shutdown);
 };
 
 /* Get connection pool instance for data or NULL if none exists */
-struct cpool *Curl_cpool_get_instance(struct Curl_easy *data);
+ساختار cpool *Curl_cpool_get_instance(ساختار Curl_easy *data);
 
 /* Init the pool, pass multi only if pool is owned by it.
  * Cannot fail.
  */
-void Curl_cpool_init(struct cpool *cpool,
-                     struct Curl_share *share,
+تهی Curl_cpool_init(ساختار cpool *cpool,
+                     ساختار Curl_share *share,
                      size_t size);
 
 /* Destroy all connections and free all members */
-void Curl_cpool_destroy(struct cpool *cpool,
-                        struct Curl_easy *admin);
+تهی Curl_cpool_destroy(ساختار cpool *cpool,
+                        ساختار Curl_easy *admin);
 
 /* Init the transfer to be used within its connection pool.
  * Assigns `data->id`. */
-void Curl_cpool_xfer_init(struct Curl_easy *data);
+تهی Curl_cpool_xfer_init(ساختار Curl_easy *data);
 
 /* Get the connection last used by data,
  * if there was one and it still exists. */
-struct connectdata *Curl_cpool_get_last_conn(struct Curl_easy *data);
+ساختار connectdata *Curl_cpool_get_last_conn(ساختار Curl_easy *data);
 
 /* Add the connection to the pool. */
-CURLcode Curl_cpool_add(struct Curl_easy *data,
-                        struct connectdata *conn,
+CURLcode Curl_cpool_add(ساختار Curl_easy *data,
+                        ساختار connectdata *conn,
                         uint32_t max_total,
                         uint32_t max_host,
-                        const struct curltime *pnow) WARN_UNUSED_RESULT;
+                        ثابت ساختار curltime *pnow) WARN_UNUSED_RESULT;
 
 /* Connection was used at the given time. */
-void Curl_cpool_conn_was_used(struct Curl_easy *data,
-                              struct connectdata *conn,
-                              const struct curltime *pnow);
+تهی Curl_cpool_conn_was_used(ساختار Curl_easy *data,
+                              ساختار connectdata *conn,
+                              ثابت ساختار curltime *pnow);
 
 /* Return connection age in milliseconds since its creation. */
-timediff_t Curl_cpool_conn_age_ms(struct Curl_easy *data,
-                                  struct connectdata *conn,
-                                  const struct curltime *pnow);
+timediff_t Curl_cpool_conn_age_ms(ساختار Curl_easy *data,
+                                  ساختار connectdata *conn,
+                                  ثابت ساختار curltime *pnow);
 
-typedef enum {
+تعریفنوع شمارش {
   CPOOL_MATCH_FOUND, /* The passed `conn` matches, stop looking further */
   CPOOL_MATCH_CONT,  /* No match, continue looking */
   CPOOL_MATCH_CLOSE, /* No match, close `conn`, continue looking */
@@ -108,11 +108,11 @@ typedef enum {
 } cpool_match_result;
 
 /* Return of conn is suitable. If so, stops iteration. */
-typedef cpool_match_result
- Curl_cpool_conn_match_cb(struct connectdata *conn, void *userdata);
+تعریفنوع cpool_match_result
+ Curl_cpool_conn_match_cb(ساختار connectdata *conn, تهی *userdata);
 
 /* Act on the result of the find, may override it. */
-typedef bool Curl_cpool_done_match_cb(void *userdata);
+تعریفنوع bool Curl_cpool_done_match_cb(تهی *userdata);
 
 /**
  * Find a connection in the pool matching `destination`.
@@ -126,30 +126,30 @@ typedef bool Curl_cpool_done_match_cb(void *userdata);
  * @return combined result of last conn_db and result_cb or FALSE if no
                       connections were present.
  */
-bool Curl_cpool_find(struct Curl_easy *data,
-                     const char *destination,
+bool Curl_cpool_find(ساختار Curl_easy *data,
+                     ثابت نویسه *destination,
                      bool prune_dead,
-                     const struct curltime *pnow,
+                     ثابت ساختار curltime *pnow,
                      Curl_cpool_conn_match_cb *conn_cb,
                      Curl_cpool_done_match_cb *done_cb,
-                     void *userdata);
+                     تهی *userdata);
 
 /**
  * Perform upkeep actions on connections in the transfer's pool.
  */
-CURLcode Curl_cpool_upkeep(struct Curl_easy *data);
+CURLcode Curl_cpool_upkeep(ساختار Curl_easy *data);
 
-typedef enum {
+تعریفنوع شمارش {
   CPOOL_DO_KEEP, /* Keep the connection, still in use */
   CPOOL_DO_IDLE, /* Connection is idle, may get closed now */
   CPOOL_DO_CLOSE, /* Close the connection (clean) */
   CPOOL_DO_TERMINATE /* Terminate the connection (unclean) */
 } cpool_do_result;
 
-typedef cpool_do_result Curl_cpool_return_cb(struct Curl_easy *data,
-                                             struct connectdata *conn,
-                                             void *cbdata,
-                                             const struct curltime *pnow);
+تعریفنوع cpool_do_result Curl_cpool_return_cb(ساختار Curl_easy *data,
+                                             ساختار connectdata *conn,
+                                             تهی *cbdata,
+                                             ثابت ساختار curltime *pnow);
 
 /**
  * Invoked the callback for the given data + connection under the
@@ -157,18 +157,18 @@ typedef cpool_do_result Curl_cpool_return_cb(struct Curl_easy *data,
  * The callback is always invoked, even if the transfer has no connection
  * pool associated.
  */
-void Curl_cpool_return(struct Curl_easy *data,
-                       struct connectdata *conn,
-                       Curl_cpool_return_cb *cb, void *cbdata,
-                       const struct curltime *pnow);
+تهی Curl_cpool_return(ساختار Curl_easy *data,
+                       ساختار connectdata *conn,
+                       Curl_cpool_return_cb *cb, تهی *cbdata,
+                       ثابت ساختار curltime *pnow);
 
 /* Close all unused connections, prevent reuse of existing ones. */
-void Curl_cpool_nw_changed(struct cpool *cpool, struct Curl_easy *admin);
+تهی Curl_cpool_nw_changed(ساختار cpool *cpool, ساختار Curl_easy *admin);
 
 /* Return TRUE iff the given connection is considered healthy, e.g.
  * usable for more transfers. */
-bool Curl_cpool_conn_seems_healthy(struct connectdata *conn,
-                                   struct Curl_easy *data,
-                                   const struct curltime *pnow);
+bool Curl_cpool_conn_seems_healthy(ساختار connectdata *conn,
+                                   ساختار Curl_easy *data,
+                                   ثابت ساختار curltime *pnow);
 
 #endif /* HEADER_CURL_CONNCACHE_H */

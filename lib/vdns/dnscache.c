@@ -21,56 +21,56 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#شامل <netinet/in.h>
 #endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+#شامل <netinet/in6.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#شامل <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#شامل <in.h>
+#شامل <inet.h>
 #endif
 
-#include "urldata.h"
-#include "curl_addrinfo.h"
-#include "curl_share.h"
-#include "curl_trc.h"
-#include "hash.h"
-#include "progress.h"
-#include "rand.h"
-#include "strcase.h"
-#include "vdns/dnscache.h"
-#include "vdns/hostip.h"
-#include "vdns/httpsrr.h"
-#include "curlx/inet_ntop.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strcopy.h"
-#include "curlx/strparse.h"
+#شامل "urldata.h"
+#شامل "curl_addrinfo.h"
+#شامل "curl_share.h"
+#شامل "curl_trc.h"
+#شامل "hash.h"
+#شامل "progress.h"
+#شامل "rand.h"
+#شامل "strcase.h"
+#شامل "vdns/dnscache.h"
+#شامل "vdns/hostip.h"
+#شامل "vdns/httpsrr.h"
+#شامل "curlx/inet_ntop.h"
+#شامل "curlx/inet_pton.h"
+#شامل "curlx/strcopy.h"
+#شامل "curlx/strparse.h"
 
 #define MAX_DNS_CACHE_SIZE 29999
 
 /* @unittest 3217 */
-UNITTEST void dnsc_peer2id(struct dnsc_id *pid, char type,
-                           struct Curl_peer *peer);
-UNITTEST void dnsc_peer2id(struct dnsc_id *pid, char type,
-                           struct Curl_peer *peer)
+UNITTEST تهی dnsc_peer2id(ساختار dnsc_id *pid, نویسه type,
+                           ساختار Curl_peer *peer);
+UNITTEST تهی dnsc_peer2id(ساختار dnsc_id *pid, نویسه type,
+                           ساختار Curl_peer *peer)
 {
   curlx_str_assign(&pid->name, peer->hostname, strlen(peer->hostname));
   pid->port = peer->port;
   pid->type = type;
 }
 
-static void dnsc_str2id(struct dnsc_id *pid, char type,
-                        struct Curl_str *name, uint16_t port)
+ایستا تهی dnsc_str2id(ساختار dnsc_id *pid, نویسه type,
+                        ساختار Curl_str *name, uint16_t port)
 {
   pid->name = *name;
   pid->port = port;
@@ -83,27 +83,27 @@ static void dnsc_str2id(struct dnsc_id *pid, char type,
  *
  * @unittest 3217
  */
-UNITTEST void dnsc_id2key(struct dnsc_key *key, struct dnsc_id *id);
-UNITTEST void dnsc_id2key(struct dnsc_key *key, struct dnsc_id *id)
+UNITTEST تهی dnsc_id2key(ساختار dnsc_کلید *کلید, ساختار dnsc_id *id);
+UNITTEST تهی dnsc_id2key(ساختار dnsc_کلید *کلید, ساختار dnsc_id *id)
 {
   size_t namelen = curlx_strlen(&id->name);
-  if(namelen > (MAX_HOSTCACHE_LEN - 3))
+  اگر(namelen > (MAX_HOSTCACHE_LEN - 3))
     namelen = MAX_HOSTCACHE_LEN - 3;
   /* store and lower case the name */
-  key->data[0] = id->type;
-  key->data[1] = (uint8_t)((id->port >> 8) & 0xff);
-  key->data[2] = (uint8_t)(id->port & 0xff);
-  Curl_strntolower((char *)key->data + 3, curlx_str(&id->name), namelen);
-  key->len = namelen + 3;
+  کلید->data[0] = id->type;
+  کلید->data[1] = (uint8_t)((id->port >> 8) & 0xff);
+  کلید->data[2] = (uint8_t)(id->port & 0xff);
+  Curl_strntolower((نویسه *)کلید->data + 3, curlx_str(&id->name), namelen);
+  کلید->len = namelen + 3;
 }
 
 /* @unittest 3271 */
-UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
-                                    struct Curl_dns_entry *dns);
-UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
-                                    struct Curl_dns_entry *dns)
+UNITTEST bool dnsc_id_matches_entry(ساختار dnsc_id *id,
+                                    ساختار Curl_dns_entry *dns);
+UNITTEST bool dnsc_id_matches_entry(ساختار dnsc_id *id,
+                                    ساختار Curl_dns_entry *dns)
 {
-  return dns &&
+  بازگشت dns &&
          /* Neither the requested nor the cached key was truncated. */
          (((dns->hostlen <= (MAX_HOSTCACHE_LEN - 3)) &&
            (id->name.len <= (MAX_HOSTCACHE_LEN - 3))) ||
@@ -114,7 +114,7 @@ UNITTEST bool dnsc_id_matches_entry(struct dnsc_id *id,
             curl_strequal(id->name.str, dns->hostname))));
 }
 
-static void dnscache_entry_free(struct Curl_dns_entry *dns)
+ایستا تهی dnscache_entry_free(ساختار Curl_dns_entry *dns)
 {
   Curl_freeaddrinfo(dns->addr);
 #ifdef USE_HTTPSRR
@@ -123,8 +123,8 @@ static void dnscache_entry_free(struct Curl_dns_entry *dns)
   curlx_free(dns);
 }
 
-struct dnscache_prune_data {
-  const struct curltime *pnow;
+ساختار dnscache_prune_data {
+  ثابت ساختار curltime *pnow;
   timediff_t oldest_ms; /* oldest time in cache not pruned. */
   timediff_t max_age_ms;
 };
@@ -136,77 +136,77 @@ struct dnscache_prune_data {
  * Returning non-zero means remove the entry, return 0 to keep it in the
  * cache.
  */
-static int dnscache_entry_is_stale(void *datap, void *hc)
+ایستا صحیح dnscache_entry_is_stale(تهی *datap, تهی *hc)
 {
-  struct dnscache_prune_data *prune = (struct dnscache_prune_data *)datap;
-  struct Curl_dns_entry *dns = (struct Curl_dns_entry *)hc;
+  ساختار dnscache_prune_data *prune = (ساختار dnscache_prune_data *)datap;
+  ساختار Curl_dns_entry *dns = (ساختار Curl_dns_entry *)hc;
 
-  if(!dns->permanent) {
+  اگر(!dns->permanent) {
     /* get age in milliseconds */
     timediff_t age_ms = curlx_ptimediff_ms(prune->pnow, &dns->added);
-    switch(dns->type) {
-    case CURL_DNST_ADDR:
-      if(!dns->addr)
+    انتخاب(dns->type) {
+    حالت CURL_DNST_ADDR:
+      اگر(!dns->addr)
         age_ms *= 2; /* negative entries age twice as fast */
-      break;
+      بشکن;
 #ifdef USE_HTTPSRR
-    case CURL_DNST_HTTPS:
-      if(!dns->hinfo)
+    حالت CURL_DNST_HTTPS:
+      اگر(!dns->hinfo)
         age_ms *= 2; /* negative entries age twice as fast */
-      break;
+      بشکن;
 #endif
-    default:
-      break;
+    پیشفرض:
+      بشکن;
     }
-    if(age_ms >= prune->max_age_ms)
-      return TRUE;
-    if(age_ms > prune->oldest_ms)
+    اگر(age_ms >= prune->max_age_ms)
+      بازگشت TRUE;
+    اگر(age_ms > prune->oldest_ms)
       prune->oldest_ms = age_ms;
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
 /*
  * Prune the DNS cache. This assumes that a lock has already been taken.
  * Returns the 'age' of the oldest still kept entry - in milliseconds.
  */
-static timediff_t dnscache_prune(struct Curl_hash *hostcache,
+ایستا timediff_t dnscache_prune(ساختار Curl_hash *hostcache,
                                  timediff_t cache_timeout_ms,
-                                 const struct curltime *pnow)
+                                 ثابت ساختار curltime *pnow)
 {
-  struct dnscache_prune_data user;
+  ساختار dnscache_prune_data user;
 
   user.max_age_ms = cache_timeout_ms;
   user.pnow = pnow;
   user.oldest_ms = 0;
 
   Curl_hash_clean_with_criterium(hostcache,
-                                 (void *)&user,
+                                 (تهی *)&user,
                                  dnscache_entry_is_stale);
 
-  return user.oldest_ms;
+  بازگشت user.oldest_ms;
 }
 
-static struct Curl_dnscache *dnscache_get(struct Curl_easy *data)
+ایستا ساختار Curl_dnscache *dnscache_get(ساختار Curl_easy *data)
 {
-  if(data->share && data->share->specifier & (1 << CURL_LOCK_DATA_DNS))
-    return &data->share->dnscache;
-  if(data->multi)
-    return &data->multi->dnscache;
-  return NULL;
+  اگر(data->share && data->share->specifier & (1 << CURL_LOCK_DATA_DNS))
+    بازگشت &data->share->dnscache;
+  اگر(data->multi)
+    بازگشت &data->multi->dnscache;
+  بازگشت پوچ;
 }
 
-static void dnscache_lock(struct Curl_easy *data,
-                          struct Curl_dnscache *dnscache)
+ایستا تهی dnscache_lock(ساختار Curl_easy *data,
+                          ساختار Curl_dnscache *dnscache)
 {
-  if(data->share && dnscache == &data->share->dnscache)
+  اگر(data->share && dnscache == &data->share->dnscache)
     Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
 }
 
-static void dnscache_unlock(struct Curl_easy *data,
-                            struct Curl_dnscache *dnscache)
+ایستا تهی dnscache_unlock(ساختار Curl_easy *data,
+                            ساختار Curl_dnscache *dnscache)
 {
-  if(data->share && dnscache == &data->share->dnscache)
+  اگر(data->share && dnscache == &data->share->dnscache)
     Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
 }
 
@@ -214,40 +214,40 @@ static void dnscache_unlock(struct Curl_easy *data,
  * Library-wide function for pruning the DNS cache. This function takes and
  * returns the appropriate locks.
  */
-void Curl_dnscache_prune(struct Curl_easy *data, const struct curltime *pnow)
+تهی Curl_dnscache_prune(ساختار Curl_easy *data, ثابت ساختار curltime *pnow)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
+  ساختار Curl_dnscache *dnscache = dnscache_get(data);
   /* the timeout may be set -1 (forever) */
   timediff_t timeout_ms = data->set.dns_cache_timeout_ms;
 
-  if(!dnscache || (timeout_ms == -1))
+  اگر(!dnscache || (timeout_ms == -1))
     /* NULL hostcache means we cannot do it */
-    return;
+    بازگشت;
 
   dnscache_lock(data, dnscache);
 
-  do {
+  انجامبده {
     /* Remove outdated and unused entries from the hostcache */
     timediff_t oldest_ms =
       dnscache_prune(&dnscache->entries, timeout_ms, pnow);
 
-    if(Curl_hash_count(&dnscache->entries) > MAX_DNS_CACHE_SIZE)
+    اگر(Curl_hash_شمار(&dnscache->entries) > MAX_DNS_CACHE_SIZE)
       /* prune the ones over half this age */
       timeout_ms = oldest_ms / 2;
-    else
-      break;
+    وگرنه
+      بشکن;
 
     /* if the cache size is still too big, use the oldest age as new prune
        limit */
-  } while(timeout_ms);
+  } وقتی(timeout_ms);
 
   dnscache_unlock(data, dnscache);
 }
 
-void Curl_dnscache_clear(struct Curl_easy *data)
+تهی Curl_dnscache_clear(ساختار Curl_easy *data)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  if(dnscache) {
+  ساختار Curl_dnscache *dnscache = dnscache_get(data);
+  اگر(dnscache) {
     dnscache_lock(data, dnscache);
     Curl_hash_clean(&dnscache->entries);
     dnscache_unlock(data, dnscache);
@@ -255,83 +255,83 @@ void Curl_dnscache_clear(struct Curl_easy *data)
 }
 
 /* lookup address, returns entry if found and not stale */
-static CURLcode fetch_entry(struct Curl_easy *data,
-                            struct Curl_dnscache *dnscache,
+ایستا CURLcode fetch_entry(ساختار Curl_easy *data,
+                            ساختار Curl_dnscache *dnscache,
                             uint8_t dns_queries,
-                            struct Curl_peer *peer,
-                            struct Curl_dns_entry **pdns)
+                            ساختار Curl_peer *peer,
+                            ساختار Curl_dns_entry **pdns)
 {
-  struct Curl_dns_entry *dns = NULL;
-  struct dnsc_id id;
-  struct dnsc_key key;
-  char type = CURL_DNSQ_IS_ADDR(dns_queries) ?
+  ساختار Curl_dns_entry *dns = پوچ;
+  ساختار dnsc_id id;
+  ساختار dnsc_کلید کلید;
+  نویسه type = CURL_DNSQ_IS_ADDR(dns_queries) ?
               CURL_DNST_ADDR : CURL_DNST_HTTPS;
   CURLcode result = CURLE_OK;
 
-  *pdns = NULL;
-  if(!dnscache)
-    return CURLE_OK;
+  *pdns = پوچ;
+  اگر(!dnscache)
+    بازگشت CURLE_OK;
 
   dnsc_peer2id(&id, type, peer);
-  dnsc_id2key(&key, &id);
+  dnsc_id2key(&کلید, &id);
 
   /* See if it is already in our dns cache */
-  dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
+  dns = Curl_hash_pick(&dnscache->entries, کلید.data, کلید.len);
 
-  if(dns && !dnsc_id_matches_entry(&id, dns)) {
+  اگر(dns && !dnsc_id_matches_entry(&id, dns)) {
     /* May happen on hostnames longer than MAX_HOSTCACHE_LEN */
-    dns = NULL;
+    dns = پوچ;
   }
 
   /* No entry found in cache, check if we might have a wildcard entry */
-  if(!dns && (type == CURL_DNST_ADDR) && data->state.wildcard_resolve) {
-    struct Curl_str wildname;
+  اگر(!dns && (type == CURL_DNST_ADDR) && data->state.wildcard_resolve) {
+    ساختار Curl_str wildname;
 
     curlx_str_assign(&wildname, "*", 1);
     dnsc_str2id(&id, CURL_DNST_ADDR, &wildname, peer->port);
-    dnsc_id2key(&key, &id);
+    dnsc_id2key(&کلید, &id);
 
     /* See if it is already in our dns cache */
-    dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
+    dns = Curl_hash_pick(&dnscache->entries, کلید.data, کلید.len);
   }
 
-  if(dns && (data->set.dns_cache_timeout_ms != -1)) {
+  اگر(dns && (data->set.dns_cache_timeout_ms != -1)) {
     /* See whether the returned entry is stale. Done before we release lock */
-    struct dnscache_prune_data user;
+    ساختار dnscache_prune_data user;
 
     user.pnow = Curl_pgrs_now(data);
     user.max_age_ms = data->set.dns_cache_timeout_ms;
     user.oldest_ms = 0;
 
-    if(dnscache_entry_is_stale(&user, dns)) {
+    اگر(dnscache_entry_is_stale(&user, dns)) {
       infof(data, "Hostname in DNS cache was stale, zapped");
-      dns = NULL; /* the memory deallocation is being handled by the hash */
-      Curl_hash_delete(&dnscache->entries, key.data, key.len);
+      dns = پوچ; /* the memory deallocation is being handled by the hash */
+      Curl_hash_delete(&dnscache->entries, کلید.data, کلید.len);
     }
   }
 
   /* We need to cache address information and HTTPS-RR separately. */
-  if(dns && CURL_DNSQ_IS_ADDR(dns_queries)) {
-    if((uint8_t)(dns->dns_queries & dns_queries) !=
+  اگر(dns && CURL_DNSQ_IS_ADDR(dns_queries)) {
+    اگر((uint8_t)(dns->dns_queries & dns_queries) !=
        (uint8_t)(dns_queries & CURL_DNSQ_ADDR)) {
       /* The entry does not cover all wanted address queries, a miss. */
-      dns = NULL;
+      dns = پوچ;
     }
-    else if(!(dns->dns_responses & dns_queries)) {
+    وگرنه اگر(!(dns->dns_responses & dns_queries)) {
       /* The entry has no responses for the wanted DNS queries. */
       CURL_TRC_DNS(data, "cache entry does not have type=%s addresses",
                    Curl_resolv_query_str(dns_queries));
-      dns = NULL;
+      dns = پوچ;
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
-    else if(dns && !dns->addr) { /* negative entry */
-      dns = NULL;
+    وگرنه اگر(dns && !dns->addr) { /* negative entry */
+      dns = پوچ;
       result = CURLE_COULDNT_RESOLVE_HOST;
     }
   }
 
   *pdns = dns;
-  return result;
+  بازگشت result;
 }
 
 /*
@@ -348,44 +348,44 @@ static CURLcode fetch_entry(struct Curl_easy *data,
  * The returned data *MUST* be "released" with Curl_dns_entry_unlink() after
  * use, or we will leak memory!
  */
-CURLcode Curl_dnscache_get(struct Curl_easy *data,
+CURLcode Curl_dnscache_get(ساختار Curl_easy *data,
                            uint8_t dns_queries,
-                           struct Curl_peer *peer,
-                           struct Curl_dns_entry **pentry)
+                           ساختار Curl_peer *peer,
+                           ساختار Curl_dns_entry **pentry)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct Curl_dns_entry *dns = NULL;
+  ساختار Curl_dnscache *dnscache = dnscache_get(data);
+  ساختار Curl_dns_entry *dns = پوچ;
   CURLcode result = CURLE_OK;
 
   dnscache_lock(data, dnscache);
   result = fetch_entry(data, dnscache, dns_queries, peer, &dns);
-  if(!result && dns)
+  اگر(!result && dns)
     dns->refcount++; /* we pass out a reference */
-  else if(result) {
+  وگرنه اگر(result) {
     DEBUGASSERT(!dns);
-    dns = NULL;
+    dns = پوچ;
   }
   dnscache_unlock(data, dnscache);
 
   CURL_TRC_DNS(data, "cache lookup %s:%u queries=%s -> %d %sfound",
                peer->hostname, peer->port, Curl_resolv_query_str(dns_queries),
-               (int)result, dns ? "" : "not ");
+               (صحیح)result, dns ? "" : "not ");
   *pentry = dns;
-  return result;
+  بازگشت result;
 }
 
 #ifndef CURL_DISABLE_SHUFFLE_DNS
 /*
  * Return # of addresses in a Curl_addrinfo struct
  */
-static int num_addresses(const struct Curl_addrinfo *addr)
+ایستا صحیح رقم_addresses(ثابت ساختار Curl_addrinfo *addr)
 {
-  int i = 0;
-  while(addr) {
+  صحیح i = 0;
+  وقتی(addr) {
     addr = addr->ai_next;
     i++;
   }
-  return i;
+  بازگشت i;
 }
 
 /*
@@ -400,106 +400,106 @@ static int num_addresses(const struct Curl_addrinfo *addr)
  *
  * @unittest 1608
  */
-UNITTEST CURLcode dns_shuffle_addr(struct Curl_easy *data,
-                                   struct Curl_addrinfo **addr);
-UNITTEST CURLcode dns_shuffle_addr(struct Curl_easy *data,
-                                   struct Curl_addrinfo **addr)
+UNITTEST CURLcode dns_shuffle_addr(ساختار Curl_easy *data,
+                                   ساختار Curl_addrinfo **addr);
+UNITTEST CURLcode dns_shuffle_addr(ساختار Curl_easy *data,
+                                   ساختار Curl_addrinfo **addr)
 {
   CURLcode result = CURLE_OK;
-  const int num_addrs = num_addresses(*addr);
+  ثابت صحیح رقم_addrs = رقم_addresses(*addr);
 
-  if(num_addrs > 1) {
-    struct Curl_addrinfo **nodes;
-    CURL_TRC_DNS(data, "Shuffling %d addresses", num_addrs);
+  اگر(رقم_addrs > 1) {
+    ساختار Curl_addrinfo **nodes;
+    CURL_TRC_DNS(data, "Shuffling %d addresses", رقم_addrs);
 
-    nodes = curlx_malloc(num_addrs * sizeof(*nodes));
-    if(nodes) {
-      int i;
-      unsigned int *rnd;
-      const size_t rnd_size = num_addrs * sizeof(*rnd);
+    nodes = curlx_malloc(رقم_addrs * اندازه(*nodes));
+    اگر(nodes) {
+      صحیح i;
+      unsigned صحیح *rnd;
+      ثابت size_t rnd_size = رقم_addrs * اندازه(*rnd);
 
       /* build a plain array of Curl_addrinfo pointers */
       nodes[0] = *addr;
-      for(i = 1; i < num_addrs; i++) {
+      برای(i = 1; i < رقم_addrs; i++) {
         nodes[i] = nodes[i - 1]->ai_next;
       }
 
       rnd = curlx_malloc(rnd_size);
-      if(rnd) {
+      اگر(rnd) {
         /* Fisher-Yates shuffle */
-        if(Curl_rand(data, (unsigned char *)rnd, rnd_size) == CURLE_OK) {
-          struct Curl_addrinfo *swap_tmp;
-          for(i = num_addrs - 1; i > 0; i--) {
-            swap_tmp = nodes[rnd[i] % (unsigned int)(i + 1)];
-            nodes[rnd[i] % (unsigned int)(i + 1)] = nodes[i];
+        اگر(Curl_rand(data, (unsigned نویسه *)rnd, rnd_size) == CURLE_OK) {
+          ساختار Curl_addrinfo *swap_tmp;
+          برای(i = رقم_addrs - 1; i > 0; i--) {
+            swap_tmp = nodes[rnd[i] % (unsigned صحیح)(i + 1)];
+            nodes[rnd[i] % (unsigned صحیح)(i + 1)] = nodes[i];
             nodes[i] = swap_tmp;
           }
 
           /* relink list in the new order */
-          for(i = 1; i < num_addrs; i++) {
+          برای(i = 1; i < رقم_addrs; i++) {
             nodes[i - 1]->ai_next = nodes[i];
           }
 
-          nodes[num_addrs - 1]->ai_next = NULL;
+          nodes[رقم_addrs - 1]->ai_next = پوچ;
           *addr = nodes[0];
         }
         curlx_free(rnd);
       }
-      else
+      وگرنه
         result = CURLE_OUT_OF_MEMORY;
       curlx_free(nodes);
     }
-    else
+    وگرنه
       result = CURLE_OUT_OF_MEMORY;
   }
-  return result;
+  بازگشت result;
 }
 #endif
 
-static bool dnscache_ai_has_family(struct Curl_addrinfo *ai, int ai_family)
+ایستا bool dnscache_ai_has_family(ساختار Curl_addrinfo *ai, صحیح ai_family)
 {
-  for(; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family)
-      return TRUE;
+  برای(; ai; ai = ai->ai_next) {
+    اگر(ai->ai_family == ai_family)
+      بازگشت TRUE;
   }
-  return FALSE;
+  بازگشت FALSE;
 }
 
-static struct Curl_dns_entry *dnsc_entry_create(struct dnsc_id *pid,
+ایستا ساختار Curl_dns_entry *dnsc_entry_create(ساختار dnsc_id *pid,
                                                 bool permanent)
 {
-  struct Curl_dns_entry *dns = NULL;
+  ساختار Curl_dns_entry *dns = پوچ;
 
-  if(curlx_strlen(&pid->name) > UINT16_MAX)
-    goto out;
+  اگر(curlx_strlen(&pid->name) > UINT16_MAX)
+    برو out;
 
   /* Create a new cache entry,
      struct already has the hostname null-terminator */
-  dns = curlx_calloc(1, sizeof(struct Curl_dns_entry) +
+  dns = curlx_calloc(1, اندازه(ساختار Curl_dns_entry) +
                      curlx_strlen(&pid->name));
-  if(!dns)
-    goto out;
+  اگر(!dns)
+    برو out;
 
   dns->refcount = 1; /* the cache has the first reference */
   dns->port = pid->port;
   dns->hostlen = (uint16_t)curlx_strlen(&pid->name);
-  if(dns->hostlen)
+  اگر(dns->hostlen)
     memcpy(dns->hostname, curlx_str(&pid->name), dns->hostlen);
   dns->permanent = permanent;
 
 out:
-  return dns;
+  بازگشت dns;
 }
 
-static struct Curl_dns_entry *dnsc_entry_assign_addr(
-  struct Curl_easy *data,
-  struct Curl_dns_entry *dns,
+ایستا ساختار Curl_dns_entry *dnsc_entry_assign_addr(
+  ساختار Curl_easy *data,
+  ساختار Curl_dns_entry *dns,
   uint8_t dns_queries,
-  struct Curl_addrinfo **paddr1,
-  struct Curl_addrinfo **paddr2)
+  ساختار Curl_addrinfo **paddr1,
+  ساختار Curl_addrinfo **paddr2)
 {
-  if(!dns)
-    goto out;
+  اگر(!dns)
+    برو out;
   /* only do this when this is the only reference */
   DEBUGASSERT(dns->refcount == 1);
   DEBUGASSERT(dns->type == CURL_DNST_INIT);
@@ -510,288 +510,288 @@ static struct Curl_dns_entry *dnsc_entry_assign_addr(
   dns->dns_queries = (dns_queries & CURL_DNSQ_ADDR);
 
   /* Take the given address lists into the entry */
-  if(paddr1 && *paddr1) {
+  اگر(paddr1 && *paddr1) {
     dns->addr = *paddr1;
-    *paddr1 = NULL;
+    *paddr1 = پوچ;
   }
-  if(paddr2 && *paddr2) {
-    struct Curl_addrinfo **phead = &dns->addr;
-    while(*phead)
+  اگر(paddr2 && *paddr2) {
+    ساختار Curl_addrinfo **phead = &dns->addr;
+    وقتی(*phead)
       phead = &(*phead)->ai_next;
     *phead = *paddr2;
-    *paddr2 = NULL;
+    *paddr2 = پوچ;
   }
 
-  if((dns_queries & CURL_DNSQ_A) &&
+  اگر((dns_queries & CURL_DNSQ_A) &&
      dnscache_ai_has_family(dns->addr, PF_INET))
     dns->dns_responses |= CURL_DNSQ_A;
 
 #ifdef USE_IPV6
-  if((dns_queries & CURL_DNSQ_AAAA) &&
+  اگر((dns_queries & CURL_DNSQ_AAAA) &&
      dnscache_ai_has_family(dns->addr, PF_INET6))
     dns->dns_responses |= CURL_DNSQ_AAAA;
 #endif /* USE_IPV6 */
 
 #ifndef CURL_DISABLE_SHUFFLE_DNS
   /* shuffle addresses if requested */
-  if(data->set.dns_shuffle_addresses && dns->addr) {
+  اگر(data->set.dns_shuffle_addresses && dns->addr) {
     CURLcode result = dns_shuffle_addr(data, &dns->addr);
-    if(result) {
+    اگر(result) {
       /* free without lock, we are the sole owner */
       dnscache_entry_free(dns);
-      dns = NULL;
-      goto out;
+      dns = پوچ;
+      برو out;
     }
   }
-#else
-  (void)data;
+#وگرنه
+  (تهی)data;
 #endif
 
 out:
-  if(paddr1 && *paddr1) {
+  اگر(paddr1 && *paddr1) {
     Curl_freeaddrinfo(*paddr1);
-    *paddr1 = NULL;
+    *paddr1 = پوچ;
   }
-  if(paddr2 && *paddr2) {
+  اگر(paddr2 && *paddr2) {
     Curl_freeaddrinfo(*paddr2);
-    *paddr2 = NULL;
+    *paddr2 = پوچ;
   }
-  return dns;
+  بازگشت dns;
 }
 
-struct Curl_dns_entry *Curl_dnsc_mk_addr(struct Curl_easy *data,
+ساختار Curl_dns_entry *Curl_dnsc_mk_addr(ساختار Curl_easy *data,
                                          uint8_t dns_queries,
-                                         struct Curl_addrinfo **paddr,
-                                         struct Curl_peer *peer)
+                                         ساختار Curl_addrinfo **paddr,
+                                         ساختار Curl_peer *peer)
 {
-  struct dnsc_id id;
-  struct Curl_dns_entry *dns;
+  ساختار dnsc_id id;
+  ساختار Curl_dns_entry *dns;
 
   dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
   dns = dnsc_entry_create(&id, FALSE);
-  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  return dns;
+  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, پوچ);
+  بازگشت dns;
 }
 
-struct Curl_dns_entry *Curl_dnsc_mk_addr2(struct Curl_easy *data,
+ساختار Curl_dns_entry *Curl_dnsc_mk_addr2(ساختار Curl_easy *data,
                                           uint8_t dns_queries,
-                                          struct Curl_addrinfo **paddr1,
-                                          struct Curl_addrinfo **paddr2,
-                                          struct Curl_peer *peer)
+                                          ساختار Curl_addrinfo **paddr1,
+                                          ساختار Curl_addrinfo **paddr2,
+                                          ساختار Curl_peer *peer)
 {
-  struct dnsc_id id;
-  struct Curl_dns_entry *dns;
+  ساختار dnsc_id id;
+  ساختار Curl_dns_entry *dns;
 
   dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr1, paddr2);
-  return dns;
+  بازگشت dns;
 }
 
-static struct Curl_dns_entry *dnsc_add_entry(struct Curl_easy *data,
-                                             struct Curl_dnscache *dnscache,
-                                             struct dnsc_key *key,
-                                             struct Curl_dns_entry *entry)
+ایستا ساختار Curl_dns_entry *dnsc_add_entry(ساختار Curl_easy *data,
+                                             ساختار Curl_dnscache *dnscache,
+                                             ساختار dnsc_کلید *کلید,
+                                             ساختار Curl_dns_entry *entry)
 {
   entry->added = *Curl_pgrs_now(data);
-  return Curl_hash_add(&dnscache->entries, key->data, key->len, entry);
+  بازگشت Curl_hash_add(&dnscache->entries, کلید->data, کلید->len, entry);
 }
 
 #ifdef USE_HTTPSRR
-static struct Curl_dns_entry *dnsc_entry_assign_https(
-  struct Curl_dns_entry *dns,
-  struct Curl_https_rrinfo **phinfo)
+ایستا ساختار Curl_dns_entry *dnsc_entry_assign_https(
+  ساختار Curl_dns_entry *dns,
+  ساختار Curl_https_rrinfo **phinfo)
 {
-  if(!dns)
-    goto out;
+  اگر(!dns)
+    برو out;
   /* only do this when this is the only reference */
   DEBUGASSERT(dns->refcount == 1);
   DEBUGASSERT(dns->type == CURL_DNST_INIT);
 
-  if(dns->hinfo) {
+  اگر(dns->hinfo) {
     Curl_httpsrr_destroy(dns->hinfo);
-    dns->hinfo = NULL;
+    dns->hinfo = پوچ;
   }
   dns->type = CURL_DNST_HTTPS;
   dns->dns_responses = dns->dns_queries = CURL_DNSQ_HTTPS;
-  if(phinfo) {
+  اگر(phinfo) {
     dns->hinfo = *phinfo;
-    *phinfo = NULL;
+    *phinfo = پوچ;
   }
 out:
-  if(phinfo && *phinfo) {
+  اگر(phinfo && *phinfo) {
     Curl_httpsrr_destroy(*phinfo);
-    *phinfo = NULL;
+    *phinfo = پوچ;
   }
-  return dns;
+  بازگشت dns;
 }
 
-struct Curl_dns_entry *Curl_dnsc_mk_https(struct Curl_easy *data,
-                                          struct Curl_https_rrinfo **phinfo,
-                                          struct Curl_peer *peer)
+ساختار Curl_dns_entry *Curl_dnsc_mk_https(ساختار Curl_easy *data,
+                                          ساختار Curl_https_rrinfo **phinfo,
+                                          ساختار Curl_peer *peer)
 {
-  struct dnsc_id id;
-  struct Curl_dns_entry *dns;
+  ساختار dnsc_id id;
+  ساختار Curl_dns_entry *dns;
 
-  (void)data;
+  (تهی)data;
   dnsc_peer2id(&id, CURL_DNST_HTTPS, peer);
   dns = dnsc_entry_create(&id, FALSE);
   dns = dnsc_entry_assign_https(dns, phinfo);
-  return dns;
+  بازگشت dns;
 }
 
-static struct Curl_dns_entry *dnsc_add_https(struct Curl_easy *data,
-                                             struct Curl_dnscache *dnscache,
-                                             struct Curl_https_rrinfo **phinfo,
-                                             struct dnsc_id *id)
+ایستا ساختار Curl_dns_entry *dnsc_add_https(ساختار Curl_easy *data,
+                                             ساختار Curl_dnscache *dnscache,
+                                             ساختار Curl_https_rrinfo **phinfo,
+                                             ساختار dnsc_id *id)
 {
-  struct Curl_dns_entry *dns, *dns2;
-  struct dnsc_key key;
+  ساختار Curl_dns_entry *dns, *dns2;
+  ساختار dnsc_کلید کلید;
 
   dns = dnsc_entry_create(id, FALSE);
   dns = dnsc_entry_assign_https(dns, phinfo);
-  if(!dns)
-    return NULL;
+  اگر(!dns)
+    بازگشت پوچ;
 
   /* Store the resolved data in our DNS cache. */
-  dnsc_id2key(&key, id);
-  dns2 = dnsc_add_entry(data, dnscache, &key, dns);
-  if(!dns2) {
+  dnsc_id2key(&کلید, id);
+  dns2 = dnsc_add_entry(data, dnscache, &کلید, dns);
+  اگر(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    بازگشت پوچ;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  بازگشت dns;
 }
 #endif /* USE_HTTPSRR */
 
-static struct Curl_dns_entry *dnsc_add_addr(struct Curl_easy *data,
-                                            struct Curl_dnscache *dnscache,
+ایستا ساختار Curl_dns_entry *dnsc_add_addr(ساختار Curl_easy *data,
+                                            ساختار Curl_dnscache *dnscache,
                                             uint8_t dns_queries,
-                                            struct Curl_addrinfo **paddr,
-                                            struct dnsc_id *id,
-                                            struct dnsc_key *key,
+                                            ساختار Curl_addrinfo **paddr,
+                                            ساختار dnsc_id *id,
+                                            ساختار dnsc_کلید *کلید,
                                             bool permanent)
 {
-  struct Curl_dns_entry *dns;
-  struct Curl_dns_entry *dns2;
+  ساختار Curl_dns_entry *dns;
+  ساختار Curl_dns_entry *dns2;
 
   dns = dnsc_entry_create(id, permanent);
-  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  if(!dns)
-    return NULL;
+  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, پوچ);
+  اگر(!dns)
+    بازگشت پوچ;
 
   /* Store the resolved data in our DNS cache. */
-  dns2 = dnsc_add_entry(data, dnscache, key, dns);
-  if(!dns2) {
+  dns2 = dnsc_add_entry(data, dnscache, کلید, dns);
+  اگر(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    بازگشت پوچ;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  بازگشت dns;
 }
 
-static struct Curl_dns_entry *dnsc_add_peer_addr(
-  struct Curl_easy *data,
-  struct Curl_dnscache *dnscache,
+ایستا ساختار Curl_dns_entry *dnsc_add_peer_addr(
+  ساختار Curl_easy *data,
+  ساختار Curl_dnscache *dnscache,
   uint8_t dns_queries,
-  struct Curl_addrinfo **paddr,
-  struct dnsc_id *id,
+  ساختار Curl_addrinfo **paddr,
+  ساختار dnsc_id *id,
   bool permanent)
 {
-  struct Curl_dns_entry *dns;
-  struct Curl_dns_entry *dns2;
-  struct dnsc_key key;
+  ساختار Curl_dns_entry *dns;
+  ساختار Curl_dns_entry *dns2;
+  ساختار dnsc_کلید کلید;
 
   dns = dnsc_entry_create(id, permanent);
-  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, NULL);
-  if(!dns)
-    return NULL;
+  dns = dnsc_entry_assign_addr(data, dns, dns_queries, paddr, پوچ);
+  اگر(!dns)
+    بازگشت پوچ;
 
   /* Store the resolved data in our DNS cache. */
-  dnsc_id2key(&key, id);
-  dns2 = dnsc_add_entry(data, dnscache, &key, dns);
-  if(!dns2) {
+  dnsc_id2key(&کلید, id);
+  dns2 = dnsc_add_entry(data, dnscache, &کلید, dns);
+  اگر(!dns2) {
     dnscache_entry_free(dns);
-    return NULL;
+    بازگشت پوچ;
   }
 
   dns = dns2;
   dns->refcount++; /* mark entry as in-use */
-  return dns;
+  بازگشت dns;
 }
 
-CURLcode Curl_dnscache_add(struct Curl_easy *data,
-                           struct Curl_dns_entry *entry)
+CURLcode Curl_dnscache_add(ساختار Curl_easy *data,
+                           ساختار Curl_dns_entry *entry)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct Curl_str name;
-  struct dnsc_id id;
-  struct dnsc_key key;
+  ساختار Curl_dnscache *dnscache = dnscache_get(data);
+  ساختار Curl_str name;
+  ساختار dnsc_id id;
+  ساختار dnsc_کلید کلید;
 
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
-  if(!entry || (entry->type == CURL_DNST_INIT))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(!dnscache)
+    بازگشت CURLE_FAILED_INIT;
+  اگر(!entry || (entry->type == CURL_DNST_INIT))
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
   curlx_str_assign(&name, entry->hostname, entry->hostlen);
   dnsc_str2id(&id, entry->type, &name, entry->port);
-  dnsc_id2key(&key, &id);
+  dnsc_id2key(&کلید, &id);
 
   /* Store the resolved data in our DNS cache and up ref count */
   dnscache_lock(data, dnscache);
-  if(!dnsc_add_entry(data, dnscache, &key, entry)) {
+  اگر(!dnsc_add_entry(data, dnscache, &کلید, entry)) {
     dnscache_unlock(data, dnscache);
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
   }
   entry->refcount++;
   dnscache_unlock(data, dnscache);
   CURL_TRC_DNS(data, "cached entry for %s:%u queries=%s",
                entry->hostname, entry->port,
                Curl_resolv_query_str(entry->dns_queries));
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
+CURLcode Curl_dnscache_add_negative(ساختار Curl_easy *data,
                                     uint8_t dns_queries,
-                                    struct Curl_peer *peer)
+                                    ساختار Curl_peer *peer)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct Curl_dns_entry *dns = NULL;
-  struct dnsc_id id;
+  ساختار Curl_dnscache *dnscache = dnscache_get(data);
+  ساختار Curl_dns_entry *dns = پوچ;
+  ساختار dnsc_id id;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(dnscache);
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
+  اگر(!dnscache)
+    بازگشت CURLE_FAILED_INIT;
 
   dnscache_lock(data, dnscache);
 
-  if(dns_queries & CURL_DNSQ_ADDR) {
+  اگر(dns_queries & CURL_DNSQ_ADDR) {
     /* put this new host in the cache */
     dnsc_peer2id(&id, CURL_DNST_ADDR, peer);
-    dns = dnsc_add_peer_addr(data, dnscache, dns_queries, NULL, &id, FALSE);
-    if(!dns)
+    dns = dnsc_add_peer_addr(data, dnscache, dns_queries, پوچ, &id, FALSE);
+    اگر(!dns)
       result = CURLE_OUT_OF_MEMORY;
   }
 #ifdef USE_HTTPSRR
-  else if(dns_queries == CURL_DNSQ_HTTPS) {
+  وگرنه اگر(dns_queries == CURL_DNSQ_HTTPS) {
     dnsc_peer2id(&id, CURL_DNST_HTTPS, peer);
-    dns = dnsc_add_https(data, dnscache, NULL, &id);
-    if(!dns)
+    dns = dnsc_add_https(data, dnscache, پوچ, &id);
+    اگر(!dns)
       result = CURLE_OUT_OF_MEMORY;
   }
 #endif
-  else {
+  وگرنه {
     /* a query we do not know, just cache nothing */
     DEBUGASSERT(0);
   }
 
-  if(dns) {
+  اگر(dns) {
     /* release the returned reference; the cache itself will keep the
      * entry alive: */
     dns->refcount--;
@@ -800,7 +800,7 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
                  Curl_resolv_query_str(dns_queries));
   }
   dnscache_unlock(data, dnscache);
-  return result;
+  بازگشت result;
 }
 
 /*
@@ -810,192 +810,192 @@ CURLcode Curl_dnscache_add_negative(struct Curl_easy *data,
  *
  * May be called with 'data' == NULL for global cache.
  */
-void Curl_dns_entry_unlink(struct Curl_easy *data,
-                           struct Curl_dns_entry **pdns)
+تهی Curl_dns_entry_unlink(ساختار Curl_easy *data,
+                           ساختار Curl_dns_entry **pdns)
 {
-  if(*pdns) {
-    struct Curl_dnscache *dnscache = dnscache_get(data);
-    struct Curl_dns_entry *dns = *pdns;
-    *pdns = NULL;
+  اگر(*pdns) {
+    ساختار Curl_dnscache *dnscache = dnscache_get(data);
+    ساختار Curl_dns_entry *dns = *pdns;
+    *pdns = پوچ;
     dnscache_lock(data, dnscache);
     dns->refcount--;
-    if(dns->refcount == 0)
+    اگر(dns->refcount == 0)
       dnscache_entry_free(dns);
     dnscache_unlock(data, dnscache);
   }
 }
 
-static void dnscache_entry_dtor(void *entry)
+ایستا تهی dnscache_entry_dtor(تهی *entry)
 {
-  struct Curl_dns_entry *dns = (struct Curl_dns_entry *)entry;
+  ساختار Curl_dns_entry *dns = (ساختار Curl_dns_entry *)entry;
   DEBUGASSERT(dns && (dns->refcount > 0));
   dns->refcount--;
-  if(dns->refcount == 0)
+  اگر(dns->refcount == 0)
     dnscache_entry_free(dns);
 }
 
 /*
  * Curl_dnscache_init() inits a new DNS cache.
  */
-void Curl_dnscache_init(struct Curl_dnscache *dns, size_t size)
+تهی Curl_dnscache_init(ساختار Curl_dnscache *dns, size_t size)
 {
   Curl_hash_init(&dns->entries, size, CURL_HASH_TYPE_BYTES,
                  dnscache_entry_dtor);
 }
 
-void Curl_dnscache_destroy(struct Curl_dnscache *dns)
+تهی Curl_dnscache_destroy(ساختار Curl_dnscache *dns)
 {
   Curl_hash_destroy(&dns->entries);
 }
 
-CURLcode Curl_loadhostpairs(struct Curl_easy *data)
+CURLcode Curl_loadhostpairs(ساختار Curl_easy *data)
 {
-  struct Curl_dnscache *dnscache = dnscache_get(data);
-  struct curl_slist *hostp;
-  struct dnsc_id id;
-  struct dnsc_key key;
+  ساختار Curl_dnscache *dnscache = dnscache_get(data);
+  ساختار curl_slist *hostp;
+  ساختار dnsc_id id;
+  ساختار dnsc_کلید کلید;
 
-  if(!dnscache)
-    return CURLE_FAILED_INIT;
+  اگر(!dnscache)
+    بازگشت CURLE_FAILED_INIT;
 
   /* Default is no wildcard found */
   data->state.wildcard_resolve = FALSE;
 
-  for(hostp = data->state.resolve; hostp; hostp = hostp->next) {
-    const char *host = hostp->data;
-    struct Curl_str source;
-    if(!host)
-      continue;
-    if(*host == '-') {
-      curl_off_t num = 0;
+  برای(hostp = data->state.resolve; hostp; hostp = hostp->next) {
+    ثابت نویسه *host = hostp->data;
+    ساختار Curl_str source;
+    اگر(!host)
+      ادامه;
+    اگر(*host == '-') {
+      curl_off_t رقم = 0;
       host++;
-      if(!curlx_str_single(&host, '[')) {
-        if(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
+      اگر(!curlx_str_single(&host, '[')) {
+        اگر(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
            curlx_str_single(&host, ']') ||
            curlx_str_single(&host, ':'))
-          continue;
+          ادامه;
       }
-      else {
-        if(curlx_str_until(&host, &source, 4096, ':') ||
+      وگرنه {
+        اگر(curlx_str_until(&host, &source, 4096, ':') ||
            curlx_str_single(&host, ':')) {
-          continue;
+          ادامه;
         }
       }
 
-      if(!curlx_str_number(&host, &num, 0xffff)) {
+      اگر(!curlx_str_عدد(&host, &رقم, 0xffff)) {
         /* Create an entry id, based upon the hostname and port */
-        dnsc_str2id(&id, CURL_DNST_ADDR, &source, (uint16_t)num);
-        dnsc_id2key(&key, &id);
+        dnsc_str2id(&id, CURL_DNST_ADDR, &source, (uint16_t)رقم);
+        dnsc_id2key(&کلید, &id);
         dnscache_lock(data, dnscache);
         /* delete entry, ignore if it did not exist */
-        Curl_hash_delete(&dnscache->entries, key.data, key.len);
+        Curl_hash_delete(&dnscache->entries, کلید.data, کلید.len);
         dnscache_unlock(data, dnscache);
       }
     }
-    else {
-      struct Curl_dns_entry *dns;
-      struct Curl_addrinfo *head = NULL, *tail = NULL;
-      char address[64];
+    وگرنه {
+      ساختار Curl_dns_entry *dns;
+      ساختار Curl_addrinfo *head = پوچ, *tail = پوچ;
+      نویسه address[64];
       curl_off_t tmpofft = 0;
       uint16_t port = 0;
       bool permanent = TRUE;
       bool error = TRUE;
-      VERBOSE(const char *addresses = NULL);
+      VERBOSE(ثابت نویسه *addresses = پوچ);
 
-      if(*host == '+') {
+      اگر(*host == '+') {
         host++;
         permanent = FALSE;
       }
-      if(!curlx_str_single(&host, '[')) {
-        if(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
+      اگر(!curlx_str_single(&host, '[')) {
+        اگر(curlx_str_until(&host, &source, MAX_IPADR_LEN, ']') ||
            curlx_str_single(&host, ']'))
-          continue;
+          ادامه;
       }
-      else {
-        if(curlx_str_until(&host, &source, 4096, ':'))
-          continue;
+      وگرنه {
+        اگر(curlx_str_until(&host, &source, 4096, ':'))
+          ادامه;
       }
-      if(curlx_str_single(&host, ':') ||
-         curlx_str_number(&host, &tmpofft, 0xffff) ||
+      اگر(curlx_str_single(&host, ':') ||
+         curlx_str_عدد(&host, &tmpofft, 0xffff) ||
          curlx_str_single(&host, ':'))
-        goto err;
+        برو err;
       port = (uint16_t)tmpofft;
 
       VERBOSE(addresses = host);
 
       /* start the address section */
-      while(*host) {
-        struct Curl_str target;
-        struct Curl_addrinfo *ai;
+      وقتی(*host) {
+        ساختار Curl_str target;
+        ساختار Curl_addrinfo *ai;
         CURLcode result;
 
-        if(!curlx_str_single(&host, '[')) {
-          if(curlx_str_until(&host, &target, MAX_IPADR_LEN, ']') ||
+        اگر(!curlx_str_single(&host, '[')) {
+          اگر(curlx_str_until(&host, &target, MAX_IPADR_LEN, ']') ||
              curlx_str_single(&host, ']'))
-            goto err;
+            برو err;
         }
-        else {
-          if(curlx_str_until(&host, &target, 4096, ',')) {
-            if(curlx_str_single(&host, ','))
-              goto err;
+        وگرنه {
+          اگر(curlx_str_until(&host, &target, 4096, ',')) {
+            اگر(curlx_str_single(&host, ','))
+              برو err;
             /* survive nothing but a comma */
-            continue;
+            ادامه;
           }
         }
 #ifndef USE_IPV6
-        if(memchr(curlx_str(&target), ':', curlx_strlen(&target))) {
+        اگر(memchr(curlx_str(&target), ':', curlx_strlen(&target))) {
           infof(data, "Ignoring resolve address '%.*s', missing IPv6 support.",
-                (int)curlx_strlen(&target), curlx_str(&target));
-          if(curlx_str_single(&host, ','))
-            goto err;
-          continue;
+                (صحیح)curlx_strlen(&target), curlx_str(&target));
+          اگر(curlx_str_single(&host, ','))
+            برو err;
+          ادامه;
         }
 #endif
 
-        if(curlx_strlen(&target) >= sizeof(address))
-          goto err;
+        اگر(curlx_strlen(&target) >= اندازه(address))
+          برو err;
 
         memcpy(address, curlx_str(&target), curlx_strlen(&target));
         address[curlx_strlen(&target)] = '\0';
 
         result = Curl_str2addr(address, port, &ai);
-        if(result) {
+        اگر(result) {
           infof(data, "Resolve IP address '%s' found is illegal", address);
-          goto err;
+          برو err;
         }
 
-        if(tail) {
+        اگر(tail) {
           tail->ai_next = ai;
           tail = tail->ai_next;
         }
-        else {
+        وگرنه {
           head = tail = ai;
         }
-        if(curlx_str_single(&host, ','))
-          break;
+        اگر(curlx_str_single(&host, ','))
+          بشکن;
       }
 
-      if(!head)
-        goto err;
+      اگر(!head)
+        برو err;
 
       error = FALSE;
 err:
-      if(error) {
+      اگر(error) {
         failf(data, "Could not parse CURLOPT_RESOLVE entry '%s'", hostp->data);
         Curl_freeaddrinfo(head);
-        return CURLE_SETOPT_OPTION_SYNTAX;
+        بازگشت CURLE_SETOPT_OPTION_SYNTAX;
       }
 
       dnsc_str2id(&id, CURL_DNST_ADDR, &source, port);
-      dnsc_id2key(&key, &id);
+      dnsc_id2key(&کلید, &id);
       dnscache_lock(data, dnscache);
 
       /* See if it is already in our dns cache */
-      dns = Curl_hash_pick(&dnscache->entries, key.data, key.len);
+      dns = Curl_hash_pick(&dnscache->entries, کلید.data, کلید.len);
 
-      if(dns) {
+      اگر(dns) {
         infof(data, "RESOLVE %.*s:%u - old addresses discarded",
-              (int)curlx_strlen(&source), curlx_str(&source), port);
+              (صحیح)curlx_strlen(&source), curlx_str(&source), port);
         /* delete old entry, there are two reasons for this
          1. old entry may have different addresses.
          2. even if entry with correct addresses is already in the cache,
@@ -1007,34 +1007,34 @@ err:
          4. when adding a non-permanent entry, we want it to get a "fresh"
             timeout that starts _now_. */
 
-        Curl_hash_delete(&dnscache->entries, key.data, key.len);
+        Curl_hash_delete(&dnscache->entries, کلید.data, کلید.len);
       }
 
       /* put this new host in the cache, override all address queries */
       dns = dnsc_add_addr(data, dnscache, CURL_DNSQ_ADDR, &head,
-                          &id, &key, permanent);
-      if(dns)
+                          &id, &کلید, permanent);
+      اگر(dns)
         /* release the returned reference; the cache itself will keep the
          * entry alive: */
         dns->refcount--;
 
       dnscache_unlock(data, dnscache);
 
-      if(!dns)
-        return CURLE_OUT_OF_MEMORY;
+      اگر(!dns)
+        بازگشت CURLE_OUT_OF_MEMORY;
 
       infof(data, "[DNS] added %.*s:%u:%s to cache%s",
-            (int)curlx_strlen(&id.name), curlx_str(&id.name), id.port,
+            (صحیح)curlx_strlen(&id.name), curlx_str(&id.name), id.port,
             addresses, permanent ? "" : " (non-permanent)");
 
       /* Wildcard hostname */
-      if(curlx_str_casecompare(&source, "*")) {
+      اگر(curlx_str_casecompare(&source, "*")) {
         infof(data, "RESOLVE *:%u using wildcard", port);
         data->state.wildcard_resolve = TRUE;
       }
     }
   }
-  data->state.resolve = NULL; /* dealt with now */
+  data->state.resolve = پوچ; /* dealt with now */
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }

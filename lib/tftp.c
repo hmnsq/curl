@@ -21,47 +21,47 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "tftp.h"
+#شامل "curl_setup.h"
+#شامل "urldata.h"
+#شامل "tftp.h"
 
 #ifndef CURL_DISABLE_TFTP
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#شامل <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#شامل <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#شامل <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#شامل <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#شامل <sys/ioctl.h>
 #endif
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#شامل <sys/param.h>
 #endif
 
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "connect.h"
-#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-#include "url.h"
-#include "strcase.h"
-#include "select.h"
-#include "escape.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
+#شامل "cfilters.h"
+#شامل "cf-socket.h"
+#شامل "transfer.h"
+#شامل "sendf.h"
+#شامل "curl_trc.h"
+#شامل "progress.h"
+#شامل "connect.h"
+#شامل "sockaddr.h" /* required for Curl_sockaddr_storage */
+#شامل "url.h"
+#شامل "strcase.h"
+#شامل "select.h"
+#شامل "escape.h"
+#شامل "curlx/strerr.h"
+#شامل "curlx/strparse.h"
+#شامل "curlx/strcopy.h"
 
 /* RFC2348 allows the block size to be negotiated */
 #define TFTP_BLKSIZE_DEFAULT 512
@@ -71,19 +71,19 @@
 #define TFTP_OPTION_TSIZE    "tsize"
 #define TFTP_OPTION_INTERVAL "timeout"
 
-typedef enum {
+تعریفنوع شمارش {
   TFTP_MODE_NETASCII = 0,
   TFTP_MODE_OCTET
 } tftp_mode_t;
 
-typedef enum {
+تعریفنوع شمارش {
   TFTP_STATE_START = 0,
   TFTP_STATE_RX,
   TFTP_STATE_TX,
   TFTP_STATE_FIN
 } tftp_state_t;
 
-typedef enum {
+تعریفنوع شمارش {
   TFTP_EVENT_NONE = -1,
   TFTP_EVENT_INIT = 0,
   TFTP_EVENT_RRQ = 1,
@@ -95,7 +95,7 @@ typedef enum {
   TFTP_EVENT_TIMEOUT
 } tftp_event_t;
 
-typedef enum {
+تعریفنوع شمارش {
   TFTP_ERR_UNDEF = 0,
   TFTP_ERR_NOTFOUND,
   TFTP_ERR_PERM,
@@ -111,33 +111,33 @@ typedef enum {
   TFTP_ERR_NORESPONSE
 } tftp_error_t;
 
-struct tftp_packet {
-  unsigned char *data;
+ساختار tftp_packet {
+  unsigned نویسه *data;
 };
 
 /* meta key for storing protocol meta at connection */
 #define CURL_META_TFTP_CONN   "meta:proto:tftp:conn"
 
-struct tftp_conn {
-  struct Curl_sockaddr_storage local_addr;
-  struct Curl_sockaddr_storage remote_addr;
-  struct tftp_packet rpacket;
-  struct tftp_packet spacket;
+ساختار tftp_conn {
+  ساختار Curl_sockaddr_storage local_addr;
+  ساختار Curl_sockaddr_storage remote_addr;
+  ساختار tftp_packet rpacket;
+  ساختار tftp_packet spacket;
   tftp_state_t    state;
   tftp_mode_t     mode;
   tftp_error_t    error;
   tftp_event_t    event;
-  struct Curl_easy *data;
+  ساختار Curl_easy *data;
   curl_socket_t   sockfd;
-  int             retries;
-  int             retry_time;
-  int             retry_max;
+  صحیح             retries;
+  صحیح             retry_time;
+  صحیح             retry_max;
   time_t          rx_time;
   curl_socklen_t  remote_addrlen;
-  int             rbytes;
+  صحیح             rbytes;
   size_t          sbytes;
-  unsigned int    blksize;
-  unsigned int    requested_blksize;
+  unsigned صحیح    blksize;
+  unsigned صحیح    requested_blksize;
   unsigned short  block;
   BIT(remote_pinned);
 };
@@ -152,7 +152,7 @@ struct tftp_conn {
  *
  *
  **********************************************************/
-static CURLcode tftp_set_timeouts(struct tftp_conn *state)
+ایستا CURLcode tftp_set_timeouts(ساختار tftp_conn *state)
 {
   time_t timeout;
   timediff_t timeout_ms;
@@ -160,42 +160,42 @@ static CURLcode tftp_set_timeouts(struct tftp_conn *state)
   /* Compute drop-dead time */
   timeout_ms = Curl_timeleft_ms(state->data);
 
-  if(timeout_ms < 0) {
+  اگر(timeout_ms < 0) {
     /* time-out, bail out, go home */
     failf(state->data, "Connection time-out");
-    return CURLE_OPERATION_TIMEDOUT;
+    بازگشت CURLE_OPERATION_TIMEDOUT;
   }
 
   /* Set per-block timeout to total */
-  if((timeout_ms > 0) && (timeout_ms < 3600000))
+  اگر((timeout_ms > 0) && (timeout_ms < 3600000))
     /* do the calculation only if the timeout is "reasonable" */
     timeout = (time_t)(timeout_ms + 500) / 1000;
-  else
+  وگرنه
     timeout = 15;
 
   /* Average reposting an ACK after 5 seconds */
-  state->retry_max = (int)timeout / 5;
+  state->retry_max = (صحیح)timeout / 5;
 
   /* Bound the total number */
-  if(state->retry_max < 3)
+  اگر(state->retry_max < 3)
     state->retry_max = 3;
 
-  if(state->retry_max > 50)
+  اگر(state->retry_max > 50)
     state->retry_max = 50;
 
   /* Compute the re-ACK interval to suit the timeout */
-  state->retry_time = (int)(timeout / state->retry_max);
-  if(state->retry_time < 1)
+  state->retry_time = (صحیح)(timeout / state->retry_max);
+  اگر(state->retry_time < 1)
     state->retry_time = 1;
 
   infof(state->data,
         "set timeouts for state %d; Total %" FMT_OFF_T ", retry %d maxtry %d",
-        (int)state->state, timeout_ms, state->retry_time, state->retry_max);
+        (صحیح)state->state, timeout_ms, state->retry_time, state->retry_max);
 
   /* init RX time */
-  state->rx_time = time(NULL);
+  state->rx_time = time(پوچ);
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /**********************************************************
@@ -206,118 +206,118 @@ static CURLcode tftp_set_timeouts(struct tftp_conn *state)
  *
  **********************************************************/
 
-static void setpacketevent(struct tftp_packet *packet, unsigned short num)
+ایستا تهی setpacketevent(ساختار tftp_packet *packet, unsigned short رقم)
 {
-  packet->data[0] = (unsigned char)(num >> 8);
-  packet->data[1] = (unsigned char)(num & 0xff);
+  packet->data[0] = (unsigned نویسه)(رقم >> 8);
+  packet->data[1] = (unsigned نویسه)(رقم & 0xff);
 }
 
-static void setpacketblock(struct tftp_packet *packet, unsigned short num)
+ایستا تهی setpacketblock(ساختار tftp_packet *packet, unsigned short رقم)
 {
-  packet->data[2] = (unsigned char)(num >> 8);
-  packet->data[3] = (unsigned char)(num & 0xff);
+  packet->data[2] = (unsigned نویسه)(رقم >> 8);
+  packet->data[3] = (unsigned نویسه)(رقم & 0xff);
 }
 
-static unsigned short getrpacketevent(const struct tftp_packet *packet)
+ایستا unsigned short getrpacketevent(ثابت ساختار tftp_packet *packet)
 {
-  return (unsigned short)((packet->data[0] << 8) | packet->data[1]);
+  بازگشت (unsigned short)((packet->data[0] << 8) | packet->data[1]);
 }
 
-static unsigned short getrpacketblock(const struct tftp_packet *packet)
+ایستا unsigned short getrpacketblock(ثابت ساختار tftp_packet *packet)
 {
-  return (unsigned short)((packet->data[2] << 8) | packet->data[3]);
+  بازگشت (unsigned short)((packet->data[2] << 8) | packet->data[3]);
 }
 
-static size_t tftp_strnlen(const char *string, size_t maxlen)
+ایستا size_t tftp_strnlen(ثابت نویسه *string, size_t maxlen)
 {
-  const char *end = memchr(string, '\0', maxlen);
-  return end ? (size_t)(end - string) : maxlen;
+  ثابت نویسه *end = memchr(string, '\0', maxlen);
+  بازگشت end ? (size_t)(end - string) : maxlen;
 }
 
-static const char *tftp_option_get(const char *buf, size_t len,
-                                   const char **option, const char **value)
+ایستا ثابت نویسه *tftp_option_get(ثابت نویسه *buf, size_t len,
+                                   ثابت نویسه **option, ثابت نویسه **مقدار)
 {
   size_t loc;
 
   loc = tftp_strnlen(buf, len);
   loc++; /* NULL term */
 
-  if(loc >= len)
-    return NULL;
+  اگر(loc >= len)
+    بازگشت پوچ;
   *option = buf;
 
   loc += tftp_strnlen(buf + loc, len - loc);
   loc++; /* NULL term */
 
-  if(loc > len)
-    return NULL;
-  *value = &buf[strlen(*option) + 1];
+  اگر(loc > len)
+    بازگشت پوچ;
+  *مقدار = &buf[strlen(*option) + 1];
 
-  return &buf[loc];
+  بازگشت &buf[loc];
 }
 
-static CURLcode tftp_parse_option_ack(struct tftp_conn *state,
-                                      const char *ptr, int len)
+ایستا CURLcode tftp_parse_option_ack(ساختار tftp_conn *state,
+                                      ثابت نویسه *ptr, صحیح len)
 {
-  const char *tmp = ptr;
-  struct Curl_easy *data = state->data;
+  ثابت نویسه *tmp = ptr;
+  ساختار Curl_easy *data = state->data;
 
   /* if OACK does not contain blksize option, the default (512) must be used */
   state->blksize = TFTP_BLKSIZE_DEFAULT;
 
-  while(tmp < ptr + len) {
-    const char *option, *value;
+  وقتی(tmp < ptr + len) {
+    ثابت نویسه *option, *مقدار;
     size_t olen;
 
-    tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &value);
-    if(!tmp) {
+    tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &مقدار);
+    اگر(!tmp) {
       failf(data, "Malformed ACK packet, rejecting");
-      return CURLE_TFTP_ILLEGAL;
+      بازگشت CURLE_TFTP_ILLEGAL;
     }
     olen = strlen(option);
 
-    infof(data, "got option=(%s) value=(%s)", option, value);
+    infof(data, "got option=(%s) value=(%s)", option, مقدار);
 
-    if((CURL_CSTRLEN(TFTP_OPTION_BLKSIZE) == olen) &&
+    اگر((CURL_CSTRLEN(TFTP_OPTION_BLKSIZE) == olen) &&
        checkprefix(TFTP_OPTION_BLKSIZE, option)) {
       curl_off_t blksize;
-      if(curlx_str_number(&value, &blksize, TFTP_BLKSIZE_MAX)) {
+      اگر(curlx_str_عدد(&مقدار, &blksize, TFTP_BLKSIZE_MAX)) {
         failf(data, "%s (%d)", "blksize is larger than max supported",
               TFTP_BLKSIZE_MAX);
-        return CURLE_TFTP_ILLEGAL;
+        بازگشت CURLE_TFTP_ILLEGAL;
       }
-      if(!blksize) {
+      اگر(!blksize) {
         failf(data, "invalid blocksize value in OACK packet");
-        return CURLE_TFTP_ILLEGAL;
+        بازگشت CURLE_TFTP_ILLEGAL;
       }
-      else if(blksize < TFTP_BLKSIZE_MIN) {
+      وگرنه اگر(blksize < TFTP_BLKSIZE_MIN) {
         failf(data, "%s (%d)", "blksize is smaller than min supported",
               TFTP_BLKSIZE_MIN);
-        return CURLE_TFTP_ILLEGAL;
+        بازگشت CURLE_TFTP_ILLEGAL;
       }
-      else if(blksize > state->requested_blksize) {
+      وگرنه اگر(blksize > state->requested_blksize) {
         /* could realloc pkt buffers here, but the spec does not call out
          * support for the server requesting a bigger blksize than the client
          * requests */
         failf(data, "server requested blksize larger than allocated (%"
               CURL_FORMAT_CURL_OFF_T ")", blksize);
-        return CURLE_TFTP_ILLEGAL;
+        بازگشت CURLE_TFTP_ILLEGAL;
       }
 
-      state->blksize = (unsigned int)blksize;
+      state->blksize = (unsigned صحیح)blksize;
       infof(data, "blksize parsed from OACK (%u) requested (%u)",
             state->blksize, state->requested_blksize);
     }
-    else if((CURL_CSTRLEN(TFTP_OPTION_TSIZE) == olen) &&
+    وگرنه اگر((CURL_CSTRLEN(TFTP_OPTION_TSIZE) == olen) &&
             checkprefix(TFTP_OPTION_TSIZE, option)) {
       curl_off_t tsize = 0;
       /* tsize should be ignored on upload: Who cares about the size of the
          remote file? */
-      if(!data->state.upload &&
-         !curlx_str_number(&value, &tsize, CURL_OFF_T_MAX)) {
-        if(!tsize) {
-          failf(data, "invalid tsize -:%s:- value in OACK packet", value);
-          return CURLE_TFTP_ILLEGAL;
+      اگر(!data->state.upload &&
+         !curlx_str_عدد(&مقدار, &tsize, CURL_OFF_T_MAX)) {
+        اگر(!tsize) {
+          failf(data, "invalid tsize -:%s:- value in OACK packet", مقدار);
+          بازگشت CURLE_TFTP_ILLEGAL;
         }
         infof(data, "tsize parsed from OACK (%" CURL_FORMAT_CURL_OFF_T ")",
               tsize);
@@ -326,22 +326,22 @@ static CURLcode tftp_parse_option_ack(struct tftp_conn *state,
     }
   }
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static CURLcode tftp_option_add(struct tftp_conn *state, size_t *csize,
-                                size_t index, const char *option)
+ایستا CURLcode tftp_option_add(ساختار tftp_conn *state, size_t *csize,
+                                size_t index, ثابت نویسه *option)
 {
-  char *buf = (char *)&state->spacket.data[index];
+  نویسه *buf = (نویسه *)&state->spacket.data[index];
   size_t oplen = strlen(option);
   size_t blen;
-  if((state->blksize <= index) ||
+  اگر((state->blksize <= index) ||
      (oplen + 1) > (size_t)(state->blksize - index))
-    return CURLE_TFTP_ILLEGAL;
+    بازگشت CURLE_TFTP_ILLEGAL;
   blen = state->blksize - index;
   curlx_strcopy(buf, blen, option, oplen);
   *csize += oplen + 1;
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /* the next blocknum is x + 1 but it needs to wrap at an unsigned 16-bit
@@ -355,29 +355,29 @@ static CURLcode tftp_option_add(struct tftp_conn *state, size_t *csize,
  * Event handler for the TX state
  *
  **********************************************************/
-static CURLcode tftp_tx(struct tftp_conn *state, tftp_event_t event)
+ایستا CURLcode tftp_tx(ساختار tftp_conn *state, tftp_event_t event)
 {
-  struct Curl_easy *data = state->data;
+  ساختار Curl_easy *data = state->data;
   ssize_t sbytes;
   CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
+  ساختار SingleRequest *k = &data->req;
   size_t cb; /* Bytes currently read */
-  char buffer[STRERROR_LEN];
-  char *bufptr;
+  نویسه buffer[STRERROR_LEN];
+  نویسه *bufptr;
   bool eos;
 
-  if(!data->state.upload)
-    return CURLE_TFTP_ILLEGAL;
+  اگر(!data->state.upload)
+    بازگشت CURLE_TFTP_ILLEGAL;
 
-  switch(event) {
+  انتخاب(event) {
 
-  case TFTP_EVENT_ACK:
-  case TFTP_EVENT_OACK:
-    if(event == TFTP_EVENT_ACK) {
+  حالت TFTP_EVENT_ACK:
+  حالت TFTP_EVENT_OACK:
+    اگر(event == TFTP_EVENT_ACK) {
       /* Ack the packet */
-      int rblock = getrpacketblock(&state->rpacket);
+      صحیح rblock = getrpacketblock(&state->rpacket);
 
-      if(rblock != state->block &&
+      اگر(rblock != state->block &&
          /* There is a bug in tftpd-hpa that causes it to send us an ACK for
           * 65535 when the block number wraps to 0. To handle it, when we are
           * expecting 0, also accept 65535. See
@@ -389,41 +389,41 @@ static CURLcode tftp_tx(struct tftp_conn *state, tftp_event_t event)
               rblock, state->block);
         state->retries++;
         /* Bail out if over the maximum */
-        if(state->retries > state->retry_max) {
+        اگر(state->retries > state->retry_max) {
           failf(data, "tftp_tx: giving up waiting for block %d ack",
                 state->block);
           result = CURLE_SEND_ERROR;
         }
-        else {
+        وگرنه {
           /* Re-send the data packet */
-          sbytes = sendto(state->sockfd, (void *)state->spacket.data,
+          sbytes = sendto(state->sockfd, (تهی *)state->spacket.data,
                           4 + (SEND_TYPE_ARG3)state->sbytes, SEND_4TH_ARG,
-                          (struct sockaddr *)&state->remote_addr,
+                          (ساختار sockaddr *)&state->remote_addr,
                           state->remote_addrlen);
           /* Check all sbytes were sent */
-          if(sbytes < 0) {
+          اگر(sbytes < 0) {
             failf(data, "%s",
-                  curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
+                  curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
             result = CURLE_SEND_ERROR;
           }
         }
 
-        return result;
+        بازگشت result;
       }
       /* This is the expected packet. Reset the counters and send the next
          block */
-      state->rx_time = time(NULL);
+      state->rx_time = time(پوچ);
       state->block++;
     }
-    else
+    وگرنه
       state->block = 1; /* first data block is 1 when using OACK */
 
     state->retries = 0;
     setpacketevent(&state->spacket, TFTP_EVENT_DATA);
     setpacketblock(&state->spacket, state->block);
-    if(state->block > 1 && state->sbytes < state->blksize) {
+    اگر(state->block > 1 && state->sbytes < state->blksize) {
       state->state = TFTP_STATE_FIN;
-      return CURLE_OK;
+      بازگشت CURLE_OK;
     }
 
     /* TFTP considers data block size < 512 bytes as an end of session, so
@@ -431,77 +431,77 @@ static CURLcode tftp_tx(struct tftp_conn *state, tftp_event_t event)
      * data block.
      * */
     state->sbytes = 0;
-    bufptr = (char *)state->spacket.data + 4;
-    do {
+    bufptr = (نویسه *)state->spacket.data + 4;
+    انجامبده {
       result = Curl_client_read(data, bufptr, state->blksize - state->sbytes,
                                 &cb, &eos);
-      if(result)
-        return result;
+      اگر(result)
+        بازگشت result;
       state->sbytes += cb;
       bufptr += cb;
-    } while(state->sbytes < state->blksize && cb);
+    } وقتی(state->sbytes < state->blksize && cb);
 
-    sbytes = sendto(state->sockfd, (void *)state->spacket.data,
+    sbytes = sendto(state->sockfd, (تهی *)state->spacket.data,
                     4 + (SEND_TYPE_ARG3)state->sbytes, SEND_4TH_ARG,
-                    (struct sockaddr *)&state->remote_addr,
+                    (ساختار sockaddr *)&state->remote_addr,
                     state->remote_addrlen);
     /* Check all sbytes were sent */
-    if(sbytes < 0) {
-      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-      return CURLE_SEND_ERROR;
+    اگر(sbytes < 0) {
+      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+      بازگشت CURLE_SEND_ERROR;
     }
     /* Update the progress meter */
     k->writebytecount += state->sbytes;
     Curl_pgrs_upload_inc(data, state->sbytes);
-    break;
+    بشکن;
 
-  case TFTP_EVENT_TIMEOUT:
+  حالت TFTP_EVENT_TIMEOUT:
     /* Increment the retry counter and log the timeout */
     state->retries++;
     infof(data, "Timeout waiting for block %d ACK. "
           "Retries = %d", NEXT_BLOCKNUM(state->block), state->retries);
     /* Decide if we have had enough */
-    if(state->retries > state->retry_max) {
+    اگر(state->retries > state->retry_max) {
       state->error = TFTP_ERR_TIMEOUT;
       state->state = TFTP_STATE_FIN;
     }
-    else {
+    وگرنه {
       /* Re-send the data packet */
-      sbytes = sendto(state->sockfd, (void *)state->spacket.data,
+      sbytes = sendto(state->sockfd, (تهی *)state->spacket.data,
                       4 + (SEND_TYPE_ARG3)state->sbytes, SEND_4TH_ARG,
-                      (struct sockaddr *)&state->remote_addr,
+                      (ساختار sockaddr *)&state->remote_addr,
                       state->remote_addrlen);
       /* Check all sbytes were sent */
-      if(sbytes < 0) {
-        failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-        return CURLE_SEND_ERROR;
+      اگر(sbytes < 0) {
+        failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+        بازگشت CURLE_SEND_ERROR;
       }
       /* since this was a re-send, we remain at the still byte position */
       Curl_pgrsSetUploadCounter(data, k->writebytecount);
     }
-    break;
+    بشکن;
 
-  case TFTP_EVENT_ERROR:
+  حالت TFTP_EVENT_ERROR:
     state->state = TFTP_STATE_FIN;
     setpacketevent(&state->spacket, TFTP_EVENT_ERROR);
     setpacketblock(&state->spacket, state->block);
-    (void)sendto(state->sockfd, (void *)state->spacket.data, 4, SEND_4TH_ARG,
-                 (struct sockaddr *)&state->remote_addr,
+    (تهی)sendto(state->sockfd, (تهی *)state->spacket.data, 4, SEND_4TH_ARG,
+                 (ساختار sockaddr *)&state->remote_addr,
                  state->remote_addrlen);
     /* do not bother with the return code, but if the socket is still up we
      * should be a good TFTP client and let the server know we are done */
     state->state = TFTP_STATE_FIN;
-    break;
+    بشکن;
 
-  default:
-    failf(data, "tftp_tx: internal error, event: %d", (int)event);
-    break;
+  پیشفرض:
+    failf(data, "tftp_tx: internal error, event: %d", (صحیح)event);
+    بشکن;
   }
 
-  return result;
+  بازگشت result;
 }
 
-static CURLcode tftp_connect_for_tx(struct tftp_conn *state,
+ایستا CURLcode tftp_connect_for_tx(ساختار tftp_conn *state,
                                     tftp_event_t event)
 {
   CURLcode result;
@@ -510,9 +510,9 @@ static CURLcode tftp_connect_for_tx(struct tftp_conn *state,
 
   state->state = TFTP_STATE_TX;
   result = tftp_set_timeouts(state);
-  if(result)
-    return result;
-  return tftp_tx(state, event);
+  اگر(result)
+    بازگشت result;
+  بازگشت tftp_tx(state, event);
 }
 
 /**********************************************************
@@ -522,122 +522,122 @@ static CURLcode tftp_connect_for_tx(struct tftp_conn *state,
  * Event handler for the RX state
  *
  **********************************************************/
-static CURLcode tftp_rx(struct tftp_conn *state, tftp_event_t event)
+ایستا CURLcode tftp_rx(ساختار tftp_conn *state, tftp_event_t event)
 {
   ssize_t sbytes;
-  int rblock;
-  struct Curl_easy *data = state->data;
-  char buffer[STRERROR_LEN];
+  صحیح rblock;
+  ساختار Curl_easy *data = state->data;
+  نویسه buffer[STRERROR_LEN];
 
-  switch(event) {
+  انتخاب(event) {
 
-  case TFTP_EVENT_DATA:
+  حالت TFTP_EVENT_DATA:
     /* Is this the block we expect? */
     rblock = getrpacketblock(&state->rpacket);
-    if(NEXT_BLOCKNUM(state->block) == rblock) {
+    اگر(NEXT_BLOCKNUM(state->block) == rblock) {
       /* This is the expected block. Reset counters and ACK it. */
       state->retries = 0;
     }
-    else if(state->block == rblock) {
+    وگرنه اگر(state->block == rblock) {
       /* This is the last recently received block again. Log it and ACK it
          again. */
       infof(data, "Received last DATA packet block %d again.", rblock);
     }
-    else {
+    وگرنه {
       /* totally unexpected, log it */
       infof(data,
             "Received unexpected DATA packet block %d, expecting block %d",
             rblock, NEXT_BLOCKNUM(state->block));
-      break;
+      بشکن;
     }
 
     /* ACK this block. */
     state->block = (unsigned short)rblock;
     setpacketevent(&state->spacket, TFTP_EVENT_ACK);
     setpacketblock(&state->spacket, state->block);
-    sbytes = sendto(state->sockfd, (void *)state->spacket.data,
+    sbytes = sendto(state->sockfd, (تهی *)state->spacket.data,
                     4, SEND_4TH_ARG,
-                    (struct sockaddr *)&state->remote_addr,
+                    (ساختار sockaddr *)&state->remote_addr,
                     state->remote_addrlen);
-    if(sbytes < 0) {
-      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-      return CURLE_SEND_ERROR;
+    اگر(sbytes < 0) {
+      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+      بازگشت CURLE_SEND_ERROR;
     }
 
     /* Check if completed (That is, a less than full packet is received) */
-    if(state->rbytes < (ssize_t)state->blksize + 4) {
+    اگر(state->rbytes < (ssize_t)state->blksize + 4) {
       state->state = TFTP_STATE_FIN;
     }
-    else {
+    وگرنه {
       state->state = TFTP_STATE_RX;
     }
-    state->rx_time = time(NULL);
-    break;
+    state->rx_time = time(پوچ);
+    بشکن;
 
-  case TFTP_EVENT_OACK:
+  حالت TFTP_EVENT_OACK:
     /* ACK option acknowledgement so we can move on to data */
     state->block = 0;
     state->retries = 0;
     setpacketevent(&state->spacket, TFTP_EVENT_ACK);
     setpacketblock(&state->spacket, state->block);
-    sbytes = sendto(state->sockfd, (void *)state->spacket.data,
+    sbytes = sendto(state->sockfd, (تهی *)state->spacket.data,
                     4, SEND_4TH_ARG,
-                    (struct sockaddr *)&state->remote_addr,
+                    (ساختار sockaddr *)&state->remote_addr,
                     state->remote_addrlen);
-    if(sbytes < 0) {
-      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-      return CURLE_SEND_ERROR;
+    اگر(sbytes < 0) {
+      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+      بازگشت CURLE_SEND_ERROR;
     }
 
     /* we are ready to RX data */
     state->state = TFTP_STATE_RX;
-    state->rx_time = time(NULL);
-    break;
+    state->rx_time = time(پوچ);
+    بشکن;
 
-  case TFTP_EVENT_TIMEOUT:
+  حالت TFTP_EVENT_TIMEOUT:
     /* Increment the retry count and fail if over the limit */
     state->retries++;
     infof(data,
           "Timeout waiting for block %d ACK. Retries = %d",
           NEXT_BLOCKNUM(state->block), state->retries);
-    if(state->retries > state->retry_max) {
+    اگر(state->retries > state->retry_max) {
       state->error = TFTP_ERR_TIMEOUT;
       state->state = TFTP_STATE_FIN;
     }
-    else {
+    وگرنه {
       /* Resend the previous ACK */
-      sbytes = sendto(state->sockfd, (void *)state->spacket.data,
+      sbytes = sendto(state->sockfd, (تهی *)state->spacket.data,
                       4, SEND_4TH_ARG,
-                      (struct sockaddr *)&state->remote_addr,
+                      (ساختار sockaddr *)&state->remote_addr,
                       state->remote_addrlen);
-      if(sbytes < 0) {
-        failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-        return CURLE_SEND_ERROR;
+      اگر(sbytes < 0) {
+        failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+        بازگشت CURLE_SEND_ERROR;
       }
     }
-    break;
+    بشکن;
 
-  case TFTP_EVENT_ERROR:
+  حالت TFTP_EVENT_ERROR:
     setpacketevent(&state->spacket, TFTP_EVENT_ERROR);
     setpacketblock(&state->spacket, state->block);
-    (void)sendto(state->sockfd, (void *)state->spacket.data,
+    (تهی)sendto(state->sockfd, (تهی *)state->spacket.data,
                  4, SEND_4TH_ARG,
-                 (struct sockaddr *)&state->remote_addr,
+                 (ساختار sockaddr *)&state->remote_addr,
                  state->remote_addrlen);
     /* do not bother with the return code, but if the socket is still up we
      * should be a good TFTP client and let the server know we are done */
     state->state = TFTP_STATE_FIN;
-    break;
+    بشکن;
 
-  default:
+  پیشفرض:
     failf(data, "%s", "tftp_rx: internal error");
-    return CURLE_TFTP_ILLEGAL; /* not really the perfect return code for
+    بازگشت CURLE_TFTP_ILLEGAL; /* not really the perfect return code for
                                   this */
   }
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-static CURLcode tftp_connect_for_rx(struct tftp_conn *state,
+ایستا CURLcode tftp_connect_for_rx(ساختار tftp_conn *state,
                                     tftp_event_t event)
 {
   CURLcode result;
@@ -646,101 +646,101 @@ static CURLcode tftp_connect_for_rx(struct tftp_conn *state,
 
   state->state = TFTP_STATE_RX;
   result = tftp_set_timeouts(state);
-  if(result)
-    return result;
-  return tftp_rx(state, event);
+  اگر(result)
+    بازگشت result;
+  بازگشت tftp_rx(state, event);
 }
 
-static CURLcode tftp_send_first(struct tftp_conn *state,
+ایستا CURLcode tftp_send_first(ساختار tftp_conn *state,
                                 tftp_event_t event)
 {
   size_t sbytes;
   ssize_t senddata;
-  const char *mode = "octet";
-  char *filename;
-  struct Curl_easy *data = state->data;
-  const struct Curl_sockaddr_ex *remote_addr = NULL;
+  ثابت نویسه *mode = "octet";
+  نویسه *filename;
+  ساختار Curl_easy *data = state->data;
+  ثابت ساختار Curl_sockaddr_ex *remote_addr = پوچ;
   CURLcode result = CURLE_OK;
 
   /* Set ASCII mode if -B flag was used */
-  if(data->state.prefer_ascii)
+  اگر(data->state.prefer_ascii)
     mode = "netascii";
 
-  switch(event) {
+  انتخاب(event) {
 
-  case TFTP_EVENT_INIT:    /* Send the first packet out */
-  case TFTP_EVENT_TIMEOUT: /* Resend the first packet out */
+  حالت TFTP_EVENT_INIT:    /* Send the first packet out */
+  حالت TFTP_EVENT_TIMEOUT: /* Resend the first packet out */
     /* Increment the retry counter, quit if over the limit */
     state->retries++;
-    if(state->retries > state->retry_max) {
+    اگر(state->retries > state->retry_max) {
       state->error = TFTP_ERR_NORESPONSE;
       state->state = TFTP_STATE_FIN;
-      return result;
+      بازگشت result;
     }
 
-    if(data->state.upload) {
+    اگر(data->state.upload) {
       /* If we are uploading, send a WRQ */
       setpacketevent(&state->spacket, TFTP_EVENT_WRQ);
-      if(data->state.infilesize != -1)
+      اگر(data->state.infilesize != -1)
         Curl_pgrsSetUploadSize(data, data->state.infilesize);
     }
-    else {
+    وگرنه {
       /* If we are downloading, send an RRQ */
       setpacketevent(&state->spacket, TFTP_EVENT_RRQ);
     }
     /* As RFC3617 describes the separator slash is not actually part of the
        filename so we skip the always-present first letter of the path
        string. */
-    if(!state->data->state.up.path[1]) {
+    اگر(!state->data->state.up.path[1]) {
       failf(data, "Missing filename");
-      return CURLE_TFTP_ILLEGAL;
+      بازگشت CURLE_TFTP_ILLEGAL;
     }
     result = Curl_urldecode(&state->data->state.up.path[1], 0,
-                            &filename, NULL, REJECT_ZERO);
-    if(result)
-      return result;
+                            &filename, پوچ, REJECT_ZERO);
+    اگر(result)
+      بازگشت result;
 
-    if(strlen(filename) + strlen(mode) + 4 > state->blksize) {
+    اگر(strlen(filename) + strlen(mode) + 4 > state->blksize) {
       failf(data, "TFTP filename too long");
       curlx_free(filename);
-      return CURLE_TFTP_ILLEGAL; /* too long filename field */
+      بازگشت CURLE_TFTP_ILLEGAL; /* too long filename field */
     }
 
     sbytes = 2 +
-      curl_msnprintf((char *)state->spacket.data + 2,
+      curl_msnprintf((نویسه *)state->spacket.data + 2,
                      state->blksize,
                      "%s%c%s%c", filename, '\0', mode, '\0');
     curlx_free(filename);
 
     /* optional addition of TFTP options */
-    if(!data->set.tftp_no_options) {
-      char buf[64];
+    اگر(!data->set.tftp_no_options) {
+      نویسه buf[64];
       /* add tsize option */
-      curl_msnprintf(buf, sizeof(buf), "%" FMT_OFF_T,
+      curl_msnprintf(buf, اندازه(buf), "%" FMT_OFF_T,
                      data->state.upload && (data->state.infilesize != -1) ?
                      data->state.infilesize : 0);
 
       result = tftp_option_add(state, &sbytes, sbytes, TFTP_OPTION_TSIZE);
-      if(result == CURLE_OK)
+      اگر(result == CURLE_OK)
         result = tftp_option_add(state, &sbytes, sbytes, buf);
 
       /* add blksize option */
-      curl_msnprintf(buf, sizeof(buf), "%u", state->requested_blksize);
-      if(result == CURLE_OK)
+      curl_msnprintf(buf, اندازه(buf), "%u", state->requested_blksize);
+      اگر(result == CURLE_OK)
         result = tftp_option_add(state, &sbytes, sbytes, TFTP_OPTION_BLKSIZE);
-      if(result == CURLE_OK)
+      اگر(result == CURLE_OK)
         result = tftp_option_add(state, &sbytes, sbytes, buf);
 
       /* add timeout option */
-      curl_msnprintf(buf, sizeof(buf), "%d", state->retry_time);
-      if(result == CURLE_OK)
+      curl_msnprintf(buf, اندازه(buf), "%d", state->retry_time);
+      اگر(result == CURLE_OK)
         result = tftp_option_add(state, &sbytes, sbytes, TFTP_OPTION_INTERVAL);
-      if(result == CURLE_OK)
+      اگر(result == CURLE_OK)
         result = tftp_option_add(state, &sbytes, sbytes, buf);
 
-      if(result != CURLE_OK) {
+      اگر(result != CURLE_OK) {
         failf(data, "TFTP buffer too small for options");
-        return CURLE_TFTP_ILLEGAL;
+        بازگشت CURLE_TFTP_ILLEGAL;
       }
     }
 
@@ -748,55 +748,55 @@ static CURLcode tftp_send_first(struct tftp_conn *state,
        not have a size_t argument, like older unixes that want an 'int' */
 #ifdef __AMIGA__
 #define CURL_SENDTO_ARG5(x) CURL_UNCONST(x)
-#else
+#وگرنه
 #define CURL_SENDTO_ARG5(x) (x)
 #endif
     remote_addr = Curl_conn_get_remote_addr(data, FIRSTSOCKET);
-    if(!remote_addr)
-      return CURLE_FAILED_INIT;
+    اگر(!remote_addr)
+      بازگشت CURLE_FAILED_INIT;
 
-    senddata = sendto(state->sockfd, (void *)state->spacket.data,
+    senddata = sendto(state->sockfd, (تهی *)state->spacket.data,
                       (SEND_TYPE_ARG3)sbytes, 0,
                       CURL_SENDTO_ARG5(&remote_addr->curl_sa_addr),
                       (curl_socklen_t)remote_addr->addrlen);
-    if(senddata != (ssize_t)sbytes) {
-      char buffer[STRERROR_LEN];
-      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-      return CURLE_SEND_ERROR;
+    اگر(senddata != (ssize_t)sbytes) {
+      نویسه buffer[STRERROR_LEN];
+      failf(data, "%s", curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+      بازگشت CURLE_SEND_ERROR;
     }
-    break;
+    بشکن;
 
-  case TFTP_EVENT_OACK:
-    if(data->state.upload) {
+  حالت TFTP_EVENT_OACK:
+    اگر(data->state.upload) {
       result = tftp_connect_for_tx(state, event);
     }
-    else {
+    وگرنه {
       result = tftp_connect_for_rx(state, event);
     }
-    break;
+    بشکن;
 
-  case TFTP_EVENT_ACK: /* Connected for transmit */
-    if(!data->state.upload)
-      return CURLE_TFTP_ILLEGAL;
+  حالت TFTP_EVENT_ACK: /* Connected for transmit */
+    اگر(!data->state.upload)
+      بازگشت CURLE_TFTP_ILLEGAL;
     result = tftp_connect_for_tx(state, event);
-    break;
+    بشکن;
 
-  case TFTP_EVENT_DATA: /* Connected for receive */
-    if(data->state.upload)
-      return CURLE_TFTP_ILLEGAL;
+  حالت TFTP_EVENT_DATA: /* Connected for receive */
+    اگر(data->state.upload)
+      بازگشت CURLE_TFTP_ILLEGAL;
     result = tftp_connect_for_rx(state, event);
-    break;
+    بشکن;
 
-  case TFTP_EVENT_ERROR:
+  حالت TFTP_EVENT_ERROR:
     state->state = TFTP_STATE_FIN;
-    break;
+    بشکن;
 
-  default:
+  پیشفرض:
     failf(state->data, "tftp_send_first: internal error");
-    return CURLE_TFTP_ILLEGAL;
+    بازگشت CURLE_TFTP_ILLEGAL;
   }
 
-  return result;
+  بازگشت result;
 }
 
 /**********************************************************
@@ -806,49 +806,49 @@ static CURLcode tftp_send_first(struct tftp_conn *state,
  * Translate internal error codes to CURL error codes
  *
  **********************************************************/
-static CURLcode tftp_translate_code(tftp_error_t error)
+ایستا CURLcode tftp_translate_code(tftp_error_t error)
 {
   CURLcode result = CURLE_OK;
 
-  if(error != TFTP_ERR_NONE) {
-    switch(error) {
-    case TFTP_ERR_NOTFOUND:
+  اگر(error != TFTP_ERR_NONE) {
+    انتخاب(error) {
+    حالت TFTP_ERR_NOTFOUND:
       result = CURLE_TFTP_NOTFOUND;
-      break;
-    case TFTP_ERR_PERM:
+      بشکن;
+    حالت TFTP_ERR_PERM:
       result = CURLE_TFTP_PERM;
-      break;
-    case TFTP_ERR_DISKFULL:
+      بشکن;
+    حالت TFTP_ERR_DISKFULL:
       result = CURLE_REMOTE_DISK_FULL;
-      break;
-    case TFTP_ERR_UNDEF:
-    case TFTP_ERR_ILLEGAL:
+      بشکن;
+    حالت TFTP_ERR_UNDEF:
+    حالت TFTP_ERR_ILLEGAL:
       result = CURLE_TFTP_ILLEGAL;
-      break;
-    case TFTP_ERR_UNKNOWNID:
+      بشکن;
+    حالت TFTP_ERR_UNKNOWNID:
       result = CURLE_TFTP_UNKNOWNID;
-      break;
-    case TFTP_ERR_EXISTS:
+      بشکن;
+    حالت TFTP_ERR_EXISTS:
       result = CURLE_REMOTE_FILE_EXISTS;
-      break;
-    case TFTP_ERR_NOSUCHUSER:
+      بشکن;
+    حالت TFTP_ERR_NOSUCHUSER:
       result = CURLE_TFTP_NOSUCHUSER;
-      break;
-    case TFTP_ERR_TIMEOUT:
+      بشکن;
+    حالت TFTP_ERR_TIMEOUT:
       result = CURLE_OPERATION_TIMEDOUT;
-      break;
-    case TFTP_ERR_NORESPONSE:
+      بشکن;
+    حالت TFTP_ERR_NORESPONSE:
       result = CURLE_COULDNT_CONNECT;
-      break;
-    default:
+      بشکن;
+    پیشفرض:
       result = CURLE_ABORTED_BY_CALLBACK;
-      break;
+      بشکن;
     }
   }
-  else
+  وگرنه
     result = CURLE_OK;
 
-  return result;
+  بازگشت result;
 }
 
 /**********************************************************
@@ -858,43 +858,43 @@ static CURLcode tftp_translate_code(tftp_error_t error)
  * The tftp state machine event dispatcher
  *
  **********************************************************/
-static CURLcode tftp_state_machine(struct tftp_conn *state,
+ایستا CURLcode tftp_state_machine(ساختار tftp_conn *state,
                                    tftp_event_t event)
 {
   CURLcode result = CURLE_OK;
-  struct Curl_easy *data = state->data;
+  ساختار Curl_easy *data = state->data;
 
-  switch(state->state) {
-  case TFTP_STATE_START:
+  انتخاب(state->state) {
+  حالت TFTP_STATE_START:
     DEBUGF(infof(data, "TFTP_STATE_START"));
     result = tftp_send_first(state, event);
-    break;
-  case TFTP_STATE_RX:
+    بشکن;
+  حالت TFTP_STATE_RX:
     DEBUGF(infof(data, "TFTP_STATE_RX"));
     result = tftp_rx(state, event);
-    break;
-  case TFTP_STATE_TX:
+    بشکن;
+  حالت TFTP_STATE_TX:
     DEBUGF(infof(data, "TFTP_STATE_TX"));
     result = tftp_tx(state, event);
-    break;
-  case TFTP_STATE_FIN:
+    بشکن;
+  حالت TFTP_STATE_FIN:
     infof(data, "%s", "TFTP finished");
-    break;
-  default:
-    DEBUGF(infof(data, "STATE: %d", (int)state->state));
+    بشکن;
+  پیشفرض:
+    DEBUGF(infof(data, "STATE: %d", (صحیح)state->state));
     failf(data, "%s", "Internal state machine error");
     result = CURLE_TFTP_ILLEGAL;
-    break;
+    بشکن;
   }
 
-  return result;
+  بازگشت result;
 }
 
-static void tftp_conn_dtor(const void *key, size_t klen, void *entry)
+ایستا تهی tftp_conn_dtor(ثابت تهی *کلید, size_t klen, تهی *entry)
 {
-  struct tftp_conn *state = entry;
-  (void)key;
-  (void)klen;
+  ساختار tftp_conn *state = entry;
+  (تهی)کلید;
+  (تهی)klen;
   curlx_safefree(state->rpacket.data);
   curlx_safefree(state->spacket.data);
   curlx_free(state);
@@ -907,44 +907,44 @@ static void tftp_conn_dtor(const void *key, size_t klen, void *entry)
  * The connect callback
  *
  **********************************************************/
-static CURLcode tftp_connect(struct Curl_easy *data, bool *done)
+ایستا CURLcode tftp_connect(ساختار Curl_easy *data, bool *done)
 {
-  struct tftp_conn *state;
-  int blksize;
-  int need_blksize;
-  struct connectdata *conn = data->conn;
-  const struct Curl_sockaddr_ex *remote_addr = NULL;
+  ساختار tftp_conn *state;
+  صحیح blksize;
+  صحیح need_blksize;
+  ساختار connectdata *conn = data->conn;
+  ثابت ساختار Curl_sockaddr_ex *remote_addr = پوچ;
   CURLcode result;
 
   blksize = TFTP_BLKSIZE_DEFAULT;
 
-  state = curlx_calloc(1, sizeof(*state));
-  if(!state ||
+  state = curlx_calloc(1, اندازه(*state));
+  اگر(!state ||
      Curl_conn_meta_set(conn, CURL_META_TFTP_CONN, state, tftp_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
 
   /* alloc pkt buffers based on specified blksize */
-  if(data->set.tftp_blksize)
+  اگر(data->set.tftp_blksize)
     /* range checked when set */
-    blksize = (int)data->set.tftp_blksize;
+    blksize = (صحیح)data->set.tftp_blksize;
 
   need_blksize = blksize;
   /* default size is the fallback when no OACK is received */
-  if(need_blksize < TFTP_BLKSIZE_DEFAULT)
+  اگر(need_blksize < TFTP_BLKSIZE_DEFAULT)
     need_blksize = TFTP_BLKSIZE_DEFAULT;
 
-  if(!state->rpacket.data) {
+  اگر(!state->rpacket.data) {
     state->rpacket.data = curlx_calloc(1, need_blksize + 2 + 2);
 
-    if(!state->rpacket.data)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!state->rpacket.data)
+      بازگشت CURLE_OUT_OF_MEMORY;
   }
 
-  if(!state->spacket.data) {
+  اگر(!state->spacket.data) {
     state->spacket.data = curlx_calloc(1, need_blksize + 2 + 2);
 
-    if(!state->spacket.data)
-      return CURLE_OUT_OF_MEMORY;
+    اگر(!state->spacket.data)
+      بازگشت CURLE_OUT_OF_MEMORY;
   }
 
   /* we do not keep TFTP connections up because there is none or little gain
@@ -960,17 +960,17 @@ static CURLcode tftp_connect(struct Curl_easy *data, bool *done)
 
   remote_addr = Curl_conn_get_remote_addr(data, FIRSTSOCKET);
   DEBUGASSERT(remote_addr);
-  if(!remote_addr)
-    return CURLE_FAILED_INIT;
+  اگر(!remote_addr)
+    بازگشت CURLE_FAILED_INIT;
 
-  ((struct sockaddr *)&state->local_addr)->sa_family =
+  ((ساختار sockaddr *)&state->local_addr)->sa_family =
     (CURL_SA_FAMILY_T)remote_addr->family;
 
   result = tftp_set_timeouts(state);
-  if(result)
-    return result;
+  اگر(result)
+    بازگشت result;
 
-  if(!conn->bits.bound) {
+  اگر(!conn->bits.bound) {
     /* If not already bound, bind to any interface, random UDP port. If it is
      * reused or a custom local port was desired, this has already been done!
      *
@@ -984,20 +984,20 @@ static CURLcode tftp_connect(struct Curl_easy *data, bool *done)
      * assume uses the same IP version and thus hopefully this works for both
      * IPv4 and IPv6...
      */
-    int rc = bind(state->sockfd, (struct sockaddr *)&state->local_addr,
+    صحیح rc = bind(state->sockfd, (ساختار sockaddr *)&state->local_addr,
                   (curl_socklen_t)remote_addr->addrlen);
-    if(rc) {
-      char buffer[STRERROR_LEN];
+    اگر(rc) {
+      نویسه buffer[STRERROR_LEN];
       failf(data, "bind() failed; %s",
-            curlx_strerror(SOCKERRNO, buffer, sizeof(buffer)));
-      return CURLE_COULDNT_CONNECT;
+            curlx_strerror(SOCKERRNO, buffer, اندازه(buffer)));
+      بازگشت CURLE_COULDNT_CONNECT;
     }
     conn->bits.bound = TRUE;
   }
 
   *done = TRUE;
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /**********************************************************
@@ -1007,30 +1007,30 @@ static CURLcode tftp_connect(struct Curl_easy *data, bool *done)
  * The done callback
  *
  **********************************************************/
-static CURLcode tftp_done(struct Curl_easy *data, CURLcode status,
+ایستا CURLcode tftp_done(ساختار Curl_easy *data, CURLcode status,
                           bool premature)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
+  ساختار connectdata *conn = data->conn;
+  ساختار tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
 
-  (void)status;
-  (void)premature;
+  (تهی)status;
+  (تهی)premature;
 
-  if(Curl_pgrsDone(data, Curl_pgrs_now(data)))
-    return CURLE_ABORTED_BY_CALLBACK;
+  اگر(Curl_pgrsDone(data, Curl_pgrs_now(data)))
+    بازگشت CURLE_ABORTED_BY_CALLBACK;
 
   /* If we have encountered an error */
-  if(state)
+  اگر(state)
     result = tftp_translate_code(state->error);
 
-  return result;
+  بازگشت result;
 }
 
-static CURLcode tftp_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+ایستا CURLcode tftp_pollset(ساختار Curl_easy *data,
+                             ساختار easy_pollset *ps)
 {
-  return Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
+  بازگشت Curl_pollset_add_in(data, ps, data->conn->sock[FIRSTSOCKET]);
 }
 
 /**********************************************************
@@ -1040,30 +1040,30 @@ static CURLcode tftp_pollset(struct Curl_easy *data,
  * Called once select fires and data is ready on the socket
  *
  **********************************************************/
-static CURLcode tftp_receive_packet(struct Curl_easy *data,
-                                    struct tftp_conn *state)
+ایستا CURLcode tftp_receive_packet(ساختار Curl_easy *data,
+                                    ساختار tftp_conn *state)
 {
   CURLcode result = CURLE_OK;
-  struct Curl_sockaddr_storage remote_addr;
-  curl_socklen_t fromlen = sizeof(remote_addr);
+  ساختار Curl_sockaddr_storage remote_addr;
+  curl_socklen_t fromlen = اندازه(remote_addr);
 
   /* Receive the packet */
-  state->rbytes = (int)recvfrom(state->sockfd,
-                                (void *)state->rpacket.data,
+  state->rbytes = (صحیح)recvfrom(state->sockfd,
+                                (تهی *)state->rpacket.data,
                                 (RECV_TYPE_ARG3)state->blksize + 4,
                                 0,
-                                (struct sockaddr *)&remote_addr,
+                                (ساختار sockaddr *)&remote_addr,
                                 &fromlen);
-  if((state->rbytes >= 0) && fromlen) {
-    if(state->remote_pinned) {
+  اگر((state->rbytes >= 0) && fromlen) {
+    اگر(state->remote_pinned) {
       /* pinned, verify that it comes from the same address */
-      if((state->remote_addrlen != fromlen) ||
+      اگر((state->remote_addrlen != fromlen) ||
          memcmp(&remote_addr, &state->remote_addr, fromlen)) {
         failf(data, "Data received from another address");
-        return CURLE_RECV_ERROR;
+        بازگشت CURLE_RECV_ERROR;
       }
     }
-    else {
+    وگرنه {
       /* pin address on first use */
       state->remote_pinned = TRUE;
       state->remote_addrlen = fromlen;
@@ -1072,65 +1072,65 @@ static CURLcode tftp_receive_packet(struct Curl_easy *data,
   }
 
   /* Sanity check packet length */
-  if(state->rbytes < 4) {
+  اگر(state->rbytes < 4) {
     failf(data, "Received too short packet");
     /* Not a timeout, but how best to handle it? */
     state->event = TFTP_EVENT_TIMEOUT;
   }
-  else {
+  وگرنه {
     /* The event is given by the TFTP packet time */
     unsigned short event = getrpacketevent(&state->rpacket);
     state->event = (tftp_event_t)event;
 
-    switch(state->event) {
-    case TFTP_EVENT_DATA:
-      if(data->state.upload)
-        return CURLE_TFTP_ILLEGAL;
+    انتخاب(state->event) {
+    حالت TFTP_EVENT_DATA:
+      اگر(data->state.upload)
+        بازگشت CURLE_TFTP_ILLEGAL;
       /* Do not pass to the client empty or retransmitted packets */
-      if(state->rbytes > 4 &&
+      اگر(state->rbytes > 4 &&
          (NEXT_BLOCKNUM(state->block) == getrpacketblock(&state->rpacket))) {
         result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                   (const char *)state->rpacket.data + 4,
+                                   (ثابت نویسه *)state->rpacket.data + 4,
                                    state->rbytes - 4);
-        if(result) {
+        اگر(result) {
           tftp_state_machine(state, TFTP_EVENT_ERROR);
-          return result;
+          بازگشت result;
         }
       }
-      break;
-    case TFTP_EVENT_ERROR: {
+      بشکن;
+    حالت TFTP_EVENT_ERROR: {
       unsigned short error = getrpacketblock(&state->rpacket);
-      const char *str = (const char *)state->rpacket.data + 4;
+      ثابت نویسه *str = (ثابت نویسه *)state->rpacket.data + 4;
       size_t strn = state->rbytes - 4;
       state->error = (tftp_error_t)error;
-      if(tftp_strnlen(str, strn) < strn)
+      اگر(tftp_strnlen(str, strn) < strn)
         infof(data, "TFTP error: %s", str);
-      break;
+      بشکن;
     }
-    case TFTP_EVENT_ACK:
-      break;
-    case TFTP_EVENT_OACK:
+    حالت TFTP_EVENT_ACK:
+      بشکن;
+    حالت TFTP_EVENT_OACK:
       result = tftp_parse_option_ack(state,
-                                     (const char *)state->rpacket.data + 2,
+                                     (ثابت نویسه *)state->rpacket.data + 2,
                                      state->rbytes-2);
-      if(result)
-        return result;
-      break;
-    case TFTP_EVENT_RRQ:
-    case TFTP_EVENT_WRQ:
-    default:
+      اگر(result)
+        بازگشت result;
+      بشکن;
+    حالت TFTP_EVENT_RRQ:
+    حالت TFTP_EVENT_WRQ:
+    پیشفرض:
       failf(data, "%s", "Internal error: Unexpected packet");
-      break;
+      بشکن;
     }
 
     /* Update the progress meter */
     result = Curl_pgrsUpdate(data);
-    if(result) {
+    اگر(result) {
       tftp_state_machine(state, TFTP_EVENT_ERROR);
-      return result;
+      بازگشت result;
     }
   }
-  return result;
+  بازگشت result;
 }
 
 /**********************************************************
@@ -1140,29 +1140,29 @@ static CURLcode tftp_receive_packet(struct Curl_easy *data,
  * Check if timeouts have been reached
  *
  **********************************************************/
-static timediff_t tftp_state_timeout(struct tftp_conn *state,
+ایستا timediff_t tftp_state_timeout(ساختار tftp_conn *state,
                                      tftp_event_t *event)
 {
   time_t current;
   timediff_t timeout_ms;
 
-  if(event)
+  اگر(event)
     *event = TFTP_EVENT_NONE;
 
   timeout_ms = Curl_timeleft_ms(state->data);
-  if(timeout_ms < 0) {
+  اگر(timeout_ms < 0) {
     state->error = TFTP_ERR_TIMEOUT;
     state->state = TFTP_STATE_FIN;
-    return timeout_ms;
+    بازگشت timeout_ms;
   }
-  current = time(NULL);
-  if(current > state->rx_time + state->retry_time) {
-    if(event)
+  current = time(پوچ);
+  اگر(current > state->rx_time + state->retry_time) {
+    اگر(event)
       *event = TFTP_EVENT_TIMEOUT;
-    state->rx_time = time(NULL); /* update even though we received nothing */
+    state->rx_time = time(پوچ); /* update even though we received nothing */
   }
 
-  return timeout_ms;
+  بازگشت timeout_ms;
 }
 
 /**********************************************************
@@ -1172,59 +1172,59 @@ static timediff_t tftp_state_timeout(struct tftp_conn *state,
  * Handle single RX socket event and return
  *
  **********************************************************/
-static CURLcode tftp_multi_statemach(struct Curl_easy *data, bool *done)
+ایستا CURLcode tftp_multi_statemach(ساختار Curl_easy *data, bool *done)
 {
   tftp_event_t event;
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
+  ساختار connectdata *conn = data->conn;
+  ساختار tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
   timediff_t timeout_ms;
 
   *done = FALSE;
-  if(!state)
-    return CURLE_FAILED_INIT;
+  اگر(!state)
+    بازگشت CURLE_FAILED_INIT;
 
   timeout_ms = tftp_state_timeout(state, &event);
-  if(timeout_ms < 0) {
+  اگر(timeout_ms < 0) {
     failf(data, "TFTP response timeout");
-    return CURLE_OPERATION_TIMEDOUT;
+    بازگشت CURLE_OPERATION_TIMEDOUT;
   }
-  if(event != TFTP_EVENT_NONE) {
+  اگر(event != TFTP_EVENT_NONE) {
     result = tftp_state_machine(state, event);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
     *done = (state->state == TFTP_STATE_FIN);
-    if(*done)
+    اگر(*done)
       /* Tell curl we are done */
       Curl_xfer_setup_nop(data);
   }
-  else {
+  وگرنه {
     /* no timeouts to handle, check our socket */
-    int rc = SOCKET_READABLE(state->sockfd, 0);
+    صحیح rc = SOCKET_READABLE(state->sockfd, 0);
 
-    if(rc == -1) {
+    اگر(rc == -1) {
       /* bail out */
-      int sockerr = SOCKERRNO;
-      char buffer[STRERROR_LEN];
-      failf(data, "%s", curlx_strerror(sockerr, buffer, sizeof(buffer)));
+      صحیح sockerr = SOCKERRNO;
+      نویسه buffer[STRERROR_LEN];
+      failf(data, "%s", curlx_strerror(sockerr, buffer, اندازه(buffer)));
       state->event = TFTP_EVENT_ERROR;
     }
-    else if(rc) {
+    وگرنه اگر(rc) {
       result = tftp_receive_packet(data, state);
-      if(result)
-        return result;
+      اگر(result)
+        بازگشت result;
       result = tftp_state_machine(state, state->event);
-      if(result)
-        return result;
+      اگر(result)
+        بازگشت result;
       *done = (state->state == TFTP_STATE_FIN);
-      if(*done)
+      اگر(*done)
         /* Tell curl we are done */
         Curl_xfer_setup_nop(data);
     }
     /* if rc == 0, then select() timed out */
   }
 
-  return result;
+  بازگشت result;
 }
 
 /**********************************************************
@@ -1234,21 +1234,21 @@ static CURLcode tftp_multi_statemach(struct Curl_easy *data, bool *done)
  * Called from multi.c while DOing
  *
  **********************************************************/
-static CURLcode tftp_doing(struct Curl_easy *data, bool *dophase_done)
+ایستا CURLcode tftp_doing(ساختار Curl_easy *data, bool *dophase_done)
 {
   CURLcode result;
   result = tftp_multi_statemach(data, dophase_done);
 
-  if(*dophase_done) {
+  اگر(*dophase_done) {
     DEBUGF(infof(data, "DO phase is complete"));
   }
-  else if(!result) {
+  وگرنه اگر(!result) {
     /* The multi code does not have this logic for the DOING state so we
        provide it for TFTP since it may do the entire transfer in this
        state. */
     result = Curl_pgrsCheck(data);
   }
-  return result;
+  بازگشت result;
 }
 
 /**********************************************************
@@ -1258,27 +1258,27 @@ static CURLcode tftp_doing(struct Curl_easy *data, bool *dophase_done)
  * Entry point for transfer from tftp_do, starts state mach
  *
  **********************************************************/
-static CURLcode tftp_perform(struct Curl_easy *data, bool *dophase_done)
+ایستا CURLcode tftp_perform(ساختار Curl_easy *data, bool *dophase_done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
+  ساختار connectdata *conn = data->conn;
+  ساختار tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
 
   *dophase_done = FALSE;
-  if(!state)
-    return CURLE_FAILED_INIT;
+  اگر(!state)
+    بازگشت CURLE_FAILED_INIT;
 
   result = tftp_state_machine(state, TFTP_EVENT_INIT);
 
-  if((state->state == TFTP_STATE_FIN) || result)
-    return result;
+  اگر((state->state == TFTP_STATE_FIN) || result)
+    بازگشت result;
 
   result = tftp_multi_statemach(data, dophase_done);
 
-  if(*dophase_done)
+  اگر(*dophase_done)
     DEBUGF(infof(data, "DO phase is complete"));
 
-  return result;
+  بازگشت result;
 }
 
 /**********************************************************
@@ -1291,60 +1291,60 @@ static CURLcode tftp_perform(struct Curl_easy *data, bool *dophase_done)
  *
  **********************************************************/
 
-static CURLcode tftp_do(struct Curl_easy *data, bool *done)
+ایستا CURLcode tftp_do(ساختار Curl_easy *data, bool *done)
 {
-  struct connectdata *conn = data->conn;
-  struct tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
+  ساختار connectdata *conn = data->conn;
+  ساختار tftp_conn *state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
   CURLcode result;
 
   *done = FALSE;
 
-  if(!state) {
+  اگر(!state) {
     result = tftp_connect(data, done);
-    if(result)
-      return result;
+    اگر(result)
+      بازگشت result;
 
     state = Curl_conn_meta_get(conn, CURL_META_TFTP_CONN);
-    if(!state)
-      return CURLE_TFTP_ILLEGAL;
+    اگر(!state)
+      بازگشت CURLE_TFTP_ILLEGAL;
   }
 
   result = tftp_perform(data, done);
 
   /* If tftp_perform() returned an error, use that for return code. If it
      was OK, see if tftp_translate_code() has an error. */
-  if(!result)
+  اگر(!result)
     /* If we have encountered an internal tftp error, translate it. */
     result = tftp_translate_code(state->error);
 
-  return result;
+  بازگشت result;
 }
 
-static CURLcode tftp_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+ایستا CURLcode tftp_setup_connection(ساختار Curl_easy *data,
+                                      ساختار connectdata *conn)
 {
-  char *path = data->state.up.path;
+  نویسه *path = data->state.up.path;
   size_t len = strlen(path);
 
   conn->transport_wanted = TRNSPRT_UDP;
 
   /* TFTP URLs support a trailing ";mode=netascii" or ";mode=octet" */
-  if((len >= 14) && !memcmp(&path[len - 14], ";mode=netascii", 14)) {
+  اگر((len >= 14) && !memcmp(&path[len - 14], ";mode=netascii", 14)) {
     data->state.prefer_ascii = TRUE;
     path[len - 14] = 0; /* cut it there */
   }
-  else if((len >= 11) && !memcmp(&path[len - 11], ";mode=octet", 11)) {
+  وگرنه اگر((len >= 11) && !memcmp(&path[len - 11], ";mode=octet", 11)) {
     data->state.prefer_ascii = FALSE;
     path[len - 11] = 0; /* cut it there */
   }
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
 /*
  * TFTP protocol handler.
  */
-const struct Curl_protocol Curl_protocol_tftp = {
+ثابت ساختار Curl_protocol Curl_protocol_tftp = {
   tftp_setup_connection,                /* setup_connection */
   tftp_do,                              /* do_it */
   tftp_done,                            /* done */

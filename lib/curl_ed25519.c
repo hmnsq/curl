@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#شامل "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#اگر !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
 /* Please keep the SSL backend-specific #if branches in this order:
  *
@@ -33,141 +33,141 @@
  * 4. USE_MBEDTLS
  */
 
-#include "curl_ed25519.h"
+#شامل "curl_ed25519.h"
 
 #ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
+#شامل <wolfssl/options.h>
+#شامل <wolfssl/wolfcrypt/settings.h>
 #endif
 
 #ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#شامل <openssl/evp.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(ثابت unsigned نویسه *کلید, size_t keylen,
+                           ثابت unsigned نویسه *پیام, size_t msglen,
+                           unsigned نویسه *sig, size_t *siglen)
 {
   EVP_PKEY *pkey;
   EVP_MD_CTX *mdctx;
   size_t slen;
-  int rc;
+  صحیح rc;
 
-  if(keylen != CURL_ED25519_KEYLEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(keylen != CURL_ED25519_KEYLEN)
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
-  pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, key, keylen);
-  if(!pkey)
-    return CURLE_AUTH_ERROR;
+  pkey = EVP_PKEY_new_raw_private_کلید(EVP_PKEY_ED25519, پوچ, کلید, keylen);
+  اگر(!pkey)
+    بازگشت CURLE_AUTH_ERROR;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx) {
+  اگر(!mdctx) {
     EVP_PKEY_free(pkey);
-    return CURLE_OUT_OF_MEMORY;
+    بازگشت CURLE_OUT_OF_MEMORY;
   }
 
-  rc = EVP_DigestSignInit(mdctx, NULL, NULL, NULL, pkey);
-  if(rc != 1) {
+  rc = EVP_DigestSignInit(mdctx, پوچ, پوچ, پوچ, pkey);
+  اگر(rc != 1) {
     EVP_MD_CTX_free(mdctx);
     EVP_PKEY_free(pkey);
-    return CURLE_AUTH_ERROR;
+    بازگشت CURLE_AUTH_ERROR;
   }
 
   slen = CURL_ED25519_SIGLEN;
-  rc = EVP_DigestSign(mdctx, sig, &slen, msg, msglen);
+  rc = EVP_DigestSign(mdctx, sig, &slen, پیام, msglen);
 
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pkey);
 
-  if(rc != 1)
-    return CURLE_AUTH_ERROR;
+  اگر(rc != 1)
+    بازگشت CURLE_AUTH_ERROR;
 
   *siglen = slen;
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-#elif defined(USE_WOLFSSL) && \
+#وگرنهاگر defined(USE_WOLFSSL) && \
   (defined(HAVE_ED25519) || defined(WOLFSSL_CURVE25519_USE_ED25519)) && \
-  defined(HAVE_ED25519_KEY_IMPORT) && defined(HAVE_ED25519_SIGN)
-#include <wolfssl/wolfcrypt/ed25519.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
-#include <wolfssl/wolfcrypt/random.h>
+  defined(HAVE_ED25519_کلید_IMPORT) && defined(HAVE_ED25519_SIGN)
+#شامل <wolfssl/wolfcrypt/ed25519.h>
+#شامل <wolfssl/wolfcrypt/error-crypt.h>
+#شامل <wolfssl/wolfcrypt/random.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(ثابت unsigned نویسه *کلید, size_t keylen,
+                           ثابت unsigned نویسه *پیام, size_t msglen,
+                           unsigned نویسه *sig, size_t *siglen)
 {
-  int ret;
-  ed25519_key edkey;
+  صحیح ret;
+  ed25519_کلید edkey;
   word32 outlen;
-  unsigned char pubkey[ED25519_PUB_KEY_SIZE];
+  unsigned نویسه pubkey[ED25519_PUB_کلید_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(keylen != ED25519_کلید_SIZE)
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
   ret = wc_ed25519_init(&edkey);
-  if(ret)
-    return CURLE_AUTH_ERROR;
+  اگر(ret)
+    بازگشت CURLE_AUTH_ERROR;
 
-  ret = wc_ed25519_import_private_only(key, ED25519_KEY_SIZE, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_import_private_only(کلید, ED25519_کلید_SIZE, &edkey);
+  اگر(ret)
+    برو fail;
 
-  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_KEY_SIZE);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_کلید_SIZE);
+  اگر(ret)
+    برو fail;
 
-  ret = wc_ed25519_import_private_key(key, ED25519_KEY_SIZE,
-                                      pubkey, ED25519_PUB_KEY_SIZE, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_import_private_کلید(کلید, ED25519_کلید_SIZE,
+                                      pubkey, ED25519_PUB_کلید_SIZE, &edkey);
+  اگر(ret)
+    برو fail;
 
   outlen = ED25519_SIG_SIZE;
-  ret = wc_ed25519_sign_msg(msg, (word32)msglen, sig, &outlen, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_sign_پیام(پیام, (word32)msglen, sig, &outlen, &edkey);
+  اگر(ret)
+    برو fail;
 
   *siglen = (size_t)outlen;
   wc_ed25519_free(&edkey);
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 
 fail:
   wc_ed25519_free(&edkey);
-  return CURLE_AUTH_ERROR;
+  بازگشت CURLE_AUTH_ERROR;
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/eddsa.h>
+#وگرنهاگر defined(USE_GNUTLS)
+#شامل <nettle/eddsa.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(ثابت unsigned نویسه *کلید, size_t keylen,
+                           ثابت unsigned نویسه *پیام, size_t msglen,
+                           unsigned نویسه *sig, size_t *siglen)
 {
-  uint8_t pubkey[ED25519_KEY_SIZE];
+  uint8_t pubkey[ED25519_کلید_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  اگر(keylen != ED25519_کلید_SIZE)
+    بازگشت CURLE_BAD_FUNCTION_ARGUMENT;
 
-  nettle_ed25519_sha512_public_key(pubkey, key);
+  nettle_ed25519_sha512_public_کلید(pubkey, کلید);
 
-  nettle_ed25519_sha512_sign(pubkey, key, msglen, msg, sig);
+  nettle_ed25519_sha512_sign(pubkey, کلید, msglen, پیام, sig);
   *siglen = CURL_ED25519_SIGLEN;
 
-  return CURLE_OK;
+  بازگشت CURLE_OK;
 }
 
-#else /* no Ed25519-capable backend */
+#وگرنه /* no Ed25519-capable backend */
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(ثابت unsigned نویسه *کلید, size_t keylen,
+                           ثابت unsigned نویسه *پیام, size_t msglen,
+                           unsigned نویسه *sig, size_t *siglen)
 {
-  (void)key;
-  (void)keylen;
-  (void)msg;
-  (void)msglen;
-  (void)sig;
-  (void)siglen;
-  return CURLE_NOT_BUILT_IN;
+  (تهی)کلید;
+  (تهی)keylen;
+  (تهی)پیام;
+  (تهی)msglen;
+  (تهی)sig;
+  (تهی)siglen;
+  بازگشت CURLE_NOT_BUILT_IN;
 }
 
 #endif /* Ed25519 backends */
