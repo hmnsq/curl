@@ -24,729 +24,729 @@
 /*
  * IDN conversions
  */
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#यदि_परिभाषितम् HAVE_NETINET_अन्तर्_H
+#अन्तर्भाव <netinet/in.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_NETDB_H
+#अन्तर्भाव <netdb.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_ARPA_INET_H
+#अन्तर्भाव <arpa/inet.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_NET_IF_H
+#अन्तर्भाव <net/if.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_IPHLPAPI_H
+#अन्तर्भाव <Iphlpapi.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_SYS_IOCTL_H
+#अन्तर्भाव <sys/ioctl.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_SYS_PARAM_H
+#अन्तर्भाव <sys/param.h>
+#यदि_अन्तः
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#यदि_परिभाषितम् __VMS
+#अन्तर्भाव <in.h>
+#अन्तर्भाव <inet.h>
+#यदि_अन्तः
 
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#endif
+#यदि_परिभाषितम् HAVE_SYS_UN_H
+#अन्तर्भाव <sys/un.h>
+#यदि_अन्तः
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
-#include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
-#endif
-#include <iphlpapi.h>
-#endif
+#यदि defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#यदि defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#अन्तर्भाव <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
+#यदि_अन्तः
+#अन्तर्भाव <iphlpapi.h>
+#यदि_अन्तः
 
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "protocol.h"
-#include "http_proxy.h"
-#include "idn.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "peer.h"
-#include "urldata.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "vtls/vtls.h"
+#अन्तर्भाव "curl_addrinfo.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "protocol.h"
+#अन्तर्भाव "http_proxy.h"
+#अन्तर्भाव "idn.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "curlx/strparse.h"
+#अन्तर्भाव "peer.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "urlapi-int.h"
+#अन्तर्भाव "vtls/vtls.h"
 
-struct peer_parse {
-  const struct Curl_scheme *scheme;
-  struct Curl_str host_user;
-  struct Curl_str host;
-  struct Curl_str zoneid;
-  char *tmp_host_user;
-  char *tmp_host;
-  char *tmp_zoneid;
+संरचना peer_parse {
+  ध्रुव संरचना Curl_scheme *scheme;
+  संरचना Curl_str host_user;
+  संरचना Curl_str host;
+  संरचना Curl_str zoneid;
+  वर्ण *tmp_host_user;
+  वर्ण *tmp_host;
+  वर्ण *tmp_zoneid;
   uint32_t scopeid;
-  uint16_t port;
+  uint16_t पत्तनम्;
   bool ipv6;
   bool unix_socket;
   bool abstract_uds;
 };
 
-static void peer_parse_clear(struct peer_parse *pp)
+स्थिर शून्य peer_parse_clear(संरचना peer_parse *pp)
 {
   curlx_free(pp->tmp_host_user);
   curlx_free(pp->tmp_host);
   curlx_free(pp->tmp_zoneid);
-  memset(pp, 0, sizeof(*pp));
+  स्मृतिं_पूरय(pp, 0, परिमाण(*pp));
 }
 
-static CURLcode peer_create(struct peer_parse *pp,
-                            struct Curl_peer **ppeer)
+स्थिर CURLcode peer_create(संरचना peer_parse *pp,
+                            संरचना Curl_peer **ppeer)
 {
-  struct Curl_peer *peer = NULL;
-  CURLcode result = CURLE_OK;
+  संरचना Curl_peer *peer = रिक्त;
+  CURLcode परिणाम = CURLE_OK;
   size_t zone_alen = 0, host_alen = 0;
 
-  if(!pp || !pp->scheme)
-    return CURLE_FAILED_INIT;
-  if(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
-    return CURLE_FAILED_INIT;
+  यदि(!pp || !pp->scheme)
+    प्रत्यागम CURLE_FAILED_INIT;
+  यदि(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
+    प्रत्यागम CURLE_FAILED_INIT;
 
-  if((pp->host.str != pp->host_user.str) ||
+  यदि((pp->host.str != pp->host_user.str) ||
      (pp->host.len != pp->host_user.len)) {
     host_alen = pp->host.len + 1;
   }
   zone_alen = pp->zoneid.len ? (pp->zoneid.len + 1) : 0;
 
   /* null-terminator already part of struct */
-  peer = curlx_calloc(1, sizeof(*peer) +
+  peer = curlx_calloc(1, परिमाण(*peer) +
                          pp->host_user.len + host_alen + zone_alen);
-  if(!peer) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  यदि(!peer) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
 
   peer->refcount = 1;
   peer->scheme = pp->scheme;
   peer->hostname = peer->user_hostname;
-  peer->port = pp->port;
+  peer->पत्तनम् = pp->पत्तनम्;
   peer->scopeid = pp->scopeid;
   peer->ipv6 = pp->ipv6;
   peer->unix_socket = pp->unix_socket;
   peer->abstract_uds = pp->abstract_uds;
 
-  if(pp->host_user.len)
-    memcpy(peer->user_hostname, pp->host_user.str, pp->host_user.len);
+  यदि(pp->host_user.len)
+    स्मृतिं_प्रतिलिख(peer->user_hostname, pp->host_user.str, pp->host_user.len);
 
-  if(host_alen) {
+  यदि(host_alen) {
     peer->hostname = peer->user_hostname + pp->host_user.len + 1;
-    memcpy(peer->hostname, pp->host.str, pp->host.len);
+    स्मृतिं_प्रतिलिख(peer->hostname, pp->host.str, pp->host.len);
   }
 
-  if(zone_alen) {
+  यदि(zone_alen) {
     peer->zoneid = peer->user_hostname + pp->host_user.len + 1 + host_alen;
-    memcpy(peer->zoneid, pp->zoneid.str, pp->zoneid.len);
-#ifdef USE_IPV6
+    स्मृतिं_प्रतिलिख(peer->zoneid, pp->zoneid.str, pp->zoneid.len);
+#यदि_परिभाषितम् USE_IPV6
     /* Determine scope_id if not already provided */
-    if(!peer->scopeid) {
-      const char *p = peer->zoneid;
+    यदि(!peer->scopeid) {
+      ध्रुव वर्ण *p = peer->zoneid;
       curl_off_t scope;
-      if(!curlx_str_number(&p, &scope, UINT_MAX) && !*p) {
+      यदि(!curlx_str_सङ्ख्या(&p, &scope, UINT_MAX) && !*p) {
         /* A plain number, use it directly as a scope id. */
         peer->scopeid = (uint32_t)scope;
       }
-#ifdef HAVE_IF_NAMETOINDEX
-      else {
+#यदि_परिभाषितम् HAVE_IF_NAMETOINDEX
+      अन्यथा {
         /* Zone identifier is not fully numeric */
-        unsigned int idx = 0;
+        अचिह्नित पूर्णाङ्क idx = 0;
         idx = if_nametoindex(peer->zoneid);
-        if(idx) {
+        यदि(idx) {
           peer->scopeid = (uint32_t)idx;
         }
-        else {
+        अन्यथा {
           /* Do we want to return an error here? */
         }
       }
-#endif /* HAVE_IF_NAMETOINDEX */
+#यदि_अन्तः /* HAVE_IF_NAMETOINDEX */
     }
-#endif /* USE_IPV6 */
+#यदि_अन्तः /* USE_IPV6 */
   }
 
-out:
-  if(!result)
+बहिर्गमनम्:
+  यदि(!परिणाम)
     *ppeer = peer;
-  else
+  अन्यथा
     Curl_peer_unlink(&peer);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode peer_parse_host(struct Curl_easy *data,
-                                struct peer_parse *pp,
-                                bool scan_for_ipv6)
+स्थिर CURLcode peer_parse_host(संरचना Curl_easy *दत्त,
+                                संरचना peer_parse *pp,
+                                bool अवलोकनम्_for_ipv6)
 {
-  if(!pp || !pp->host_user.str || !pp->host_user.len)
-    return CURLE_FAILED_INIT;
+  यदि(!pp || !pp->host_user.str || !pp->host_user.len)
+    प्रत्यागम CURLE_FAILED_INIT;
 
-  if(pp->host_user.str[0] == '[') {
-    const char *s = pp->host_user.str + 1;
-    struct Curl_str tmp;
-    if(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
-      return CURLE_URL_MALFORMAT;
+  यदि(pp->host_user.str[0] == '[') {
+    ध्रुव वर्ण *s = pp->host_user.str + 1;
+    संरचना Curl_str tmp;
+    यदि(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
+      प्रत्यागम CURLE_URL_MALFORMAT;
 
-    if(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
+    यदि(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
                              &pp->host, &pp->zoneid)) {
-      failf(data, "Invalid IPv6 address format in '%.*s'",
-            (int)pp->host_user.len, pp->host_user.str);
-      return CURLE_URL_MALFORMAT;
+      failf(दत्त, "Invalid IPv6 address format in '%.*s'",
+            (पूर्णाङ्क)pp->host_user.len, pp->host_user.str);
+      प्रत्यागम CURLE_URL_MALFORMAT;
     }
     pp->ipv6 = TRUE;
   }
-  else {
-#ifdef USE_IDN
-    if(!Curl_is_ASCII_str(&pp->host_user)) {
-      CURLcode result;
-      if(!pp->tmp_host_user) {
+  अन्यथा {
+#यदि_परिभाषितम् USE_IDN
+    यदि(!Curl_is_ASCII_str(&pp->host_user)) {
+      CURLcode परिणाम;
+      यदि(!pp->tmp_host_user) {
         /* need a null-terminated string for IDN */
         pp->tmp_host_user = curlx_memdup0(pp->host_user.str,
                                           pp->host_user.len);
-        if(!pp->tmp_host_user)
-          return CURLE_OUT_OF_MEMORY;
+        यदि(!pp->tmp_host_user)
+          प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       }
-      result = Curl_idn_decode(pp->tmp_host_user, &pp->tmp_host);
-      if(result)
-        return result;
+      परिणाम = Curl_idn_decode(pp->tmp_host_user, &pp->tmp_host);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
       pp->host.str = pp->tmp_host;
-      pp->host.len = strlen(pp->host.str);
+      pp->host.len = वाक्यदैर्घ्यम्(pp->host.str);
     }
-    else
-#endif
-    if(scan_for_ipv6 &&
+    अन्यथा
+#यदि_अन्तः
+    यदि(अवलोकनम्_for_ipv6 &&
        Curl_looks_like_ipv6(pp->host_user.str, pp->host_user.len, TRUE,
                             &pp->host, &pp->zoneid)) {
-      if(pp->host_user.len < MAX_IPADR_LEN) {
-        char tmp[MAX_IPADR_LEN];
-        memcpy(tmp, pp->host_user.str, pp->host_user.len);
+      यदि(pp->host_user.len < MAX_IPADR_LEN) {
+        वर्ण tmp[MAX_IPADR_LEN];
+        स्मृतिं_प्रतिलिख(tmp, pp->host_user.str, pp->host_user.len);
         tmp[pp->host_user.len] = 0;
         pp->ipv6 = !Curl_is_ipv4addr(tmp);
       }
-      else
+      अन्यथा
         pp->ipv6 = TRUE;
     }
-    else
+    अन्यथा
       pp->host = pp->host_user;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
-                          uint16_t port,
-                          struct Curl_peer **ppeer)
+CURLcode Curl_peer_create(संरचना Curl_easy *दत्त,
+                          ध्रुव संरचना Curl_scheme *scheme,
+                          ध्रुव वर्ण *hostname,
+                          uint16_t पत्तनम्,
+                          संरचना Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  CURLcode result;
+  संरचना peer_parse pp;
+  CURLcode परिणाम;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  स्मृतिं_पूरय(&pp, 0, परिमाण(pp));
   pp.scheme = scheme;
   pp.host_user.str = hostname;
-  pp.host_user.len = strlen(hostname);
-  pp.port = port;
+  pp.host_user.len = वाक्यदैर्घ्यम्(hostname);
+  pp.पत्तनम् = पत्तनम्;
 
-  result = peer_parse_host(data, &pp, TRUE);
-  if(!result)
-    result = peer_create(&pp, ppeer);
+  परिणाम = peer_parse_host(दत्त, &pp, TRUE);
+  यदि(!परिणाम)
+    परिणाम = peer_create(&pp, ppeer);
 
   peer_parse_clear(&pp);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+#यदि_परिभाषितम् USE_UNIX_SOCKETS
+CURLcode Curl_peer_uds_create(ध्रुव संरचना Curl_scheme *scheme,
+                              ध्रुव वर्ण *मार्गः,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer)
+                              संरचना Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  size_t pathlen = path ? strlen(path) : 0;
-  CURLcode result = CURLE_OK;
+  संरचना peer_parse pp;
+  size_t pathlen = मार्गः ? वाक्यदैर्घ्यम्(मार्गः) : 0;
+  CURLcode परिणाम = CURLE_OK;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  if(!scheme)
-    return CURLE_FAILED_INIT;
-  if(!pathlen)
-    return CURLE_FAILED_INIT;
+  स्मृतिं_पूरय(&pp, 0, परिमाण(pp));
+  यदि(!scheme)
+    प्रत्यागम CURLE_FAILED_INIT;
+  यदि(!pathlen)
+    प्रत्यागम CURLE_FAILED_INIT;
 
   pp.scheme = scheme;
-  pp.host_user.str = pp.host.str = path;
+  pp.host_user.str = pp.host.str = मार्गः;
   pp.host_user.len = pp.host.len = pathlen;
   pp.unix_socket = TRUE;
   pp.abstract_uds = abstract_unix_socket;
 
-  result = peer_create(&pp, ppeer);
+  परिणाम = peer_create(&pp, ppeer);
   peer_parse_clear(&pp);
-  return result;
+  प्रत्यागम परिणाम;
 }
-#endif /* USE_UNIX_SOCKETS */
+#यदि_अन्तः /* USE_UNIX_SOCKETS */
 
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src)
+शून्य Curl_peer_link(संरचना Curl_peer **pdest, संरचना Curl_peer *src)
 {
-  if(*pdest != src) {
+  यदि(*pdest != src) {
     Curl_peer_unlink(pdest);
     *pdest = src;
-    if(src) {
+    यदि(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_peer_unlink(struct Curl_peer **ppeer)
+शून्य Curl_peer_unlink(संरचना Curl_peer **ppeer)
 {
-  if(*ppeer) {
-    struct Curl_peer *peer = *ppeer;
+  यदि(*ppeer) {
+    संरचना Curl_peer *peer = *ppeer;
 
     DEBUGASSERT(peer->refcount);
-    *ppeer = NULL;
-    if(peer->refcount)
+    *ppeer = रिक्त;
+    यदि(peer->refcount)
       peer->refcount--;
-    if(!peer->refcount) {
+    यदि(!peer->refcount) {
       curlx_free(peer);
     }
   }
 }
 
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2)
+bool Curl_peer_equal(संरचना Curl_peer *p1, संरचना Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  प्रत्यागम (p1 == p2) ||
          (p1 && p2 &&
           (p1->scheme == p2->scheme) &&
           Curl_peer_same_destination(p1, p2));
 }
 
-static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
+स्थिर bool peer_same_hostname(संरचना Curl_peer *p1, संरचना Curl_peer *p2)
 {
   /* UNIX domain socket paths must be compared case-sensitive,
    * as many filesystem are like that. */
-  return (p1->unix_socket == p2->unix_socket) &&
+  प्रत्यागम (p1->unix_socket == p2->unix_socket) &&
          (p1->abstract_uds == p2->abstract_uds) &&
          (p1->ipv6 == p2->ipv6) &&
          /* unix_socket paths are case-sensitive, hostnames are not.
           * Do strcmp() first on both, since we do a lot of matches
           * on the same names and platform strcmp is way faster. */
-         (!strcmp(p1->hostname, p2->hostname) ||
+         (!वाक्यं_तुलय(p1->hostname, p2->hostname) ||
           (!p1->unix_socket &&
            curl_strequal(p1->hostname, p2->hostname)));
 }
 
-static bool peer_same_zoneid(const char *z1, const char *z2)
+स्थिर bool peer_same_zoneid(ध्रुव वर्ण *z1, ध्रुव वर्ण *z2)
 {
-  return (z1 == z2) ||
-         (z1 && z2 && !strcmp(z1, z2));
+  प्रत्यागम (z1 == z2) ||
+         (z1 && z2 && !वाक्यं_तुलय(z1, z2));
 }
 
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2)
+bool Curl_peer_same_destination(संरचना Curl_peer *p1, संरचना Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  प्रत्यागम (p1 == p2) ||
          (p1 && p2 &&
-          (p1->port == p2->port) &&
+          (p1->पत्तनम् == p2->पत्तनम्) &&
           peer_same_hostname(p1, p2) &&
           (p1->scopeid == p2->scopeid) &&
           (p1->scopeid || peer_same_zoneid(p1->zoneid, p2->zoneid)));
 }
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
-                            uint16_t port_override,
+CURLcode Curl_peer_from_url(CURLU *uh, संरचना Curl_easy *दत्त,
+                            uint16_t पत्तनम्_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer)
+                            संरचना Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  char *zoneid = NULL, *scheme = NULL, *hostname = NULL;
+  संरचना peer_parse pp;
+  वर्ण *zoneid = रिक्त, *scheme = रिक्त, *hostname = रिक्त;
   CURLUcode uc;
-  CURLcode result;
+  CURLcode परिणाम;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  स्मृतिं_पूरय(&pp, 0, परिमाण(pp));
 
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme, 0);
-  if(uc)
-    return Curl_uc_to_curlcode(uc);
+  यदि(uc)
+    प्रत्यागम Curl_uc_गन्तव्यम्_curlcode(uc);
   pp.scheme = Curl_get_scheme(scheme);
-  if(!pp.scheme) {
-    failf(data, "Protocol \"%s\" not supported%s", scheme,
-          data->state.this_is_a_follow ? " (in redirect)" : "");
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+  यदि(!pp.scheme) {
+    failf(दत्त, "Protocol \"%s\" not supported%s", scheme,
+          दत्त->state.this_is_a_follow ? " (in redirect)" : "");
+    परिणाम = CURLE_UNSUPPORTED_PROTOCOL;
+    गच्छ बहिर्गमनम्;
   }
 
   uc = curl_url_get(uh, CURLUPART_HOST, &hostname, 0);
-  if(uc) {
-    if((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
+  यदि(uc) {
+    यदि((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
       ; /* acceptable */
-    else {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    अन्यथा {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ बहिर्गमनम्;
     }
   }
-  else if(strlen(hostname) > MAX_URL_LEN) {
-    failf(data, "Too long hostname (maximum is %d)", MAX_URL_LEN);
-    result = CURLE_URL_MALFORMAT;
-    goto out;
+  अन्यथा यदि(वाक्यदैर्घ्यम्(hostname) > MAX_URL_LEN) {
+    failf(दत्त, "Too long hostname (maximum is %d)", MAX_URL_LEN);
+    परिणाम = CURLE_URL_MALFORMAT;
+    गच्छ बहिर्गमनम्;
   }
 
   pp.host_user.str = hostname ? hostname : "";
-  pp.host_user.len = strlen(pp.host_user.str);
-  if(pp.host_user.len) {
-    result = peer_parse_host(data, &pp, FALSE);
-    if(result)
-      goto out;
+  pp.host_user.len = वाक्यदैर्घ्यम्(pp.host_user.str);
+  यदि(pp.host_user.len) {
+    परिणाम = peer_parse_host(दत्त, &pp, FALSE);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
-  else
+  अन्यथा
     pp.host = pp.host_user;
 
-  if(port_override) {
+  यदि(पत्तनम्_override) {
     /* if set, we use this instead of the port possibly given in the URL */
-    char portbuf[16];
-    curl_msnprintf(portbuf, sizeof(portbuf), "%d", port_override);
-    uc = curl_url_set(uh, CURLUPART_PORT, portbuf, 0);
-    if(uc) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+    वर्ण portbuf[16];
+    curl_msnprintf(portbuf, परिमाण(portbuf), "%d", पत्तनम्_override);
+    uc = curl_url_समुच्चयः(uh, CURLUPART_पत्तनम्, portbuf, 0);
+    यदि(uc) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ बहिर्गमनम्;
     }
-    else
-      pp.port = port_override;
+    अन्यथा
+      pp.पत्तनम् = पत्तनम्_override;
   }
-  else {
-    uc = Curl_url_get_port(uh, &pp.port);
-    if(uc) {
-      if(uc == CURLUE_OUT_OF_MEMORY) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+  अन्यथा {
+    uc = Curl_url_get_पत्तनम्(uh, &pp.पत्तनम्);
+    यदि(uc) {
+      यदि(uc == CURLUE_बहिर्गमनम्_सम्बन्धि_स्मृतिः) {
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        गच्छ बहिर्गमनम्;
       }
-      else if(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
-        result = CURLE_URL_MALFORMAT;
-        goto out;
+      अन्यथा यदि(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
+        परिणाम = CURLE_URL_MALFORMAT;
+        गच्छ बहिर्गमनम्;
       }
       /* no port ok when not a network scheme */
     }
   }
 
-  if(scopeid_override)
+  यदि(scopeid_override)
     /* Override any scope id from an URL zone. */
     pp.scopeid = scopeid_override;
-  else {
-    if(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
-       CURLUE_OUT_OF_MEMORY) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  अन्यथा {
+    यदि(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
+       CURLUE_बहिर्गमनम्_सम्बन्धि_स्मृतिः) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ बहिर्गमनम्;
     }
-    if(zoneid) {
+    यदि(zoneid) {
       pp.zoneid.str = zoneid;
-      pp.zoneid.len = strlen(zoneid);
+      pp.zoneid.len = वाक्यदैर्घ्यम्(zoneid);
     }
   }
 
-  result = peer_create(&pp, ppeer);
-  if(result)
-    failf(data, "Error %d creating peer for %s:%u",
-          (int)result, pp.host_user.str, pp.port);
+  परिणाम = peer_create(&pp, ppeer);
+  यदि(परिणाम)
+    failf(दत्त, "Error %d creating peer for %s:%u",
+          (पूर्णाङ्क)परिणाम, pp.host_user.str, pp.पत्तनम्);
 
-out:
+बहिर्गमनम्:
   peer_parse_clear(&pp);
   curlx_free(scheme);
   curlx_free(hostname);
   curlx_free(zoneid);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /* Parse a "host:port" string to connect to into a peer.
  * IPv6 addresses might appear in brackets or without them. */
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer)
+CURLcode Curl_peer_from_connect_गन्तव्यम्(संरचना Curl_easy *दत्त,
+                                   ध्रुव संरचना Curl_peer *dest,
+                                   ध्रुव वर्ण *connect_गन्तव्यम्,
+                                   संरचना Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  const char *portstr = NULL;
-  bool port_switch = FALSE;
-  CURLcode result;
+  संरचना peer_parse pp;
+  ध्रुव वर्ण *portstr = रिक्त;
+  bool पत्तनम्_switch = FALSE;
+  CURLcode परिणाम;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  if(!connect_to || !*connect_to)
-    return CURLE_FAILED_INIT;
+  स्मृतिं_पूरय(&pp, 0, परिमाण(pp));
+  यदि(!connect_गन्तव्यम् || !*connect_गन्तव्यम्)
+    प्रत्यागम CURLE_FAILED_INIT;
 
   pp.scheme = dest->scheme;
 
   /* detect and extract RFC6874-style IPv6-addresses */
-  if(connect_to[0] == '[') {
-    const char *s = strchr(connect_to + 1, ']');
-    if(!s) {
-      failf(data, "Invalid IPv6 address format in '%s'", connect_to);
-      result = CURLE_SETOPT_OPTION_SYNTAX;
-      goto out;
+  यदि(connect_गन्तव्यम्[0] == '[') {
+    ध्रुव वर्ण *s = strchr(connect_गन्तव्यम् + 1, ']');
+    यदि(!s) {
+      failf(दत्त, "Invalid IPv6 address format in '%s'", connect_गन्तव्यम्);
+      परिणाम = CURLE_SETOPT_OPTION_SYNTAX;
+      गच्छ बहिर्गमनम्;
     }
     portstr = strchr(s, ':');
-    pp.host_user.str = connect_to;
+    pp.host_user.str = connect_गन्तव्यम्;
     pp.host_user.len = s - pp.host_user.str + 1;
     pp.ipv6 = TRUE;
   }
-  else {
-    portstr = strchr(connect_to, ':');
-    pp.host_user.str = connect_to;
+  अन्यथा {
+    portstr = strchr(connect_गन्तव्यम्, ':');
+    pp.host_user.str = connect_गन्तव्यम्;
     pp.host_user.len = portstr ?
-      (size_t)(portstr - connect_to) : strlen(connect_to);
+      (size_t)(portstr - connect_गन्तव्यम्) : वाक्यदैर्घ्यम्(connect_गन्तव्यम्);
   }
 
-  if(!pp.host_user.len) { /* no hostname found, only port switch */
-    port_switch = TRUE;
+  यदि(!pp.host_user.len) { /* no hostname found, only port switch */
+    पत्तनम्_switch = TRUE;
     pp.host_user.str = dest->user_hostname;
-    pp.host_user.len = strlen(dest->user_hostname);
+    pp.host_user.len = वाक्यदैर्घ्यम्(dest->user_hostname);
   }
 
-  result = peer_parse_host(data, &pp, FALSE);
-  if(result)
-    goto out;
+  परिणाम = peer_parse_host(दत्त, &pp, FALSE);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
   /* On a port switch, ipv6 must stay the same */
-  DEBUGASSERT(!port_switch || ((bool)pp.ipv6 == (bool)dest->ipv6));
+  DEBUGASSERT(!पत्तनम्_switch || ((bool)pp.ipv6 == (bool)dest->ipv6));
 
-  if(portstr && portstr[1]) {
-    const char *p = portstr + 1;
+  यदि(portstr && portstr[1]) {
+    ध्रुव वर्ण *p = portstr + 1;
     curl_off_t portparse;
-    if(curlx_str_number(&p, &portparse, 0xffff)) {
-      failf(data, "No valid port number in '%s'", connect_to);
-      result = CURLE_SETOPT_OPTION_SYNTAX;
-      goto out;
+    यदि(curlx_str_सङ्ख्या(&p, &portparse, 0xffff)) {
+      failf(दत्त, "No valid port number in '%s'", connect_गन्तव्यम्);
+      परिणाम = CURLE_SETOPT_OPTION_SYNTAX;
+      गच्छ बहिर्गमनम्;
     }
-    pp.port = (uint16_t)portparse; /* we know it will fit */
+    pp.पत्तनम् = (uint16_t)portparse; /* we know it will fit */
   }
-  else
-    pp.port = dest->port;
+  अन्यथा
+    pp.पत्तनम् = dest->पत्तनम्;
 
-#ifndef USE_IPV6
-  if(pp.ipv6) {
-    failf(data, "Use of IPv6 in *_CONNECT_TO without IPv6 support built-in");
-    result = CURLE_NOT_BUILT_IN;
-    goto out;
+#यदि_अपरिभाषितम् USE_IPV6
+  यदि(pp.ipv6) {
+    failf(दत्त, "Use of IPv6 in *_CONNECT_TO without IPv6 support built-in");
+    परिणाम = CURLE_NOT_BUILT_अन्तर्;
+    गच्छ बहिर्गमनम्;
   }
-#endif
-  if(pp.ipv6 && port_switch) {
-    if(dest->zoneid) {
+#यदि_अन्तः
+  यदि(pp.ipv6 && पत्तनम्_switch) {
+    यदि(dest->zoneid) {
       pp.zoneid.str = dest->zoneid;
-      pp.zoneid.len = strlen(dest->zoneid);
+      pp.zoneid.len = वाक्यदैर्घ्यम्(dest->zoneid);
     }
     pp.scopeid = dest->scopeid;
   }
 
-  result = peer_create(&pp, ppeer);
-  CURL_TRC_M(data, "connect-to peer_create2 -> %d", (int)result);
+  परिणाम = peer_create(&pp, ppeer);
+  CURL_TRC_M(दत्त, "connect-to peer_create2 -> %d", (पूर्णाङ्क)परिणाम);
 
-out:
-  CURL_TRC_M(data, "parse connect_to peer: %s -> %d", connect_to, (int)result);
+बहिर्गमनम्:
+  CURL_TRC_M(दत्त, "parse connect_to peer: %s -> %d", connect_गन्तव्यम्, (पूर्णाङ्क)परिणाम);
   peer_parse_clear(&pp);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
 
-#ifdef USE_UNIX_SOCKETS
-#define UNIX_SOCKET_PREFIX "localhost"
-#endif
+#यदि_परिभाषितम् USE_UNIX_SOCKETS
+#परिभाषय UNIX_SOCKET_उपसर्गः "localhost"
+#यदि_अन्तः
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
-                                  uint8_t *proxytype, const char *url)
+CURLcode Curl_scheme_गन्तव्यम्_proxytype(संरचना Curl_easy *दत्त,
+                                  ध्रुव वर्ण *scheme,
+                                  uint8_t *proxytype, ध्रुव वर्ण *url)
 {
-  if(!scheme)
-    return CURLE_OK;
+  यदि(!scheme)
+    प्रत्यागम CURLE_OK;
 
-  if(curl_strequal("https", scheme)) {
-    if(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
+  यदि(curl_strequal("https", scheme)) {
+    यदि(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
       *proxytype = CURLPROXY_HTTPS;
   }
-  else if(curl_strequal("socks5h", scheme))
+  अन्यथा यदि(curl_strequal("socks5h", scheme))
     *proxytype = CURLPROXY_SOCKS5_HOSTNAME;
-  else if(curl_strequal("socks5", scheme))
+  अन्यथा यदि(curl_strequal("socks5", scheme))
     *proxytype = CURLPROXY_SOCKS5;
-  else if(curl_strequal("socks4a", scheme))
+  अन्यथा यदि(curl_strequal("socks4a", scheme))
     *proxytype = CURLPROXY_SOCKS4A;
-  else if(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
+  अन्यथा यदि(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
     *proxytype = CURLPROXY_SOCKS4;
-  else if(curl_strequal("http", scheme)) {
-    if(*proxytype != CURLPROXY_HTTP_1_0)
+  अन्यथा यदि(curl_strequal("http", scheme)) {
+    यदि(*proxytype != CURLPROXY_HTTP_1_0)
       *proxytype = CURLPROXY_HTTP;
   }
-  else {
+  अन्यथा {
     /* Any other xxx:// reject! */
-    failf(data, "Unsupported proxy scheme for \'%s\'", url);
-    return CURLE_COULDNT_CONNECT;
+    failf(दत्त, "Unsupported proxy scheme for \'%s\'", url);
+    प्रत्यागम CURLE_COULDNT_CONNECT;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  संरचना Curl_easy *दत्त,
+                                  ध्रुव वर्ण *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  संरचना Curl_peer **ppeer,
                                   uint8_t *pproxytype)
 {
-  struct peer_parse pp;
-  char *scheme = NULL;
-  char *portptr = NULL;
-#ifdef USE_UNIX_SOCKETS
+  संरचना peer_parse pp;
+  वर्ण *scheme = रिक्त;
+  वर्ण *portptr = रिक्त;
+#यदि_परिभाषितम् USE_UNIX_SOCKETS
   bool is_socks = FALSE;
-#endif
+#यदि_अन्तः
   CURLUcode uc;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  pp.port = CURL_DEFAULT_PROXY_PORT;
+  स्मृतिं_पूरय(&pp, 0, परिमाण(pp));
+  pp.पत्तनम् = CURL_DEFAULT_PROXY_पत्तनम्;
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_NO_GUESS_SCHEME);
-  if(uc) {
-    if(uc == CURLUE_OUT_OF_MEMORY) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  यदि(uc) {
+    यदि(uc == CURLUE_बहिर्गमनम्_सम्बन्धि_स्मृतिः) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ बहिर्गमनम्;
     }
     /* URL came without scheme, the passed `proxytype` determines it */
-    switch(proxytype) {
-    case CURLPROXY_HTTP:
-    case CURLPROXY_HTTP_1_0:
+    विकल्प(proxytype) {
+    पक्ष CURLPROXY_HTTP:
+    पक्ष CURLPROXY_HTTP_1_0:
       pp.scheme = &Curl_scheme_http;
-      break;
-    case CURLPROXY_HTTPS:
-    case CURLPROXY_HTTPS2:
-    case CURLPROXY_HTTPS3:
+      भङ्ग;
+    पक्ष CURLPROXY_HTTPS:
+    पक्ष CURLPROXY_HTTPS2:
+    पक्ष CURLPROXY_HTTPS3:
       pp.scheme = &Curl_scheme_https;
-      break;
-    case CURLPROXY_SOCKS4:
+      भङ्ग;
+    पक्ष CURLPROXY_SOCKS4:
       pp.scheme = &Curl_scheme_socks4;
-      break;
-    case CURLPROXY_SOCKS4A:
+      भङ्ग;
+    पक्ष CURLPROXY_SOCKS4A:
       pp.scheme = &Curl_scheme_socks4a;
-      break;
-    case CURLPROXY_SOCKS5:
+      भङ्ग;
+    पक्ष CURLPROXY_SOCKS5:
       pp.scheme = &Curl_scheme_socks5;
-      break;
-    case CURLPROXY_SOCKS5_HOSTNAME:
+      भङ्ग;
+    पक्ष CURLPROXY_SOCKS5_HOSTNAME:
       pp.scheme = &Curl_scheme_socks5h;
-      break;
-    default:
-      failf(data, "Unsupported proxy type %u for \'%s\'", proxytype, url);
-      result = CURLE_COULDNT_RESOLVE_PROXY;
-      goto out;
+      भङ्ग;
+    स्वभाव:
+      failf(दत्त, "Unsupported proxy type %u for \'%s\'", proxytype, url);
+      परिणाम = CURLE_COULDNT_RESOLVE_PROXY;
+      गच्छ बहिर्गमनम्;
     }
   }
-  else {
+  अन्यथा {
     pp.scheme = Curl_get_scheme(scheme);
-    result = Curl_scheme_to_proxytype(data, scheme, &proxytype, url);
-    if(result)
-      goto out;
+    परिणाम = Curl_scheme_गन्तव्यम्_proxytype(दत्त, scheme, &proxytype, url);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
   DEBUGASSERT(pp.scheme);
 
-  if(CURL_PROXY_IS_HTTPS(proxytype) &&
-     !Curl_ssl_supports(data, SSLSUPP_HTTPS_PROXY)) {
-    failf(data, "Unsupported proxy \'%s\', libcurl is built without the "
+  यदि(CURL_PROXY_IS_HTTPS(proxytype) &&
+     !Curl_ssl_supports(दत्त, SSLSUPP_HTTPS_PROXY)) {
+    failf(दत्त, "Unsupported proxy \'%s\', libcurl is built without the "
           "HTTPS-proxy support.", url);
-    result = CURLE_NOT_BUILT_IN;
-    goto out;
+    परिणाम = CURLE_NOT_BUILT_अन्तर्;
+    गच्छ बहिर्गमनम्;
   }
 
-  switch(pp.scheme->family) {
-  case CURLPROTO_SOCKS:
-#ifdef USE_UNIX_SOCKETS
+  विकल्प(pp.scheme->family) {
+  पक्ष CURLPROTO_SOCKS:
+#यदि_परिभाषितम् USE_UNIX_SOCKETS
     is_socks = TRUE;
-#endif
-    break;
-  case CURLPROTO_HTTP:
-    break;
-  default:
-    failf(data, "Unsupported proxy protocol for \'%s\'", url);
-    result = CURLE_COULDNT_CONNECT;
-    goto out;
+#यदि_अन्तः
+    भङ्ग;
+  पक्ष CURLPROTO_HTTP:
+    भङ्ग;
+  स्वभाव:
+    failf(दत्त, "Unsupported proxy protocol for \'%s\'", url);
+    परिणाम = CURLE_COULDNT_CONNECT;
+    गच्छ बहिर्गमनम्;
   }
 
-  uc = curl_url_get(uh, CURLUPART_PORT, &portptr, CURLU_NO_DEFAULT_PORT);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  uc = curl_url_get(uh, CURLUPART_पत्तनम्, &portptr, CURLU_NO_DEFAULT_पत्तनम्);
+  यदि(uc == CURLUE_बहिर्गमनम्_सम्बन्धि_स्मृतिः) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
-  if(portptr) {
-    curl_off_t num;
-    const char *p = portptr;
-    if(!curlx_str_number(&p, &num, UINT16_MAX))
-      pp.port = (uint16_t)num;
+  यदि(portptr) {
+    curl_off_t अङ्कः;
+    ध्रुव वर्ण *p = portptr;
+    यदि(!curlx_str_सङ्ख्या(&p, &अङ्कः, UINT16_MAX))
+      pp.पत्तनम् = (uint16_t)अङ्कः;
     /* Should we not error out when the port number is invalid? */
     curlx_free(portptr);
   }
-  else {
+  अन्यथा {
     /* No port in URL, take the set one or the scheme's default */
-    if(data->set.proxyport)
-      pp.port = data->set.proxyport;
-    else
-      pp.port = pp.scheme->defport;
+    यदि(दत्त->समुच्चयः.proxyport)
+      pp.पत्तनम् = दत्त->समुच्चयः.proxyport;
+    अन्यथा
+      pp.पत्तनम् = pp.scheme->defport;
   }
 
   /* now, clone the proxy hostname */
   uc = curl_url_get(uh, CURLUPART_HOST, &pp.tmp_host_user, CURLU_URLDECODE);
-  if(uc) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  यदि(uc) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
   pp.host_user.str = pp.tmp_host_user;
-  pp.host_user.len = strlen(pp.tmp_host_user);
+  pp.host_user.len = वाक्यदैर्घ्यम्(pp.tmp_host_user);
 
-#ifdef USE_UNIX_SOCKETS
-  if(is_socks && curl_strequal(UNIX_SOCKET_PREFIX, pp.tmp_host_user)) {
-    uc = curl_url_get(uh, CURLUPART_PATH, &pp.tmp_host, CURLU_URLDECODE);
-    if(uc) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+#यदि_परिभाषितम् USE_UNIX_SOCKETS
+  यदि(is_socks && curl_strequal(UNIX_SOCKET_उपसर्गः, pp.tmp_host_user)) {
+    uc = curl_url_get(uh, CURLUPART_मार्गः, &pp.tmp_host, CURLU_URLDECODE);
+    यदि(uc) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ बहिर्गमनम्;
     }
     /* path will be "/", if no path was found */
-    if(strcmp("/", pp.tmp_host)) {
+    यदि(वाक्यं_तुलय("/", pp.tmp_host)) {
       pp.host.str = pp.tmp_host;
-      pp.host.len = strlen(pp.tmp_host);
+      pp.host.len = वाक्यदैर्घ्यम्(pp.tmp_host);
       pp.unix_socket = TRUE;
     }
-    else {
+    अन्यथा {
       pp.host = pp.host_user;
     }
   }
-#endif /* USE_UNIX_SOCKETS */
+#यदि_अन्तः /* USE_UNIX_SOCKETS */
 
-  if(!pp.host.len) {
-    result = peer_parse_host(data, &pp, FALSE);
-    if(result)
-      goto out;
+  यदि(!pp.host.len) {
+    परिणाम = peer_parse_host(दत्त, &pp, FALSE);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
   uc = curl_url_get(uh, CURLUPART_ZONEID, &pp.tmp_zoneid, 0);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  यदि(uc == CURLUE_बहिर्गमनम्_सम्बन्धि_स्मृतिः) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
-  if(pp.tmp_zoneid) {
+  यदि(pp.tmp_zoneid) {
     pp.zoneid.str = pp.tmp_zoneid;
-    pp.zoneid.len = strlen(pp.tmp_zoneid);
+    pp.zoneid.len = वाक्यदैर्घ्यम्(pp.tmp_zoneid);
   }
 
   *pproxytype = proxytype;
-  result = peer_create(&pp, ppeer);
+  परिणाम = peer_create(&pp, ppeer);
 
-out:
+बहिर्गमनम्:
   peer_parse_clear(&pp);
   curlx_free(scheme);
-#ifdef DEBUGBUILD
-  if(!result)
+#यदि_परिभाषितम् DEBUGBUILD
+  यदि(!परिणाम)
     DEBUGASSERT(*ppeer);
-#endif
-  return result;
+#यदि_अन्तः
+  प्रत्यागम परिणाम;
 }
 
-#endif /* !CURL_DISABLE_PROXY */
+#यदि_अन्तः /* !CURL_DISABLE_PROXY */

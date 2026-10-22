@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VTLS_SPACK_H
-#define HEADER_CURL_VTLS_SPACK_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_VTLS_SPACK_H
+#परिभाषय शीर्षकम्_CURL_VTLS_SPACK_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(USE_SSL) && defined(USE_SSLS_EXPORT)
+#यदि defined(USE_SSL) && defined(USE_SSLS_EXPORT)
 
-struct dynbuf;
-struct Curl_ssl_session;
+संरचना dynbuf;
+संरचना Curl_ssl_session;
 
-CURLcode Curl_ssl_session_pack(struct Curl_easy *data,
-                               struct Curl_ssl_session *s,
-                               struct dynbuf *buf);
+CURLcode Curl_ssl_session_pack(संरचना Curl_easy *दत्त,
+                               संरचना Curl_ssl_session *s,
+                               संरचना dynbuf *buf);
 
-CURLcode Curl_ssl_session_unpack(struct Curl_easy *data,
-                                 const void *bufv, size_t buflen,
-                                 struct Curl_ssl_session **ps);
+CURLcode Curl_ssl_session_unpack(संरचना Curl_easy *दत्त,
+                                 ध्रुव शून्य *bufv, size_t buflen,
+                                 संरचना Curl_ssl_session **ps);
 
-#endif /* USE_SSL && USE_SSLS_EXPORT */
+#यदि_अन्तः /* USE_SSL && USE_SSLS_EXPORT */
 
-#endif /* HEADER_CURL_VTLS_SPACK_H */
+#यदि_अन्तः /* HEADER_CURL_VTLS_SPACK_H */

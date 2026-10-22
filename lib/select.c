@@ -21,22 +21,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
-#endif
+#यदि_परिभाषितम् HAVE_SYS_SELECT_H
+#अन्तर्भाव <sys/select.h>
+#नोचेद्यदि defined(HAVE_UNISTD_H)
+#अन्तर्भाव <unistd.h>
+#यदि_अन्तः
 
-#include "urldata.h"
-#include "connect.h"
-#include "select.h"
-#include "curl_trc.h"
-#include "curlx/timediff.h"
-#include "curlx/wait.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "connect.h"
+#अन्तर्भाव "select.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "curlx/timediff.h"
+#अन्तर्भाव "curlx/wait.h"
 
-#ifndef HAVE_POLL  /* use select() */
+#यदि_अपरिभाषितम् HAVE_POLL  /* use select() */
 /*
  * This is a wrapper around select() to aid in Windows compatibility. A
  * negative timeout value makes this function wait indefinitely, unless no
@@ -48,28 +48,28 @@
  *    0 = timeout
  *    N = number of signalled file descriptors
  */
-static int our_select(curl_socket_t maxfd,   /* highest socket number */
+स्थिर पूर्णाङ्क our_select(curl_socket_t maxfd,   /* highest socket number */
                       fd_set *fds_read,      /* sockets ready for reading */
                       fd_set *fds_write,     /* sockets ready for writing */
                       fd_set *fds_err,       /* sockets with errors */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct timeval pending_tv;
-  struct timeval *ptimeout;
+  संरचना timeval pending_tv;
+  संरचना timeval *ptimeout;
 
-#ifdef USE_WINSOCK
+#यदि_परिभाषितम् USE_WINSOCK
   /* Winsock select() cannot handle zero events. See the comment below. */
-  if((!fds_read || fds_read->fd_count == 0) &&
-     (!fds_write || fds_write->fd_count == 0) &&
-     (!fds_err || fds_err->fd_count == 0)) {
+  यदि((!fds_read || fds_read->fd_गणनम् == 0) &&
+     (!fds_write || fds_write->fd_गणनम् == 0) &&
+     (!fds_err || fds_err->fd_गणनम् == 0)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    प्रत्यागम curlx_wait_ms(timeout_ms);
   }
-#endif
+#यदि_अन्तः
 
   ptimeout = curlx_mstotv(&pending_tv, timeout_ms);
 
-#ifdef USE_WINSOCK
+#यदि_परिभाषितम् USE_WINSOCK
   /* Winsock select() must not be called with an fd_set that contains zero
      fd flags, or it will return WSAEINVAL. It also cannot be called with
      no fd_sets at all!  From the documentation:
@@ -82,16 +82,16 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
      calling this an error. Luckily, with Winsock, we can _also_ ask how
      many bits are set on an fd_set. Therefore, let's check it beforehand.
    */
-  return select((int)maxfd + 1,
-                fds_read && fds_read->fd_count ? fds_read : NULL,
-                fds_write && fds_write->fd_count ? fds_write : NULL,
-                fds_err && fds_err->fd_count ? fds_err : NULL, ptimeout);
-#else
-  return select((int)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
-#endif
+  प्रत्यागम select((पूर्णाङ्क)maxfd + 1,
+                fds_read && fds_read->fd_गणनम् ? fds_read : रिक्त,
+                fds_write && fds_write->fd_गणनम् ? fds_write : रिक्त,
+                fds_err && fds_err->fd_गणनम् ? fds_err : रिक्त, ptimeout);
+#अन्यथा
+  प्रत्यागम select((पूर्णाङ्क)maxfd + 1, fds_read, fds_write, fds_err, ptimeout);
+#यदि_अन्तः
 }
 
-#endif
+#यदि_अन्तः
 
 /*
  * Wait for read or write events on a set of file descriptors. It uses poll()
@@ -113,19 +113,19 @@ static int our_select(curl_socket_t maxfd,   /* highest socket number */
  * CURL_CSELECT_OUT - write socket is writable
  * CURL_CSELECT_ERR - an error condition occurred
  */
-int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
+पूर्णाङ्क Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
                       curl_socket_t readfd1,
                       curl_socket_t writefd, /* socket to write to */
                       timediff_t timeout_ms) /* milliseconds to wait */
 {
-  struct pollfd pfd[3];
-  int num;
-  int r;
+  संरचना pollfd pfd[3];
+  पूर्णाङ्क अङ्कः;
+  पूर्णाङ्क r;
 
-  if((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
+  यदि((readfd0 == CURL_SOCKET_BAD) && (readfd1 == CURL_SOCKET_BAD) &&
      (writefd == CURL_SOCKET_BAD)) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    प्रत्यागम curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -133,54 +133,54 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-  num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd0;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  अङ्कः = 0;
+  यदि(readfd0 != CURL_SOCKET_BAD) {
+    pfd[अङ्कः].fd = readfd0;
+    pfd[अङ्कः].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[अङ्कः].revents = 0;
+    अङ्कः++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    pfd[num].fd = readfd1;
-    pfd[num].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  यदि(readfd1 != CURL_SOCKET_BAD) {
+    pfd[अङ्कः].fd = readfd1;
+    pfd[अङ्कः].events = POLLRDNORM | POLLIN | POLLRDBAND | POLLPRI;
+    pfd[अङ्कः].revents = 0;
+    अङ्कः++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    pfd[num].fd = writefd;
-    pfd[num].events = POLLWRNORM | POLLOUT | POLLPRI;
-    pfd[num].revents = 0;
-    num++;
+  यदि(writefd != CURL_SOCKET_BAD) {
+    pfd[अङ्कः].fd = writefd;
+    pfd[अङ्कः].events = POLLWRNORM | POLLOUT | POLLPRI;
+    pfd[अङ्कः].revents = 0;
+    अङ्कः++;
   }
 
-  r = Curl_poll(pfd, (unsigned int)num, timeout_ms);
-  if(r <= 0)
-    return r;
+  r = Curl_poll(pfd, (अचिह्नित पूर्णाङ्क)अङ्कः, timeout_ms);
+  यदि(r <= 0)
+    प्रत्यागम r;
 
   r = 0;
-  num = 0;
-  if(readfd0 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
-      r |= CURL_CSELECT_IN;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+  अङ्कः = 0;
+  यदि(readfd0 != CURL_SOCKET_BAD) {
+    यदि(pfd[अङ्कः].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+      r |= CURL_CSELECT_अन्तर्;
+    यदि(pfd[अङ्कः].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    अङ्कः++;
   }
-  if(readfd1 != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
+  यदि(readfd1 != CURL_SOCKET_BAD) {
+    यदि(pfd[अङ्कः].revents & (POLLRDNORM | POLLIN | POLLERR | POLLHUP))
       r |= CURL_CSELECT_IN2;
-    if(pfd[num].revents & (POLLPRI | POLLNVAL))
+    यदि(pfd[अङ्कः].revents & (POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
-    num++;
+    अङ्कः++;
   }
-  if(writefd != CURL_SOCKET_BAD) {
-    if(pfd[num].revents & (POLLWRNORM | POLLOUT))
-      r |= CURL_CSELECT_OUT;
-    if(pfd[num].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
+  यदि(writefd != CURL_SOCKET_BAD) {
+    यदि(pfd[अङ्कः].revents & (POLLWRNORM | POLLOUT))
+      r |= CURL_CSELECT_बहिर्गमनम्;
+    यदि(pfd[अङ्कः].revents & (POLLERR | POLLHUP | POLLPRI | POLLNVAL))
       r |= CURL_CSELECT_ERR;
   }
 
-  return r;
+  प्रत्यागम r;
 }
 
 /*
@@ -196,31 +196,31 @@ int Curl_socket_check(curl_socket_t readfd0, /* two sockets to read from */
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
+पूर्णाङ्क Curl_poll(संरचना pollfd ufds[], अचिह्नित पूर्णाङ्क nfds, timediff_t timeout_ms)
 {
-#ifdef HAVE_POLL
-  int pending_ms;
-#else
+#यदि_परिभाषितम् HAVE_POLL
+  पूर्णाङ्क pending_ms;
+#अन्यथा
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_err;
   curl_socket_t maxfd;
-#endif
+#यदि_अन्तः
   bool fds_none = TRUE;
-  unsigned int i;
-  int r;
+  अचिह्नित पूर्णाङ्क i;
+  पूर्णाङ्क r;
 
-  if(ufds) {
-    for(i = 0; i < nfds; i++) {
-      if(ufds[i].fd != CURL_SOCKET_BAD) {
+  यदि(ufds) {
+    प्रति(i = 0; i < nfds; i++) {
+      यदि(ufds[i].fd != CURL_SOCKET_BAD) {
         fds_none = FALSE;
-        break;
+        भङ्ग;
       }
     }
   }
-  if(fds_none) {
+  यदि(fds_none) {
     /* no sockets, wait */
-    return curlx_wait_ms(timeout_ms);
+    प्रत्यागम curlx_wait_ms(timeout_ms);
   }
 
   /* Avoid initial timestamp, avoid curlx_now() call, when elapsed
@@ -228,57 +228,57 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      when function is called with a zero timeout or a negative timeout
      value indicating a blocking call should be performed. */
 
-#ifdef HAVE_POLL
+#यदि_परिभाषितम् HAVE_POLL
 
   /* prevent overflow, timeout_ms is typecast to int. */
-#if TIMEDIFF_T_MAX > INT_MAX
-  if(timeout_ms > INT_MAX)
-    timeout_ms = INT_MAX;
-#endif
-  if(timeout_ms > 0)
-    pending_ms = (int)timeout_ms;
-  else if(timeout_ms < 0)
+#यदि TIMEDIFF_T_MAX > अधिकतम_पूर्णाङ्कः
+  यदि(timeout_ms > अधिकतम_पूर्णाङ्कः)
+    timeout_ms = अधिकतम_पूर्णाङ्कः;
+#यदि_अन्तः
+  यदि(timeout_ms > 0)
+    pending_ms = (पूर्णाङ्क)timeout_ms;
+  अन्यथा यदि(timeout_ms < 0)
     pending_ms = -1;
-  else
+  अन्यथा
     pending_ms = 0;
   r = poll(ufds, nfds, pending_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  यदि(r <= 0) {
+    यदि((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    प्रत्यागम r;
   }
 
-  for(i = 0; i < nfds; i++) {
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
-    if(ufds[i].revents & POLLHUP)
+  प्रति(i = 0; i < nfds; i++) {
+    यदि(ufds[i].fd == CURL_SOCKET_BAD)
+      अनुवर्त;
+    यदि(ufds[i].revents & POLLHUP)
       ufds[i].revents |= POLLIN;
-    if(ufds[i].revents & POLLERR)
+    यदि(ufds[i].revents & POLLERR)
       ufds[i].revents |= POLLIN | POLLOUT;
   }
 
-#else /* !HAVE_POLL */
+#अन्यथा /* !HAVE_POLL */
 
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_err);
   maxfd = (curl_socket_t)-1;
 
-  for(i = 0; i < nfds; i++) {
+  प्रति(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
+    यदि(ufds[i].fd == CURL_SOCKET_BAD)
+      अनुवर्त;
     VERIFY_SOCK(ufds[i].fd);
-    if(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
+    यदि(ufds[i].events & (POLLIN | POLLOUT | POLLPRI |
                          POLLRDNORM | POLLWRNORM | POLLRDBAND)) {
-      if(ufds[i].fd > maxfd)
+      यदि(ufds[i].fd > maxfd)
         maxfd = ufds[i].fd;
-      if(ufds[i].events & (POLLRDNORM | POLLIN))
+      यदि(ufds[i].events & (POLLRDNORM | POLLIN))
         FD_SET(ufds[i].fd, &fds_read);
-      if(ufds[i].events & (POLLWRNORM | POLLOUT))
+      यदि(ufds[i].events & (POLLWRNORM | POLLOUT))
         FD_SET(ufds[i].fd, &fds_write);
-      if(ufds[i].events & (POLLRDBAND | POLLPRI))
+      यदि(ufds[i].events & (POLLRDBAND | POLLPRI))
         FD_SET(ufds[i].fd, &fds_err);
     }
   }
@@ -288,256 +288,256 @@ int Curl_poll(struct pollfd ufds[], unsigned int nfds, timediff_t timeout_ms)
      curl_socket_t is unsigned in such cases and thus -1 is the largest
      value). */
   r = our_select(maxfd, &fds_read, &fds_write, &fds_err, timeout_ms);
-  if(r <= 0) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  यदि(r <= 0) {
+    यदि((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    return r;
+    प्रत्यागम r;
   }
 
   r = 0;
-  for(i = 0; i < nfds; i++) {
+  प्रति(i = 0; i < nfds; i++) {
     ufds[i].revents = 0;
-    if(ufds[i].fd == CURL_SOCKET_BAD)
-      continue;
-    if(FD_ISSET(ufds[i].fd, &fds_read)) {
-      if(ufds[i].events & POLLRDNORM)
+    यदि(ufds[i].fd == CURL_SOCKET_BAD)
+      अनुवर्त;
+    यदि(FD_ISSET(ufds[i].fd, &fds_read)) {
+      यदि(ufds[i].events & POLLRDNORM)
         ufds[i].revents |= POLLRDNORM;
-      if(ufds[i].events & POLLIN)
+      यदि(ufds[i].events & POLLIN)
         ufds[i].revents |= POLLIN;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_write)) {
-      if(ufds[i].events & POLLWRNORM)
+    यदि(FD_ISSET(ufds[i].fd, &fds_write)) {
+      यदि(ufds[i].events & POLLWRNORM)
         ufds[i].revents |= POLLWRNORM;
-      if(ufds[i].events & POLLOUT)
+      यदि(ufds[i].events & POLLOUT)
         ufds[i].revents |= POLLOUT;
     }
-    if(FD_ISSET(ufds[i].fd, &fds_err)) {
-      if(ufds[i].events & POLLRDBAND)
+    यदि(FD_ISSET(ufds[i].fd, &fds_err)) {
+      यदि(ufds[i].events & POLLRDBAND)
         ufds[i].revents |= POLLRDBAND;
-      if(ufds[i].events & POLLPRI)
+      यदि(ufds[i].events & POLLPRI)
         ufds[i].revents |= POLLPRI;
     }
-    if(ufds[i].revents)
+    यदि(ufds[i].revents)
       r++;
   }
 
-#endif /* HAVE_POLL */
+#यदि_अन्तः /* HAVE_POLL */
 
-  return r;
+  प्रत्यागम r;
 }
 
-void Curl_pollfds_init(struct curl_pollfds *cpfds,
-                       struct pollfd *static_pfds,
-                       unsigned int static_count)
+शून्य Curl_pollfds_init(संरचना curl_pollfds *cpfds,
+                       संरचना pollfd *static_pfds,
+                       अचिह्नित पूर्णाङ्क static_गणनम्)
 {
   DEBUGASSERT(cpfds);
-  memset(cpfds, 0, sizeof(*cpfds));
-  if(static_pfds && static_count) {
+  स्मृतिं_पूरय(cpfds, 0, परिमाण(*cpfds));
+  यदि(static_pfds && static_गणनम्) {
     cpfds->pfds = static_pfds;
-    cpfds->count = static_count;
+    cpfds->गणनम् = static_गणनम्;
   }
 }
 
-void Curl_pollfds_reset(struct curl_pollfds *cpfds)
+शून्य Curl_pollfds_reset(संरचना curl_pollfds *cpfds)
 {
   cpfds->n = 0;
 }
 
-void Curl_pollfds_cleanup(struct curl_pollfds *cpfds)
+शून्य Curl_pollfds_cleanup(संरचना curl_pollfds *cpfds)
 {
   DEBUGASSERT(cpfds);
-  if(cpfds->allocated_pfds) {
+  यदि(cpfds->allocated_pfds) {
     curlx_safefree(cpfds->pfds);
-    cpfds->count = 0;
+    cpfds->गणनम् = 0;
     cpfds->allocated_pfds = FALSE;
   }
   cpfds->n = 0;
 }
 
-static CURLcode cpfds_increase(struct curl_pollfds *cpfds, unsigned int inc)
+स्थिर CURLcode cpfds_increase(संरचना curl_pollfds *cpfds, अचिह्नित पूर्णाङ्क inc)
 {
-  struct pollfd *new_fds;
-  unsigned int new_count = cpfds->count + inc;
+  संरचना pollfd *new_fds;
+  अचिह्नित पूर्णाङ्क new_गणनम् = cpfds->गणनम् + inc;
 
-  new_fds = curlx_calloc(new_count, sizeof(struct pollfd));
-  if(!new_fds)
-    return CURLE_OUT_OF_MEMORY;
+  new_fds = curlx_calloc(new_गणनम्, परिमाण(संरचना pollfd));
+  यदि(!new_fds)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  memcpy(new_fds, cpfds->pfds, cpfds->count * sizeof(struct pollfd));
-  if(cpfds->allocated_pfds)
+  स्मृतिं_प्रतिलिख(new_fds, cpfds->pfds, cpfds->गणनम् * परिमाण(संरचना pollfd));
+  यदि(cpfds->allocated_pfds)
     curlx_free(cpfds->pfds);
   cpfds->pfds = new_fds;
-  cpfds->count = new_count;
+  cpfds->गणनम् = new_गणनम्;
   cpfds->allocated_pfds = TRUE;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode cpfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events, bool fold)
+स्थिर CURLcode cpfds_सङ्कलय_sock(संरचना curl_pollfds *cpfds,
+                               curl_socket_t sock, ह्रस्व events, bool fold)
 {
-  int i;
+  पूर्णाङ्क i;
 
-  if(fold && cpfds->n <= INT_MAX) {
-    for(i = (int)cpfds->n - 1; i >= 0; --i) {
-      if(sock == cpfds->pfds[i].fd) {
+  यदि(fold && cpfds->n <= अधिकतम_पूर्णाङ्कः) {
+    प्रति(i = (पूर्णाङ्क)cpfds->n - 1; i >= 0; --i) {
+      यदि(sock == cpfds->pfds[i].fd) {
         cpfds->pfds[i].events |= events;
-        return CURLE_OK;
+        प्रत्यागम CURLE_OK;
       }
     }
   }
   /* not folded, add new entry */
-  if(cpfds->n >= cpfds->count && cpfds_increase(cpfds, 100))
-    return CURLE_OUT_OF_MEMORY;
+  यदि(cpfds->n >= cpfds->गणनम् && cpfds_increase(cpfds, 100))
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   cpfds->pfds[cpfds->n].fd = sock;
   cpfds->pfds[cpfds->n].events = events;
   ++cpfds->n;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_pollfds_add_sock(struct curl_pollfds *cpfds,
-                               curl_socket_t sock, short events)
+CURLcode Curl_pollfds_सङ्कलय_sock(संरचना curl_pollfds *cpfds,
+                               curl_socket_t sock, ह्रस्व events)
 {
-  return cpfds_add_sock(cpfds, sock, events, FALSE);
+  प्रत्यागम cpfds_सङ्कलय_sock(cpfds, sock, events, FALSE);
 }
 
-CURLcode Curl_pollfds_add_ps(struct curl_pollfds *cpfds,
-                             struct easy_pollset *ps)
+CURLcode Curl_pollfds_सङ्कलय_ps(संरचना curl_pollfds *cpfds,
+                             संरचना easy_pollset *ps)
 {
   size_t i;
 
   DEBUGASSERT(cpfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+  प्रति(i = 0; i < ps->n; i++) {
+    ह्रस्व events = 0;
+    यदि(ps->actions[i] & CURL_POLL_अन्तर्)
       events |= POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    यदि(ps->actions[i] & CURL_POLL_बहिर्गमनम्)
       events |= POLLOUT;
-    if(events && cpfds_add_sock(cpfds, ps->sockets[i], events, TRUE))
-      return CURLE_OUT_OF_MEMORY;
+    यदि(events && cpfds_सङ्कलय_sock(cpfds, ps->sockets[i], events, TRUE))
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-void Curl_waitfds_init(struct Curl_waitfds *cwfds,
-                       struct curl_waitfd *static_wfds,
-                       unsigned int static_count)
+शून्य Curl_waitfds_init(संरचना Curl_waitfds *cwfds,
+                       संरचना curl_waitfd *static_wfds,
+                       अचिह्नित पूर्णाङ्क static_गणनम्)
 {
   DEBUGASSERT(cwfds);
-  DEBUGASSERT(static_wfds || !static_count);
-  memset(cwfds, 0, sizeof(*cwfds));
+  DEBUGASSERT(static_wfds || !static_गणनम्);
+  स्मृतिं_पूरय(cwfds, 0, परिमाण(*cwfds));
   cwfds->wfds = static_wfds;
-  cwfds->count = static_count;
+  cwfds->गणनम् = static_गणनम्;
 }
 
-static unsigned int cwfds_add_sock(struct Curl_waitfds *cwfds,
-                                   curl_socket_t sock, short events)
+स्थिर अचिह्नित पूर्णाङ्क cwfds_सङ्कलय_sock(संरचना Curl_waitfds *cwfds,
+                                   curl_socket_t sock, ह्रस्व events)
 {
-  int i;
-  if(!cwfds->wfds) {
-    DEBUGASSERT(!cwfds->count && !cwfds->n);
-    return 1;
+  पूर्णाङ्क i;
+  यदि(!cwfds->wfds) {
+    DEBUGASSERT(!cwfds->गणनम् && !cwfds->n);
+    प्रत्यागम 1;
   }
-  if(cwfds->n <= INT_MAX) {
-    for(i = (int)cwfds->n - 1; i >= 0; --i) {
-      if(sock == cwfds->wfds[i].fd) {
+  यदि(cwfds->n <= अधिकतम_पूर्णाङ्कः) {
+    प्रति(i = (पूर्णाङ्क)cwfds->n - 1; i >= 0; --i) {
+      यदि(sock == cwfds->wfds[i].fd) {
         cwfds->wfds[i].events |= events;
-        return 0;
+        प्रत्यागम 0;
       }
     }
   }
   /* not folded, add new entry */
-  if(cwfds->n < cwfds->count) {
+  यदि(cwfds->n < cwfds->गणनम्) {
     cwfds->wfds[cwfds->n].fd = sock;
     cwfds->wfds[cwfds->n].events = events;
     ++cwfds->n;
   }
-  return 1;
+  प्रत्यागम 1;
 }
 
-unsigned int Curl_waitfds_add_ps(struct Curl_waitfds *cwfds,
-                                 struct easy_pollset *ps)
+अचिह्नित पूर्णाङ्क Curl_waitfds_सङ्कलय_ps(संरचना Curl_waitfds *cwfds,
+                                 संरचना easy_pollset *ps)
 {
   size_t i;
-  unsigned int need = 0;
+  अचिह्नित पूर्णाङ्क need = 0;
 
   DEBUGASSERT(cwfds);
   DEBUGASSERT(ps);
-  for(i = 0; i < ps->n; i++) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN)
+  प्रति(i = 0; i < ps->n; i++) {
+    ह्रस्व events = 0;
+    यदि(ps->actions[i] & CURL_POLL_अन्तर्)
       events |= CURL_WAIT_POLLIN;
-    if(ps->actions[i] & CURL_POLL_OUT)
+    यदि(ps->actions[i] & CURL_POLL_बहिर्गमनम्)
       events |= CURL_WAIT_POLLOUT;
-    if(events)
-      need += cwfds_add_sock(cwfds, ps->sockets[i], events);
+    यदि(events)
+      need += cwfds_सङ्कलय_sock(cwfds, ps->sockets[i], events);
   }
-  return need;
+  प्रत्यागम need;
 }
 
-void Curl_pollset_reset(struct easy_pollset *ps)
+शून्य Curl_pollset_reset(संरचना easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
+#यदि_अन्तः
   ps->n = 0;
 }
 
-void Curl_pollset_init(struct easy_pollset *ps)
+शून्य Curl_pollset_init(संरचना easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
   ps->init = CURL_EASY_POLLSET_MAGIC;
-#endif
+#यदि_अन्तः
   ps->sockets = ps->def_sockets;
   ps->actions = ps->def_actions;
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->गणनम् = CURL_ARRAYSIZE(ps->def_sockets);
   ps->n = 0;
   Curl_pollset_reset(ps);
 }
 
-struct easy_pollset *Curl_pollset_create(void)
+संरचना easy_pollset *Curl_pollset_create(शून्य)
 {
-  struct easy_pollset *ps = curlx_calloc(1, sizeof(*ps));
-  if(ps)
+  संरचना easy_pollset *ps = curlx_calloc(1, परिमाण(*ps));
+  यदि(ps)
     Curl_pollset_init(ps);
-  return ps;
+  प्रत्यागम ps;
 }
 
-void Curl_pollset_cleanup(struct easy_pollset *ps)
+शून्य Curl_pollset_cleanup(संरचना easy_pollset *ps)
 {
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
-  if(ps->sockets != ps->def_sockets) {
+#यदि_अन्तः
+  यदि(ps->sockets != ps->def_sockets) {
     curlx_free(ps->sockets);
     ps->sockets = ps->def_sockets;
   }
-  if(ps->actions != ps->def_actions) {
+  यदि(ps->actions != ps->def_actions) {
     curlx_free(ps->actions);
     ps->actions = ps->def_actions;
   }
-  ps->count = CURL_ARRAYSIZE(ps->def_sockets);
+  ps->गणनम् = CURL_ARRAYSIZE(ps->def_sockets);
   Curl_pollset_reset(ps);
 }
 
-void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
+शून्य Curl_pollset_move(संरचना easy_pollset *गन्तव्यम्, संरचना easy_pollset *from)
 {
-  Curl_pollset_cleanup(to); /* deallocate anything in to */
-  if(from->sockets != from->def_sockets) {
+  Curl_pollset_cleanup(गन्तव्यम्); /* deallocate anything in to */
+  यदि(from->sockets != from->def_sockets) {
     DEBUGASSERT(from->actions != from->def_actions);
-    to->sockets = from->sockets;
-    to->actions = from->actions;
-    to->count = from->count;
-    to->n = from->n;
+    गन्तव्यम्->sockets = from->sockets;
+    गन्तव्यम्->actions = from->actions;
+    गन्तव्यम्->गणनम् = from->गणनम्;
+    गन्तव्यम्->n = from->n;
     Curl_pollset_init(from);
   }
-  else {
-    DEBUGASSERT(to->sockets == to->def_sockets);
-    DEBUGASSERT(to->actions == to->def_actions);
-    memcpy(to->sockets, from->sockets, to->count * sizeof(to->sockets[0]));
-    memcpy(to->actions, from->actions, to->count * sizeof(to->actions[0]));
-    to->n = from->n;
+  अन्यथा {
+    DEBUGASSERT(गन्तव्यम्->sockets == गन्तव्यम्->def_sockets);
+    DEBUGASSERT(गन्तव्यम्->actions == गन्तव्यम्->def_actions);
+    स्मृतिं_प्रतिलिख(गन्तव्यम्->sockets, from->sockets, गन्तव्यम्->गणनम् * परिमाण(गन्तव्यम्->sockets[0]));
+    स्मृतिं_प्रतिलिख(गन्तव्यम्->actions, from->actions, गन्तव्यम्->गणनम् * परिमाण(गन्तव्यम्->actions[0]));
+    गन्तव्यम्->n = from->n;
     Curl_pollset_init(from);
   }
 }
@@ -545,103 +545,103 @@ void Curl_pollset_move(struct easy_pollset *to, struct easy_pollset *from)
 /**
  *
  */
-CURLcode Curl_pollset_change(struct Curl_easy *data,
-                             struct easy_pollset *ps, curl_socket_t sock,
-                             int add_flags, int remove_flags)
+CURLcode Curl_pollset_change(संरचना Curl_easy *दत्त,
+                             संरचना easy_pollset *ps, curl_socket_t sock,
+                             पूर्णाङ्क सङ्कलय_flags, पूर्णाङ्क remove_flags)
 {
-  unsigned int i;
+  अचिह्नित पूर्णाङ्क i;
 
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
   DEBUGASSERT(ps->init == CURL_EASY_POLLSET_MAGIC);
-#endif
+#यदि_अन्तः
 
   DEBUGASSERT(VALID_SOCK(sock));
-  if(!VALID_SOCK(sock))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!VALID_SOCK(sock))
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
-  DEBUGASSERT(add_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
-  DEBUGASSERT(remove_flags <= (CURL_POLL_IN | CURL_POLL_OUT));
-  DEBUGASSERT((add_flags & remove_flags) == 0); /* no overlap */
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      ps->actions[i] &= (unsigned char)(~remove_flags);
-      ps->actions[i] |= (unsigned char)add_flags;
+  DEBUGASSERT(सङ्कलय_flags <= (CURL_POLL_अन्तर् | CURL_POLL_बहिर्गमनम्));
+  DEBUGASSERT(remove_flags <= (CURL_POLL_अन्तर् | CURL_POLL_बहिर्गमनम्));
+  DEBUGASSERT((सङ्कलय_flags & remove_flags) == 0); /* no overlap */
+  प्रति(i = 0; i < ps->n; ++i) {
+    यदि(ps->sockets[i] == sock) {
+      ps->actions[i] &= (अचिह्नित वर्ण)(~remove_flags);
+      ps->actions[i] |= (अचिह्नित वर्ण)सङ्कलय_flags;
       /* all gone? remove socket */
-      if(!ps->actions[i]) {
-        if((i + 1) < ps->n) {
+      यदि(!ps->actions[i]) {
+        यदि((i + 1) < ps->n) {
           memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                  (ps->n - (i + 1)) * परिमाण(ps->sockets[0]));
           memmove(&ps->actions[i], &ps->actions[i + 1],
-                  (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                  (ps->n - (i + 1)) * परिमाण(ps->actions[0]));
         }
         --ps->n;
       }
-      return CURLE_OK;
+      प्रत्यागम CURLE_OK;
     }
   }
   /* not present */
-  if(add_flags) {
-    if(i >= ps->count) { /* need to grow */
-      unsigned int new_count = CURLMAX(ps->count * 2, 8);
+  यदि(सङ्कलय_flags) {
+    यदि(i >= ps->गणनम्) { /* need to grow */
+      अचिह्नित पूर्णाङ्क new_गणनम् = CURLMAX(ps->गणनम् * 2, 8);
       curl_socket_t *nsockets;
-      unsigned char *nactions;
+      अचिह्नित वर्ण *nactions;
 
-      CURL_TRC_M(data, "growing pollset capacity from %u to %u",
-                 ps->count, new_count);
-      if(new_count <= ps->count)
-        return CURLE_OUT_OF_MEMORY;
-      nsockets = curlx_calloc(new_count, sizeof(nsockets[0]));
-      if(!nsockets)
-        return CURLE_OUT_OF_MEMORY;
-      nactions = curlx_calloc(new_count, sizeof(nactions[0]));
-      if(!nactions) {
+      CURL_TRC_M(दत्त, "growing pollset capacity from %u to %u",
+                 ps->गणनम्, new_गणनम्);
+      यदि(new_गणनम् <= ps->गणनम्)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      nsockets = curlx_calloc(new_गणनम्, परिमाण(nsockets[0]));
+      यदि(!nsockets)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      nactions = curlx_calloc(new_गणनम्, परिमाण(nactions[0]));
+      यदि(!nactions) {
         curlx_free(nsockets);
-        return CURLE_OUT_OF_MEMORY;
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       }
-      memcpy(nsockets, ps->sockets, ps->count * sizeof(ps->sockets[0]));
-      memcpy(nactions, ps->actions, ps->count * sizeof(ps->actions[0]));
-      if(ps->sockets != ps->def_sockets)
+      स्मृतिं_प्रतिलिख(nsockets, ps->sockets, ps->गणनम् * परिमाण(ps->sockets[0]));
+      स्मृतिं_प्रतिलिख(nactions, ps->actions, ps->गणनम् * परिमाण(ps->actions[0]));
+      यदि(ps->sockets != ps->def_sockets)
         curlx_free(ps->sockets);
       ps->sockets = nsockets;
-      if(ps->actions != ps->def_actions)
+      यदि(ps->actions != ps->def_actions)
         curlx_free(ps->actions);
       ps->actions = nactions;
-      ps->count = new_count;
+      ps->गणनम् = new_गणनम्;
     }
-    DEBUGASSERT(i < ps->count);
-    if(i < ps->count) {
+    DEBUGASSERT(i < ps->गणनम्);
+    यदि(i < ps->गणनम्) {
       ps->sockets[i] = sock;
-      ps->actions[i] = (unsigned char)add_flags;
+      ps->actions[i] = (अचिह्नित वर्ण)सङ्कलय_flags;
       ps->n = i + 1;
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_pollset_set(struct Curl_easy *data,
-                          struct easy_pollset *ps, curl_socket_t sock,
-                          bool do_in, bool do_out)
+CURLcode Curl_pollset_समुच्चयः(संरचना Curl_easy *दत्त,
+                          संरचना easy_pollset *ps, curl_socket_t sock,
+                          bool do_अन्तर्, bool do_बहिर्गमनम्)
 {
-  return Curl_pollset_change(data, ps, sock,
-                             (do_in ? CURL_POLL_IN : 0) |
-                             (do_out ? CURL_POLL_OUT : 0),
-                             (!do_in ? CURL_POLL_IN : 0) |
-                             (!do_out ? CURL_POLL_OUT : 0));
+  प्रत्यागम Curl_pollset_change(दत्त, ps, sock,
+                             (do_अन्तर् ? CURL_POLL_अन्तर् : 0) |
+                             (do_बहिर्गमनम् ? CURL_POLL_बहिर्गमनम् : 0),
+                             (!do_अन्तर् ? CURL_POLL_अन्तर् : 0) |
+                             (!do_बहिर्गमनम् ? CURL_POLL_बहिर्गमनम् : 0));
 }
 
-void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
+शून्य Curl_pollset_remove(संरचना easy_pollset *ps, curl_socket_t sock)
 {
-  unsigned int i;
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      if((i + 1) < ps->n) {
+  अचिह्नित पूर्णाङ्क i;
+  प्रति(i = 0; i < ps->n; ++i) {
+    यदि(ps->sockets[i] == sock) {
+      यदि((i + 1) < ps->n) {
         memmove(&ps->sockets[i], &ps->sockets[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->sockets[0]));
+                (ps->n - (i + 1)) * परिमाण(ps->sockets[0]));
         memmove(&ps->actions[i], &ps->actions[i + 1],
-                (ps->n - (i + 1)) * sizeof(ps->actions[0]));
+                (ps->n - (i + 1)) * परिमाण(ps->actions[0]));
       }
       --ps->n;
-      return;
+      प्रत्यागम;
     }
   }
 }
@@ -652,35 +652,35 @@ void Curl_pollset_remove(struct easy_pollset *ps, curl_socket_t sock)
  *    0 = timeout
  *    N = number of structures with non zero revent fields
  */
-int Curl_pollset_poll(struct Curl_easy *data,
-                      struct easy_pollset *ps,
+पूर्णाङ्क Curl_pollset_poll(संरचना Curl_easy *दत्त,
+                      संरचना easy_pollset *ps,
                       timediff_t timeout_ms)
 {
-  struct pollfd *pfds;
-  unsigned int i, npfds;
-  int rc;
+  संरचना pollfd *pfds;
+  अचिह्नित पूर्णाङ्क i, npfds;
+  पूर्णाङ्क rc;
 
-  (void)data;
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  (शून्य)दत्त;
+  DEBUGASSERT(दत्त);
+  DEBUGASSERT(दत्त->conn);
 
-  if(!ps->n)
-    return curlx_wait_ms(timeout_ms);
+  यदि(!ps->n)
+    प्रत्यागम curlx_wait_ms(timeout_ms);
 
-  pfds = curlx_calloc(ps->n, sizeof(*pfds));
-  if(!pfds)
-    return -1;
+  pfds = curlx_calloc(ps->n, परिमाण(*pfds));
+  यदि(!pfds)
+    प्रत्यागम -1;
 
   npfds = 0;
-  for(i = 0; i < ps->n; ++i) {
-    short events = 0;
-    if(ps->actions[i] & CURL_POLL_IN) {
+  प्रति(i = 0; i < ps->n; ++i) {
+    ह्रस्व events = 0;
+    यदि(ps->actions[i] & CURL_POLL_अन्तर्) {
       events |= POLLIN;
     }
-    if(ps->actions[i] & CURL_POLL_OUT) {
+    यदि(ps->actions[i] & CURL_POLL_बहिर्गमनम्) {
       events |= POLLOUT;
     }
-    if(events) {
+    यदि(events) {
       pfds[npfds].fd = ps->sockets[i];
       pfds[npfds].events = events;
       ++npfds;
@@ -689,49 +689,49 @@ int Curl_pollset_poll(struct Curl_easy *data,
 
   rc = Curl_poll(pfds, npfds, timeout_ms);
   curlx_free(pfds);
-  return rc;
+  प्रत्यागम rc;
 }
 
-void Curl_pollset_check(struct Curl_easy *data,
-                        struct easy_pollset *ps, curl_socket_t sock,
+शून्य Curl_pollset_check(संरचना Curl_easy *दत्त,
+                        संरचना easy_pollset *ps, curl_socket_t sock,
                         bool *pwant_read, bool *pwant_write)
 {
-  unsigned int i;
+  अचिह्नित पूर्णाङ्क i;
 
-  (void)data;
+  (शून्य)दत्त;
   DEBUGASSERT(VALID_SOCK(sock));
-  for(i = 0; i < ps->n; ++i) {
-    if(ps->sockets[i] == sock) {
-      *pwant_read = !!(ps->actions[i] & CURL_POLL_IN);
-      *pwant_write = !!(ps->actions[i] & CURL_POLL_OUT);
-      return;
+  प्रति(i = 0; i < ps->n; ++i) {
+    यदि(ps->sockets[i] == sock) {
+      *pwant_read = !!(ps->actions[i] & CURL_POLL_अन्तर्);
+      *pwant_write = !!(ps->actions[i] & CURL_POLL_बहिर्गमनम्);
+      प्रत्यागम;
     }
   }
   *pwant_read = *pwant_write = FALSE;
 }
 
-bool Curl_pollset_want_recv(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_recv(संरचना Curl_easy *दत्त,
+                            संरचना easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
-  (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_IN))
-      return TRUE;
+  अचिह्नित पूर्णाङ्क i;
+  (शून्य)दत्त;
+  प्रति(i = 0; i < ps->n; ++i) {
+    यदि((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_अन्तर्))
+      प्रत्यागम TRUE;
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-bool Curl_pollset_want_send(struct Curl_easy *data,
-                            struct easy_pollset *ps,
+bool Curl_pollset_want_send(संरचना Curl_easy *दत्त,
+                            संरचना easy_pollset *ps,
                             curl_socket_t sock)
 {
-  unsigned int i;
-  (void)data;
-  for(i = 0; i < ps->n; ++i) {
-    if((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_OUT))
-      return TRUE;
+  अचिह्नित पूर्णाङ्क i;
+  (शून्य)दत्त;
+  प्रति(i = 0; i < ps->n; ++i) {
+    यदि((ps->sockets[i] == sock) && (ps->actions[i] & CURL_POLL_बहिर्गमनम्))
+      प्रत्यागम TRUE;
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }

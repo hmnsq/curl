@@ -27,68 +27,68 @@
  * Source file for Schannel-specific certificate verification. This code should
  * only be invoked by code in schannel.c.
  */
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef USE_SCHANNEL
+#यदि_परिभाषितम् USE_SCHANNEL
 
-#ifndef USE_WINDOWS_SSPI
-#error "cannot compile Schannel support without SSPI."
-#endif
+#यदि_अपरिभाषितम् USE_WINDOWS_SSPI
+#दोषः "cannot compile Schannel support without SSPI."
+#यदि_अन्तः
 
-#include "vtls/schannel.h"
-#include "vtls/schannel_int.h"
+#अन्तर्भाव "vtls/schannel.h"
+#अन्तर्भाव "vtls/schannel_int.h"
 
-#include "vtls/hostcheck.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "curl_trc.h"
-#include "strerror.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/inet_pton.h"
-#include "curlx/multibyte.h"
-#include "curlx/version_win32.h"
-#include "curlx/winapi.h"
+#अन्तर्भाव "vtls/hostcheck.h"
+#अन्तर्भाव "vtls/vtls.h"
+#अन्तर्भाव "vtls/vtls_int.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "strerror.h"
+#अन्तर्भाव "curlx/win32-fopen.h"
+#अन्तर्भाव "curlx/inet_pton.h"
+#अन्तर्भाव "curlx/multibyte.h"
+#अन्तर्भाव "curlx/version_win32.h"
+#अन्तर्भाव "curlx/winapi.h"
 
-#define BACKEND ((struct schannel_ssl_backend_data *)connssl->backend)
+#परिभाषय BACKEND ((संरचना schannel_ssl_backend_दत्त *)connssl->backend)
 
-#define MAX_CAFILE_SIZE (1024 * 1024) /* 1 MiB */
-#define BEGIN_CERT      "-----BEGIN CERTIFICATE-----"
-#define END_CERT        "\n-----END CERTIFICATE-----"
+#परिभाषय MAX_CAFILE_आकार (1024 * 1024) /* 1 MiB */
+#परिभाषय BEGIN_CERT      "-----BEGIN CERTIFICATE-----"
+#परिभाषय अन्तः_CERT        "\n-----END CERTIFICATE-----"
 
-struct cert_chain_engine_config_win8 {
-  DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+संरचना cert_chain_engine_config_win8 {
+  DWORD cb_आकार;
+  HCERTSTORE h_Restricted_मूलम्;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
   HCERTSTORE *rghAdditionalStore;
   DWORD dwFlags;
   DWORD dwUrlRetrievalTimeout;
-  DWORD MaximumCachedCertificates;
-  DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  DWORD अधिकतमम्_Cached_Certificates;
+  DWORD आवृत्तिः_Detection_Modulus;
+  HCERTSTORE h_Exclusive_मूलम्;
   HCERTSTORE hExclusiveTrustedPeople;
   DWORD dwExclusiveFlags;
 };
 
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG
-#define CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG 0x00000001
-#endif
+#यदि_अपरिभाषितम् CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG
+#परिभाषय CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG 0x00000001
+#यदि_अन्तः
 
 /* Legacy structure to supply size to Win7 clients */
-struct cert_chain_engine_config_win7 {
-  DWORD cbSize;
-  HCERTSTORE hRestrictedRoot;
+संरचना cert_chain_engine_config_win7 {
+  DWORD cb_आकार;
+  HCERTSTORE h_Restricted_मूलम्;
   HCERTSTORE hRestrictedTrust;
   HCERTSTORE hRestrictedOther;
   DWORD cAdditionalStore;
   HCERTSTORE *rghAdditionalStore;
   DWORD dwFlags;
   DWORD dwUrlRetrievalTimeout;
-  DWORD MaximumCachedCertificates;
-  DWORD CycleDetectionModulus;
-  HCERTSTORE hExclusiveRoot;
+  DWORD अधिकतमम्_Cached_Certificates;
+  DWORD आवृत्तिः_Detection_Modulus;
+  HCERTSTORE h_Exclusive_मूलम्;
   HCERTSTORE hExclusiveTrustedPeople;
 };
 
@@ -97,108 +97,108 @@ struct cert_chain_engine_config_win7 {
  * Similar of macOS/Linux memmem (not available on Visual Studio).
  * Return position of beginning of first occurrence or NULL if not found
  */
-static const char *c_memmem(const void *haystack, size_t haystacklen,
-                            const void *needle, size_t needlelen)
+स्थिर ध्रुव वर्ण *c_memmem(ध्रुव शून्य *haystack, size_t haystacklen,
+                            ध्रुव शून्य *needle, size_t needlelen)
 {
-  const char *p;
-  char first;
-  const char *str_limit = (const char *)haystack + haystacklen;
-  if(!needlelen || needlelen > haystacklen)
-    return NULL;
-  first = *(const char *)needle;
-  for(p = (const char *)haystack; p <= (str_limit - needlelen); p++)
-    if((*p == first) && !memcmp(p, needle, needlelen))
-      return p;
+  ध्रुव वर्ण *p;
+  वर्ण first;
+  ध्रुव वर्ण *str_सीमा = (ध्रुव वर्ण *)haystack + haystacklen;
+  यदि(!needlelen || needlelen > haystacklen)
+    प्रत्यागम रिक्त;
+  first = *(ध्रुव वर्ण *)needle;
+  प्रति(p = (ध्रुव वर्ण *)haystack; p <= (str_सीमा - needlelen); p++)
+    यदि((*p == first) && !memcmp(p, needle, needlelen))
+      प्रत्यागम p;
 
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
-                                        const char *ca_buffer,
-                                        size_t ca_buffer_size,
-                                        const char *ca_file_text,
-                                        struct Curl_easy *data)
+स्थिर CURLcode सङ्कलय_certs_दत्त_गन्तव्यम्_store(HCERTSTORE trust_store,
+                                        ध्रुव वर्ण *ca_बफर,
+                                        size_t ca_बफर_आकार,
+                                        ध्रुव वर्ण *ca_file_text,
+                                        संरचना Curl_easy *दत्त)
 {
-  const size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
-  const size_t end_cert_len = CURL_CSTRLEN(END_CERT);
-  CURLcode result = CURLE_OK;
-  int num_certs = 0;
-  bool more_certs = 1;
-  const char *current_ca_file_ptr = ca_buffer;
-  const char *ca_buffer_limit = ca_buffer + ca_buffer_size;
+  ध्रुव size_t begin_cert_len = CURL_CSTRLEN(BEGIN_CERT);
+  ध्रुव size_t अन्तः_cert_len = CURL_CSTRLEN(अन्तः_CERT);
+  CURLcode परिणाम = CURLE_OK;
+  पूर्णाङ्क अङ्कः_certs = 0;
+  bool अधिकम्_certs = 1;
+  ध्रुव वर्ण *current_ca_file_ptr = ca_बफर;
+  ध्रुव वर्ण *ca_बफर_सीमा = ca_बफर + ca_बफर_आकार;
 
-  while(more_certs && (current_ca_file_ptr < ca_buffer_limit)) {
-    const char *begin_cert_ptr = c_memmem(current_ca_file_ptr,
-                                          ca_buffer_limit -
+  यावत्(अधिकम्_certs && (current_ca_file_ptr < ca_बफर_सीमा)) {
+    ध्रुव वर्ण *begin_cert_ptr = c_memmem(current_ca_file_ptr,
+                                          ca_बफर_सीमा -
                                           current_ca_file_ptr - 1,
                                           BEGIN_CERT,
                                           begin_cert_len);
-    if(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
-      more_certs = 0;
+    यदि(!begin_cert_ptr || !ISNEWLINE(begin_cert_ptr[begin_cert_len])) {
+      अधिकम्_certs = 0;
     }
-    else {
-      const char *end_cert_ptr = c_memmem(begin_cert_ptr,
-                                          ca_buffer_limit-begin_cert_ptr,
-                                          END_CERT,
-                                          end_cert_len);
-      if(!end_cert_ptr) {
-        failf(data,
+    अन्यथा {
+      ध्रुव वर्ण *अन्तः_cert_ptr = c_memmem(begin_cert_ptr,
+                                          ca_बफर_सीमा-begin_cert_ptr,
+                                          अन्तः_CERT,
+                                          अन्तः_cert_len);
+      यदि(!अन्तः_cert_ptr) {
+        failf(दत्त,
               "schannel: CA file '%s' is not correctly formatted",
               ca_file_text);
-        result = CURLE_SSL_CACERT_BADFILE;
-        more_certs = 0;
+        परिणाम = CURLE_SSL_CACERT_BADFILE;
+        अधिकम्_certs = 0;
       }
-      else {
+      अन्यथा {
         CERT_BLOB cert_blob;
-        const CERT_CONTEXT *cert_context = NULL;
-        BOOL add_cert_result = FALSE;
-        DWORD cert_size =
-          (DWORD)((end_cert_ptr + end_cert_len) - begin_cert_ptr);
+        ध्रुव CERT_CONTEXT *cert_context = रिक्त;
+        BOOL सङ्कलय_cert_परिणाम = FALSE;
+        DWORD cert_आकार =
+          (DWORD)((अन्तः_cert_ptr + अन्तः_cert_len) - begin_cert_ptr);
 
-        cert_blob.pbData = (BYTE *)CURL_UNCONST(begin_cert_ptr);
-        cert_blob.cbData = cert_size;
+        cert_blob.pb_दत्त = (BYTE *)CURL_UNCONST(begin_cert_ptr);
+        cert_blob.cb_दत्त = cert_आकार;
         /* Caution: CryptQueryObject() is deprecated */
-        if(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
+        यदि(!CryptQueryObject(CERT_QUERY_OBJECT_BLOB,
                              &cert_blob,
                              CERT_QUERY_CONTENT_FLAG_CERT,
                              CERT_QUERY_FORMAT_FLAG_BASE64_ENCODED,
                              0,
-                             NULL,
-                             NULL,
-                             NULL,
-                             NULL,
-                             NULL,
-                             (const void **)&cert_context)) {
-          char buffer[WINAPI_ERROR_LEN];
-          failf(data,
+                             रिक्त,
+                             रिक्त,
+                             रिक्त,
+                             रिक्त,
+                             रिक्त,
+                             (ध्रुव शून्य **)&cert_context)) {
+          वर्ण बफर[WINAPI_ERROR_LEN];
+          failf(दत्त,
                 "schannel: failed to extract certificate from CA file "
                 "'%s': %s",
                 ca_file_text,
-                curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-          result = CURLE_SSL_CACERT_BADFILE;
-          more_certs = 0;
+                curlx_winapi_strerror(Get_चरमः_Error(), बफर, परिमाण(बफर)));
+          परिणाम = CURLE_SSL_CACERT_BADFILE;
+          अधिकम्_certs = 0;
         }
-        else {
-          current_ca_file_ptr = begin_cert_ptr + cert_size;
+        अन्यथा {
+          current_ca_file_ptr = begin_cert_ptr + cert_आकार;
 
-          add_cert_result =
-            CertAddCertificateContextToStore(trust_store,
+          सङ्कलय_cert_परिणाम =
+            Cert_सङ्कलय_Certificate_Context_गन्तव्यम्_Store(trust_store,
                                              cert_context,
-                                             CERT_STORE_ADD_ALWAYS,
-                                             NULL);
-          if(!add_cert_result) {
-            char buffer[WINAPI_ERROR_LEN];
-            failf(data,
+                                             CERT_STORE_सङ्कलय_ALWAYS,
+                                             रिक्त);
+          यदि(!सङ्कलय_cert_परिणाम) {
+            वर्ण बफर[WINAPI_ERROR_LEN];
+            failf(दत्त,
                   "schannel: failed to add certificate from CA file '%s' "
                   "to certificate store: %s",
                   ca_file_text,
-                  curlx_winapi_strerror(GetLastError(), buffer,
-                                        sizeof(buffer)));
-            result = CURLE_SSL_CACERT_BADFILE;
-            more_certs = 0;
+                  curlx_winapi_strerror(Get_चरमः_Error(), बफर,
+                                        परिमाण(बफर)));
+            परिणाम = CURLE_SSL_CACERT_BADFILE;
+            अधिकम्_certs = 0;
           }
-          else {
-            num_certs++;
+          अन्यथा {
+            अङ्कः_certs++;
           }
 
           CertFreeCertificateContext(cert_context);
@@ -207,28 +207,28 @@ static CURLcode add_certs_data_to_store(HCERTSTORE trust_store,
     }
   }
 
-  if(result == CURLE_OK) {
-    if(!num_certs) {
-      infof(data, "schannel: did not add any certificates from CA file '%s'",
+  यदि(परिणाम == CURLE_OK) {
+    यदि(!अङ्कः_certs) {
+      infof(दत्त, "schannel: did not add any certificates from CA file '%s'",
             ca_file_text);
     }
-    else {
-      infof(data, "schannel: added %d certificate(s) from CA file '%s'",
-            num_certs, ca_file_text);
+    अन्यथा {
+      infof(दत्त, "schannel: added %d certificate(s) from CA file '%s'",
+            अङ्कः_certs, ca_file_text);
     }
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
-                                        const char *ca_file,
-                                        struct Curl_easy *data)
+स्थिर CURLcode सङ्कलय_certs_file_गन्तव्यम्_store(HCERTSTORE trust_store,
+                                        ध्रुव वर्ण *ca_file,
+                                        संरचना Curl_easy *दत्त)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   FILE *ca_file_handle;
-  char *ca_file_buffer = NULL;
-  long ca_file_bufsize = 0;
-  long total_bytes_read = 0;
+  वर्ण *ca_file_बफर = रिक्त;
+  दीर्घ ca_file_bufsize = 0;
+  दीर्घ योग_अष्टकानि_read = 0;
 
   /*
    * Read the CA file completely into memory before parsing it. This
@@ -236,80 +236,80 @@ static CURLcode add_certs_file_to_store(HCERTSTORE trust_store,
    * small ( < 1 MiB ).
    */
   ca_file_handle = curlx_fopen(ca_file, "rb");
-  if(!ca_file_handle) {
-    failf(data, "schannel: failed to open CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  यदि(!ca_file_handle) {
+    failf(दत्त, "schannel: failed to open CA file '%s'", ca_file);
+    परिणाम = CURLE_SSL_CACERT_BADFILE;
+    गच्छ cleanup;
   }
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
-    failf(data, "schannel: failed seeking to end of CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  यदि(curlx_fseek(ca_file_handle, 0, SEEK_END)) {
+    failf(दत्त, "schannel: failed seeking to end of CA file '%s'", ca_file);
+    परिणाम = CURLE_SSL_CACERT_BADFILE;
+    गच्छ cleanup;
   }
 
   ca_file_bufsize = ftell(ca_file_handle);
 
-  if(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
-    failf(data, "schannel: failed seeking to beginning of CA file '%s'",
+  यदि(curlx_fseek(ca_file_handle, 0, SEEK_SET)) {
+    failf(दत्त, "schannel: failed seeking to beginning of CA file '%s'",
           ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+    परिणाम = CURLE_SSL_CACERT_BADFILE;
+    गच्छ cleanup;
   }
 
-  if(ca_file_bufsize < 0) {
-    failf(data, "schannel: failed to get length of CA file '%s'", ca_file);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  यदि(ca_file_bufsize < 0) {
+    failf(दत्त, "schannel: failed to get length of CA file '%s'", ca_file);
+    परिणाम = CURLE_SSL_CACERT_BADFILE;
+    गच्छ cleanup;
   }
 
-  if(ca_file_bufsize > MAX_CAFILE_SIZE) {
-    failf(data, "schannel: CA file exceeds max size of %d bytes",
-          MAX_CAFILE_SIZE);
-    result = CURLE_SSL_CACERT_BADFILE;
-    goto cleanup;
+  यदि(ca_file_bufsize > MAX_CAFILE_आकार) {
+    failf(दत्त, "schannel: CA file exceeds max size of %d bytes",
+          MAX_CAFILE_आकार);
+    परिणाम = CURLE_SSL_CACERT_BADFILE;
+    गच्छ cleanup;
   }
 
-  ca_file_buffer = curlx_malloc(ca_file_bufsize + 1);
-  if(!ca_file_buffer) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto cleanup;
+  ca_file_बफर = curlx_malloc(ca_file_bufsize + 1);
+  यदि(!ca_file_बफर) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ cleanup;
   }
 
-  while(total_bytes_read < ca_file_bufsize) {
-    size_t nread = fread(ca_file_buffer + total_bytes_read, 1,
-                         ca_file_bufsize - total_bytes_read, ca_file_handle);
+  यावत्(योग_अष्टकानि_read < ca_file_bufsize) {
+    size_t nread = fread(ca_file_बफर + योग_अष्टकानि_read, 1,
+                         ca_file_bufsize - योग_अष्टकानि_read, ca_file_handle);
 
-    if(ferror(ca_file_handle)) {
-      failf(data, "schannel: failed to read from CA file '%s'", ca_file);
-      result = CURLE_SSL_CACERT_BADFILE;
-      goto cleanup;
+    यदि(ferror(ca_file_handle)) {
+      failf(दत्त, "schannel: failed to read from CA file '%s'", ca_file);
+      परिणाम = CURLE_SSL_CACERT_BADFILE;
+      गच्छ cleanup;
     }
 
-    if(nread == 0) {
+    यदि(nread == 0) {
       /* Premature EOF -- adjust the bufsize to the new value */
-      ca_file_bufsize = total_bytes_read;
+      ca_file_bufsize = योग_अष्टकानि_read;
     }
-    else {
-      total_bytes_read += (long)nread;
+    अन्यथा {
+      योग_अष्टकानि_read += (दीर्घ)nread;
     }
   }
 
   /* null-terminate the buffer */
-  ca_file_buffer[ca_file_bufsize] = '\0';
+  ca_file_बफर[ca_file_bufsize] = '\0';
 
-  result = add_certs_data_to_store(trust_store,
-                                   ca_file_buffer, ca_file_bufsize,
+  परिणाम = सङ्कलय_certs_दत्त_गन्तव्यम्_store(trust_store,
+                                   ca_file_बफर, ca_file_bufsize,
                                    ca_file,
-                                   data);
+                                   दत्त);
 
 cleanup:
-  if(ca_file_handle) {
+  यदि(ca_file_handle) {
     curlx_fclose(ca_file_handle);
   }
-  curlx_safefree(ca_file_buffer);
+  curlx_safefree(ca_file_बफर);
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
@@ -319,87 +319,87 @@ cleanup:
  * null-terminated. If no DNS names are found, a single null-terminated empty
  * string is returned.
  */
-static DWORD cert_get_name_string(struct Curl_easy *data,
+स्थिर DWORD cert_get_name_string(संरचना Curl_easy *दत्त,
                                   CERT_CONTEXT *cert_context,
-                                  LPTSTR host_names,
-                                  DWORD length,
+                                  LPTSTR host_नामानि,
+                                  DWORD दीर्घता,
                                   PCERT_ALT_NAME_INFO alt_name_info,
                                   BOOL Win8_compat)
 {
-  DWORD actual_length = 0;
+  DWORD actual_दीर्घता = 0;
   BOOL compute_content = FALSE;
-  LPTSTR current_pos = NULL;
+  LPTSTR current_pos = रिक्त;
   DWORD i;
 
   /* CERT_NAME_SEARCH_ALL_NAMES_FLAG is available from Windows 8 onwards. */
-  if(Win8_compat) {
+  यदि(Win8_compat) {
 /* Offered by mingw-w64 v4+, MS SDK 8.0/~VS2012+ */
-#ifndef CERT_NAME_SEARCH_ALL_NAMES_FLAG
-#define CERT_NAME_SEARCH_ALL_NAMES_FLAG 0x2
-#endif
+#यदि_अपरिभाषितम् CERT_NAME_अन्वेषणम्_ALL_नामानि_FLAG
+#परिभाषय CERT_NAME_अन्वेषणम्_ALL_नामानि_FLAG 0x2
+#यदि_अन्तः
     /* CertGetNameString provides the 8-bit character string without
      * any decoding */
     DWORD name_flags =
-      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_SEARCH_ALL_NAMES_FLAG;
-    actual_length = CertGetNameString(cert_context,
+      CERT_NAME_DISABLE_IE4_UTF8_FLAG | CERT_NAME_अन्वेषणम्_ALL_नामानि_FLAG;
+    actual_दीर्घता = CertGetNameString(cert_context,
                                       CERT_NAME_DNS_TYPE,
                                       name_flags,
-                                      NULL,
-                                      host_names,
-                                      length);
-    return actual_length;
+                                      रिक्त,
+                                      host_नामानि,
+                                      दीर्घता);
+    प्रत्यागम actual_दीर्घता;
   }
 
-  if(!alt_name_info)
-    return 0;
+  यदि(!alt_name_info)
+    प्रत्यागम 0;
 
-  compute_content = host_names && length != 0;
+  compute_content = host_नामानि && दीर्घता != 0;
 
   /* Initialize default return values. */
-  actual_length = 1;
-  if(compute_content) {
-    *host_names = '\0';
+  actual_दीर्घता = 1;
+  यदि(compute_content) {
+    *host_नामानि = '\0';
   }
 
-  current_pos = host_names;
+  current_pos = host_नामानि;
 
   /* Iterate over the alternate names and populate host_names. */
-  for(i = 0; i < alt_name_info->cAltEntry; i++) {
-    const CERT_ALT_NAME_ENTRY *entry = &alt_name_info->rgAltEntry[i];
-    wchar_t *dns_w = NULL;
-    size_t current_length = 0;
+  प्रति(i = 0; i < alt_name_info->c_Alt_प्रविष्टिः; i++) {
+    ध्रुव CERT_ALT_NAME_प्रविष्टिः *प्रविष्टिः = &alt_name_info->rg_Alt_प्रविष्टिः[i];
+    wchar_t *dns_w = रिक्त;
+    size_t current_दीर्घता = 0;
 
-    if(entry->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
-      continue;
+    यदि(प्रविष्टिः->dwAltNameChoice != CERT_ALT_NAME_DNS_NAME) {
+      अनुवर्त;
     }
-    if(!entry->pwszDNSName) {
-      infof(data, "schannel: Empty DNS name.");
-      continue;
+    यदि(!प्रविष्टिः->pwszDNSName) {
+      infof(दत्त, "schannel: Empty DNS name.");
+      अनुवर्त;
     }
-    current_length = wcslen(entry->pwszDNSName) + 1;
-    if(!compute_content) {
-      actual_length += (DWORD)current_length;
-      continue;
+    current_दीर्घता = wcslen(प्रविष्टिः->pwszDNSName) + 1;
+    यदि(!compute_content) {
+      actual_दीर्घता += (DWORD)current_दीर्घता;
+      अनुवर्त;
     }
     /* Sanity check to prevent buffer overrun. */
-    if((actual_length + current_length) > length) {
-      failf(data, "schannel: Not enough memory to list all hostnames.");
-      break;
+    यदि((actual_दीर्घता + current_दीर्घता) > दीर्घता) {
+      failf(दत्त, "schannel: Not enough memory to list all hostnames.");
+      भङ्ग;
     }
-    dns_w = entry->pwszDNSName;
+    dns_w = प्रविष्टिः->pwszDNSName;
     /* pwszDNSName is in ia5 string format and hence does not contain any
      * non-ASCII characters. */
-    while(*dns_w != '\0') {
+    यावत्(*dns_w != '\0') {
       *current_pos++ = (TCHAR)(*dns_w++);
     }
     *current_pos++ = '\0';
-    actual_length += (DWORD)current_length;
+    actual_दीर्घता += (DWORD)current_दीर्घता;
   }
-  if(compute_content) {
+  यदि(compute_content) {
     /* Last string has double null-terminator. */
     *current_pos = '\0';
   }
-  return actual_length;
+  प्रत्यागम actual_दीर्घता;
 }
 
 /*
@@ -407,254 +407,254 @@ static DWORD cert_get_name_string(struct Curl_easy *data,
  * and populates the buffer with IPv4/IPv6 info.
  */
 
-static bool get_num_host_info(struct num_ip_data *ip_blob, LPCSTR hostname)
+स्थिर bool get_अङ्कः_host_info(संरचना अङ्कः_ip_दत्त *ip_blob, LPCSTR hostname)
 {
-  struct in_addr ia;
-  int res = curlx_inet_pton(AF_INET, hostname, &ia);
-  if(res) {
-    ip_blob->size = sizeof(struct in_addr);
-    memcpy(&ip_blob->bData.ia, &ia, sizeof(struct in_addr));
-    return TRUE;
+  संरचना in_addr ia;
+  पूर्णाङ्क res = curlx_inet_pton(AF_INET, hostname, &ia);
+  यदि(res) {
+    ip_blob->आकार = परिमाण(संरचना in_addr);
+    स्मृतिं_प्रतिलिख(&ip_blob->b_दत्त.ia, &ia, परिमाण(संरचना in_addr));
+    प्रत्यागम TRUE;
   }
-  else {
-    struct in6_addr ia6;
+  अन्यथा {
+    संरचना in6_addr ia6;
     res = curlx_inet_pton(AF_INET6, hostname, &ia6);
-    if(res) {
-      ip_blob->size = sizeof(struct in6_addr);
-      memcpy(&ip_blob->bData.ia6, &ia6, sizeof(struct in6_addr));
-      return TRUE;
+    यदि(res) {
+      ip_blob->आकार = परिमाण(संरचना in6_addr);
+      स्मृतिं_प्रतिलिख(&ip_blob->b_दत्त.ia6, &ia6, परिमाण(संरचना in6_addr));
+      प्रत्यागम TRUE;
     }
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static bool get_alt_name_info(struct Curl_easy *data,
+स्थिर bool get_alt_name_info(संरचना Curl_easy *दत्त,
                               PCCERT_CONTEXT ctx,
                               PCERT_ALT_NAME_INFO *alt_name_info,
-                              LPDWORD alt_name_info_size)
+                              LPDWORD alt_name_info_आकार)
 {
-  PCERT_INFO cert_info = NULL;
-  PCERT_EXTENSION extension = NULL;
-  CRYPT_DECODE_PARA decode_para = { sizeof(CRYPT_DECODE_PARA), NULL, NULL };
+  PCERT_INFO cert_info = रिक्त;
+  PCERT_EXTENSION extension = रिक्त;
+  CRYPT_DECODE_PARA decode_para = { परिमाण(CRYPT_DECODE_PARA), रिक्त, रिक्त };
 
-  if(!ctx) {
-    failf(data, "schannel: Null certificate context.");
-    return FALSE;
+  यदि(!ctx) {
+    failf(दत्त, "schannel: Null certificate context.");
+    प्रत्यागम FALSE;
   }
 
   cert_info = ctx->pCertInfo;
-  if(!cert_info) {
-    failf(data, "schannel: Null certificate info.");
-    return FALSE;
+  यदि(!cert_info) {
+    failf(दत्त, "schannel: Null certificate info.");
+    प्रत्यागम FALSE;
   }
 
   extension = CertFindExtension(szOID_SUBJECT_ALT_NAME2,
                                 cert_info->cExtension,
                                 cert_info->rgExtension);
-  if(!extension) {
-    failf(data, "schannel: CertFindExtension() returned no extension.");
-    return FALSE;
+  यदि(!extension) {
+    failf(दत्त, "schannel: CertFindExtension() returned no extension.");
+    प्रत्यागम FALSE;
   }
 
-  if(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+  यदि(!CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                           szOID_SUBJECT_ALT_NAME2,
-                          extension->Value.pbData,
-                          extension->Value.cbData,
+                          extension->मानम्_2.pb_दत्त,
+                          extension->मानम्_2.cb_दत्त,
                           CRYPT_DECODE_ALLOC_FLAG | CRYPT_DECODE_NOCOPY_FLAG,
                           &decode_para,
                           alt_name_info,
-                          alt_name_info_size)) {
-    failf(data, "schannel: CryptDecodeObjectEx() returned no alternate name "
+                          alt_name_info_आकार)) {
+    failf(दत्त, "schannel: CryptDecodeObjectEx() returned no alternate name "
           "information.");
-    return FALSE;
+    प्रत्यागम FALSE;
   }
-  return TRUE;
+  प्रत्यागम TRUE;
 }
 
 /* Verify the server's hostname */
-CURLcode Curl_verify_host(struct Curl_cfilter *cf, struct Curl_easy *data)
+CURLcode Curl_verify_host(संरचना Curl_cfilter *cf, संरचना Curl_easy *दत्त)
 {
-  CURLcode result = CURLE_PEER_FAILED_VERIFICATION;
-  struct ssl_connect_data *connssl = cf->ctx;
-  CERT_CONTEXT *pCertContextServer = NULL;
-  SECURITY_STATUS sspi_status;
-  TCHAR *cert_hostname_buff = NULL;
-  size_t cert_hostname_buff_index = 0;
-  const char *conn_hostname = connssl->peer.origin->hostname;
-  size_t hostlen = strlen(conn_hostname);
+  CURLcode परिणाम = CURLE_PEER_FAILED_VERIFICATION;
+  संरचना ssl_connect_दत्त *connssl = cf->ctx;
+  CERT_CONTEXT *pCertContextServer = रिक्त;
+  SECURITY_स्थितिः sspi_स्थितिः;
+  TCHAR *cert_hostname_buff = रिक्त;
+  size_t cert_hostname_buff_सूचकांक = 0;
+  ध्रुव वर्ण *conn_hostname = connssl->peer.origin->hostname;
+  size_t hostlen = वाक्यदैर्घ्यम्(conn_hostname);
   DWORD len = 0;
   DWORD actual_len = 0;
-  PCERT_ALT_NAME_INFO alt_name_info = NULL;
-  DWORD alt_name_info_size = 0;
-  struct num_ip_data ip_blob = { 0 };
+  PCERT_ALT_NAME_INFO alt_name_info = रिक्त;
+  DWORD alt_name_info_आकार = 0;
+  संरचना अङ्कः_ip_दत्त ip_blob = { 0 };
   bool Win8_compat;
-  struct num_ip_data *p = &ip_blob;
+  संरचना अङ्कः_ip_दत्त *p = &ip_blob;
   DWORD i;
 
-  sspi_status =
-    Curl_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,
+  sspi_स्थितिः =
+    Curl_pSecFn->Query_Context_गुणाः(&BACKEND->ctxt->ctxt_handle,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-    char buffer[WINAPI_ERROR_LEN];
-    failf(data, "schannel: Failed to read remote certificate context: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    goto cleanup;
+  यदि((sspi_स्थितिः != SEC_E_OK) || !pCertContextServer) {
+    वर्ण बफर[WINAPI_ERROR_LEN];
+    failf(दत्त, "schannel: Failed to read remote certificate context: %s",
+          Curl_sspi_strerror(sspi_स्थितिः, बफर, परिमाण(बफर)));
+    गच्छ cleanup;
   }
 
-  Win8_compat = curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                             VERSION_GREATER_THAN_EQUAL);
-  if(get_num_host_info(p, conn_hostname) || !Win8_compat) {
-    if(!get_alt_name_info(data, pCertContextServer,
-                          &alt_name_info, &alt_name_info_size)) {
-      goto cleanup;
+  Win8_compat = curlx_verify_windows_संस्करणम्(6, 2, 0, PLATFORM_WINNT,
+                                             संस्करणम्_GREATER_THAN_EQUAL);
+  यदि(get_अङ्कः_host_info(p, conn_hostname) || !Win8_compat) {
+    यदि(!get_alt_name_info(दत्त, pCertContextServer,
+                          &alt_name_info, &alt_name_info_आकार)) {
+      गच्छ cleanup;
     }
   }
 
-  if(p->size && alt_name_info) {
-    for(i = 0; i < alt_name_info->cAltEntry; ++i) {
-      PCERT_ALT_NAME_ENTRY entry = &alt_name_info->rgAltEntry[i];
-      if(entry->dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS) {
-        if(entry->IPAddress.cbData == p->size) {
-          if(!memcmp(entry->IPAddress.pbData, &p->bData,
-                     entry->IPAddress.cbData)) {
-            result = CURLE_OK;
-            infof(data,
+  यदि(p->आकार && alt_name_info) {
+    प्रति(i = 0; i < alt_name_info->c_Alt_प्रविष्टिः; ++i) {
+      PCERT_ALT_NAME_प्रविष्टिः प्रविष्टिः = &alt_name_info->rg_Alt_प्रविष्टिः[i];
+      यदि(प्रविष्टिः->dwAltNameChoice == CERT_ALT_NAME_IP_स्थानाङ्कः) {
+        यदि(प्रविष्टिः->IPAddress.cb_दत्त == p->आकार) {
+          यदि(!memcmp(प्रविष्टिः->IPAddress.pb_दत्त, &p->b_दत्त,
+                     प्रविष्टिः->IPAddress.cb_दत्त)) {
+            परिणाम = CURLE_OK;
+            infof(दत्त,
              "schannel: connection hostname (%s) matched cert's IP address!",
              conn_hostname);
-            break;
+            भङ्ग;
           }
         }
       }
     }
   }
-  else {
+  अन्यथा {
     /* Determine the size of the string needed for the cert hostname */
-    len = cert_get_name_string(data, pCertContextServer,
-                               NULL, 0, alt_name_info, Win8_compat);
-    if(len == 0) {
-      failf(data,
+    len = cert_get_name_string(दत्त, pCertContextServer,
+                               रिक्त, 0, alt_name_info, Win8_compat);
+    यदि(len == 0) {
+      failf(दत्त,
             "schannel: CertGetNameString() returned no "
             "certificate name information");
-      goto cleanup;
+      गच्छ cleanup;
     }
 
     /* CertGetNameString guarantees that the returned name does not contain
      * embedded NUL bytes. This appears to be undocumented behavior.
      */
-    cert_hostname_buff = curlx_malloc(len * sizeof(TCHAR));
-    if(!cert_hostname_buff) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto cleanup;
+    cert_hostname_buff = curlx_malloc(len * परिमाण(TCHAR));
+    यदि(!cert_hostname_buff) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ cleanup;
     }
-    actual_len = cert_get_name_string(data, pCertContextServer,
+    actual_len = cert_get_name_string(दत्त, pCertContextServer,
                                       (LPTSTR)cert_hostname_buff, len,
                                       alt_name_info, Win8_compat);
 
     /* Sanity check */
-    if(actual_len != len) {
-      failf(data,
+    यदि(actual_len != len) {
+      failf(दत्त,
             "schannel: CertGetNameString() returned certificate "
             "name information of unexpected size");
-      goto cleanup;
+      गच्छ cleanup;
     }
 
     /* cert_hostname_buff contains all DNS names, where each name is
      * null-terminated and the last DNS name is double null-terminated. Due to
      * this encoding, use the length of the buffer to iterate over all names.
      */
-    while(cert_hostname_buff_index < len &&
-          cert_hostname_buff[cert_hostname_buff_index] != TEXT('\0') &&
-          result == CURLE_PEER_FAILED_VERIFICATION) {
-      char *cert_hostname;
+    यावत्(cert_hostname_buff_सूचकांक < len &&
+          cert_hostname_buff[cert_hostname_buff_सूचकांक] != TEXT('\0') &&
+          परिणाम == CURLE_PEER_FAILED_VERIFICATION) {
+      वर्ण *cert_hostname;
 
       /* Comparing the cert name and the connection hostname encoded as UTF-8
        * is acceptable since both values are assumed to use ASCII
        * (or some equivalent) encoding
        */
-      cert_hostname = curlx_convert_tchar_to_UTF8(
-        &cert_hostname_buff[cert_hostname_buff_index]);
-      if(!cert_hostname) {
-        result = CURLE_OUT_OF_MEMORY;
+      cert_hostname = curlx_convert_tchar_गन्तव्यम्_UTF8(
+        &cert_hostname_buff[cert_hostname_buff_सूचकांक]);
+      यदि(!cert_hostname) {
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       }
-      else {
-        if(Curl_cert_hostcheck(cert_hostname, strlen(cert_hostname),
+      अन्यथा {
+        यदि(Curl_cert_hostcheck(cert_hostname, वाक्यदैर्घ्यम्(cert_hostname),
                                conn_hostname, hostlen)) {
-          infof(data, "schannel: connection hostname (%s) validated "
+          infof(दत्त, "schannel: connection hostname (%s) validated "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
-          result = CURLE_OK;
+          परिणाम = CURLE_OK;
         }
-        else {
+        अन्यथा {
           size_t cert_hostname_len;
 
-          infof(data,
+          infof(दत्त,
                 "schannel: connection hostname (%s) did not match "
                 "against certificate name (%s)",
                 conn_hostname, cert_hostname);
 
           cert_hostname_len =
-            _tcslen(&cert_hostname_buff[cert_hostname_buff_index]);
+            _tcslen(&cert_hostname_buff[cert_hostname_buff_सूचकांक]);
 
           /* Move on to next cert name */
-          cert_hostname_buff_index += cert_hostname_len + 1;
+          cert_hostname_buff_सूचकांक += cert_hostname_len + 1;
 
-          result = CURLE_PEER_FAILED_VERIFICATION;
+          परिणाम = CURLE_PEER_FAILED_VERIFICATION;
         }
         curlx_free(cert_hostname);
       }
     }
 
-    if(result == CURLE_PEER_FAILED_VERIFICATION) {
-      failf(data,
+    यदि(परिणाम == CURLE_PEER_FAILED_VERIFICATION) {
+      failf(दत्त,
             "schannel: CertGetNameString() failed to match "
             "connection hostname (%s) against server certificate names",
             conn_hostname);
     }
-    else if(result != CURLE_OK)
-      failf(data, "schannel: server certificate name verification failed");
+    अन्यथा यदि(परिणाम != CURLE_OK)
+      failf(दत्त, "schannel: server certificate name verification failed");
   }
 
 cleanup:
   LocalFree(alt_name_info);
   curlx_safefree(cert_hostname_buff);
 
-  if(pCertContextServer)
+  यदि(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /* Verify the server's certificate and hostname */
-CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+CURLcode Curl_verify_certificate(संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *दत्त)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  SECURITY_STATUS sspi_status;
-  CURLcode result = CURLE_OK;
-  CERT_CONTEXT *pCertContextServer = NULL;
-  const CERT_CHAIN_CONTEXT *pChainContext = NULL;
-  HCERTCHAINENGINE cert_chain_engine = NULL;
-  HCERTSTORE trust_store = NULL;
-  HCERTSTORE own_trust_store = NULL;
+  संरचना ssl_connect_दत्त *connssl = cf->ctx;
+  संरचना ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  SECURITY_स्थितिः sspi_स्थितिः;
+  CURLcode परिणाम = CURLE_OK;
+  CERT_CONTEXT *pCertContextServer = रिक्त;
+  ध्रुव CERT_CHAIN_CONTEXT *pChainContext = रिक्त;
+  HCERTCHAINENGINE cert_chain_engine = रिक्त;
+  HCERTSTORE trust_store = रिक्त;
+  HCERTSTORE own_trust_store = रिक्त;
 
   DEBUGASSERT(BACKEND);
 
-  sspi_status =
-    Curl_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,
+  sspi_स्थितिः =
+    Curl_pSecFn->Query_Context_गुणाः(&BACKEND->ctxt->ctxt_handle,
                                         SECPKG_ATTR_REMOTE_CERT_CONTEXT,
                                         &pCertContextServer);
 
-  if((sspi_status != SEC_E_OK) || !pCertContextServer) {
-    char buffer[WINAPI_ERROR_LEN];
-    failf(data, "schannel: Failed to read remote certificate context: %s",
-          Curl_sspi_strerror(sspi_status, buffer, sizeof(buffer)));
-    result = CURLE_PEER_FAILED_VERIFICATION;
+  यदि((sspi_स्थितिः != SEC_E_OK) || !pCertContextServer) {
+    वर्ण बफर[WINAPI_ERROR_LEN];
+    failf(दत्त, "schannel: Failed to read remote certificate context: %s",
+          Curl_sspi_strerror(sspi_स्थितिः, बफर, परिमाण(बफर)));
+    परिणाम = CURLE_PEER_FAILED_VERIFICATION;
   }
 
-  if(result == CURLE_OK &&
+  यदि(परिणाम == CURLE_OK &&
      (conn_config->CAfile || conn_config->ca_info_blob) &&
      BACKEND->use_manual_cred_validation) {
     /*
@@ -662,173 +662,173 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter *cf,
      * trusted certificates. This is only supported on Windows 7+.
      */
 
-    if(curlx_verify_windows_version(6, 1, 0, PLATFORM_WINNT,
-                                    VERSION_LESS_THAN)) {
-      failf(data, "schannel: this version of Windows is too old to support "
+    यदि(curlx_verify_windows_संस्करणम्(6, 1, 0, PLATFORM_WINNT,
+                                    संस्करणम्_LESS_THAN)) {
+      failf(दत्त, "schannel: this version of Windows is too old to support "
             "certificate verification via CA bundle file.");
-      result = CURLE_SSL_CACERT_BADFILE;
+      परिणाम = CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    अन्यथा {
       /* try cache */
-      trust_store = Curl_schannel_get_cached_cert_store(cf, data);
+      trust_store = Curl_schannel_get_cached_cert_store(cf, दत्त);
 
-      if(trust_store) {
-        infof(data, "schannel: reusing certificate store from cache");
+      यदि(trust_store) {
+        infof(दत्त, "schannel: reusing certificate store from cache");
       }
-      else {
+      अन्यथा {
         /* Open the certificate store */
-        trust_store = CertOpenStore(CERT_STORE_PROV_MEMORY,
+        trust_store = CertOpenStore(CERT_STORE_PROV_स्मृतिः,
                                     0,
-                                    (HCRYPTPROV)NULL,
+                                    (HCRYPTPROV)रिक्त,
                                     CERT_STORE_CREATE_NEW_FLAG,
-                                    NULL);
-        if(!trust_store) {
-          char buffer[WINAPI_ERROR_LEN];
-          failf(data, "schannel: failed to create certificate store: %s",
-                curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-          result = CURLE_SSL_CACERT_BADFILE;
+                                    रिक्त);
+        यदि(!trust_store) {
+          वर्ण बफर[WINAPI_ERROR_LEN];
+          failf(दत्त, "schannel: failed to create certificate store: %s",
+                curlx_winapi_strerror(Get_चरमः_Error(), बफर, परिमाण(बफर)));
+          परिणाम = CURLE_SSL_CACERT_BADFILE;
         }
-        else {
-          const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
+        अन्यथा {
+          ध्रुव संरचना curl_blob *ca_info_blob = conn_config->ca_info_blob;
           own_trust_store = trust_store;
 
-          if(ca_info_blob) {
-            result = add_certs_data_to_store(trust_store,
-                                             (const char *)ca_info_blob->data,
+          यदि(ca_info_blob) {
+            परिणाम = सङ्कलय_certs_दत्त_गन्तव्यम्_store(trust_store,
+                                             (ध्रुव वर्ण *)ca_info_blob->दत्त,
                                              ca_info_blob->len,
                                              "(memory blob)",
-                                             data);
+                                             दत्त);
           }
-          else {
-            result = add_certs_file_to_store(trust_store,
+          अन्यथा {
+            परिणाम = सङ्कलय_certs_file_गन्तव्यम्_store(trust_store,
                                              conn_config->CAfile,
-                                             data);
+                                             दत्त);
           }
-          if(result == CURLE_OK) {
-            if(Curl_schannel_set_cached_cert_store(cf, data, trust_store)) {
-              own_trust_store = NULL;
+          यदि(परिणाम == CURLE_OK) {
+            यदि(Curl_schannel_समुच्चयः_cached_cert_store(cf, दत्त, trust_store)) {
+              own_trust_store = रिक्त;
             }
           }
         }
       }
     }
 
-    if(result == CURLE_OK) {
-      struct cert_chain_engine_config_win8 engine_config;
-      BOOL create_engine_result;
+    यदि(परिणाम == CURLE_OK) {
+      संरचना cert_chain_engine_config_win8 engine_config;
+      BOOL create_engine_परिणाम;
 
-      memset(&engine_config, 0, sizeof(engine_config));
-      engine_config.hExclusiveRoot = trust_store;
+      स्मृतिं_पूरय(&engine_config, 0, परिमाण(engine_config));
+      engine_config.h_Exclusive_मूलम् = trust_store;
 
       /* Win8/Server2012 allows us to match partial chains */
-      if(curlx_verify_windows_version(6, 2, 0, PLATFORM_WINNT,
-                                      VERSION_GREATER_THAN_EQUAL) &&
+      यदि(curlx_verify_windows_संस्करणम्(6, 2, 0, PLATFORM_WINNT,
+                                      संस्करणम्_GREATER_THAN_EQUAL) &&
          !conn_config->no_partialchain) {
-        engine_config.cbSize = sizeof(engine_config);
+        engine_config.cb_आकार = परिमाण(engine_config);
         engine_config.dwExclusiveFlags = CERT_CHAIN_EXCLUSIVE_ENABLE_CA_FLAG;
       }
-      else
-        engine_config.cbSize = sizeof(struct cert_chain_engine_config_win7);
+      अन्यथा
+        engine_config.cb_आकार = परिमाण(संरचना cert_chain_engine_config_win7);
 
       /* CertCreateCertificateChainEngine checks the expected size of the
        * CERT_CHAIN_ENGINE_CONFIG structure and fail if the specified size
        * does not match the expected size. When this occurs, it indicates that
        * CAINFO is not supported on the version of Windows in use.
        */
-      create_engine_result =
+      create_engine_परिणाम =
         CertCreateCertificateChainEngine(
           (CERT_CHAIN_ENGINE_CONFIG *)&engine_config, &cert_chain_engine);
-      if(!create_engine_result) {
-        char buffer[WINAPI_ERROR_LEN];
-        failf(data,
+      यदि(!create_engine_परिणाम) {
+        वर्ण बफर[WINAPI_ERROR_LEN];
+        failf(दत्त,
               "schannel: failed to create certificate chain engine: %s",
-              curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-        result = CURLE_SSL_CACERT_BADFILE;
+              curlx_winapi_strerror(Get_चरमः_Error(), बफर, परिमाण(बफर)));
+        परिणाम = CURLE_SSL_CACERT_BADFILE;
       }
     }
   }
 
-  if(result == CURLE_OK) {
+  यदि(परिणाम == CURLE_OK) {
     CERT_CHAIN_PARA ChainPara;
     LPSTR serverAuthOID = CURL_UNCONST(szOID_PKIX_KP_SERVER_AUTH);
 
-    memset(&ChainPara, 0, sizeof(ChainPara));
-    ChainPara.cbSize = sizeof(ChainPara);
-    ChainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+    स्मृतिं_पूरय(&ChainPara, 0, परिमाण(ChainPara));
+    ChainPara.cb_आकार = परिमाण(ChainPara);
+    ChainPara.RequestedUsage.dwType = USAGE_मेलनम्_TYPE_AND;
     ChainPara.RequestedUsage.Usage.cUsageIdentifier = 1;
     ChainPara.RequestedUsage.Usage.rgpszUsageIdentifier = &serverAuthOID;
 
-    if(!CertGetCertificateChain(cert_chain_engine,
+    यदि(!CertGetCertificateChain(cert_chain_engine,
                                 pCertContextServer,
-                                NULL,
+                                रिक्त,
                                 pCertContextServer->hCertStore,
                                 &ChainPara,
                                 (conn_config->no_revoke ? 0 :
                                  CERT_CHAIN_REVOCATION_CHECK_CHAIN),
-                                NULL,
+                                रिक्त,
                                 &pChainContext)) {
-      char buffer[WINAPI_ERROR_LEN];
-      failf(data, "schannel: failed to get the certificate chain: %s",
-            curlx_winapi_strerror(GetLastError(), buffer, sizeof(buffer)));
-      pChainContext = NULL;
-      result = CURLE_PEER_FAILED_VERIFICATION;
+      वर्ण बफर[WINAPI_ERROR_LEN];
+      failf(दत्त, "schannel: failed to get the certificate chain: %s",
+            curlx_winapi_strerror(Get_चरमः_Error(), बफर, परिमाण(बफर)));
+      pChainContext = रिक्त;
+      परिणाम = CURLE_PEER_FAILED_VERIFICATION;
     }
 
-    if(result == CURLE_OK) {
+    यदि(परिणाम == CURLE_OK) {
       CERT_SIMPLE_CHAIN *pSimpleChain = pChainContext->rgpChain[0];
-      DWORD dwTrustErrorMask = ~(DWORD)(CERT_TRUST_IS_NOT_TIME_NESTED);
-      dwTrustErrorMask &= pSimpleChain->TrustStatus.dwErrorStatus;
+      DWORD dw_Trust_Error_आवरणम् = ~(DWORD)(CERT_TRUST_IS_NOT_TIME_NESTED);
+      dw_Trust_Error_आवरणम् &= pSimpleChain->Trust_स्थितिः.dw_Error_स्थितिः;
 
-      if(conn_config->revoke_best_effort) {
+      यदि(conn_config->revoke_best_effort) {
         /* Ignore errors when root certificates are missing the revocation
          * list URL, or when the list could not be downloaded because the
          * server is currently unreachable. */
-        dwTrustErrorMask &= ~(DWORD)(CERT_TRUST_REVOCATION_STATUS_UNKNOWN |
+        dw_Trust_Error_आवरणम् &= ~(DWORD)(CERT_TRUST_REVOCATION_स्थितिः_UNKNOWN |
                                      CERT_TRUST_IS_OFFLINE_REVOCATION);
       }
 
-      if(dwTrustErrorMask) {
-        if(dwTrustErrorMask & CERT_TRUST_IS_REVOKED)
-          failf(data, "schannel: trust for this certificate or one of "
+      यदि(dw_Trust_Error_आवरणम्) {
+        यदि(dw_Trust_Error_आवरणम् & CERT_TRUST_IS_REVOKED)
+          failf(दत्त, "schannel: trust for this certificate or one of "
                 "the certificates in the certificate chain has been revoked");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_PARTIAL_CHAIN)
-          failf(data, "schannel: the certificate chain is incomplete");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_UNTRUSTED_ROOT)
-          failf(data, "schannel: the certificate or certificate chain is "
+        अन्यथा यदि(dw_Trust_Error_आवरणम् & CERT_TRUST_IS_PARTIAL_CHAIN)
+          failf(दत्त, "schannel: the certificate chain is incomplete");
+        अन्यथा यदि(dw_Trust_Error_आवरणम् & CERT_TRUST_IS_UNTRUSTED_मूलम्)
+          failf(दत्त, "schannel: the certificate or certificate chain is "
                 "based on an untrusted root");
-        else if(dwTrustErrorMask & CERT_TRUST_IS_NOT_TIME_VALID)
-          failf(data, "schannel: this certificate or one of the certificates "
+        अन्यथा यदि(dw_Trust_Error_आवरणम् & CERT_TRUST_IS_NOT_TIME_VALID)
+          failf(दत्त, "schannel: this certificate or one of the certificates "
                 "in the certificate chain is not time valid");
-        else if(dwTrustErrorMask & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
-          failf(data, "schannel: the revocation status is unknown");
-        else
-          failf(data, "schannel: error 0x%08lx", dwTrustErrorMask);
-        result = CURLE_PEER_FAILED_VERIFICATION;
+        अन्यथा यदि(dw_Trust_Error_आवरणम् & CERT_TRUST_REVOCATION_स्थितिः_UNKNOWN)
+          failf(दत्त, "schannel: the revocation status is unknown");
+        अन्यथा
+          failf(दत्त, "schannel: error 0x%08lx", dw_Trust_Error_आवरणम्);
+        परिणाम = CURLE_PEER_FAILED_VERIFICATION;
       }
     }
   }
 
-  if(result == CURLE_OK) {
-    if(conn_config->verifyhost) {
-      result = Curl_verify_host(cf, data);
+  यदि(परिणाम == CURLE_OK) {
+    यदि(conn_config->verifyhost) {
+      परिणाम = Curl_verify_host(cf, दत्त);
     }
   }
 
-  if(cert_chain_engine) {
+  यदि(cert_chain_engine) {
     CertFreeCertificateChainEngine(cert_chain_engine);
   }
 
-  if(own_trust_store) {
+  यदि(own_trust_store) {
     CertCloseStore(own_trust_store, 0);
   }
 
-  if(pChainContext)
+  यदि(pChainContext)
     CertFreeCertificateChain(pChainContext);
 
-  if(pCertContextServer)
+  यदि(pCertContextServer)
     CertFreeCertificateContext(pCertContextServer);
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#endif /* USE_SCHANNEL */
+#यदि_अन्तः /* USE_SCHANNEL */

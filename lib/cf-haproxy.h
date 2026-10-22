@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_HAPROXY_H
-#define HEADER_CURL_CF_HAPROXY_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_CF_HAPROXY_H
+#परिभाषय शीर्षकम्_CURL_CF_HAPROXY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,17 +23,17 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
+#अन्तर्भाव "urldata.h"
 
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_haproxy_निवेशय_after(संरचना Curl_cfilter *cf_at,
+                                      संरचना Curl_easy *दत्त);
 
-extern struct Curl_cftype Curl_cft_haproxy;
+बाह्य संरचना Curl_cftype Curl_cft_haproxy;
 
-#endif /* !CURL_DISABLE_PROXY */
+#यदि_अन्तः /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_CF_HAPROXY_H */
+#यदि_अन्तः /* HEADER_CURL_CF_HAPROXY_H */

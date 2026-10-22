@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_INET_NTOP_H
-#define HEADER_CURL_INET_NTOP_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_INET_NTOP_H
+#परिभाषय शीर्षकम्_CURL_INET_NTOP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-CURLcode curlx_inet_ntop(int af, const void *src, char *buf, size_t size);
+CURLcode curlx_inet_ntop(पूर्णाङ्क af, ध्रुव शून्य *src, वर्ण *buf, size_t आकार);
 
-#endif /* HEADER_CURL_INET_NTOP_H */
+#यदि_अन्तः /* HEADER_CURL_INET_NTOP_H */

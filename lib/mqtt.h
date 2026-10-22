@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MQTT_H
-#define HEADER_CURL_MQTT_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_MQTT_H
+#परिभाषय शीर्षकम्_CURL_MQTT_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_MQTT
-extern const struct Curl_protocol Curl_protocol_mqtt;
-#ifdef USE_SSL
-extern const struct Curl_protocol Curl_protocol_mqtts;
-#endif
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_MQTT
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_mqtt;
+#यदि_परिभाषितम् USE_SSL
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_mqtts;
+#यदि_अन्तः
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_MQTT_H */
+#यदि_अन्तः /* HEADER_CURL_MQTT_H */

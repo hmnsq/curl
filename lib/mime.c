@@ -21,47 +21,47 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-struct Curl_easy;
+संरचना Curl_easy;
 
-#include "mime.h"
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "transfer.h"
-#include "curlx/strdup.h"
-#include "curlx/basename.h"
-#include "curlx/strcopy.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/base64.h"
+#अन्तर्भाव "mime.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "sendf.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "curlx/basename.h"
+#अन्तर्भाव "curlx/strcopy.h"
+#अन्तर्भाव "curlx/win32-fopen.h"
+#अन्तर्भाव "curlx/base64.h"
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
+#यदि !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
                                     !defined(CURL_DISABLE_SMTP) ||      \
                                     !defined(CURL_DISABLE_IMAP))
 
-#include "rand.h"
-#include "slist.h"
-#include "curlx/dynbuf.h"
+#अन्तर्भाव "rand.h"
+#अन्तर्भाव "slist.h"
+#अन्तर्भाव "curlx/dynbuf.h"
 
-#define MAX_MIME_LEVELS 40 /* avoid deep nesting */
+#परिभाषय MAX_MIME_स्तराः 40 /* avoid deep nesting */
 
-#define READ_ERROR   ((size_t)-1)
-#define STOP_FILLING ((size_t)-2)
+#परिभाषय READ_ERROR   ((size_t)-1)
+#परिभाषय STOP_FILLING ((size_t)-2)
 
-static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
-                                 void *instream, bool *hasread);
-static curl_off_t mime_size(curl_mimepart *part);
+स्थिर size_t mime_subparts_read(वर्ण *बफर, size_t आकार, size_t nitems,
+                                 शून्य *instream, bool *hasread);
+स्थिर curl_off_t mime_आकार(curl_mimepart *part);
 
 /* Quoted-printable character class table.
  *
  * We cannot rely on ctype functions since quoted-printable input data
  * is assumed to be ASCII-compatible, even on non-ASCII platforms. */
-#define QP_OK           1       /* Can be represented by itself. */
-#define QP_SP           2       /* Space or tab. */
-#define QP_CR           3       /* Carriage return. */
-#define QP_LF           4       /* Line-feed. */
-static const unsigned char qp_class[] = {
+#परिभाषय QP_OK           1       /* Can be represented by itself. */
+#परिभाषय QP_SP           2       /* Space or tab. */
+#परिभाषय QP_CR           3       /* Carriage return. */
+#परिभाषय QP_LF           4       /* Line-feed. */
+स्थिर ध्रुव अचिह्नित वर्ण qp_class[] = {
   0,     0,     0,     0,     0,     0,     0,     0,            /* 00 - 07 */
   0,     QP_SP, QP_LF, 0,     0,     QP_CR, 0,     0,            /* 08 - 0F */
   0,     0,     0,     0,     0,     0,     0,     0,            /* 10 - 17 */
@@ -89,16 +89,16 @@ static const unsigned char qp_class[] = {
 };
 
 /* Binary --> hexadecimal ASCII table. */
-static const char aschex[] =
+स्थिर ध्रुव वर्ण aschex[] =
   "\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x41\x42\x43\x44\x45\x46";
 
-#ifndef __VMS
-#define filesize(name, stat_data) stat_data.st_size
-#define fopen_read                curlx_fopen
+#यदि_अपरिभाषितम् __VMS
+#परिभाषय filesize(name, stat_दत्त) stat_दत्त.st_आकार
+#परिभाषय fopen_read                curlx_fopen
 
-#else
+#अन्यथा
 
-#include <fabdef.h>
+#अन्तर्भाव <fabdef.h>
 /*
  * get_vms_file_size does what it takes to get the real size of the file
  *
@@ -109,27 +109,27 @@ static const char aschex[] =
  * and CD/DVD images should be either a STREAM_LF format or a fixed format.
  *
  */
-curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
+curl_off_t Vms_Real_File_आकार(ध्रुव वर्ण *name, ध्रुव curlx_struct_stat *stat_buf)
 {
-  char buffer[8192];
-  curl_off_t count;
-  int ret_stat;
+  वर्ण बफर[8192];
+  curl_off_t गणनम्;
+  पूर्णाङ्क ret_stat;
   FILE *file;
 
   file = curlx_fopen(name, FOPEN_READTEXT); /* VMS */
-  if(!file)
-    return 0;
+  यदि(!file)
+    प्रत्यागम 0;
 
-  count = 0;
+  गणनम् = 0;
   ret_stat = 1;
-  while(ret_stat > 0) {
-    ret_stat = fread(buffer, 1, sizeof(buffer), file);
-    if(ret_stat)
-      count += ret_stat;
+  यावत्(ret_stat > 0) {
+    ret_stat = fread(बफर, 1, परिमाण(बफर), file);
+    यदि(ret_stat)
+      गणनम् += ret_stat;
   }
   curlx_fclose(file);
 
-  return count;
+  प्रत्यागम गणनम्;
 }
 
 /*
@@ -138,20 +138,20 @@ curl_off_t VmsRealFileSize(const char *name, const curlx_struct_stat *stat_buf)
  *  if not to call a routine to get the correct size.
  *
  */
-static curl_off_t VmsSpecialSize(const char *name,
-                                 const curlx_struct_stat *stat_buf)
+स्थिर curl_off_t Vms_Special_आकार(ध्रुव वर्ण *name,
+                                 ध्रुव curlx_struct_stat *stat_buf)
 {
-  switch(stat_buf->st_fab_rfm) {
-  case FAB$C_VAR:
-  case FAB$C_VFC:
-    return VmsRealFileSize(name, stat_buf);
-    break;
-  default:
-    return stat_buf->st_size;
+  विकल्प(stat_buf->st_fab_rfm) {
+  पक्ष FAB$C_VAR:
+  पक्ष FAB$C_VFC:
+    प्रत्यागम Vms_Real_File_आकार(name, stat_buf);
+    भङ्ग;
+  स्वभाव:
+    प्रत्यागम stat_buf->st_आकार;
   }
 }
 
-#define filesize(name, stat_data) VmsSpecialSize(name, &stat_data)
+#परिभाषय filesize(name, stat_दत्त) Vms_Special_आकार(name, &stat_दत्त)
 
 /*
  * vmsfopenread
@@ -161,50 +161,50 @@ static curl_off_t VmsSpecialSize(const char *name,
  * record format of the file.
  *
  */
-static FILE *vmsfopenread(const char *file, const char *mode)
+स्थिर FILE *vmsfopenread(ध्रुव वर्ण *file, ध्रुव वर्ण *बहुलकम्)
 {
   curlx_struct_stat statbuf;
-  int res = curlx_stat(file, &statbuf);
+  पूर्णाङ्क res = curlx_stat(file, &statbuf);
 
-  if(res != -1) {
-    switch(statbuf.st_fab_rfm) {
-    case FAB$C_VAR:
-    case FAB$C_VFC:
-    case FAB$C_STMCR:
-      return curlx_fopen(file, FOPEN_READTEXT); /* VMS */
-      break;
-    default:
-      return curlx_fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
+  यदि(res != -1) {
+    विकल्प(statbuf.st_fab_rfm) {
+    पक्ष FAB$C_VAR:
+    पक्ष FAB$C_VFC:
+    पक्ष FAB$C_STMCR:
+      प्रत्यागम curlx_fopen(file, FOPEN_READTEXT); /* VMS */
+      भङ्ग;
+    स्वभाव:
+      प्रत्यागम curlx_fopen(file, FOPEN_READTEXT, "rfm=stmlf", "ctx=stm");
     }
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-#define fopen_read vmsfopenread
-#endif /* !__VMS */
+#परिभाषय fopen_read vmsfopenread
+#यदि_अन्तः /* !__VMS */
 
 /* Set readback state. */
-static void mimesetstate(struct mime_state *state,
-                         enum mimestate tok, void *ptr)
+स्थिर शून्य mimesetstate(संरचना mime_state *state,
+                         गणना mimestate tok, शून्य *ptr)
 {
   state->state = tok;
   state->ptr = ptr;
-  state->offset = 0;
+  state->विस्थापनम् = 0;
 }
 
 /* Escape header string into allocated memory. */
-static char *escape_string(struct Curl_easy *data,
-                           const char *src, enum mimestrategy strategy)
+स्थिर वर्ण *escape_string(संरचना Curl_easy *दत्त,
+                           ध्रुव वर्ण *src, गणना mimestrategy strategy)
 {
-  CURLcode result;
-  struct dynbuf db;
-  const char * const *table;
-  const char * const *p;
+  CURLcode परिणाम;
+  संरचना dynbuf db;
+  ध्रुव वर्ण * ध्रुव *सारणी;
+  ध्रुव वर्ण * ध्रुव *p;
   /* replace first character by rest of string. */
-  static const char * const mimetable[] = {
+  स्थिर ध्रुव वर्ण * ध्रुव mimetable[] = {
     "\\\\\\",
     "\"\\\"",
-    NULL
+    रिक्त
   };
   /* WHATWG HTML living standard 4.10.21.8 2 specifies:
      For field names and filenames for file fields, the result of the
@@ -212,74 +212,74 @@ static char *escape_string(struct Curl_easy *data,
      any 0x0A (LF) bytes with the byte sequence `%0A`, 0x0D (CR) with `%0D`
      and 0x22 (") with `%22`.
      The user agent must not perform any other escapes. */
-  static const char * const formtable[] = {
+  स्थिर ध्रुव वर्ण * ध्रुव formtable[] = {
     "\"%22",
     "\r%0D",
     "\n%0A",
-    NULL
+    रिक्त
   };
 
-  table = formtable;
+  सारणी = formtable;
   /* data can be NULL when this function is called indirectly from
      curl_formget(). */
-  if(strategy == MIMESTRATEGY_MAIL || (data && data->set.mime_formescape))
-    table = mimetable;
+  यदि(strategy == MIMESTRATEGY_MAIL || (दत्त && दत्त->समुच्चयः.mime_formescape))
+    सारणी = mimetable;
 
-  curlx_dyn_init(&db, CURL_MAX_INPUT_LENGTH);
+  curlx_dyn_init(&db, CURL_MAX_निवेशः_दीर्घता);
 
-  for(result = curlx_dyn_addn(&db, STRCONST("")); !result && *src; src++) {
-    for(p = table; *p && **p != *src; p++)
+  प्रति(परिणाम = curlx_dyn_addn(&db, STRCONST("")); !परिणाम && *src; src++) {
+    प्रति(p = सारणी; *p && **p != *src; p++)
       ;
 
-    if(*p)
-      result = curlx_dyn_add(&db, *p + 1);
-    else
-      result = curlx_dyn_addn(&db, src, 1);
+    यदि(*p)
+      परिणाम = curlx_dyn_सङ्कलय(&db, *p + 1);
+    अन्यथा
+      परिणाम = curlx_dyn_addn(&db, src, 1);
   }
 
-  return curlx_dyn_ptr(&db);
+  प्रत्यागम curlx_dyn_ptr(&db);
 }
 
 /* Check if header matches. */
-static char *match_header(struct curl_slist *hdr, const char *lbl, size_t len)
+स्थिर वर्ण *मेलनम्_शीर्षकम्(संरचना curl_slist *hdr, ध्रुव वर्ण *lbl, size_t len)
 {
-  char *value = NULL;
+  वर्ण *मानम् = रिक्त;
 
-  if(curl_strnequal(hdr->data, lbl, len) && hdr->data[len] == ':')
-    for(value = hdr->data + len + 1; *value == ' '; value++)
+  यदि(curl_strnequal(hdr->दत्त, lbl, len) && hdr->दत्त[len] == ':')
+    प्रति(मानम् = hdr->दत्त + len + 1; *मानम् == ' '; मानम्++)
       ;
-  return value;
+  प्रत्यागम मानम्;
 }
 
 /* Get a header from an slist. */
-static char *search_header(struct curl_slist *hdrlist,
-                           const char *hdr, size_t len)
+स्थिर वर्ण *अन्वेषणम्_शीर्षकम्(संरचना curl_slist *hdrlist,
+                           ध्रुव वर्ण *hdr, size_t len)
 {
-  char *value = NULL;
+  वर्ण *मानम् = रिक्त;
 
-  for(; !value && hdrlist; hdrlist = hdrlist->next)
-    value = match_header(hdrlist, hdr, len);
+  प्रति(; !मानम् && hdrlist; hdrlist = hdrlist->अग्र)
+    मानम् = मेलनम्_शीर्षकम्(hdrlist, hdr, len);
 
-  return value;
+  प्रत्यागम मानम्;
 }
 
-static char *strippath(const char *fullfile)
+स्थिर वर्ण *strippath(ध्रुव वर्ण *fullfile)
 {
-  char *filename;
-  char *base;
+  वर्ण *filename;
+  वर्ण *आधारः;
   filename = curlx_strdup(fullfile); /* duplicate since basename() may ruin
                                         the buffer it works on */
-  if(!filename)
-    return NULL;
-  base = curlx_strdup(curlx_basename(filename));
+  यदि(!filename)
+    प्रत्यागम रिक्त;
+  आधारः = curlx_strdup(curlx_basename(filename));
 
   curlx_free(filename); /* free temporary buffer */
 
-  return base; /* returns an allocated string or NULL ! */
+  प्रत्यागम आधारः; /* returns an allocated string or NULL ! */
 }
 
 /* Initialize data encoder state. */
-static void cleanup_encoder_state(struct mime_encoder_state *p)
+स्थिर शून्य cleanup_encoder_state(संरचना mime_encoder_state *p)
 {
   p->pos = 0;
   p->bufbeg = 0;
@@ -287,90 +287,90 @@ static void cleanup_encoder_state(struct mime_encoder_state *p)
 }
 
 /* Dummy encoder. This is used for 8-bit and binary content encodings. */
-static size_t encoder_nop_read(char *buffer, size_t size, bool ateof,
-                               struct curl_mimepart *part)
+स्थिर size_t encoder_nop_read(वर्ण *बफर, size_t आकार, bool ateof,
+                               संरचना curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  संरचना mime_encoder_state *st = &part->encstate;
   size_t insize = st->bufend - st->bufbeg;
 
-  (void)ateof;
+  (शून्य)ateof;
 
-  if(!size)
-    return STOP_FILLING;
+  यदि(!आकार)
+    प्रत्यागम STOP_FILLING;
 
-  if(size > insize)
-    size = insize;
+  यदि(आकार > insize)
+    आकार = insize;
 
-  if(size)
-    memcpy(buffer, st->buf + st->bufbeg, size);
+  यदि(आकार)
+    स्मृतिं_प्रतिलिख(बफर, st->buf + st->bufbeg, आकार);
 
-  st->bufbeg += size;
-  return size;
+  st->bufbeg += आकार;
+  प्रत्यागम आकार;
 }
 
-static curl_off_t encoder_nop_size(curl_mimepart *part)
+स्थिर curl_off_t encoder_nop_आकार(curl_mimepart *part)
 {
-  return part->datasize;
+  प्रत्यागम part->datasize;
 }
 
 /* 7-bit encoder: the encoder is a data validity check. */
-static size_t encoder_7bit_read(char *buffer, size_t size, bool ateof,
+स्थिर size_t encoder_7bit_read(वर्ण *बफर, size_t आकार, bool ateof,
                                 curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  संरचना mime_encoder_state *st = &part->encstate;
   size_t cursize = st->bufend - st->bufbeg;
 
-  (void)ateof;
+  (शून्य)ateof;
 
-  if(!size)
-    return STOP_FILLING;
+  यदि(!आकार)
+    प्रत्यागम STOP_FILLING;
 
-  if(size > cursize)
-    size = cursize;
+  यदि(आकार > cursize)
+    आकार = cursize;
 
-  for(cursize = 0; cursize < size; cursize++) {
-    *buffer = st->buf[st->bufbeg];
-    if(*buffer++ & 0x80)
-      return cursize ? cursize : READ_ERROR;
+  प्रति(cursize = 0; cursize < आकार; cursize++) {
+    *बफर = st->buf[st->bufbeg];
+    यदि(*बफर++ & 0x80)
+      प्रत्यागम cursize ? cursize : READ_ERROR;
     st->bufbeg++;
   }
 
-  return cursize;
+  प्रत्यागम cursize;
 }
 
 /* Base64 content encoder. */
-static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
+स्थिर size_t encoder_base64_read(वर्ण *बफर, size_t आकार, bool ateof,
                                   curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  संरचना mime_encoder_state *st = &part->encstate;
   size_t cursize = 0;
-  int i;
-  char *ptr = buffer;
+  पूर्णाङ्क i;
+  वर्ण *ptr = बफर;
 
-  while(st->bufbeg < st->bufend) {
+  यावत्(st->bufbeg < st->bufend) {
     /* Line full ? */
-    if(st->pos > MAX_ENCODED_LINE_LENGTH - 4) {
+    यदि(st->pos > MAX_ENCODED_पङ्क्तिः_दीर्घता - 4) {
       /* Yes, we need 2 characters for CRLF. */
-      if(size < 2) {
-        if(!cursize)
-          return STOP_FILLING;
-        break;
+      यदि(आकार < 2) {
+        यदि(!cursize)
+          प्रत्यागम STOP_FILLING;
+        भङ्ग;
       }
       *ptr++ = '\r';
       *ptr++ = '\n';
       st->pos = 0;
       cursize += 2;
-      size -= 2;
+      आकार -= 2;
     }
 
     /* Be sure there is enough space and input data for a base64 group. */
-    if(size < 4) {
-      if(!cursize)
-        return STOP_FILLING;
-      break;
+    यदि(आकार < 4) {
+      यदि(!cursize)
+        प्रत्यागम STOP_FILLING;
+      भङ्ग;
     }
-    if(st->bufend - st->bufbeg < 3)
-      break;
+    यदि(st->bufend - st->bufbeg < 3)
+      भङ्ग;
 
     /* Encode three bytes as four characters. */
     i = st->buf[st->bufbeg++] & 0xFF;
@@ -382,30 +382,30 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
     *ptr++ = curlx_base64encdec[i & 0x3F];
     cursize += 4;
     st->pos += 4;
-    size -= 4;
+    आकार -= 4;
   }
 
   /* If at eof, we have to flush the buffered data. */
-  if(ateof) {
-    if(size < 4) {
-      if(!cursize)
-        return STOP_FILLING;
+  यदि(ateof) {
+    यदि(आकार < 4) {
+      यदि(!cursize)
+        प्रत्यागम STOP_FILLING;
     }
-    else {
+    अन्यथा {
       /* Buffered data size can only be 0, 1 or 2. */
       ptr[2] = ptr[3] = '=';
       i = 0;
 
       /* If there is buffered data */
-      if(st->bufend != st->bufbeg) {
+      यदि(st->bufend != st->bufbeg) {
 
-        if(st->bufend - st->bufbeg == 2)
+        यदि(st->bufend - st->bufbeg == 2)
           i = (st->buf[st->bufbeg + 1] & 0xFF) << 8;
 
         i |= (st->buf[st->bufbeg] & 0xFF) << 16;
         ptr[0] = curlx_base64encdec[(i >> 18) & 0x3F];
         ptr[1] = curlx_base64encdec[(i >> 12) & 0x3F];
-        if(++st->bufbeg != st->bufend) {
+        यदि(++st->bufbeg != st->bufend) {
           ptr[2] = curlx_base64encdec[(i >> 6) & 0x3F];
           st->bufbeg++;
         }
@@ -415,30 +415,30 @@ static size_t encoder_base64_read(char *buffer, size_t size, bool ateof,
     }
   }
 
-  return cursize;
+  प्रत्यागम cursize;
 }
 
 /* The maximum input size that does not cause an overflow. */
-#define BASE64_MAX_INPUT_SIZE                                           \
-  (((CURL_OFF_T_MAX / (MAX_ENCODED_LINE_LENGTH + 2)) *                  \
-    MAX_ENCODED_LINE_LENGTH / 4) * 3 - 3)
+#परिभाषय BASE64_MAX_निवेशः_आकार                                           \
+  (((CURL_OFF_T_MAX / (MAX_ENCODED_पङ्क्तिः_दीर्घता + 2)) *                  \
+    MAX_ENCODED_पङ्क्तिः_दीर्घता / 4) * 3 - 3)
 
-static curl_off_t encoder_base64_size(curl_mimepart *part)
+स्थिर curl_off_t encoder_base64_आकार(curl_mimepart *part)
 {
-  curl_off_t size = part->datasize;
+  curl_off_t आकार = part->datasize;
 
-  if(size <= 0)
-    return size;    /* Unknown size or no data. */
+  यदि(आकार <= 0)
+    प्रत्यागम आकार;    /* Unknown size or no data. */
 
   /* Prevent integer overflows */
-  if(size > BASE64_MAX_INPUT_SIZE)
-    return -1;
+  यदि(आकार > BASE64_MAX_निवेशः_आकार)
+    प्रत्यागम -1;
 
   /* Compute base64 character count. */
-  size = 4 * (1 + ((size - 1) / 3));
+  आकार = 4 * (1 + ((आकार - 1) / 3));
 
   /* Effective character count must include CRLFs. */
-  return size + (2 * ((size - 1) / MAX_ENCODED_LINE_LENGTH));
+  प्रत्यागम आकार + (2 * ((आकार - 1) / MAX_ENCODED_पङ्क्तिः_दीर्घता));
 }
 
 /* Quoted-printable lookahead.
@@ -446,377 +446,377 @@ static curl_off_t encoder_base64_size(curl_mimepart *part)
  * Check if a CRLF or end of data is in input buffer at current position + n.
  * Return -1 if more data needed, 1 if CRLF or end of data, else 0.
  */
-static int qp_lookahead_eol(struct mime_encoder_state *st, int ateof, size_t n)
+स्थिर पूर्णाङ्क qp_lookahead_eol(संरचना mime_encoder_state *st, पूर्णाङ्क ateof, size_t n)
 {
   n += st->bufbeg;
-  if(n >= st->bufend && ateof)
-    return 1;
-  if(n + 2 > st->bufend)
-    return ateof ? 0 : -1;
-  if(qp_class[st->buf[n] & 0xFF] == QP_CR &&
+  यदि(n >= st->bufend && ateof)
+    प्रत्यागम 1;
+  यदि(n + 2 > st->bufend)
+    प्रत्यागम ateof ? 0 : -1;
+  यदि(qp_class[st->buf[n] & 0xFF] == QP_CR &&
      qp_class[st->buf[n + 1] & 0xFF] == QP_LF)
-    return 1;
-  return 0;
+    प्रत्यागम 1;
+  प्रत्यागम 0;
 }
 
 /* Quoted-printable encoder. */
-static size_t encoder_qp_read(char *buffer, size_t size, bool ateof,
+स्थिर size_t encoder_qp_read(वर्ण *बफर, size_t आकार, bool ateof,
                               curl_mimepart *part)
 {
-  struct mime_encoder_state *st = &part->encstate;
-  char *ptr = buffer;
+  संरचना mime_encoder_state *st = &part->encstate;
+  वर्ण *ptr = बफर;
   size_t cursize = 0;
-  int softlinebreak;
-  char buf[4];
+  पूर्णाङ्क softlinebreak;
+  वर्ण buf[4];
 
   /* On all platforms, input is supposed to be ASCII compatible: for this
      reason, we use hexadecimal ASCII codes in this function rather than
      character constants that can be interpreted as non-ASCII on some
      platforms. Preserve ASCII encoding on output too. */
-  while(st->bufbeg < st->bufend) {
+  यावत्(st->bufbeg < st->bufend) {
     size_t len = 1;
     size_t consumed = 1;
-    int i = (unsigned char)st->buf[st->bufbeg];
-    buf[0] = (char)i;
+    पूर्णाङ्क i = (अचिह्नित वर्ण)st->buf[st->bufbeg];
+    buf[0] = (वर्ण)i;
     buf[1] = aschex[(i >> 4) & 0xF];
     buf[2] = aschex[i & 0xF];
 
-    switch(qp_class[st->buf[st->bufbeg] & 0xFF]) {
-    case QP_OK:          /* Not a special character. */
-      break;
-    case QP_SP:          /* Space or tab. */
+    विकल्प(qp_class[st->buf[st->bufbeg] & 0xFF]) {
+    पक्ष QP_OK:          /* Not a special character. */
+      भङ्ग;
+    पक्ष QP_SP:          /* Space or tab. */
       /* Spacing must be escaped if followed by CRLF. */
-      switch(qp_lookahead_eol(st, ateof, 1)) {
-      case -1:          /* More input data needed. */
-        return cursize;
-      case 0:           /* No encoding needed. */
-        break;
-      default:          /* CRLF after space or tab. */
+      विकल्प(qp_lookahead_eol(st, ateof, 1)) {
+      पक्ष -1:          /* More input data needed. */
+        प्रत्यागम cursize;
+      पक्ष 0:           /* No encoding needed. */
+        भङ्ग;
+      स्वभाव:          /* CRLF after space or tab. */
         buf[0] = '\x3D';    /* '=' */
         len = 3;
-        break;
+        भङ्ग;
       }
-      break;
-    case QP_CR:         /* Carriage return. */
+      भङ्ग;
+    पक्ष QP_CR:         /* Carriage return. */
       /* If followed by a line-feed, output the CRLF pair.
          Else escape it. */
-      switch(qp_lookahead_eol(st, ateof, 0)) {
-      case -1:          /* Need more data. */
-        return cursize;
-      case 1:           /* CRLF found. */
+      विकल्प(qp_lookahead_eol(st, ateof, 0)) {
+      पक्ष -1:          /* Need more data. */
+        प्रत्यागम cursize;
+      पक्ष 1:           /* CRLF found. */
         buf[len++] = '\x0A';    /* Append '\n'. */
         consumed = 2;
-        break;
-      default:          /* Not followed by LF: escape. */
+        भङ्ग;
+      स्वभाव:          /* Not followed by LF: escape. */
         buf[0] = '\x3D';    /* '=' */
         len = 3;
-        break;
+        भङ्ग;
       }
-      break;
-    default:            /* Character must be escaped. */
+      भङ्ग;
+    स्वभाव:            /* Character must be escaped. */
       buf[0] = '\x3D';    /* '=' */
       len = 3;
-      break;
+      भङ्ग;
     }
 
     /* Be sure the encoded character fits within maximum line length. */
-    if(buf[len - 1] != '\x0A') {    /* '\n' */
-      softlinebreak = st->pos + len > MAX_ENCODED_LINE_LENGTH;
-      if(!softlinebreak && st->pos + len == MAX_ENCODED_LINE_LENGTH) {
+    यदि(buf[len - 1] != '\x0A') {    /* '\n' */
+      softlinebreak = st->pos + len > MAX_ENCODED_पङ्क्तिः_दीर्घता;
+      यदि(!softlinebreak && st->pos + len == MAX_ENCODED_पङ्क्तिः_दीर्घता) {
         /* We may use the current line only if end of data or followed by
            a CRLF. */
-        switch(qp_lookahead_eol(st, ateof, consumed)) {
-        case -1:        /* Need more data. */
-          return cursize;
-        case 0:         /* Not followed by a CRLF. */
+        विकल्प(qp_lookahead_eol(st, ateof, consumed)) {
+        पक्ष -1:        /* Need more data. */
+          प्रत्यागम cursize;
+        पक्ष 0:         /* Not followed by a CRLF. */
           softlinebreak = 1;
-          break;
+          भङ्ग;
         }
       }
-      if(softlinebreak) {
-        curlx_strcopy(buf, sizeof(buf), STRCONST("\x3D\x0D\x0A")); /* =\r\n */
+      यदि(softlinebreak) {
+        curlx_strcopy(buf, परिमाण(buf), STRCONST("\x3D\x0D\x0A")); /* =\r\n */
         len = 3;
         consumed = 0;
       }
     }
 
     /* If the output buffer would overflow, do not store. */
-    if(len > size) {
-      if(!cursize)
-        return STOP_FILLING;
-      break;
+    यदि(len > आकार) {
+      यदि(!cursize)
+        प्रत्यागम STOP_FILLING;
+      भङ्ग;
     }
 
     /* Append to output buffer. */
-    memcpy(ptr, buf, len);
+    स्मृतिं_प्रतिलिख(ptr, buf, len);
     cursize += len;
     ptr += len;
-    size -= len;
+    आकार -= len;
     st->pos += len;
-    if(buf[len - 1] == '\x0A')    /* '\n' */
+    यदि(buf[len - 1] == '\x0A')    /* '\n' */
       st->pos = 0;
     st->bufbeg += consumed;
   }
 
-  return cursize;
+  प्रत्यागम cursize;
 }
 
-static curl_off_t encoder_qp_size(curl_mimepart *part)
+स्थिर curl_off_t encoder_qp_आकार(curl_mimepart *part)
 {
   /* Determining the size can only be done by reading the data: unless the
      data size is 0, we return it as unknown (-1). */
-  return part->datasize ? -1 : 0;
+  प्रत्यागम part->datasize ? -1 : 0;
 }
 
 /* In-memory data callbacks. */
 /* Argument is a pointer to the mime part. */
-static size_t mime_mem_read(char *buffer, size_t size, size_t nitems,
-                            void *instream)
+स्थिर size_t mime_mem_read(वर्ण *बफर, size_t आकार, size_t nitems,
+                            शून्य *instream)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
-  size_t sz = curlx_sotouz(part->datasize - part->state.offset);
-  (void)size;  /* Always 1 */
+  size_t sz = curlx_sotouz(part->datasize - part->state.विस्थापनम्);
+  (शून्य)आकार;  /* Always 1 */
 
-  if(!nitems)
-    return STOP_FILLING;
+  यदि(!nitems)
+    प्रत्यागम STOP_FILLING;
 
-  if(sz > nitems)
+  यदि(sz > nitems)
     sz = nitems;
 
-  if(sz)
-    memcpy(buffer, part->data + curlx_sotouz(part->state.offset), sz);
+  यदि(sz)
+    स्मृतिं_प्रतिलिख(बफर, part->दत्त + curlx_sotouz(part->state.विस्थापनम्), sz);
 
-  return sz;
+  प्रत्यागम sz;
 }
 
-static int mime_mem_seek(void *instream, curl_off_t offset, int whence)
+स्थिर पूर्णाङ्क mime_mem_seek(शून्य *instream, curl_off_t विस्थापनम्, पूर्णाङ्क whence)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  switch(whence) {
-  case SEEK_CUR:
-    offset += part->state.offset;
-    break;
-  case SEEK_END:
-    offset += part->datasize;
-    break;
+  विकल्प(whence) {
+  पक्ष SEEK_CUR:
+    विस्थापनम् += part->state.विस्थापनम्;
+    भङ्ग;
+  पक्ष SEEK_END:
+    विस्थापनम् += part->datasize;
+    भङ्ग;
   }
 
-  if(offset < 0 || offset > part->datasize)
-    return CURL_SEEKFUNC_FAIL;
+  यदि(विस्थापनम् < 0 || विस्थापनम् > part->datasize)
+    प्रत्यागम CURL_SEEKFUNC_FAIL;
 
-  part->state.offset = offset;
-  return CURL_SEEKFUNC_OK;
+  part->state.विस्थापनम् = विस्थापनम्;
+  प्रत्यागम CURL_SEEKFUNC_OK;
 }
 
-static void mime_mem_free(void *ptr)
+स्थिर शून्य mime_mem_free(शून्य *ptr)
 {
-  curlx_safefree(((curl_mimepart *)ptr)->data);
+  curlx_safefree(((curl_mimepart *)ptr)->दत्त);
 }
 
 /* Named file callbacks. */
 /* Argument is a pointer to the mime part. */
-static bool mime_open_file(curl_mimepart *part)
+स्थिर bool mime_open_file(curl_mimepart *part)
 {
   /* Open a MIMEKIND_FILE part. */
 
-  if(part->fp)
-    return FALSE;
-  part->fp = fopen_read(part->data, "rb");
-  return part->fp ? FALSE : TRUE;
+  यदि(part->fp)
+    प्रत्यागम FALSE;
+  part->fp = fopen_read(part->दत्त, "rb");
+  प्रत्यागम part->fp ? FALSE : TRUE;
 }
 
-static size_t mime_file_read(char *buffer, size_t size, size_t nitems,
-                             void *instream)
+स्थिर size_t mime_file_read(वर्ण *बफर, size_t आकार, size_t nitems,
+                             शून्य *instream)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  if(!nitems)
-    return STOP_FILLING;
+  यदि(!nitems)
+    प्रत्यागम STOP_FILLING;
 
-  if(mime_open_file(part))
-    return READ_ERROR;
+  यदि(mime_open_file(part))
+    प्रत्यागम READ_ERROR;
 
-  return fread(buffer, size, nitems, part->fp);
+  प्रत्यागम fread(बफर, आकार, nitems, part->fp);
 }
 
-static int mime_file_seek(void *instream, curl_off_t offset, int whence)
+स्थिर पूर्णाङ्क mime_file_seek(शून्य *instream, curl_off_t विस्थापनम्, पूर्णाङ्क whence)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
 
-  if(whence == SEEK_SET && !offset && !part->fp)
-    return CURL_SEEKFUNC_OK;   /* Not open: implicitly already at BOF. */
+  यदि(whence == SEEK_SET && !विस्थापनम् && !part->fp)
+    प्रत्यागम CURL_SEEKFUNC_OK;   /* Not open: implicitly already at BOF. */
 
-  if(mime_open_file(part))
-    return CURL_SEEKFUNC_FAIL;
+  यदि(mime_open_file(part))
+    प्रत्यागम CURL_SEEKFUNC_FAIL;
 
-  return curlx_fseek(part->fp, offset, whence) ?
+  प्रत्यागम curlx_fseek(part->fp, विस्थापनम्, whence) ?
     CURL_SEEKFUNC_CANTSEEK : CURL_SEEKFUNC_OK;
 }
 
-static void mime_file_free(void *ptr)
+स्थिर शून्य mime_file_free(शून्य *ptr)
 {
   curl_mimepart *part = (curl_mimepart *)ptr;
 
-  if(part->fp) {
+  यदि(part->fp) {
     curlx_fclose(part->fp);
-    part->fp = NULL;
+    part->fp = रिक्त;
   }
-  curlx_safefree(part->data);
+  curlx_safefree(part->दत्त);
 }
 
 /* Subparts callbacks. */
 /* Argument is a pointer to the mime structure. */
 
 /* Readback a byte string segment. */
-static size_t readback_bytes(struct mime_state *state,
-                             char *buffer, size_t bufsize,
-                             const char *bytes, size_t numbytes,
-                             const char *trail, size_t traillen)
+स्थिर size_t readback_अष्टकानि(संरचना mime_state *state,
+                             वर्ण *बफर, size_t bufsize,
+                             ध्रुव वर्ण *अष्टकानि, size_t numbytes,
+                             ध्रुव वर्ण *trail, size_t traillen)
 {
   size_t sz;
-  size_t offset = curlx_sotouz(state->offset);
+  size_t विस्थापनम् = curlx_sotouz(state->विस्थापनम्);
 
-  if(numbytes > offset) {
-    sz = numbytes - offset;
-    bytes += offset;
+  यदि(numbytes > विस्थापनम्) {
+    sz = numbytes - विस्थापनम्;
+    अष्टकानि += विस्थापनम्;
   }
-  else {
-    sz = offset - numbytes;
-    if(sz >= traillen)
-      return 0;
-    bytes = trail + sz;
+  अन्यथा {
+    sz = विस्थापनम् - numbytes;
+    यदि(sz >= traillen)
+      प्रत्यागम 0;
+    अष्टकानि = trail + sz;
     sz = traillen - sz;
   }
 
-  if(sz > bufsize)
+  यदि(sz > bufsize)
     sz = bufsize;
 
-  memcpy(buffer, bytes, sz);
-  state->offset += sz;
-  return sz;
+  स्मृतिं_प्रतिलिख(बफर, अष्टकानि, sz);
+  state->विस्थापनम् += sz;
+  प्रत्यागम sz;
 }
 
 /* Read a non-encoded part content. */
 
-static size_t read_part_content(curl_mimepart *part, char *buffer,
+स्थिर size_t read_part_content(curl_mimepart *part, वर्ण *बफर,
                                 size_t bufsize, bool *hasread)
 {
   size_t sz = 0;
 
-  switch(part->lastreadstatus) {
-  case 0:
-  case CURL_READFUNC_ABORT:
-  case CURL_READFUNC_PAUSE:
-  case READ_ERROR:
-    return part->lastreadstatus;
-  default:
-    break;
+  विकल्प(part->lastreadstatus) {
+  पक्ष 0:
+  पक्ष CURL_READFUNC_ABORT:
+  पक्ष CURL_READFUNC_PAUSE:
+  पक्ष READ_ERROR:
+    प्रत्यागम part->lastreadstatus;
+  स्वभाव:
+    भङ्ग;
   }
 
   /* If we can determine we are at end of part data, spare a read. */
-  if(part->datasize != (curl_off_t)-1 &&
-     part->state.offset >= part->datasize) {
+  यदि(part->datasize != (curl_off_t)-1 &&
+     part->state.विस्थापनम् >= part->datasize) {
     /* sz is already zero. */
   }
-  else {
-    switch(part->kind) {
-    case MIMEKIND_MULTIPART:
+  अन्यथा {
+    विकल्प(part->विधा) {
+    पक्ष MIMEKIND_MULTIPART:
       /*
        * Cannot be processed as other kinds since read function requires
        * an additional parameter and is highly recursive.
        */
-      sz = mime_subparts_read(buffer, 1, bufsize, part->arg, hasread);
-      break;
-    case MIMEKIND_FILE:
-      if(part->fp && feof(part->fp))
-        break;  /* At EOF. */
+      sz = mime_subparts_read(बफर, 1, bufsize, part->arg, hasread);
+      भङ्ग;
+    पक्ष MIMEKIND_FILE:
+      यदि(part->fp && feof(part->fp))
+        भङ्ग;  /* At EOF. */
       FALLTHROUGH();
-    default:
-      if(part->readfunc) {
-        if(!(part->flags & MIME_FAST_READ)) {
-          if(*hasread)
-            return STOP_FILLING;
+    स्वभाव:
+      यदि(part->readfunc) {
+        यदि(!(part->flags & MIME_FAST_READ)) {
+          यदि(*hasread)
+            प्रत्यागम STOP_FILLING;
           *hasread = TRUE;
         }
-        sz = part->readfunc(buffer, 1, bufsize, part->arg);
+        sz = part->readfunc(बफर, 1, bufsize, part->arg);
       }
-      break;
+      भङ्ग;
     }
   }
 
-  switch(sz) {
-  case STOP_FILLING:
-    break;
-  case 0:
-  case CURL_READFUNC_ABORT:
-  case CURL_READFUNC_PAUSE:
-  case READ_ERROR:
+  विकल्प(sz) {
+  पक्ष STOP_FILLING:
+    भङ्ग;
+  पक्ष 0:
+  पक्ष CURL_READFUNC_ABORT:
+  पक्ष CURL_READFUNC_PAUSE:
+  पक्ष READ_ERROR:
     part->lastreadstatus = sz;
-    break;
-  default:
-    part->state.offset += sz;
+    भङ्ग;
+  स्वभाव:
+    part->state.विस्थापनम् += sz;
     part->lastreadstatus = sz;
-    break;
+    भङ्ग;
   }
 
-  return sz;
+  प्रत्यागम sz;
 }
 
 /* Read and encode part content. */
-static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
+स्थिर size_t read_encoded_part_content(curl_mimepart *part, वर्ण *बफर,
                                         size_t bufsize, bool *hasread)
 {
-  struct mime_encoder_state *st = &part->encstate;
+  संरचना mime_encoder_state *st = &part->encstate;
   size_t cursize = 0;
   size_t sz;
   bool ateof = FALSE;
 
-  for(;;) {
-    if(st->bufbeg < st->bufend || ateof) {
+  प्रति(;;) {
+    यदि(st->bufbeg < st->bufend || ateof) {
       /* Encode buffered data. */
-      sz = part->encoder->encodefunc(buffer, bufsize, ateof, part);
-      switch(sz) {
-      case 0:
-        if(ateof)
-          return cursize;
-        break;
-      case READ_ERROR:
-      case STOP_FILLING:
-        return cursize ? cursize : sz;
-      default:
+      sz = part->encoder->encodefunc(बफर, bufsize, ateof, part);
+      विकल्प(sz) {
+      पक्ष 0:
+        यदि(ateof)
+          प्रत्यागम cursize;
+        भङ्ग;
+      पक्ष READ_ERROR:
+      पक्ष STOP_FILLING:
+        प्रत्यागम cursize ? cursize : sz;
+      स्वभाव:
         cursize += sz;
-        buffer += sz;
+        बफर += sz;
         bufsize -= sz;
-        continue;
+        अनुवर्त;
       }
     }
 
     /* We need more data in input buffer. */
-    if(st->bufbeg) {
+    यदि(st->bufbeg) {
       size_t len = st->bufend - st->bufbeg;
 
-      if(len)
+      यदि(len)
         memmove(st->buf, st->buf + st->bufbeg, len);
       st->bufbeg = 0;
       st->bufend = len;
     }
-    if(st->bufend >= sizeof(st->buf))
-      return cursize ? cursize : READ_ERROR;    /* Buffer full. */
+    यदि(st->bufend >= परिमाण(st->buf))
+      प्रत्यागम cursize ? cursize : READ_ERROR;    /* Buffer full. */
     sz = read_part_content(part, st->buf + st->bufend,
-                           sizeof(st->buf) - st->bufend, hasread);
-    switch(sz) {
-    case 0:
+                           परिमाण(st->buf) - st->bufend, hasread);
+    विकल्प(sz) {
+    पक्ष 0:
       ateof = TRUE;
-      break;
-    case CURL_READFUNC_ABORT:
-    case CURL_READFUNC_PAUSE:
-    case READ_ERROR:
-    case STOP_FILLING:
-      return cursize ? cursize : sz;
-    default:
+      भङ्ग;
+    पक्ष CURL_READFUNC_ABORT:
+    पक्ष CURL_READFUNC_PAUSE:
+    पक्ष READ_ERROR:
+    पक्ष STOP_FILLING:
+      प्रत्यागम cursize ? cursize : sz;
+    स्वभाव:
       st->bufend += sz;
-      break;
+      भङ्ग;
     }
   }
 
@@ -824,264 +824,264 @@ static size_t read_encoded_part_content(curl_mimepart *part, char *buffer,
 }
 
 /* Readback a mime part. */
-static size_t readback_part(curl_mimepart *part,
-                            char *buffer, size_t bufsize, bool *hasread)
+स्थिर size_t readback_part(curl_mimepart *part,
+                            वर्ण *बफर, size_t bufsize, bool *hasread)
 {
   size_t cursize = 0;
 
   /* Readback from part. */
-  while(bufsize) {
+  यावत्(bufsize) {
     size_t sz = 0;
-    struct curl_slist *hdr = (struct curl_slist *)part->state.ptr;
-    switch(part->state.state) {
-    case MIMESTATE_BEGIN:
+    संरचना curl_slist *hdr = (संरचना curl_slist *)part->state.ptr;
+    विकल्प(part->state.state) {
+    पक्ष MIMESTATE_BEGIN:
       mimesetstate(&part->state,
                    (part->flags & MIME_BODY_ONLY) ?
                    MIMESTATE_BODY : MIMESTATE_CURLHEADERS,
                    part->curlheaders);
-      break;
-    case MIMESTATE_USERHEADERS:
-      if(!hdr) {
-        mimesetstate(&part->state, MIMESTATE_EOH, NULL);
-        break;
+      भङ्ग;
+    पक्ष MIMESTATE_USERHEADERS:
+      यदि(!hdr) {
+        mimesetstate(&part->state, MIMESTATE_EOH, रिक्त);
+        भङ्ग;
       }
-      if(match_header(hdr, "Content-Type", 12)) {
-        mimesetstate(&part->state, MIMESTATE_USERHEADERS, hdr->next);
-        break;
+      यदि(मेलनम्_शीर्षकम्(hdr, "Content-Type", 12)) {
+        mimesetstate(&part->state, MIMESTATE_USERHEADERS, hdr->अग्र);
+        भङ्ग;
       }
       FALLTHROUGH();
-    case MIMESTATE_CURLHEADERS:
-      if(!hdr)
+    पक्ष MIMESTATE_CURLHEADERS:
+      यदि(!hdr)
         mimesetstate(&part->state, MIMESTATE_USERHEADERS, part->userheaders);
-      else {
-        sz = readback_bytes(&part->state, buffer, bufsize,
-                            hdr->data, strlen(hdr->data), STRCONST("\r\n"));
-        if(!sz)
-          mimesetstate(&part->state, part->state.state, hdr->next);
+      अन्यथा {
+        sz = readback_अष्टकानि(&part->state, बफर, bufsize,
+                            hdr->दत्त, वाक्यदैर्घ्यम्(hdr->दत्त), STRCONST("\r\n"));
+        यदि(!sz)
+          mimesetstate(&part->state, part->state.state, hdr->अग्र);
       }
-      break;
-    case MIMESTATE_EOH:
-      sz = readback_bytes(&part->state, buffer, bufsize, STRCONST("\r\n"),
+      भङ्ग;
+    पक्ष MIMESTATE_EOH:
+      sz = readback_अष्टकानि(&part->state, बफर, bufsize, STRCONST("\r\n"),
                           STRCONST(""));
-      if(!sz)
-        mimesetstate(&part->state, MIMESTATE_BODY, NULL);
-      break;
-    case MIMESTATE_BODY:
+      यदि(!sz)
+        mimesetstate(&part->state, MIMESTATE_BODY, रिक्त);
+      भङ्ग;
+    पक्ष MIMESTATE_BODY:
       cleanup_encoder_state(&part->encstate);
-      mimesetstate(&part->state, MIMESTATE_CONTENT, NULL);
-      break;
-    case MIMESTATE_CONTENT:
-      if(part->encoder)
-        sz = read_encoded_part_content(part, buffer, bufsize, hasread);
-      else
-        sz = read_part_content(part, buffer, bufsize, hasread);
-      switch(sz) {
-      case 0:
-        mimesetstate(&part->state, MIMESTATE_END, NULL);
+      mimesetstate(&part->state, MIMESTATE_CONTENT, रिक्त);
+      भङ्ग;
+    पक्ष MIMESTATE_CONTENT:
+      यदि(part->encoder)
+        sz = read_encoded_part_content(part, बफर, bufsize, hasread);
+      अन्यथा
+        sz = read_part_content(part, बफर, bufsize, hasread);
+      विकल्प(sz) {
+      पक्ष 0:
+        mimesetstate(&part->state, MIMESTATE_अन्तः, रिक्त);
         /* Try sparing open file descriptors. */
-        if(part->kind == MIMEKIND_FILE && part->fp) {
+        यदि(part->विधा == MIMEKIND_FILE && part->fp) {
           curlx_fclose(part->fp);
-          part->fp = NULL;
+          part->fp = रिक्त;
         }
         FALLTHROUGH();
-      case CURL_READFUNC_ABORT:
-      case CURL_READFUNC_PAUSE:
-      case READ_ERROR:
-      case STOP_FILLING:
-        return cursize ? cursize : sz;
+      पक्ष CURL_READFUNC_ABORT:
+      पक्ष CURL_READFUNC_PAUSE:
+      पक्ष READ_ERROR:
+      पक्ष STOP_FILLING:
+        प्रत्यागम cursize ? cursize : sz;
       }
-      break;
-    case MIMESTATE_END:
-      return cursize;
-    default:
-      break;    /* Other values not in part state. */
+      भङ्ग;
+    पक्ष MIMESTATE_अन्तः:
+      प्रत्यागम cursize;
+    स्वभाव:
+      भङ्ग;    /* Other values not in part state. */
     }
 
     /* Bump buffer and counters according to read size. */
     cursize += sz;
-    buffer += sz;
+    बफर += sz;
     bufsize -= sz;
   }
 
-  return cursize;
+  प्रत्यागम cursize;
 }
 
 /* Readback from mime. Warning: not a read callback function. */
-static size_t mime_subparts_read(char *buffer, size_t size, size_t nitems,
-                                 void *instream, bool *hasread)
+स्थिर size_t mime_subparts_read(वर्ण *बफर, size_t आकार, size_t nitems,
+                                 शून्य *instream, bool *hasread)
 {
   curl_mime *mime = (curl_mime *)instream;
   size_t cursize = 0;
-  (void)size;  /* Always 1 */
+  (शून्य)आकार;  /* Always 1 */
 
-  while(nitems) {
+  यावत्(nitems) {
     size_t sz = 0;
     curl_mimepart *part = mime->state.ptr;
-    switch(mime->state.state) {
-    case MIMESTATE_BEGIN:
-    case MIMESTATE_BODY:
+    विकल्प(mime->state.state) {
+    पक्ष MIMESTATE_BEGIN:
+    पक्ष MIMESTATE_BODY:
       mimesetstate(&mime->state, MIMESTATE_BOUNDARY1, mime->firstpart);
       /* The first boundary always follows the header termination empty line,
          so is always preceded by a CRLF. We can then spare 2 characters
          by skipping the leading CRLF in boundary. */
-      mime->state.offset += 2;
-      break;
-    case MIMESTATE_BOUNDARY1:
-      sz = readback_bytes(&mime->state, buffer, nitems, STRCONST("\r\n--"),
+      mime->state.विस्थापनम् += 2;
+      भङ्ग;
+    पक्ष MIMESTATE_BOUNDARY1:
+      sz = readback_अष्टकानि(&mime->state, बफर, nitems, STRCONST("\r\n--"),
                           STRCONST(""));
-      if(!sz)
+      यदि(!sz)
         mimesetstate(&mime->state, MIMESTATE_BOUNDARY2, part);
-      break;
-    case MIMESTATE_BOUNDARY2:
-      if(part)
-        sz = readback_bytes(&mime->state, buffer, nitems, mime->boundary,
+      भङ्ग;
+    पक्ष MIMESTATE_BOUNDARY2:
+      यदि(part)
+        sz = readback_अष्टकानि(&mime->state, बफर, nitems, mime->boundary,
                             MIME_BOUNDARY_LEN, STRCONST("\r\n"));
-      else
-        sz = readback_bytes(&mime->state, buffer, nitems, mime->boundary,
+      अन्यथा
+        sz = readback_अष्टकानि(&mime->state, बफर, nitems, mime->boundary,
                             MIME_BOUNDARY_LEN, STRCONST("--\r\n"));
-      if(!sz) {
+      यदि(!sz) {
         mimesetstate(&mime->state, MIMESTATE_CONTENT, part);
       }
-      break;
-    case MIMESTATE_CONTENT:
-      if(!part) {
-        mimesetstate(&mime->state, MIMESTATE_END, NULL);
-        break;
+      भङ्ग;
+    पक्ष MIMESTATE_CONTENT:
+      यदि(!part) {
+        mimesetstate(&mime->state, MIMESTATE_अन्तः, रिक्त);
+        भङ्ग;
       }
-      sz = readback_part(part, buffer, nitems, hasread);
-      switch(sz) {
-      case CURL_READFUNC_ABORT:
-      case CURL_READFUNC_PAUSE:
-      case READ_ERROR:
-      case STOP_FILLING:
-        return cursize ? cursize : sz;
-      case 0:
+      sz = readback_part(part, बफर, nitems, hasread);
+      विकल्प(sz) {
+      पक्ष CURL_READFUNC_ABORT:
+      पक्ष CURL_READFUNC_PAUSE:
+      पक्ष READ_ERROR:
+      पक्ष STOP_FILLING:
+        प्रत्यागम cursize ? cursize : sz;
+      पक्ष 0:
         mimesetstate(&mime->state, MIMESTATE_BOUNDARY1, part->nextpart);
-        break;
+        भङ्ग;
       }
-      break;
-    case MIMESTATE_END:
-      return cursize;
-    default:
-      break;    /* other values not used in mime state. */
+      भङ्ग;
+    पक्ष MIMESTATE_अन्तः:
+      प्रत्यागम cursize;
+    स्वभाव:
+      भङ्ग;    /* other values not used in mime state. */
     }
 
     /* Bump buffer and counters according to read size. */
     cursize += sz;
-    buffer += sz;
+    बफर += sz;
     nitems -= sz;
   }
 
-  return cursize;
+  प्रत्यागम cursize;
 }
 
-static int mime_part_rewind(curl_mimepart *part)
+स्थिर पूर्णाङ्क mime_part_rewind(curl_mimepart *part)
 {
-  int res = CURL_SEEKFUNC_OK;
-  enum mimestate targetstate = MIMESTATE_BEGIN;
+  पूर्णाङ्क res = CURL_SEEKFUNC_OK;
+  गणना mimestate targetstate = MIMESTATE_BEGIN;
 
-  if(part->flags & MIME_BODY_ONLY)
+  यदि(part->flags & MIME_BODY_ONLY)
     targetstate = MIMESTATE_BODY;
   cleanup_encoder_state(&part->encstate);
-  if(part->state.state > targetstate) {
+  यदि(part->state.state > targetstate) {
     res = CURL_SEEKFUNC_CANTSEEK;
-    if(part->seekfunc) {
+    यदि(part->seekfunc) {
       res = part->seekfunc(part->arg, (curl_off_t)0, SEEK_SET);
-      switch(res) {
-      case CURL_SEEKFUNC_OK:
-      case CURL_SEEKFUNC_FAIL:
-      case CURL_SEEKFUNC_CANTSEEK:
-        break;
-      case -1:    /* For fseek() error. */
+      विकल्प(res) {
+      पक्ष CURL_SEEKFUNC_OK:
+      पक्ष CURL_SEEKFUNC_FAIL:
+      पक्ष CURL_SEEKFUNC_CANTSEEK:
+        भङ्ग;
+      पक्ष -1:    /* For fseek() error. */
         res = CURL_SEEKFUNC_CANTSEEK;
-        break;
-      default:
+        भङ्ग;
+      स्वभाव:
         res = CURL_SEEKFUNC_FAIL;
-        break;
+        भङ्ग;
       }
     }
   }
 
-  if(res == CURL_SEEKFUNC_OK)
-    mimesetstate(&part->state, targetstate, NULL);
+  यदि(res == CURL_SEEKFUNC_OK)
+    mimesetstate(&part->state, targetstate, रिक्त);
 
   part->lastreadstatus = 1; /* Successful read status. */
-  return res;
+  प्रत्यागम res;
 }
 
-static int mime_subparts_seek(void *instream, curl_off_t offset, int whence)
+स्थिर पूर्णाङ्क mime_subparts_seek(शून्य *instream, curl_off_t विस्थापनम्, पूर्णाङ्क whence)
 {
   curl_mime *mime = (curl_mime *)instream;
   curl_mimepart *part;
-  int rc = CURL_SEEKFUNC_OK;
+  पूर्णाङ्क rc = CURL_SEEKFUNC_OK;
 
-  if(whence != SEEK_SET || offset)
-    return CURL_SEEKFUNC_CANTSEEK;    /* Only support full rewind. */
+  यदि(whence != SEEK_SET || विस्थापनम्)
+    प्रत्यागम CURL_SEEKFUNC_CANTSEEK;    /* Only support full rewind. */
 
-  if(mime->state.state == MIMESTATE_BEGIN)
-    return CURL_SEEKFUNC_OK;           /* Already rewound. */
+  यदि(mime->state.state == MIMESTATE_BEGIN)
+    प्रत्यागम CURL_SEEKFUNC_OK;           /* Already rewound. */
 
-  for(part = mime->firstpart; part; part = part->nextpart) {
-    int res = mime_part_rewind(part);
-    if(res != CURL_SEEKFUNC_OK)
+  प्रति(part = mime->firstpart; part; part = part->nextpart) {
+    पूर्णाङ्क res = mime_part_rewind(part);
+    यदि(res != CURL_SEEKFUNC_OK)
       rc = res;
   }
 
-  if(rc == CURL_SEEKFUNC_OK)
-    mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
+  यदि(rc == CURL_SEEKFUNC_OK)
+    mimesetstate(&mime->state, MIMESTATE_BEGIN, रिक्त);
 
-  return rc;
+  प्रत्यागम rc;
 }
 
 /* Release part content. */
-static void cleanup_part_content(curl_mimepart *part)
+स्थिर शून्य cleanup_part_content(curl_mimepart *part)
 {
-  if(part->freefunc)
+  यदि(part->freefunc)
     part->freefunc(part->arg);
 
-  part->readfunc = NULL;
-  part->seekfunc = NULL;
-  part->freefunc = NULL;
-  part->arg = (void *)part;           /* Defaults to part itself. */
-  part->data = NULL;
-  part->fp = NULL;
+  part->readfunc = रिक्त;
+  part->seekfunc = रिक्त;
+  part->freefunc = रिक्त;
+  part->arg = (शून्य *)part;           /* Defaults to part itself. */
+  part->दत्त = रिक्त;
+  part->fp = रिक्त;
   part->datasize = (curl_off_t)0;     /* No size yet. */
   cleanup_encoder_state(&part->encstate);
-  part->kind = MIMEKIND_NONE;
-  part->flags &= ~(unsigned int)MIME_FAST_READ;
+  part->विधा = MIMEKIND_NONE;
+  part->flags &= ~(अचिह्नित पूर्णाङ्क)MIME_FAST_READ;
   part->lastreadstatus = 1; /* Successful read status. */
   part->state.state = MIMESTATE_BEGIN;
 }
 
-static void mime_subparts_free(void *ptr)
+स्थिर शून्य mime_subparts_free(शून्य *ptr)
 {
   curl_mime *mime = (curl_mime *)ptr;
 
-  if(mime && mime->parent) {
-    mime->parent->freefunc = NULL;  /* Be sure we will not be called again. */
+  यदि(mime && mime->parent) {
+    mime->parent->freefunc = रिक्त;  /* Be sure we will not be called again. */
     cleanup_part_content(mime->parent);  /* Avoid dangling pointer in part. */
   }
   curl_mime_free(mime);
 }
 
 /* Do not free subparts: unbind them. This is used for the top level only. */
-static void mime_subparts_unbind(void *ptr)
+स्थिर शून्य mime_subparts_unbind(शून्य *ptr)
 {
   curl_mime *mime = (curl_mime *)ptr;
 
-  if(mime && mime->parent) {
-    mime->parent->freefunc = NULL;  /* Be sure we will not be called again. */
+  यदि(mime && mime->parent) {
+    mime->parent->freefunc = रिक्त;  /* Be sure we will not be called again. */
     cleanup_part_content(mime->parent);  /* Avoid dangling pointer in part. */
-    mime->parent = NULL;
+    mime->parent = रिक्त;
   }
 }
 
-void Curl_mime_cleanpart(curl_mimepart *part)
+शून्य Curl_mime_cleanpart(curl_mimepart *part)
 {
-  if(part) {
+  यदि(part) {
     cleanup_part_content(part);
     curl_slist_free_all(part->curlheaders);
-    if(part->flags & MIME_USERHEADERS_OWNER)
+    यदि(part->flags & MIME_USERHEADERS_OWNER)
       curl_slist_free_all(part->userheaders);
     curlx_safefree(part->mimetype);
     curlx_safefree(part->name);
@@ -1091,23 +1091,23 @@ void Curl_mime_cleanpart(curl_mimepart *part)
 }
 
 /* Non-recursively delete a mime handle and its parts. */
-void curl_mime_free(curl_mime *mime)
+शून्य curl_mime_free(curl_mime *mime)
 {
   curl_mimepart *part;
 
-  if(!mime)
-    return;
+  यदि(!mime)
+    प्रत्यागम;
 
   mime_subparts_unbind(mime);  /* Be sure it is not referenced anymore. */
 
-  while(mime) {
+  यावत्(mime) {
     part = mime->firstpart;
-    if(part) {
+    यदि(part) {
       mime->firstpart = part->nextpart;
-      if(part->kind == MIMEKIND_MULTIPART && part->arg &&
+      यदि(part->विधा == MIMEKIND_MULTIPART && part->arg &&
          part->freefunc == mime_subparts_free) {
         curl_mime *subparts = (curl_mime *)part->arg;
-        part->freefunc = NULL;
+        part->freefunc = रिक्त;
         cleanup_part_content(part);
         subparts->parent = mime->parent;
         mime->parent = (curl_mimepart *)subparts;
@@ -1115,7 +1115,7 @@ void curl_mime_free(curl_mime *mime)
       Curl_mime_cleanpart(part);
       curlx_free(part);
     }
-    else {
+    अन्यथा {
       curl_mime *parent = (curl_mime *)mime->parent;
       curlx_free(mime);
       mime = parent;
@@ -1123,119 +1123,119 @@ void curl_mime_free(curl_mime *mime)
   }
 }
 
-static bool mime_is_too_deep(const curl_mimepart *part, size_t call_depth)
+स्थिर bool mime_is_too_deep(ध्रुव curl_mimepart *part, size_t call_गभीरता)
 {
   DEBUGASSERT(part);
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return TRUE;
+  यदि(++call_गभीरता > MAX_MIME_स्तराः)
+    प्रत्यागम TRUE;
 
-  if(part->kind == MIMEKIND_MULTIPART && part->arg) {
-    const curl_mime *mime = (const curl_mime *)part->arg;
-    const curl_mimepart *s;
+  यदि(part->विधा == MIMEKIND_MULTIPART && part->arg) {
+    ध्रुव curl_mime *mime = (ध्रुव curl_mime *)part->arg;
+    ध्रुव curl_mimepart *s;
 
-    for(s = mime->firstpart; s; s = s->nextpart) {
-      if(mime_is_too_deep(s, call_depth))
-        return TRUE;
+    प्रति(s = mime->firstpart; s; s = s->nextpart) {
+      यदि(mime_is_too_deep(s, call_गभीरता))
+        प्रत्यागम TRUE;
     }
   }
 
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static CURLcode mime_duppart(struct Curl_easy *data,
-                             curl_mimepart *dst, const curl_mimepart *src,
-                             size_t call_depth)
+स्थिर CURLcode mime_duppart(संरचना Curl_easy *दत्त,
+                             curl_mimepart *dst, ध्रुव curl_mimepart *src,
+                             size_t call_गभीरता)
 {
   curl_mime *mime;
   curl_mimepart *d;
-  const curl_mimepart *s;
-  CURLcode result = CURLE_OK;
+  ध्रुव curl_mimepart *s;
+  CURLcode परिणाम = CURLE_OK;
 
   DEBUGASSERT(dst);
   DEBUGASSERT(src);
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return CURLE_TOO_LARGE;
+  यदि(++call_गभीरता > MAX_MIME_स्तराः)
+    प्रत्यागम CURLE_TOO_LARGE;
 
   /* Duplicate content. */
-  switch(src->kind) {
-  case MIMEKIND_NONE:
-    break;
-  case MIMEKIND_DATA:
-    result = curl_mime_data(dst, src->data, (size_t)src->datasize);
-    break;
-  case MIMEKIND_FILE:
-    result = curl_mime_filedata(dst, src->data);
+  विकल्प(src->विधा) {
+  पक्ष MIMEKIND_NONE:
+    भङ्ग;
+  पक्ष MIMEKIND_दत्त:
+    परिणाम = curl_mime_दत्त(dst, src->दत्त, (size_t)src->datasize);
+    भङ्ग;
+  पक्ष MIMEKIND_FILE:
+    परिणाम = curl_mime_filedata(dst, src->दत्त);
     /* Do not abort duplication if file is not readable. */
-    if(result == CURLE_READ_ERROR)
-      result = CURLE_OK;
-    break;
-  case MIMEKIND_CALLBACK:
-    result = curl_mime_data_cb(dst, src->datasize, src->readfunc,
+    यदि(परिणाम == CURLE_READ_ERROR)
+      परिणाम = CURLE_OK;
+    भङ्ग;
+  पक्ष MIMEKIND_CALLBACK:
+    परिणाम = curl_mime_दत्त_cb(dst, src->datasize, src->readfunc,
                                src->seekfunc, src->freefunc, src->arg);
-    break;
-  case MIMEKIND_MULTIPART:
+    भङ्ग;
+  पक्ष MIMEKIND_MULTIPART:
     /* No one knows about the cloned subparts, thus always attach ownership
        to the part. */
-    mime = curl_mime_init(data);
-    result = mime ? curl_mime_subparts(dst, mime) : CURLE_OUT_OF_MEMORY;
+    mime = curl_mime_init(दत्त);
+    परिणाम = mime ? curl_mime_subparts(dst, mime) : CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
     /* Duplicate subparts. */
-    for(s = ((curl_mime *)src->arg)->firstpart; !result && s;
+    प्रति(s = ((curl_mime *)src->arg)->firstpart; !परिणाम && s;
         s = s->nextpart) {
       d = curl_mime_addpart(mime);
-      result = d ? mime_duppart(data, d, s, call_depth) : CURLE_OUT_OF_MEMORY;
+      परिणाम = d ? mime_duppart(दत्त, d, s, call_गभीरता) : CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
-    break;
-  default:  /* Invalid kind: should not occur. */
-    DEBUGF(infof(data, "invalid MIMEKIND* attempt"));
-    result = CURLE_BAD_FUNCTION_ARGUMENT;  /* Internal error? */
-    break;
+    भङ्ग;
+  स्वभाव:  /* Invalid kind: should not occur. */
+    DEBUGF(infof(दत्त, "invalid MIMEKIND* attempt"));
+    परिणाम = CURLE_BAD_FUNCTION_तर्कः;  /* Internal error? */
+    भङ्ग;
   }
 
   /* Duplicate headers. */
-  if(!result && src->userheaders) {
-    struct curl_slist *hdrs = Curl_slist_duplicate(src->userheaders);
+  यदि(!परिणाम && src->userheaders) {
+    संरचना curl_slist *hdrs = Curl_slist_duplicate(src->userheaders);
 
-    if(!hdrs)
-      result = CURLE_OUT_OF_MEMORY;
-    else {
+    यदि(!hdrs)
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    अन्यथा {
       /* No one but this procedure knows about the new header list,
          so always take ownership. */
-      result = curl_mime_headers(dst, hdrs, TRUE);
-      if(result)
+      परिणाम = curl_mime_शीर्षकाणि(dst, hdrs, TRUE);
+      यदि(परिणाम)
         curl_slist_free_all(hdrs);
     }
   }
 
-  if(!result) {
+  यदि(!परिणाम) {
     /* Duplicate other fields. */
     dst->encoder = src->encoder;
-    result = curl_mime_type(dst, src->mimetype);
+    परिणाम = curl_mime_type(dst, src->mimetype);
   }
-  if(!result)
-    result = curl_mime_name(dst, src->name);
-  if(!result)
-    result = curl_mime_filename(dst, src->filename);
+  यदि(!परिणाम)
+    परिणाम = curl_mime_name(dst, src->name);
+  यदि(!परिणाम)
+    परिणाम = curl_mime_filename(dst, src->filename);
 
   /* If an error occurred, rollback. */
-  if(result)
+  यदि(परिणाम)
     Curl_mime_cleanpart(dst);
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_mime_duppart(struct Curl_easy *data,
-                           curl_mimepart *dst, const curl_mimepart *src)
+CURLcode Curl_mime_duppart(संरचना Curl_easy *दत्त,
+                           curl_mimepart *dst, ध्रुव curl_mimepart *src)
 {
-  if(!dst || !src)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!dst || !src)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
-  if(mime_is_too_deep(src, 0))
-    return CURLE_TOO_LARGE;
+  यदि(mime_is_too_deep(src, 0))
+    प्रत्यागम CURLE_TOO_LARGE;
 
-  return mime_duppart(data, dst, src, 0);
+  प्रत्यागम mime_duppart(दत्त, dst, src, 0);
 }
 
 /*
@@ -1243,35 +1243,35 @@ CURLcode Curl_mime_duppart(struct Curl_easy *data,
  */
 
 /* Create a mime handle. */
-curl_mime *curl_mime_init(void *easy)
+curl_mime *curl_mime_init(शून्य *easy)
 {
-  curl_mime *mime = curlx_malloc(sizeof(*mime));
+  curl_mime *mime = curlx_malloc(परिमाण(*mime));
 
-  if(mime) {
-    mime->parent = NULL;
-    mime->firstpart = NULL;
-    mime->lastpart = NULL;
+  यदि(mime) {
+    mime->parent = रिक्त;
+    mime->firstpart = रिक्त;
+    mime->lastpart = रिक्त;
 
-    memset(mime->boundary, '-', MIME_BOUNDARY_DASHES);
-    if(Curl_rand_alnum(easy,
-                       (unsigned char *)&mime->boundary[MIME_BOUNDARY_DASHES],
+    स्मृतिं_पूरय(mime->boundary, '-', MIME_BOUNDARY_DASHES);
+    यदि(Curl_rand_alnum(easy,
+                       (अचिह्नित वर्ण *)&mime->boundary[MIME_BOUNDARY_DASHES],
                        MIME_RAND_BOUNDARY_CHARS + 1)) {
       /* failed to get random separator, bail out */
       curlx_free(mime);
-      return NULL;
+      प्रत्यागम रिक्त;
     }
-    mimesetstate(&mime->state, MIMESTATE_BEGIN, NULL);
+    mimesetstate(&mime->state, MIMESTATE_BEGIN, रिक्त);
   }
 
-  return mime;
+  प्रत्यागम mime;
 }
 
 /* Initialize a mime part. */
-void Curl_mime_initpart(curl_mimepart *part)
+शून्य Curl_mime_initpart(curl_mimepart *part)
 {
-  memset(part, 0, sizeof(*part));
+  स्मृतिं_पूरय(part, 0, परिमाण(*part));
   part->lastreadstatus = 1; /* Successful read status. */
-  mimesetstate(&part->state, MIMESTATE_BEGIN, NULL);
+  mimesetstate(&part->state, MIMESTATE_BEGIN, रिक्त);
 }
 
 /* Create a mime part and append it to a mime handle's part list. */
@@ -1279,253 +1279,253 @@ curl_mimepart *curl_mime_addpart(curl_mime *mime)
 {
   curl_mimepart *part;
 
-  if(!mime)
-    return NULL;
+  यदि(!mime)
+    प्रत्यागम रिक्त;
 
-  part = curlx_malloc(sizeof(*part));
+  part = curlx_malloc(परिमाण(*part));
 
-  if(part) {
+  यदि(part) {
     Curl_mime_initpart(part);
     part->parent = mime;
 
-    if(mime->lastpart)
+    यदि(mime->lastpart)
       mime->lastpart->nextpart = part;
-    else
+    अन्यथा
       mime->firstpart = part;
 
     mime->lastpart = part;
   }
 
-  return part;
+  प्रत्यागम part;
 }
 
 /* Set mime part name. */
-CURLcode curl_mime_name(curl_mimepart *part, const char *name)
+CURLcode curl_mime_name(curl_mimepart *part, ध्रुव वर्ण *name)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   curlx_safefree(part->name);
 
-  if(name) {
+  यदि(name) {
     part->name = curlx_strdup(name);
-    if(!part->name)
-      return CURLE_OUT_OF_MEMORY;
+    यदि(!part->name)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Set mime part remote filename. */
-CURLcode curl_mime_filename(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filename(curl_mimepart *part, ध्रुव वर्ण *filename)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   curlx_safefree(part->filename);
 
-  if(filename) {
+  यदि(filename) {
     part->filename = curlx_strdup(filename);
-    if(!part->filename)
-      return CURLE_OUT_OF_MEMORY;
+    यदि(!part->filename)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Set mime part content from memory data. */
-CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
+CURLcode curl_mime_दत्त(curl_mimepart *part, ध्रुव वर्ण *दत्त, size_t datasize)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   cleanup_part_content(part);
 
-  if(data) {
-    if(datasize == CURL_ZERO_TERMINATED)
-      datasize = strlen(data);
+  यदि(दत्त) {
+    यदि(datasize == CURL_ZERO_TERMINATED)
+      datasize = वाक्यदैर्घ्यम्(दत्त);
 
-    part->data = curlx_memdup0(data, datasize);
-    if(!part->data)
-      return CURLE_OUT_OF_MEMORY;
+    part->दत्त = curlx_memdup0(दत्त, datasize);
+    यदि(!part->दत्त)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
     part->datasize = datasize;
     part->readfunc = mime_mem_read;
     part->seekfunc = mime_mem_seek;
     part->freefunc = mime_mem_free;
     part->flags |= MIME_FAST_READ;
-    part->kind = MIMEKIND_DATA;
+    part->विधा = MIMEKIND_दत्त;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Set mime part content from named local file. */
-CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filedata(curl_mimepart *part, ध्रुव वर्ण *filename)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   cleanup_part_content(part);
 
-  if(filename) {
-    char *base;
+  यदि(filename) {
+    वर्ण *आधारः;
     curlx_struct_stat sbuf;
 
-    if(curlx_stat(filename, &sbuf))
-      result = CURLE_READ_ERROR;
-    else {
-      part->data = curlx_strdup(filename);
-      if(!part->data)
-        result = CURLE_OUT_OF_MEMORY;
-      else {
+    यदि(curlx_stat(filename, &sbuf))
+      परिणाम = CURLE_READ_ERROR;
+    अन्यथा {
+      part->दत्त = curlx_strdup(filename);
+      यदि(!part->दत्त)
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      अन्यथा {
         part->datasize = -1;
-        if(S_ISREG(sbuf.st_mode)) {
+        यदि(S_ISREG(sbuf.st_बहुलकम्)) {
           part->datasize = filesize(filename, sbuf);
           part->seekfunc = mime_file_seek;
         }
 
         part->readfunc = mime_file_read;
         part->freefunc = mime_file_free;
-        part->kind = MIMEKIND_FILE;
+        part->विधा = MIMEKIND_FILE;
 
         /* As a side effect, set the filename to the current file's base name.
            It is possible to withdraw this by explicitly calling
            curl_mime_filename() with a NULL filename argument after the current
            call. */
-        base = strippath(filename);
-        if(!base)
-          result = CURLE_OUT_OF_MEMORY;
-        else {
-          result = curl_mime_filename(part, base);
-          curlx_free(base);
+        आधारः = strippath(filename);
+        यदि(!आधारः)
+          परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        अन्यथा {
+          परिणाम = curl_mime_filename(part, आधारः);
+          curlx_free(आधारः);
         }
       }
     }
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /* Set mime part type. */
-CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype)
+CURLcode curl_mime_type(curl_mimepart *part, ध्रुव वर्ण *mimetype)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   curlx_safefree(part->mimetype);
 
-  if(mimetype) {
+  यदि(mimetype) {
     part->mimetype = curlx_strdup(mimetype);
-    if(!part->mimetype)
-      return CURLE_OUT_OF_MEMORY;
+    यदि(!part->mimetype)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static const struct mime_encoder encoders[] = {
-  { "binary", encoder_nop_read, encoder_nop_size },
-  { "8bit", encoder_nop_read, encoder_nop_size },
-  { "7bit", encoder_7bit_read, encoder_nop_size },
-  { "base64", encoder_base64_read, encoder_base64_size },
-  { "quoted-printable", encoder_qp_read, encoder_qp_size },
+स्थिर ध्रुव संरचना mime_encoder encoders[] = {
+  { "binary", encoder_nop_read, encoder_nop_आकार },
+  { "8bit", encoder_nop_read, encoder_nop_आकार },
+  { "7bit", encoder_7bit_read, encoder_nop_आकार },
+  { "base64", encoder_base64_read, encoder_base64_आकार },
+  { "quoted-printable", encoder_qp_read, encoder_qp_आकार },
   { ZERO_NULL, ZERO_NULL, ZERO_NULL }
 };
 
 /* Set mime data transfer encoder. */
-CURLcode curl_mime_encoder(curl_mimepart *part, const char *encoding)
+CURLcode curl_mime_encoder(curl_mimepart *part, ध्रुव वर्ण *encoding)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  const struct mime_encoder *mep;
+  CURLcode परिणाम = CURLE_BAD_FUNCTION_तर्कः;
+  ध्रुव संरचना mime_encoder *mep;
 
-  if(!part)
-    return result;
+  यदि(!part)
+    प्रत्यागम परिणाम;
 
-  part->encoder = NULL;
+  part->encoder = रिक्त;
 
-  if(!encoding)
-    return CURLE_OK;    /* Removing current encoder. */
+  यदि(!encoding)
+    प्रत्यागम CURLE_OK;    /* Removing current encoder. */
 
-  for(mep = encoders; mep->name; mep++)
-    if(curl_strequal(encoding, mep->name)) {
+  प्रति(mep = encoders; mep->name; mep++)
+    यदि(curl_strequal(encoding, mep->name)) {
       part->encoder = mep;
-      result = CURLE_OK;
+      परिणाम = CURLE_OK;
     }
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /* Set mime part headers. */
-CURLcode curl_mime_headers(curl_mimepart *part,
-                           struct curl_slist *headers, int take_ownership)
+CURLcode curl_mime_शीर्षकाणि(curl_mimepart *part,
+                           संरचना curl_slist *शीर्षकाणि, पूर्णाङ्क take_ownership)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
-  if(part->flags & MIME_USERHEADERS_OWNER) {
-    if(part->userheaders != headers)  /* Allow setting twice the same list. */
+  यदि(part->flags & MIME_USERHEADERS_OWNER) {
+    यदि(part->userheaders != शीर्षकाणि)  /* Allow setting twice the same list. */
       curl_slist_free_all(part->userheaders);
-    part->flags &= ~(unsigned int)MIME_USERHEADERS_OWNER;
+    part->flags &= ~(अचिह्नित पूर्णाङ्क)MIME_USERHEADERS_OWNER;
   }
-  part->userheaders = headers;
-  if(headers && take_ownership)
+  part->userheaders = शीर्षकाणि;
+  यदि(शीर्षकाणि && take_ownership)
     part->flags |= MIME_USERHEADERS_OWNER;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Set mime part content from callback. */
-CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
+CURLcode curl_mime_दत्त_cb(curl_mimepart *part, curl_off_t datasize,
                            curl_read_callback readfunc,
                            curl_seek_callback seekfunc,
-                           curl_free_callback freefunc, void *arg)
+                           curl_free_callback freefunc, शून्य *arg)
 {
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   cleanup_part_content(part);
 
-  if(readfunc) {
+  यदि(readfunc) {
     part->readfunc = readfunc;
     part->seekfunc = seekfunc;
     part->freefunc = freefunc;
     part->arg = arg;
     part->datasize = datasize;
-    part->kind = MIMEKIND_CALLBACK;
+    part->विधा = MIMEKIND_CALLBACK;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Set mime part content from subparts. */
-CURLcode Curl_mime_set_subparts(curl_mimepart *part,
-                                curl_mime *subparts, int take_ownership)
+CURLcode Curl_mime_समुच्चयः_subparts(curl_mimepart *part,
+                                curl_mime *subparts, पूर्णाङ्क take_ownership)
 {
-  curl_mime *root;
+  curl_mime *मूलम्;
 
-  if(!part)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!part)
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   /* Accept setting twice the same subparts. */
-  if(part->kind == MIMEKIND_MULTIPART && part->arg == subparts)
-    return CURLE_OK;
+  यदि(part->विधा == MIMEKIND_MULTIPART && part->arg == subparts)
+    प्रत्यागम CURLE_OK;
 
   cleanup_part_content(part);
 
-  if(subparts) {
+  यदि(subparts) {
     /* Should not have been attached already. */
-    if(subparts->parent)
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    यदि(subparts->parent)
+      प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
     /* Should not be the part's root. */
-    root = part->parent;
-    if(root) {
-      while(root->parent && root->parent->parent)
-        root = root->parent->parent;
-      if(subparts == root) {
+    मूलम् = part->parent;
+    यदि(मूलम्) {
+      यावत्(मूलम्->parent && मूलम्->parent->parent)
+        मूलम् = मूलम्->parent->parent;
+      यदि(subparts == मूलम्) {
         /* cannot add as a subpart of itself. */
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+        प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
       }
     }
 
@@ -1533,9 +1533,9 @@ CURLcode Curl_mime_set_subparts(curl_mimepart *part,
        they might not be positioned at start. Rewind them now, as
        a future check while rewinding the parent may cause this
        content to be skipped. */
-    if(mime_subparts_seek(subparts, (curl_off_t)0, SEEK_SET) !=
+    यदि(mime_subparts_seek(subparts, (curl_off_t)0, SEEK_SET) !=
        CURL_SEEKFUNC_OK)
-      return CURLE_SEND_FAIL_REWIND;
+      प्रत्यागम CURLE_SEND_FAIL_REWIND;
 
     subparts->parent = part;
     /* Subparts are processed internally: no read callback. */
@@ -1544,153 +1544,153 @@ CURLcode Curl_mime_set_subparts(curl_mimepart *part,
       mime_subparts_unbind;
     part->arg = subparts;
     part->datasize = -1;
-    part->kind = MIMEKIND_MULTIPART;
+    part->विधा = MIMEKIND_MULTIPART;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 CURLcode curl_mime_subparts(curl_mimepart *part, curl_mime *subparts)
 {
-  return Curl_mime_set_subparts(part, subparts, TRUE);
+  प्रत्यागम Curl_mime_समुच्चयः_subparts(part, subparts, TRUE);
 }
 
 /* Readback from top mime. */
 /* Argument is the dummy top part. */
-size_t Curl_mime_read(char *buffer, size_t size, size_t nitems, void *instream)
+size_t Curl_mime_read(वर्ण *बफर, size_t आकार, size_t nitems, शून्य *instream)
 {
   curl_mimepart *part = (curl_mimepart *)instream;
   size_t ret;
   bool hasread;
 
-  (void)size;  /* Always 1 */
+  (शून्य)आकार;  /* Always 1 */
 
   /* If `nitems` is <= 4, some encoders will return STOP_FILLING without
    * adding any data and this loops infinitely. */
-  do {
+  कुरु {
     hasread = FALSE;
-    ret = readback_part(part, buffer, nitems, &hasread);
+    ret = readback_part(part, बफर, nitems, &hasread);
     /*
      * If this is not possible to get some data without calling more than
      * one read callback (probably because a content encoder is not able to
      * deliver a new bunch for the few data accumulated so far), force another
      * read until we get enough data or a special exit code.
      */
-  } while(ret == STOP_FILLING);
+  } यावत्(ret == STOP_FILLING);
 
-  return ret;
+  प्रत्यागम ret;
 }
 
 /* Rewind mime stream. */
-static CURLcode mime_rewind(curl_mimepart *part)
+स्थिर CURLcode mime_rewind(curl_mimepart *part)
 {
-  return mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
+  प्रत्यागम mime_part_rewind(part) == CURL_SEEKFUNC_OK ?
          CURLE_OK : CURLE_SEND_FAIL_REWIND;
 }
 
 /* Compute header list size. */
-static size_t slist_size(struct curl_slist *s,
-                         size_t overhead, const char *skip, size_t skiplen)
+स्थिर size_t slist_आकार(संरचना curl_slist *s,
+                         size_t overhead, ध्रुव वर्ण *skip, size_t skiplen)
 {
-  size_t size = 0;
+  size_t आकार = 0;
 
-  for(; s; s = s->next)
-    if(!skip || !match_header(s, skip, skiplen))
-      size += strlen(s->data) + overhead;
-  return size;
+  प्रति(; s; s = s->अग्र)
+    यदि(!skip || !मेलनम्_शीर्षकम्(s, skip, skiplen))
+      आकार += वाक्यदैर्घ्यम्(s->दत्त) + overhead;
+  प्रत्यागम आकार;
 }
 
 /* Get/compute multipart size. */
-static curl_off_t multipart_size(curl_mime *mime)
+स्थिर curl_off_t multipart_आकार(curl_mime *mime)
 {
-  curl_off_t size;
+  curl_off_t आकार;
   curl_off_t boundarysize;
   curl_mimepart *part;
 
-  if(!mime)
-    return 0;           /* Not present -> empty. */
+  यदि(!mime)
+    प्रत्यागम 0;           /* Not present -> empty. */
 
   boundarysize = 4 + MIME_BOUNDARY_LEN + 2;
-  size = boundarysize;  /* Final boundary - CRLF after headers. */
+  आकार = boundarysize;  /* Final boundary - CRLF after headers. */
 
-  for(part = mime->firstpart; part; part = part->nextpart) {
-    curl_off_t sz = mime_size(part);
+  प्रति(part = mime->firstpart; part; part = part->nextpart) {
+    curl_off_t sz = mime_आकार(part);
 
-    if(sz < 0)
-      size = sz;
+    यदि(sz < 0)
+      आकार = sz;
 
-    if(size >= 0)
-      size += boundarysize + sz;
+    यदि(आकार >= 0)
+      आकार += boundarysize + sz;
   }
 
-  return size;
+  प्रत्यागम आकार;
 }
 
 /* Get/compute mime size. */
-static curl_off_t mime_size(curl_mimepart *part)
+स्थिर curl_off_t mime_आकार(curl_mimepart *part)
 {
-  curl_off_t size;
+  curl_off_t आकार;
 
-  if(part->kind == MIMEKIND_MULTIPART)
-    part->datasize = multipart_size(part->arg);
+  यदि(part->विधा == MIMEKIND_MULTIPART)
+    part->datasize = multipart_आकार(part->arg);
 
-  size = part->datasize;
+  आकार = part->datasize;
 
-  if(part->encoder)
-    size = part->encoder->sizefunc(part);
+  यदि(part->encoder)
+    आकार = part->encoder->sizefunc(part);
 
-  if(size >= 0 && !(part->flags & MIME_BODY_ONLY)) {
+  यदि(आकार >= 0 && !(part->flags & MIME_BODY_ONLY)) {
     /* Compute total part size. */
-    size += slist_size(part->curlheaders, 2, NULL, 0);
-    size += slist_size(part->userheaders, 2, STRCONST("Content-Type"));
-    size += 2;    /* CRLF after headers. */
+    आकार += slist_आकार(part->curlheaders, 2, रिक्त, 0);
+    आकार += slist_आकार(part->userheaders, 2, STRCONST("Content-Type"));
+    आकार += 2;    /* CRLF after headers. */
   }
-  return size;
+  प्रत्यागम आकार;
 }
 
 /* Add a header. */
 /* VARARGS2 */
-CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
+CURLcode Curl_mime_सङ्कलय_शीर्षकम्(संरचना curl_slist **slp, ध्रुव वर्ण *fmt, ...)
 {
-  struct curl_slist *hdr = NULL;
-  char *s = NULL;
+  संरचना curl_slist *hdr = रिक्त;
+  वर्ण *s = रिक्त;
   va_list ap;
 
   va_start(ap, fmt);
   s = curl_mvaprintf(fmt, ap);
   va_end(ap);
 
-  if(s) {
+  यदि(s) {
     hdr = Curl_slist_append_nodup(*slp, s);
-    if(hdr)
+    यदि(hdr)
       *slp = hdr;
-    else
+    अन्यथा
       curlx_free(s);
   }
 
-  return hdr ? CURLE_OK : CURLE_OUT_OF_MEMORY;
+  प्रत्यागम hdr ? CURLE_OK : CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 }
 
 /* Add a content type header. */
-static CURLcode add_content_type(struct curl_slist **slp,
-                                 const char *type, const char *boundary)
+स्थिर CURLcode सङ्कलय_content_type(संरचना curl_slist **slp,
+                                 ध्रुव वर्ण *type, ध्रुव वर्ण *boundary)
 {
-  return Curl_mime_add_header(slp, "Content-Type: %s%s%s", type,
+  प्रत्यागम Curl_mime_सङ्कलय_शीर्षकम्(slp, "Content-Type: %s%s%s", type,
                               boundary ? "; boundary=" : "",
                               boundary ? boundary : "");
 }
 
-const char *Curl_mime_contenttype(const char *filename)
+ध्रुव वर्ण *Curl_mime_contenttype(ध्रुव वर्ण *filename)
 {
   /*
    * If no content type was specified, we scan through a few well-known
    * extensions and pick the first we match!
    */
-  struct ContentType {
-    const char *extension;
-    const char *type;
+  संरचना ContentType {
+    ध्रुव वर्ण *extension;
+    ध्रुव वर्ण *type;
   };
-  static const struct ContentType ctts[] = {
+  स्थिर ध्रुव संरचना ContentType ctts[] = {
     { ".gif",  "image/gif" },
     { ".jpg",  "image/jpeg" },
     { ".jpeg", "image/jpeg" },
@@ -1703,79 +1703,79 @@ const char *Curl_mime_contenttype(const char *filename)
     { ".xml",  "application/xml" }
   };
 
-  if(filename) {
-    size_t len1 = strlen(filename);
-    const char *nameend = filename + len1;
-    unsigned int i;
+  यदि(filename) {
+    size_t len1 = वाक्यदैर्घ्यम्(filename);
+    ध्रुव वर्ण *nameend = filename + len1;
+    अचिह्नित पूर्णाङ्क i;
 
-    for(i = 0; i < CURL_ARRAYSIZE(ctts); i++) {
-      size_t len2 = strlen(ctts[i].extension);
+    प्रति(i = 0; i < CURL_ARRAYSIZE(ctts); i++) {
+      size_t len2 = वाक्यदैर्घ्यम्(ctts[i].extension);
 
-      if(len1 >= len2 && curl_strequal(nameend - len2, ctts[i].extension))
-        return ctts[i].type;
+      यदि(len1 >= len2 && curl_strequal(nameend - len2, ctts[i].extension))
+        प्रत्यागम ctts[i].type;
     }
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-static bool content_type_match(const char *contenttype,
-                               const char *target, size_t len)
+स्थिर bool content_type_मेलनम्(ध्रुव वर्ण *contenttype,
+                               ध्रुव वर्ण *target, size_t len)
 {
-  if(contenttype && curl_strnequal(contenttype, target, len))
-    switch(contenttype[len]) {
-    case '\0':
-    case '\t':
-    case '\r':
-    case '\n':
-    case ' ':
-    case ';':
-      return TRUE;
+  यदि(contenttype && curl_strnequal(contenttype, target, len))
+    विकल्प(contenttype[len]) {
+    पक्ष '\0':
+    पक्ष '\t':
+    पक्ष '\r':
+    पक्ष '\n':
+    पक्ष ' ':
+    पक्ष ';':
+      प्रत्यागम TRUE;
     }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static CURLcode add_content_disposition(struct Curl_easy *data,
+स्थिर CURLcode सङ्कलय_content_disposition(संरचना Curl_easy *दत्त,
                                         curl_mimepart *part,
-                                        const char *disposition,
-                                        const char *contenttype,
-                                        enum mimestrategy strategy)
+                                        ध्रुव वर्ण *disposition,
+                                        ध्रुव वर्ण *contenttype,
+                                        गणना mimestrategy strategy)
 {
-  if(!disposition &&
+  यदि(!disposition &&
      (part->filename || part->name ||
       (contenttype && !curl_strnequal(contenttype, "multipart/", 10))))
     disposition = DISPOSITION_DEFAULT;
 
-  if(disposition && curl_strequal(disposition, "attachment") &&
+  यदि(disposition && curl_strequal(disposition, "attachment") &&
      !part->name && !part->filename)
-    disposition = NULL;
+    disposition = रिक्त;
 
-  if(disposition) {
-    CURLcode result = CURLE_OK;
-    char *name = NULL;
-    char *filename = NULL;
+  यदि(disposition) {
+    CURLcode परिणाम = CURLE_OK;
+    वर्ण *name = रिक्त;
+    वर्ण *filename = रिक्त;
     /* The mail (and legacy mime_formescape) strategy quotes the name and
        filename with a backslash and has no in-band way to represent a CR or
        LF, so one embedded in the value would split the generated header. The
        form strategy percent-encodes CR/LF (see escape_string) and is safe. */
     bool backslash = (strategy == MIMESTRATEGY_MAIL) ||
-                     (data && data->set.mime_formescape);
-    if(backslash &&
+                     (दत्त && दत्त->समुच्चयः.mime_formescape);
+    यदि(backslash &&
        ((part->name && part->name[strcspn(part->name, "\r\n")]) ||
         (part->filename && part->filename[strcspn(part->filename, "\r\n")])))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
-    if(part->name) {
-      name = escape_string(data, part->name, strategy);
-      if(!name)
-        return CURLE_OUT_OF_MEMORY;
+    यदि(part->name) {
+      name = escape_string(दत्त, part->name, strategy);
+      यदि(!name)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
-    if(part->filename) {
-      filename = escape_string(data, part->filename, strategy);
-      if(!filename)
-        result = CURLE_OUT_OF_MEMORY;
+    यदि(part->filename) {
+      filename = escape_string(दत्त, part->filename, strategy);
+      यदि(!filename)
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
-    if(!result)
-      result = Curl_mime_add_header(&part->curlheaders,
+    यदि(!परिणाम)
+      परिणाम = Curl_mime_सङ्कलय_शीर्षकम्(&part->curlheaders,
                                     "Content-Disposition: %s%s%s%s%s%s%s",
                                     disposition,
                                     name ? "; name=\"" : "",
@@ -1786,547 +1786,547 @@ static CURLcode add_content_disposition(struct Curl_easy *data,
                                     filename ? "\"" : "");
     curlx_safefree(name);
     curlx_safefree(filename);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode mime_prepare_headers(struct Curl_easy *data,
+स्थिर CURLcode mime_prepare_शीर्षकाणि(संरचना Curl_easy *दत्त,
                                      curl_mimepart *part,
-                                     const char *contenttype,
-                                     const char *disposition,
-                                     enum mimestrategy strategy,
-                                     size_t call_depth)
+                                     ध्रुव वर्ण *contenttype,
+                                     ध्रुव वर्ण *disposition,
+                                     गणना mimestrategy strategy,
+                                     size_t call_गभीरता)
 {
-  curl_mime *mime = NULL;
-  const char *boundary = NULL;
-  char *customct;
-  const char *cte = NULL;
-  CURLcode result = CURLE_OK;
+  curl_mime *mime = रिक्त;
+  ध्रुव वर्ण *boundary = रिक्त;
+  वर्ण *customct;
+  ध्रुव वर्ण *cte = रिक्त;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(++call_depth > MAX_MIME_LEVELS)
-    return CURLE_TOO_LARGE;
+  यदि(++call_गभीरता > MAX_MIME_स्तराः)
+    प्रत्यागम CURLE_TOO_LARGE;
 
   /* Get rid of previously prepared headers. */
   curl_slist_free_all(part->curlheaders);
-  part->curlheaders = NULL;
+  part->curlheaders = रिक्त;
 
   /* Be sure we will not access old headers later. */
-  if(part->state.state == MIMESTATE_CURLHEADERS)
-    mimesetstate(&part->state, MIMESTATE_CURLHEADERS, NULL);
+  यदि(part->state.state == MIMESTATE_CURLHEADERS)
+    mimesetstate(&part->state, MIMESTATE_CURLHEADERS, रिक्त);
 
   /* Check if content type is specified. */
   customct = part->mimetype;
-  if(!customct)
-    customct = search_header(part->userheaders, STRCONST("Content-Type"));
-  if(customct)
+  यदि(!customct)
+    customct = अन्वेषणम्_शीर्षकम्(part->userheaders, STRCONST("Content-Type"));
+  यदि(customct)
     contenttype = customct;
 
   /* If content type is not specified, try to determine it. */
-  if(!contenttype) {
-    switch(part->kind) {
-    case MIMEKIND_MULTIPART:
+  यदि(!contenttype) {
+    विकल्प(part->विधा) {
+    पक्ष MIMEKIND_MULTIPART:
       contenttype = MULTIPART_CONTENTTYPE_DEFAULT;
-      break;
-    case MIMEKIND_FILE:
+      भङ्ग;
+    पक्ष MIMEKIND_FILE:
       contenttype = Curl_mime_contenttype(part->filename);
-      if(!contenttype)
-        contenttype = Curl_mime_contenttype(part->data);
-      if(!contenttype && part->filename)
+      यदि(!contenttype)
+        contenttype = Curl_mime_contenttype(part->दत्त);
+      यदि(!contenttype && part->filename)
         contenttype = FILE_CONTENTTYPE_DEFAULT;
-      break;
-    default:
+      भङ्ग;
+    स्वभाव:
       contenttype = Curl_mime_contenttype(part->filename);
-      break;
+      भङ्ग;
     }
   }
 
-  if(part->kind == MIMEKIND_MULTIPART) {
+  यदि(part->विधा == MIMEKIND_MULTIPART) {
     mime = (curl_mime *)part->arg;
-    if(mime)
+    यदि(mime)
       boundary = mime->boundary;
   }
-  else if(contenttype && !customct &&
-          content_type_match(contenttype, STRCONST("text/plain")) &&
+  अन्यथा यदि(contenttype && !customct &&
+          content_type_मेलनम्(contenttype, STRCONST("text/plain")) &&
           (strategy == MIMESTRATEGY_MAIL || !part->filename))
-    contenttype = NULL;
+    contenttype = रिक्त;
 
   /* Issue content-disposition header only if not already set by caller. */
-  if(!search_header(part->userheaders, STRCONST("Content-Disposition"))) {
-    result = add_content_disposition(data, part, disposition,
+  यदि(!अन्वेषणम्_शीर्षकम्(part->userheaders, STRCONST("Content-Disposition"))) {
+    परिणाम = सङ्कलय_content_disposition(दत्त, part, disposition,
                                      contenttype, strategy);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
 
   /* Issue Content-Type header. */
-  if(contenttype) {
-    result = add_content_type(&part->curlheaders, contenttype, boundary);
-    if(result)
-      return result;
+  यदि(contenttype) {
+    परिणाम = सङ्कलय_content_type(&part->curlheaders, contenttype, boundary);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
 
   /* Content-Transfer-Encoding header. */
-  if(!search_header(part->userheaders,
+  यदि(!अन्वेषणम्_शीर्षकम्(part->userheaders,
                     STRCONST("Content-Transfer-Encoding"))) {
-    if(part->encoder)
+    यदि(part->encoder)
       cte = part->encoder->name;
-    else if(contenttype && strategy == MIMESTRATEGY_MAIL &&
-            part->kind != MIMEKIND_MULTIPART)
+    अन्यथा यदि(contenttype && strategy == MIMESTRATEGY_MAIL &&
+            part->विधा != MIMEKIND_MULTIPART)
       cte = "8bit";
-    if(cte) {
-      result = Curl_mime_add_header(&part->curlheaders,
+    यदि(cte) {
+      परिणाम = Curl_mime_सङ्कलय_शीर्षकम्(&part->curlheaders,
                                     "Content-Transfer-Encoding: %s", cte);
-      if(result)
-        return result;
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
   }
 
   /* If we were reading curl-generated headers, restart with new ones (this
      should not occur). */
-  if(part->state.state == MIMESTATE_CURLHEADERS)
+  यदि(part->state.state == MIMESTATE_CURLHEADERS)
     mimesetstate(&part->state, MIMESTATE_CURLHEADERS, part->curlheaders);
 
   /* Process subparts. */
-  if(part->kind == MIMEKIND_MULTIPART && mime) {
+  यदि(part->विधा == MIMEKIND_MULTIPART && mime) {
     curl_mimepart *subpart;
 
-    disposition = NULL;
-    if(content_type_match(contenttype, STRCONST("multipart/form-data")))
+    disposition = रिक्त;
+    यदि(content_type_मेलनम्(contenttype, STRCONST("multipart/form-data")))
       disposition = "form-data";
-    for(subpart = mime->firstpart; subpart; subpart = subpart->nextpart) {
-      result = mime_prepare_headers(data, subpart, NULL,
-                                    disposition, strategy, call_depth);
-      if(result)
-        return result;
+    प्रति(subpart = mime->firstpart; subpart; subpart = subpart->nextpart) {
+      परिणाम = mime_prepare_शीर्षकाणि(दत्त, subpart, रिक्त,
+                                    disposition, strategy, call_गभीरता);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
+CURLcode Curl_mime_prepare_शीर्षकाणि(संरचना Curl_easy *दत्त,
                                    curl_mimepart *part,
-                                   const char *contenttype,
-                                   const char *disposition,
-                                   enum mimestrategy strategy)
+                                   ध्रुव वर्ण *contenttype,
+                                   ध्रुव वर्ण *disposition,
+                                   गणना mimestrategy strategy)
 {
-  return mime_prepare_headers(data, part, contenttype, disposition,
+  प्रत्यागम mime_prepare_शीर्षकाणि(दत्त, part, contenttype, disposition,
                               strategy, 0);
 }
 
 /* Recursively reset paused status in the given part. */
-static void mime_unpause(curl_mimepart *part)
+स्थिर शून्य mime_unpause(curl_mimepart *part)
 {
-  if(part) {
-    if(part->lastreadstatus == CURL_READFUNC_PAUSE)
+  यदि(part) {
+    यदि(part->lastreadstatus == CURL_READFUNC_PAUSE)
       part->lastreadstatus = 1; /* Successful read status. */
-    if(part->kind == MIMEKIND_MULTIPART) {
+    यदि(part->विधा == MIMEKIND_MULTIPART) {
       curl_mime *mime = (curl_mime *)part->arg;
 
-      if(mime) {
+      यदि(mime) {
         curl_mimepart *subpart;
 
-        for(subpart = mime->firstpart; subpart; subpart = subpart->nextpart)
+        प्रति(subpart = mime->firstpart; subpart; subpart = subpart->nextpart)
           mime_unpause(subpart);
       }
     }
   }
 }
 
-struct cr_mime_ctx {
-  struct Curl_creader super;
+संरचना cr_mime_ctx {
+  संरचना Curl_creader super;
   curl_mimepart *part;
-  curl_off_t total_len;
+  curl_off_t योग_len;
   curl_off_t read_len;
-  CURLcode error_result;
-  struct bufq tmpbuf;
-  BIT(seen_eos);
+  CURLcode error_परिणाम;
+  संरचना bufq tmpbuf;
+  BIT(आलोकितम्_eos);
   BIT(errored);
 };
 
-static CURLcode cr_mime_init(struct Curl_easy *data,
-                             struct Curl_creader *reader)
+स्थिर CURLcode cr_mime_init(संरचना Curl_easy *दत्त,
+                             संरचना Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  ctx->total_len = -1;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  (शून्य)दत्त;
+  ctx->योग_len = -1;
   ctx->read_len = 0;
   Curl_bufq_init2(&ctx->tmpbuf, 1024, 1, BUFQ_OPT_NO_SPARES);
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static void cr_mime_close(struct Curl_easy *data,
-                          struct Curl_creader *reader)
+स्थिर शून्य cr_mime_close(संरचना Curl_easy *दत्त,
+                          संरचना Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  (शून्य)दत्त;
   Curl_bufq_free(&ctx->tmpbuf);
 }
 
 /* Real client reader to installed client callbacks. */
-static CURLcode cr_mime_read(struct Curl_easy *data,
-                             struct Curl_creader *reader,
-                             char *buf, size_t blen,
+स्थिर CURLcode cr_mime_read(संरचना Curl_easy *दत्त,
+                             संरचना Curl_creader *reader,
+                             वर्ण *buf, size_t blen,
                              size_t *pnread, bool *peos)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  CURLcode result = CURLE_OK;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  CURLcode परिणाम = CURLE_OK;
   size_t nread;
-  char tmp[256];
+  वर्ण tmp[256];
 
   /* Once we have errored, we will return the same error forever */
-  if(ctx->errored) {
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu) is errored -> %d, eos=0",
-                  blen, (int)ctx->error_result);
+  यदि(ctx->errored) {
+    CURL_TRC_READ(दत्त, "cr_mime_read(len=%zu) is errored -> %d, eos=0",
+                  blen, (पूर्णाङ्क)ctx->error_परिणाम);
     *pnread = 0;
     *peos = FALSE;
-    return ctx->error_result;
+    प्रत्यागम ctx->error_परिणाम;
   }
-  if(ctx->seen_eos) {
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu) seen eos -> 0, eos=1", blen);
+  यदि(ctx->आलोकितम्_eos) {
+    CURL_TRC_READ(दत्त, "cr_mime_read(len=%zu) seen eos -> 0, eos=1", blen);
     *pnread = 0;
     *peos = TRUE;
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
   /* respect length limitations */
-  if(ctx->total_len >= 0) {
-    curl_off_t remain = ctx->total_len - ctx->read_len;
-    if(remain <= 0)
+  यदि(ctx->योग_len >= 0) {
+    curl_off_t remain = ctx->योग_len - ctx->read_len;
+    यदि(remain <= 0)
       blen = 0;
-    else if(remain < (curl_off_t)blen)
+    अन्यथा यदि(remain < (curl_off_t)blen)
       blen = (size_t)remain;
   }
 
-  if(!Curl_bufq_is_empty(&ctx->tmpbuf)) {
-    result = Curl_bufq_read(&ctx->tmpbuf, (unsigned char *)buf, blen, &nread);
-    if(result) {
+  यदि(!Curl_bufq_is_रिक्तानि(&ctx->tmpbuf)) {
+    परिणाम = Curl_bufq_read(&ctx->tmpbuf, (अचिह्नित वर्ण *)buf, blen, &nread);
+    यदि(परिणाम) {
       ctx->errored = TRUE;
-      ctx->error_result = result;
-      return result;
+      ctx->error_परिणाम = परिणाम;
+      प्रत्यागम परिणाम;
     }
   }
-  else if(blen <= 4) {
+  अन्यथा यदि(blen <= 4) {
     /* Curl_mime_read() may go into an infinite loop when reading
      * via a base64 encoder, as it stalls when the read buffer is too small
      * to contain a complete 3-byte encoding. Read into a larger buffer
      * and use that until empty. */
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu), small read, using tmp", blen);
-    nread = Curl_mime_read(tmp, 1, sizeof(tmp), ctx->part);
-    if(nread <= sizeof(tmp)) {
+    CURL_TRC_READ(दत्त, "cr_mime_read(len=%zu), small read, using tmp", blen);
+    nread = Curl_mime_read(tmp, 1, परिमाण(tmp), ctx->part);
+    यदि(nread <= परिमाण(tmp)) {
       size_t n;
-      result = Curl_bufq_write(&ctx->tmpbuf, (unsigned char *)tmp, nread, &n);
-      if(result) {
+      परिणाम = Curl_bufq_write(&ctx->tmpbuf, (अचिह्नित वर्ण *)tmp, nread, &n);
+      यदि(परिणाम) {
         ctx->errored = TRUE;
-        ctx->error_result = result;
-        return result;
+        ctx->error_परिणाम = परिणाम;
+        प्रत्यागम परिणाम;
       }
       /* stored it, read again */
-      result = Curl_bufq_cread(&ctx->tmpbuf, buf, blen, &nread);
-      if(result) {
+      परिणाम = Curl_bufq_cread(&ctx->tmpbuf, buf, blen, &nread);
+      यदि(परिणाम) {
         ctx->errored = TRUE;
-        ctx->error_result = result;
-        return result;
+        ctx->error_परिणाम = परिणाम;
+        प्रत्यागम परिणाम;
       }
     }
   }
-  else
+  अन्यथा
     nread = Curl_mime_read(buf, 1, blen, ctx->part);
 
-  CURL_TRC_READ(data, "cr_mime_read(len=%zu), mime_read() -> %zu",
+  CURL_TRC_READ(दत्त, "cr_mime_read(len=%zu), mime_read() -> %zu",
                 blen, nread);
 
-  switch(nread) {
-  case 0:
-    if((ctx->total_len >= 0) && (ctx->read_len < ctx->total_len)) {
-      failf(data, "client mime read EOF fail, "
+  विकल्प(nread) {
+  पक्ष 0:
+    यदि((ctx->योग_len >= 0) && (ctx->read_len < ctx->योग_len)) {
+      failf(दत्त, "client mime read EOF fail, "
             "only %" FMT_OFF_T "/%" FMT_OFF_T
-            " of needed bytes read", ctx->read_len, ctx->total_len);
-      return CURLE_READ_ERROR;
+            " of needed bytes read", ctx->read_len, ctx->योग_len);
+      प्रत्यागम CURLE_READ_ERROR;
     }
     *pnread = 0;
     *peos = TRUE;
-    ctx->seen_eos = TRUE;
-    break;
+    ctx->आलोकितम्_eos = TRUE;
+    भङ्ग;
 
-  case CURL_READFUNC_ABORT:
-    failf(data, "operation aborted by callback");
+  पक्ष CURL_READFUNC_ABORT:
+    failf(दत्त, "operation aborted by callback");
     *pnread = 0;
     *peos = FALSE;
     ctx->errored = TRUE;
-    ctx->error_result = CURLE_ABORTED_BY_CALLBACK;
-    result = CURLE_ABORTED_BY_CALLBACK;
-    break;
+    ctx->error_परिणाम = CURLE_ABORTED_BY_CALLBACK;
+    परिणाम = CURLE_ABORTED_BY_CALLBACK;
+    भङ्ग;
 
-  case CURL_READFUNC_PAUSE:
+  पक्ष CURL_READFUNC_PAUSE:
     /* CURL_READFUNC_PAUSE pauses read callbacks that feed socket writes */
-    CURL_TRC_READ(data, "cr_mime_read(len=%zu), paused by callback", blen);
+    CURL_TRC_READ(दत्त, "cr_mime_read(len=%zu), paused by callback", blen);
     *pnread = 0;
     *peos = FALSE;
-    result = Curl_xfer_pause_send(data, TRUE);
-    break; /* nothing was read */
+    परिणाम = Curl_xfer_pause_send(दत्त, TRUE);
+    भङ्ग; /* nothing was read */
 
-  case STOP_FILLING:
-  case READ_ERROR:
-    failf(data, "read error getting mime data");
+  पक्ष STOP_FILLING:
+  पक्ष READ_ERROR:
+    failf(दत्त, "read error getting mime data");
     *pnread = 0;
     *peos = FALSE;
     ctx->errored = TRUE;
-    ctx->error_result = CURLE_READ_ERROR;
-    result = CURLE_READ_ERROR;
-    break;
+    ctx->error_परिणाम = CURLE_READ_ERROR;
+    परिणाम = CURLE_READ_ERROR;
+    भङ्ग;
 
-  default:
-    if(nread > blen) {
+  स्वभाव:
+    यदि(nread > blen) {
       /* the read function returned a too large value */
-      failf(data, "read function returned funny value");
+      failf(दत्त, "read function returned funny value");
       *pnread = 0;
       *peos = FALSE;
       ctx->errored = TRUE;
-      ctx->error_result = CURLE_READ_ERROR;
-      return CURLE_READ_ERROR;
+      ctx->error_परिणाम = CURLE_READ_ERROR;
+      प्रत्यागम CURLE_READ_ERROR;
     }
     ctx->read_len += nread;
-    if(ctx->total_len >= 0)
-      ctx->seen_eos = (ctx->read_len >= ctx->total_len);
+    यदि(ctx->योग_len >= 0)
+      ctx->आलोकितम्_eos = (ctx->read_len >= ctx->योग_len);
     *pnread = nread;
-    *peos = (bool)ctx->seen_eos;
-    break;
+    *peos = (bool)ctx->आलोकितम्_eos;
+    भङ्ग;
   }
 
-  CURL_TRC_READ(data, "cr_mime_read(len=%zu, total=%" FMT_OFF_T
+  CURL_TRC_READ(दत्त, "cr_mime_read(len=%zu, total=%" FMT_OFF_T
                 ", read=%" FMT_OFF_T ") -> %d, %zu, %d", blen,
-                ctx->total_len, ctx->read_len, (int)result, *pnread, *peos);
-  return result;
+                ctx->योग_len, ctx->read_len, (पूर्णाङ्क)परिणाम, *pnread, *peos);
+  प्रत्यागम परिणाम;
 }
 
-static bool cr_mime_needs_rewind(struct Curl_easy *data,
-                                 struct Curl_creader *reader)
+स्थिर bool cr_mime_needs_rewind(संरचना Curl_easy *दत्त,
+                                 संरचना Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->read_len > 0;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  (शून्य)दत्त;
+  प्रत्यागम ctx->read_len > 0;
 }
 
-static curl_off_t cr_mime_total_length(struct Curl_easy *data,
-                                       struct Curl_creader *reader)
+स्थिर curl_off_t cr_mime_योग_दीर्घता(संरचना Curl_easy *दत्त,
+                                       संरचना Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->total_len;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  (शून्य)दत्त;
+  प्रत्यागम ctx->योग_len;
 }
 
-static CURLcode cr_mime_resume_from(struct Curl_easy *data,
-                                    struct Curl_creader *reader,
-                                    curl_off_t offset)
+स्थिर CURLcode cr_mime_resume_from(संरचना Curl_easy *दत्त,
+                                    संरचना Curl_creader *reader,
+                                    curl_off_t विस्थापनम्)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
 
-  if(offset > 0) {
+  यदि(विस्थापनम् > 0) {
     curl_off_t passed = 0;
 
-    do {
-      char scratch[4 * 1024];
+    कुरु {
+      वर्ण scratch[4 * 1024];
       size_t readthisamountnow =
-        (offset - passed > (curl_off_t)sizeof(scratch)) ?
-        sizeof(scratch) :
-        curlx_sotouz(offset - passed);
+        (विस्थापनम् - passed > (curl_off_t)परिमाण(scratch)) ?
+        परिमाण(scratch) :
+        curlx_sotouz(विस्थापनम् - passed);
       size_t nread;
 
       nread = Curl_mime_read(scratch, 1, readthisamountnow, ctx->part);
       passed += (curl_off_t)nread;
-      if((nread == 0) || (nread > readthisamountnow)) {
+      यदि((nread == 0) || (nread > readthisamountnow)) {
         /* this checks for greater-than only to make sure that the
            CURL_READFUNC_ABORT return code still aborts */
-        failf(data, "Could only read %" FMT_OFF_T
+        failf(दत्त, "Could only read %" FMT_OFF_T
               " bytes from the mime post", passed);
-        return CURLE_READ_ERROR;
+        प्रत्यागम CURLE_READ_ERROR;
       }
-    } while(passed < offset);
+    } यावत्(passed < विस्थापनम्);
 
     /* now, decrease the size of the read */
-    if(ctx->total_len > 0) {
-      ctx->total_len -= offset;
+    यदि(ctx->योग_len > 0) {
+      ctx->योग_len -= विस्थापनम्;
 
-      if(ctx->total_len <= 0) {
-        failf(data, "Mime post already completely uploaded");
-        return CURLE_PARTIAL_FILE;
+      यदि(ctx->योग_len <= 0) {
+        failf(दत्त, "Mime post already completely uploaded");
+        प्रत्यागम CURLE_PARTIAL_FILE;
       }
     }
     /* we have passed, proceed as normal */
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode cr_mime_cntrl(struct Curl_easy *data,
-                              struct Curl_creader *reader,
+स्थिर CURLcode cr_mime_cntrl(संरचना Curl_easy *दत्त,
+                              संरचना Curl_creader *reader,
                               Curl_creader_cntrl opcode)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  switch(opcode) {
-  case CURL_CRCNTRL_REWIND: {
-    CURLcode result = mime_rewind(ctx->part);
-    if(result)
-      failf(data, "Cannot rewind mime/post data");
-    return result;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  विकल्प(opcode) {
+  पक्ष CURL_CRCNTRL_REWIND: {
+    CURLcode परिणाम = mime_rewind(ctx->part);
+    यदि(परिणाम)
+      failf(दत्त, "Cannot rewind mime/post data");
+    प्रत्यागम परिणाम;
   }
-  case CURL_CRCNTRL_UNPAUSE:
+  पक्ष CURL_CRCNTRL_UNPAUSE:
     mime_unpause(ctx->part);
-    break;
-  case CURL_CRCNTRL_CLEAR_EOS:
-    ctx->seen_eos = FALSE;
-    break;
-  default:
-    break;
+    भङ्ग;
+  पक्ष CURL_CRCNTRL_CLEAR_EOS:
+    ctx->आलोकितम्_eos = FALSE;
+    भङ्ग;
+  स्वभाव:
+    भङ्ग;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static bool cr_mime_is_paused(struct Curl_easy *data,
-                              struct Curl_creader *reader)
+स्थिर bool cr_mime_is_paused(संरचना Curl_easy *दत्त,
+                              संरचना Curl_creader *reader)
 {
-  struct cr_mime_ctx *ctx = reader->ctx;
-  (void)data;
-  return ctx->part && ctx->part->lastreadstatus == CURL_READFUNC_PAUSE;
+  संरचना cr_mime_ctx *ctx = reader->ctx;
+  (शून्य)दत्त;
+  प्रत्यागम ctx->part && ctx->part->lastreadstatus == CURL_READFUNC_PAUSE;
 }
 
-static const struct Curl_crtype cr_mime = {
+स्थिर ध्रुव संरचना Curl_crtype cr_mime = {
   "cr-mime",
   cr_mime_init,
   cr_mime_read,
   cr_mime_close,
   cr_mime_needs_rewind,
-  cr_mime_total_length,
+  cr_mime_योग_दीर्घता,
   cr_mime_resume_from,
   cr_mime_cntrl,
   cr_mime_is_paused,
-  Curl_creader_def_done,
-  sizeof(struct cr_mime_ctx)
+  Curl_creader_def_समाप्तम्,
+  परिमाण(संरचना cr_mime_ctx)
 };
 
-CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part)
+CURLcode Curl_creader_समुच्चयः_mime(संरचना Curl_easy *दत्त, curl_mimepart *part)
 {
-  struct Curl_creader *r;
-  struct cr_mime_ctx *ctx;
-  CURLcode result;
+  संरचना Curl_creader *r;
+  संरचना cr_mime_ctx *ctx;
+  CURLcode परिणाम;
 
-  result = Curl_creader_create(&r, data, &cr_mime, CURL_CR_CLIENT);
-  if(result)
-    return result;
+  परिणाम = Curl_creader_create(&r, दत्त, &cr_mime, CURL_CR_CLIENT);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
   ctx = r->ctx;
   ctx->part = part;
   /* Make sure we will read the entire mime structure. */
-  result = mime_rewind(ctx->part);
-  if(result) {
-    Curl_creader_free(data, r);
-    return result;
+  परिणाम = mime_rewind(ctx->part);
+  यदि(परिणाम) {
+    Curl_creader_free(दत्त, r);
+    प्रत्यागम परिणाम;
   }
-  ctx->total_len = mime_size(ctx->part);
+  ctx->योग_len = mime_आकार(ctx->part);
 
-  return Curl_creader_set(data, r);
+  प्रत्यागम Curl_creader_समुच्चयः(दत्त, r);
 }
 
-#else /* !CURL_DISABLE_MIME && (!CURL_DISABLE_HTTP ||
+#अन्यथा /* !CURL_DISABLE_MIME && (!CURL_DISABLE_HTTP ||
                                 !CURL_DISABLE_SMTP ||
                                 !CURL_DISABLE_IMAP) */
 
 /* Mime not compiled in: define stubs for externally-referenced functions. */
 curl_mime *curl_mime_init(CURL *easy)
 {
-  (void)easy;
-  return NULL;
+  (शून्य)easy;
+  प्रत्यागम रिक्त;
 }
 
-void curl_mime_free(curl_mime *mime)
+शून्य curl_mime_free(curl_mime *mime)
 {
-  (void)mime;
+  (शून्य)mime;
 }
 
 curl_mimepart *curl_mime_addpart(curl_mime *mime)
 {
-  (void)mime;
-  return NULL;
+  (शून्य)mime;
+  प्रत्यागम रिक्त;
 }
 
-CURLcode curl_mime_name(curl_mimepart *part, const char *name)
+CURLcode curl_mime_name(curl_mimepart *part, ध्रुव वर्ण *name)
 {
-  (void)part;
-  (void)name;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)name;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_filename(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filename(curl_mimepart *part, ध्रुव वर्ण *filename)
 {
-  (void)part;
-  (void)filename;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)filename;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_type(curl_mimepart *part, const char *mimetype)
+CURLcode curl_mime_type(curl_mimepart *part, ध्रुव वर्ण *mimetype)
 {
-  (void)part;
-  (void)mimetype;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)mimetype;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_encoder(curl_mimepart *part, const char *encoding)
+CURLcode curl_mime_encoder(curl_mimepart *part, ध्रुव वर्ण *encoding)
 {
-  (void)part;
-  (void)encoding;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)encoding;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_data(curl_mimepart *part, const char *data, size_t datasize)
+CURLcode curl_mime_दत्त(curl_mimepart *part, ध्रुव वर्ण *दत्त, size_t datasize)
 {
-  (void)part;
-  (void)data;
-  (void)datasize;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)दत्त;
+  (शून्य)datasize;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_filedata(curl_mimepart *part, const char *filename)
+CURLcode curl_mime_filedata(curl_mimepart *part, ध्रुव वर्ण *filename)
 {
-  (void)part;
-  (void)filename;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)filename;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_data_cb(curl_mimepart *part, curl_off_t datasize,
+CURLcode curl_mime_दत्त_cb(curl_mimepart *part, curl_off_t datasize,
                            curl_read_callback readfunc,
                            curl_seek_callback seekfunc,
                            curl_free_callback freefunc,
-                           void *arg)
+                           शून्य *arg)
 {
-  (void)part;
-  (void)datasize;
-  (void)readfunc;
-  (void)seekfunc;
-  (void)freefunc;
-  (void)arg;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)datasize;
+  (शून्य)readfunc;
+  (शून्य)seekfunc;
+  (शून्य)freefunc;
+  (शून्य)arg;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
 CURLcode curl_mime_subparts(curl_mimepart *part, curl_mime *subparts)
 {
-  (void)part;
-  (void)subparts;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)subparts;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode curl_mime_headers(curl_mimepart *part,
-                           struct curl_slist *headers, int take_ownership)
+CURLcode curl_mime_शीर्षकाणि(curl_mimepart *part,
+                           संरचना curl_slist *शीर्षकाणि, पूर्णाङ्क take_ownership)
 {
-  (void)part;
-  (void)headers;
-  (void)take_ownership;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)part;
+  (शून्य)शीर्षकाणि;
+  (शून्य)take_ownership;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
+CURLcode Curl_mime_सङ्कलय_शीर्षकम्(संरचना curl_slist **slp, ध्रुव वर्ण *fmt, ...)
 {
-  (void)slp;
-  (void)fmt;
-  return CURLE_NOT_BUILT_IN;
+  (शून्य)slp;
+  (शून्य)fmt;
+  प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
 }
 
-#endif /* if disabled */
+#यदि_अन्तः /* if disabled */

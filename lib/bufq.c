@@ -21,525 +21,525 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "bufq.h"
+#अन्तर्भाव "bufq.h"
 
-static bool chunk_is_empty(const struct buf_chunk *chunk)
+स्थिर bool chunk_is_रिक्तानि(ध्रुव संरचना buf_chunk *chunk)
 {
-  return chunk->r_offset >= chunk->w_offset;
+  प्रत्यागम chunk->r_विस्थापनम् >= chunk->w_विस्थापनम्;
 }
 
-static bool chunk_is_full(const struct buf_chunk *chunk)
+स्थिर bool chunk_is_पूर्णम्(ध्रुव संरचना buf_chunk *chunk)
 {
-  return chunk->w_offset >= chunk->dlen;
+  प्रत्यागम chunk->w_विस्थापनम् >= chunk->dlen;
 }
 
-static size_t chunk_len(const struct buf_chunk *chunk)
+स्थिर size_t chunk_len(ध्रुव संरचना buf_chunk *chunk)
 {
-  return chunk->w_offset - chunk->r_offset;
+  प्रत्यागम chunk->w_विस्थापनम् - chunk->r_विस्थापनम्;
 }
 
-static void chunk_reset(struct buf_chunk *chunk)
+स्थिर शून्य chunk_reset(संरचना buf_chunk *chunk)
 {
-  chunk->next = NULL;
-  chunk->r_offset = chunk->w_offset = 0;
+  chunk->अग्र = रिक्त;
+  chunk->r_विस्थापनम् = chunk->w_विस्थापनम् = 0;
 }
 
-static size_t chunk_append(struct buf_chunk *chunk,
-                           const uint8_t *buf, size_t len)
+स्थिर size_t chunk_append(संरचना buf_chunk *chunk,
+                           ध्रुव uint8_t *buf, size_t len)
 {
-  uint8_t *p = &chunk->x.data[chunk->w_offset];
-  size_t n = chunk->dlen - chunk->w_offset;
-  DEBUGASSERT(chunk->dlen >= chunk->w_offset);
-  if(n) {
+  uint8_t *p = &chunk->x.दत्त[chunk->w_विस्थापनम्];
+  size_t n = chunk->dlen - chunk->w_विस्थापनम्;
+  DEBUGASSERT(chunk->dlen >= chunk->w_विस्थापनम्);
+  यदि(n) {
     n = CURLMIN(n, len);
-    memcpy(p, buf, n);
-    chunk->w_offset += n;
+    स्मृतिं_प्रतिलिख(p, buf, n);
+    chunk->w_विस्थापनम् += n;
   }
-  return n;
+  प्रत्यागम n;
 }
 
-static size_t chunk_read(struct buf_chunk *chunk,
+स्थिर size_t chunk_read(संरचना buf_chunk *chunk,
                          uint8_t *buf, size_t len)
 {
-  uint8_t *p = &chunk->x.data[chunk->r_offset];
-  size_t n = chunk->w_offset - chunk->r_offset;
-  DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  if(!n) {
-    return 0;
+  uint8_t *p = &chunk->x.दत्त[chunk->r_विस्थापनम्];
+  size_t n = chunk->w_विस्थापनम् - chunk->r_विस्थापनम्;
+  DEBUGASSERT(chunk->w_विस्थापनम् >= chunk->r_विस्थापनम्);
+  यदि(!n) {
+    प्रत्यागम 0;
   }
-  else if(n <= len) {
-    memcpy(buf, p, n);
-    chunk->r_offset = chunk->w_offset = 0;
-    return n;
+  अन्यथा यदि(n <= len) {
+    स्मृतिं_प्रतिलिख(buf, p, n);
+    chunk->r_विस्थापनम् = chunk->w_विस्थापनम् = 0;
+    प्रत्यागम n;
   }
-  else {
-    memcpy(buf, p, len);
-    chunk->r_offset += len;
-    return len;
+  अन्यथा {
+    स्मृतिं_प्रतिलिख(buf, p, len);
+    chunk->r_विस्थापनम् += len;
+    प्रत्यागम len;
   }
 }
 
-static CURLcode chunk_slurpn(struct buf_chunk *chunk, size_t max_len,
+स्थिर CURLcode chunk_slurpn(संरचना buf_chunk *chunk, size_t max_len,
                              Curl_bufq_reader *reader,
-                             void *reader_ctx, size_t *pnread)
+                             शून्य *reader_ctx, size_t *pnread)
 {
-  uint8_t *p = &chunk->x.data[chunk->w_offset];
-  size_t n = chunk->dlen - chunk->w_offset; /* free amount */
-  CURLcode result;
+  uint8_t *p = &chunk->x.दत्त[chunk->w_विस्थापनम्];
+  size_t n = chunk->dlen - chunk->w_विस्थापनम्; /* free amount */
+  CURLcode परिणाम;
 
   *pnread = 0;
-  DEBUGASSERT(chunk->dlen >= chunk->w_offset);
-  if(!n)
-    return CURLE_AGAIN;
-  if(max_len && n > max_len)
+  DEBUGASSERT(chunk->dlen >= chunk->w_विस्थापनम्);
+  यदि(!n)
+    प्रत्यागम CURLE_AGAIN;
+  यदि(max_len && n > max_len)
     n = max_len;
-  result = reader(reader_ctx, p, n, pnread);
-  if(!result) {
+  परिणाम = reader(reader_ctx, p, n, pnread);
+  यदि(!परिणाम) {
     DEBUGASSERT(*pnread <= n);
-    chunk->w_offset += *pnread;
+    chunk->w_विस्थापनम् += *pnread;
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static void chunk_peek(const struct buf_chunk *chunk,
-                       const uint8_t **pbuf, size_t *plen)
+स्थिर शून्य chunk_peek(ध्रुव संरचना buf_chunk *chunk,
+                       ध्रुव uint8_t **pbuf, size_t *plen)
 {
-  DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  *pbuf = &chunk->x.data[chunk->r_offset];
-  *plen = chunk->w_offset - chunk->r_offset;
+  DEBUGASSERT(chunk->w_विस्थापनम् >= chunk->r_विस्थापनम्);
+  *pbuf = &chunk->x.दत्त[chunk->r_विस्थापनम्];
+  *plen = chunk->w_विस्थापनम् - chunk->r_विस्थापनम्;
 }
 
-static void chunk_peek_at(const struct buf_chunk *chunk, size_t offset,
-                          const uint8_t **pbuf, size_t *plen)
+स्थिर शून्य chunk_peek_at(ध्रुव संरचना buf_chunk *chunk, size_t विस्थापनम्,
+                          ध्रुव uint8_t **pbuf, size_t *plen)
 {
-  offset += chunk->r_offset;
-  DEBUGASSERT(chunk->w_offset >= offset);
-  *pbuf = &chunk->x.data[offset];
-  *plen = chunk->w_offset - offset;
+  विस्थापनम् += chunk->r_विस्थापनम्;
+  DEBUGASSERT(chunk->w_विस्थापनम् >= विस्थापनम्);
+  *pbuf = &chunk->x.दत्त[विस्थापनम्];
+  *plen = chunk->w_विस्थापनम् - विस्थापनम्;
 }
 
-static size_t chunk_skip(struct buf_chunk *chunk, size_t amount)
+स्थिर size_t chunk_skip(संरचना buf_chunk *chunk, size_t amount)
 {
-  size_t n = chunk->w_offset - chunk->r_offset;
-  DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
-  if(n) {
+  size_t n = chunk->w_विस्थापनम् - chunk->r_विस्थापनम्;
+  DEBUGASSERT(chunk->w_विस्थापनम् >= chunk->r_विस्थापनम्);
+  यदि(n) {
     n = CURLMIN(n, amount);
-    chunk->r_offset += n;
-    if(chunk->r_offset == chunk->w_offset)
-      chunk->r_offset = chunk->w_offset = 0;
+    chunk->r_विस्थापनम् += n;
+    यदि(chunk->r_विस्थापनम् == chunk->w_विस्थापनम्)
+      chunk->r_विस्थापनम् = chunk->w_विस्थापनम् = 0;
   }
-  return n;
+  प्रत्यागम n;
 }
 
-static void chunk_list_free(struct buf_chunk **anchor)
+स्थिर शून्य chunk_list_free(संरचना buf_chunk **anchor)
 {
-  struct buf_chunk *chunk;
-  while(*anchor) {
+  संरचना buf_chunk *chunk;
+  यावत्(*anchor) {
     chunk = *anchor;
-    *anchor = chunk->next;
+    *anchor = chunk->अग्र;
     curlx_free(chunk);
   }
 }
 
-void Curl_bufcp_init(struct bufc_pool *pool,
-                     size_t chunk_size, size_t spare_max)
+शून्य Curl_bufcp_init(संरचना bufc_pool *pool,
+                     size_t chunk_आकार, size_t अतिरिक्तः_max)
 {
-  DEBUGASSERT(chunk_size > 0);
-  DEBUGASSERT(spare_max > 0);
-  memset(pool, 0, sizeof(*pool));
-  pool->chunk_size = chunk_size;
-  pool->spare_max = spare_max;
+  DEBUGASSERT(chunk_आकार > 0);
+  DEBUGASSERT(अतिरिक्तः_max > 0);
+  स्मृतिं_पूरय(pool, 0, परिमाण(*pool));
+  pool->chunk_आकार = chunk_आकार;
+  pool->अतिरिक्तः_max = अतिरिक्तः_max;
 }
 
-static CURLcode bufcp_take(struct bufc_pool *pool,
-                           struct buf_chunk **pchunk)
+स्थिर CURLcode bufcp_take(संरचना bufc_pool *pool,
+                           संरचना buf_chunk **pchunk)
 {
-  struct buf_chunk *chunk = NULL;
+  संरचना buf_chunk *chunk = रिक्त;
 
-  if(pool->spare) {
-    chunk = pool->spare;
-    pool->spare = chunk->next;
-    --pool->spare_count;
+  यदि(pool->अतिरिक्तः) {
+    chunk = pool->अतिरिक्तः;
+    pool->अतिरिक्तः = chunk->अग्र;
+    --pool->अतिरिक्तः_गणनम्;
     chunk_reset(chunk);
     *pchunk = chunk;
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
 
   /* Check for integer overflow before allocation */
-  if(pool->chunk_size > SIZE_MAX - sizeof(*chunk)) {
-    *pchunk = NULL;
-    return CURLE_OUT_OF_MEMORY;
+  यदि(pool->chunk_आकार > SIZE_MAX - परिमाण(*chunk)) {
+    *pchunk = रिक्त;
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
 
-  chunk = curlx_calloc(1, sizeof(*chunk) + pool->chunk_size);
-  if(!chunk) {
-    *pchunk = NULL;
-    return CURLE_OUT_OF_MEMORY;
+  chunk = curlx_calloc(1, परिमाण(*chunk) + pool->chunk_आकार);
+  यदि(!chunk) {
+    *pchunk = रिक्त;
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
-  chunk->dlen = pool->chunk_size;
+  chunk->dlen = pool->chunk_आकार;
   *pchunk = chunk;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static void bufcp_put(struct bufc_pool *pool,
-                      struct buf_chunk *chunk)
+स्थिर शून्य bufcp_put(संरचना bufc_pool *pool,
+                      संरचना buf_chunk *chunk)
 {
-  if(pool->spare_count >= pool->spare_max) {
+  यदि(pool->अतिरिक्तः_गणनम् >= pool->अतिरिक्तः_max) {
     curlx_free(chunk);
   }
-  else {
+  अन्यथा {
     chunk_reset(chunk);
-    chunk->next = pool->spare;
-    pool->spare = chunk;
-    ++pool->spare_count;
+    chunk->अग्र = pool->अतिरिक्तः;
+    pool->अतिरिक्तः = chunk;
+    ++pool->अतिरिक्तः_गणनम्;
   }
 }
 
-void Curl_bufcp_free(struct bufc_pool *pool)
+शून्य Curl_bufcp_free(संरचना bufc_pool *pool)
 {
-  chunk_list_free(&pool->spare);
-  pool->spare_count = 0;
+  chunk_list_free(&pool->अतिरिक्तः);
+  pool->अतिरिक्तः_गणनम् = 0;
 }
 
-static void bufq_init(struct bufq *q, struct bufc_pool *pool,
-                      size_t chunk_size, size_t max_chunks, int opts)
+स्थिर शून्य bufq_init(संरचना bufq *q, संरचना bufc_pool *pool,
+                      size_t chunk_आकार, size_t max_chunks, पूर्णाङ्क opts)
 {
-  DEBUGASSERT(chunk_size > 0);
+  DEBUGASSERT(chunk_आकार > 0);
   DEBUGASSERT(max_chunks > 0);
-  memset(q, 0, sizeof(*q));
-  q->chunk_size = chunk_size;
+  स्मृतिं_पूरय(q, 0, परिमाण(*q));
+  q->chunk_आकार = chunk_आकार;
   q->max_chunks = max_chunks;
   q->pool = pool;
   q->opts = opts;
 }
 
-void Curl_bufq_init2(struct bufq *q, size_t chunk_size, size_t max_chunks,
-                     int opts)
+शून्य Curl_bufq_init2(संरचना bufq *q, size_t chunk_आकार, size_t max_chunks,
+                     पूर्णाङ्क opts)
 {
-  bufq_init(q, NULL, chunk_size, max_chunks, opts);
+  bufq_init(q, रिक्त, chunk_आकार, max_chunks, opts);
 }
 
-void Curl_bufq_init(struct bufq *q, size_t chunk_size, size_t max_chunks)
+शून्य Curl_bufq_init(संरचना bufq *q, size_t chunk_आकार, size_t max_chunks)
 {
-  bufq_init(q, NULL, chunk_size, max_chunks, BUFQ_OPT_NONE);
+  bufq_init(q, रिक्त, chunk_आकार, max_chunks, BUFQ_OPT_NONE);
 }
 
-void Curl_bufq_initp(struct bufq *q, struct bufc_pool *pool,
-                     size_t max_chunks, int opts)
+शून्य Curl_bufq_initp(संरचना bufq *q, संरचना bufc_pool *pool,
+                     size_t max_chunks, पूर्णाङ्क opts)
 {
-  bufq_init(q, pool, pool->chunk_size, max_chunks, opts);
+  bufq_init(q, pool, pool->chunk_आकार, max_chunks, opts);
 }
 
-void Curl_bufq_free(struct bufq *q)
+शून्य Curl_bufq_free(संरचना bufq *q)
 {
-  chunk_list_free(&q->head);
-  chunk_list_free(&q->spare);
-  q->tail = NULL;
-  q->chunk_count = 0;
+  chunk_list_free(&q->शीर्ष);
+  chunk_list_free(&q->अतिरिक्तः);
+  q->पुच्छ = रिक्त;
+  q->chunk_गणनम् = 0;
 }
 
-void Curl_bufq_reset(struct bufq *q)
+शून्य Curl_bufq_reset(संरचना bufq *q)
 {
-  struct buf_chunk *chunk;
-  while(q->head) {
-    chunk = q->head;
-    q->head = chunk->next;
-    chunk->next = q->spare;
-    q->spare = chunk;
+  संरचना buf_chunk *chunk;
+  यावत्(q->शीर्ष) {
+    chunk = q->शीर्ष;
+    q->शीर्ष = chunk->अग्र;
+    chunk->अग्र = q->अतिरिक्तः;
+    q->अतिरिक्तः = chunk;
   }
-  q->tail = NULL;
+  q->पुच्छ = रिक्त;
 }
 
-size_t Curl_bufq_len(const struct bufq *q)
+size_t Curl_bufq_len(ध्रुव संरचना bufq *q)
 {
-  const struct buf_chunk *chunk = q->head;
+  ध्रुव संरचना buf_chunk *chunk = q->शीर्ष;
   size_t len = 0;
-  while(chunk) {
+  यावत्(chunk) {
     len += chunk_len(chunk);
-    chunk = chunk->next;
+    chunk = chunk->अग्र;
   }
-  return len;
+  प्रत्यागम len;
 }
 
-bool Curl_bufq_is_empty(const struct bufq *q)
+bool Curl_bufq_is_रिक्तानि(ध्रुव संरचना bufq *q)
 {
-  return !q->head || chunk_is_empty(q->head);
+  प्रत्यागम !q->शीर्ष || chunk_is_रिक्तानि(q->शीर्ष);
 }
 
-bool Curl_bufq_is_full(const struct bufq *q)
+bool Curl_bufq_is_पूर्णम्(ध्रुव संरचना bufq *q)
 {
-  if(!q->tail || q->spare)
-    return FALSE;
-  if(q->chunk_count < q->max_chunks)
-    return FALSE;
-  if(q->chunk_count > q->max_chunks)
-    return TRUE;
+  यदि(!q->पुच्छ || q->अतिरिक्तः)
+    प्रत्यागम FALSE;
+  यदि(q->chunk_गणनम् < q->max_chunks)
+    प्रत्यागम FALSE;
+  यदि(q->chunk_गणनम् > q->max_chunks)
+    प्रत्यागम TRUE;
   /* we have no spares and cannot make more, is the tail full? */
-  return chunk_is_full(q->tail);
+  प्रत्यागम chunk_is_पूर्णम्(q->पुच्छ);
 }
 
-static struct buf_chunk *get_spare(struct bufq *q)
+स्थिर संरचना buf_chunk *get_अतिरिक्तः(संरचना bufq *q)
 {
-  struct buf_chunk *chunk = NULL;
+  संरचना buf_chunk *chunk = रिक्त;
 
-  if(q->spare) {
-    chunk = q->spare;
-    q->spare = chunk->next;
+  यदि(q->अतिरिक्तः) {
+    chunk = q->अतिरिक्तः;
+    q->अतिरिक्तः = chunk->अग्र;
     chunk_reset(chunk);
-    return chunk;
+    प्रत्यागम chunk;
   }
 
-  if(q->chunk_count >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_LIMIT)))
-    return NULL;
+  यदि(q->chunk_गणनम् >= q->max_chunks && (!(q->opts & BUFQ_OPT_SOFT_सीमा)))
+    प्रत्यागम रिक्त;
 
-  if(q->pool) {
-    if(bufcp_take(q->pool, &chunk))
-      return NULL;
-    ++q->chunk_count;
-    return chunk;
+  यदि(q->pool) {
+    यदि(bufcp_take(q->pool, &chunk))
+      प्रत्यागम रिक्त;
+    ++q->chunk_गणनम्;
+    प्रत्यागम chunk;
   }
-  else {
+  अन्यथा {
     /* Check for integer overflow before allocation */
-    if(q->chunk_size > SIZE_MAX - sizeof(*chunk)) {
-      return NULL;
+    यदि(q->chunk_आकार > SIZE_MAX - परिमाण(*chunk)) {
+      प्रत्यागम रिक्त;
     }
 
-    chunk = curlx_calloc(1, sizeof(*chunk) + q->chunk_size);
-    if(!chunk)
-      return NULL;
-    chunk->dlen = q->chunk_size;
-    ++q->chunk_count;
-    return chunk;
+    chunk = curlx_calloc(1, परिमाण(*chunk) + q->chunk_आकार);
+    यदि(!chunk)
+      प्रत्यागम रिक्त;
+    chunk->dlen = q->chunk_आकार;
+    ++q->chunk_गणनम्;
+    प्रत्यागम chunk;
   }
 }
 
-static void prune_head(struct bufq *q)
+स्थिर शून्य prune_शीर्ष(संरचना bufq *q)
 {
-  struct buf_chunk *chunk;
+  संरचना buf_chunk *chunk;
 
-  while(q->head && chunk_is_empty(q->head)) {
-    chunk = q->head;
-    q->head = chunk->next;
-    if(q->tail == chunk)
-      q->tail = q->head;
-    if(q->pool) {
+  यावत्(q->शीर्ष && chunk_is_रिक्तानि(q->शीर्ष)) {
+    chunk = q->शीर्ष;
+    q->शीर्ष = chunk->अग्र;
+    यदि(q->पुच्छ == chunk)
+      q->पुच्छ = q->शीर्ष;
+    यदि(q->pool) {
       bufcp_put(q->pool, chunk);
-      --q->chunk_count;
+      --q->chunk_गणनम्;
     }
-    else if((q->chunk_count > q->max_chunks) ||
+    अन्यथा यदि((q->chunk_गणनम् > q->max_chunks) ||
             (q->opts & BUFQ_OPT_NO_SPARES)) {
       /* SOFT_LIMIT allowed us more than max. free spares until
        * we are at max again. Or free them if we are configured
        * to not use spares. */
       curlx_free(chunk);
-      --q->chunk_count;
+      --q->chunk_गणनम्;
     }
-    else {
-      chunk->next = q->spare;
-      q->spare = chunk;
+    अन्यथा {
+      chunk->अग्र = q->अतिरिक्तः;
+      q->अतिरिक्तः = chunk;
     }
   }
 }
 
-static struct buf_chunk *get_non_full_tail(struct bufq *q)
+स्थिर संरचना buf_chunk *get_non_पूर्णम्_पुच्छ(संरचना bufq *q)
 {
-  struct buf_chunk *chunk;
+  संरचना buf_chunk *chunk;
 
-  if(q->tail && !chunk_is_full(q->tail))
-    return q->tail;
-  chunk = get_spare(q);
-  if(chunk) {
+  यदि(q->पुच्छ && !chunk_is_पूर्णम्(q->पुच्छ))
+    प्रत्यागम q->पुच्छ;
+  chunk = get_अतिरिक्तः(q);
+  यदि(chunk) {
     /* new tail, and possibly new head */
-    if(q->tail) {
-      q->tail->next = chunk;
-      q->tail = chunk;
+    यदि(q->पुच्छ) {
+      q->पुच्छ->अग्र = chunk;
+      q->पुच्छ = chunk;
     }
-    else {
-      DEBUGASSERT(!q->head);
-      q->head = q->tail = chunk;
+    अन्यथा {
+      DEBUGASSERT(!q->शीर्ष);
+      q->शीर्ष = q->पुच्छ = chunk;
     }
   }
-  return chunk;
+  प्रत्यागम chunk;
 }
 
-CURLcode Curl_bufq_write(struct bufq *q,
-                         const uint8_t *buf, size_t len,
+CURLcode Curl_bufq_write(संरचना bufq *q,
+                         ध्रुव uint8_t *buf, size_t len,
                          size_t *pnwritten)
 {
-  struct buf_chunk *tail;
+  संरचना buf_chunk *पुच्छ;
   size_t n;
 
   DEBUGASSERT(q->max_chunks > 0);
   *pnwritten = 0;
-  while(len) {
-    tail = get_non_full_tail(q);
-    if(!tail) {
-      if((q->chunk_count < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_LIMIT))
+  यावत्(len) {
+    पुच्छ = get_non_पूर्णम्_पुच्छ(q);
+    यदि(!पुच्छ) {
+      यदि((q->chunk_गणनम् < q->max_chunks) || (q->opts & BUFQ_OPT_SOFT_सीमा))
         /* should have gotten a tail, but did not */
-        return CURLE_OUT_OF_MEMORY;
-      break;
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      भङ्ग;
     }
-    n = chunk_append(tail, buf, len);
-    if(!n)
-      break;
+    n = chunk_append(पुच्छ, buf, len);
+    यदि(!n)
+      भङ्ग;
     *pnwritten += n;
     buf += n;
     len -= n;
   }
-  return (!*pnwritten && len) ? CURLE_AGAIN : CURLE_OK;
+  प्रत्यागम (!*pnwritten && len) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_cwrite(struct bufq *q,
-                          const char *buf, size_t len,
+CURLcode Curl_bufq_cwrite(संरचना bufq *q,
+                          ध्रुव वर्ण *buf, size_t len,
                           size_t *pnwritten)
 {
-  return Curl_bufq_write(q, (const uint8_t *)buf, len, pnwritten);
+  प्रत्यागम Curl_bufq_write(q, (ध्रुव uint8_t *)buf, len, pnwritten);
 }
 
-CURLcode Curl_bufq_read(struct bufq *q, uint8_t *buf, size_t len,
+CURLcode Curl_bufq_read(संरचना bufq *q, uint8_t *buf, size_t len,
                         size_t *pnread)
 {
   *pnread = 0;
-  while(len && q->head) {
-    size_t n = chunk_read(q->head, buf, len);
-    if(n) {
+  यावत्(len && q->शीर्ष) {
+    size_t n = chunk_read(q->शीर्ष, buf, len);
+    यदि(n) {
       *pnread += n;
       buf += n;
       len -= n;
     }
-    prune_head(q);
+    prune_शीर्ष(q);
   }
-  return (!*pnread) ? CURLE_AGAIN : CURLE_OK;
+  प्रत्यागम (!*pnread) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_cread(struct bufq *q, char *buf, size_t len,
+CURLcode Curl_bufq_cread(संरचना bufq *q, वर्ण *buf, size_t len,
                          size_t *pnread)
 {
-  return Curl_bufq_read(q, (uint8_t *)buf, len, pnread);
+  प्रत्यागम Curl_bufq_read(q, (uint8_t *)buf, len, pnread);
 }
 
-bool Curl_bufq_peek(struct bufq *q,
-                    const uint8_t **pbuf, size_t *plen)
+bool Curl_bufq_peek(संरचना bufq *q,
+                    ध्रुव uint8_t **pbuf, size_t *plen)
 {
-  if(q->head && chunk_is_empty(q->head)) {
-    prune_head(q);
+  यदि(q->शीर्ष && chunk_is_रिक्तानि(q->शीर्ष)) {
+    prune_शीर्ष(q);
   }
-  if(q->head && !chunk_is_empty(q->head)) {
-    chunk_peek(q->head, pbuf, plen);
-    return TRUE;
+  यदि(q->शीर्ष && !chunk_is_रिक्तानि(q->शीर्ष)) {
+    chunk_peek(q->शीर्ष, pbuf, plen);
+    प्रत्यागम TRUE;
   }
-  *pbuf = NULL;
+  *pbuf = रिक्त;
   *plen = 0;
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-bool Curl_bufq_peek_at(struct bufq *q, size_t offset,
-                       const uint8_t **pbuf, size_t *plen)
+bool Curl_bufq_peek_at(संरचना bufq *q, size_t विस्थापनम्,
+                       ध्रुव uint8_t **pbuf, size_t *plen)
 {
-  struct buf_chunk *c = q->head;
+  संरचना buf_chunk *c = q->शीर्ष;
   size_t clen;
 
-  while(c) {
+  यावत्(c) {
     clen = chunk_len(c);
-    if(!clen)
-      break;
-    if(offset >= clen) {
-      offset -= clen;
-      c = c->next;
-      continue;
+    यदि(!clen)
+      भङ्ग;
+    यदि(विस्थापनम् >= clen) {
+      विस्थापनम् -= clen;
+      c = c->अग्र;
+      अनुवर्त;
     }
-    chunk_peek_at(c, offset, pbuf, plen);
-    return TRUE;
+    chunk_peek_at(c, विस्थापनम्, pbuf, plen);
+    प्रत्यागम TRUE;
   }
-  *pbuf = NULL;
+  *pbuf = रिक्त;
   *plen = 0;
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-void Curl_bufq_skip(struct bufq *q, size_t amount)
+शून्य Curl_bufq_skip(संरचना bufq *q, size_t amount)
 {
   size_t n;
 
-  while(amount && q->head) {
-    n = chunk_skip(q->head, amount);
+  यावत्(amount && q->शीर्ष) {
+    n = chunk_skip(q->शीर्ष, amount);
     amount -= n;
-    prune_head(q);
+    prune_शीर्ष(q);
   }
 }
 
-CURLcode Curl_bufq_pass(struct bufq *q, Curl_bufq_writer *writer,
-                        void *writer_ctx, size_t *pwritten)
+CURLcode Curl_bufq_pass(संरचना bufq *q, Curl_bufq_writer *writer,
+                        शून्य *writer_ctx, size_t *pwritten)
 {
-  const uint8_t *buf;
+  ध्रुव uint8_t *buf;
   size_t blen;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
   *pwritten = 0;
-  while(Curl_bufq_peek(q, &buf, &blen)) {
+  यावत्(Curl_bufq_peek(q, &buf, &blen)) {
     size_t chunk_written;
 
-    result = writer(writer_ctx, buf, blen, &chunk_written);
-    if(result) {
-      if((result == CURLE_AGAIN) && *pwritten) {
+    परिणाम = writer(writer_ctx, buf, blen, &chunk_written);
+    यदि(परिणाम) {
+      यदि((परिणाम == CURLE_AGAIN) && *pwritten) {
         /* blocked on subsequent write, report success */
-        result = CURLE_OK;
+        परिणाम = CURLE_OK;
       }
-      break;
+      भङ्ग;
     }
-    if(!chunk_written) {
-      if(!*pwritten) {
+    यदि(!chunk_written) {
+      यदि(!*pwritten) {
         /* treat as blocked */
-        result = CURLE_AGAIN;
+        परिणाम = CURLE_AGAIN;
       }
-      break;
+      भङ्ग;
     }
     *pwritten += chunk_written;
     Curl_bufq_skip(q, chunk_written);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_bufq_write_pass(struct bufq *q,
-                              const uint8_t *buf, size_t len,
-                              Curl_bufq_writer *writer, void *writer_ctx,
+CURLcode Curl_bufq_write_pass(संरचना bufq *q,
+                              ध्रुव uint8_t *buf, size_t len,
+                              Curl_bufq_writer *writer, शून्य *writer_ctx,
                               size_t *pwritten)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   size_t n;
 
   *pwritten = 0;
-  while(len) {
-    if(Curl_bufq_is_full(q)) {
+  यावत्(len) {
+    यदि(Curl_bufq_is_पूर्णम्(q)) {
       /* try to make room in case we are full */
-      result = Curl_bufq_pass(q, writer, writer_ctx, &n);
-      if(result) {
-        if(result != CURLE_AGAIN) {
+      परिणाम = Curl_bufq_pass(q, writer, writer_ctx, &n);
+      यदि(परिणाम) {
+        यदि(परिणाम != CURLE_AGAIN) {
           /* real error, fail */
-          return result;
+          प्रत्यागम परिणाम;
         }
         /* would block, bufq is full, give up */
-        break;
+        भङ्ग;
       }
     }
 
     /* Add to bufq as much as there is room for */
-    result = Curl_bufq_write(q, buf, len, &n);
-    if(result) {
-      if(result != CURLE_AGAIN)
+    परिणाम = Curl_bufq_write(q, buf, len, &n);
+    यदि(परिणाम) {
+      यदि(परिणाम != CURLE_AGAIN)
         /* real error, fail */
-        return result;
+        प्रत्यागम परिणाम;
       /* result == CURLE_AGAIN */
-      if(*pwritten)
+      यदि(*pwritten)
         /* we did write successfully before */
-        result = CURLE_OK;
-      return result;
+        परिणाम = CURLE_OK;
+      प्रत्यागम परिणाम;
     }
-    else if(n == 0)
+    अन्यथा यदि(n == 0)
       /* edge case of writer returning 0 (and len is >0)
        * break or we might enter an infinite loop here */
-      break;
+      भङ्ग;
 
     /* Track what we added to bufq */
     buf += n;
@@ -547,25 +547,25 @@ CURLcode Curl_bufq_write_pass(struct bufq *q,
     *pwritten += n;
   }
 
-  return (!*pwritten && len) ? CURLE_AGAIN : CURLE_OK;
+  प्रत्यागम (!*pwritten && len) ? CURLE_AGAIN : CURLE_OK;
 }
 
-CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
-                        Curl_bufq_reader *reader, void *reader_ctx,
+CURLcode Curl_bufq_sipn(संरचना bufq *q, size_t max_len,
+                        Curl_bufq_reader *reader, शून्य *reader_ctx,
                         size_t *pnread)
 {
-  struct buf_chunk *tail = NULL;
+  संरचना buf_chunk *पुच्छ = रिक्त;
 
   *pnread = 0;
-  tail = get_non_full_tail(q);
-  if(!tail) {
-    if(q->chunk_count < q->max_chunks)
-      return CURLE_OUT_OF_MEMORY;
+  पुच्छ = get_non_पूर्णम्_पुच्छ(q);
+  यदि(!पुच्छ) {
+    यदि(q->chunk_गणनम् < q->max_chunks)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     /* full, blocked */
-    return CURLE_AGAIN;
+    प्रत्यागम CURLE_AGAIN;
   }
 
-  return chunk_slurpn(tail, max_len, reader, reader_ctx, pnread);
+  प्रत्यागम chunk_slurpn(पुच्छ, max_len, reader, reader_ctx, pnread);
 }
 
 /**
@@ -576,44 +576,44 @@ CURLcode Curl_bufq_sipn(struct bufq *q, size_t max_len,
  * Note that even in case of an error chunks may have been read and
  * the buffer queue will have different length than before.
  */
-static CURLcode bufq_slurpn(struct bufq *q, size_t max_len,
-                            Curl_bufq_reader *reader, void *reader_ctx,
+स्थिर CURLcode bufq_slurpn(संरचना bufq *q, size_t max_len,
+                            Curl_bufq_reader *reader, शून्य *reader_ctx,
                             size_t *pnread)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
   *pnread = 0;
-  while(1) {
+  यावत्(1) {
     size_t n;
-    result = Curl_bufq_sipn(q, max_len, reader, reader_ctx, &n);
-    if(result) {
-      if(!*pnread || result != CURLE_AGAIN) {
+    परिणाम = Curl_bufq_sipn(q, max_len, reader, reader_ctx, &n);
+    यदि(परिणाम) {
+      यदि(!*pnread || परिणाम != CURLE_AGAIN) {
         /* blocked on first read or real error, fail */
-        return result;
+        प्रत्यागम परिणाम;
       }
-      result = CURLE_OK;
-      break;
+      परिणाम = CURLE_OK;
+      भङ्ग;
     }
-    else if(n == 0) {
+    अन्यथा यदि(n == 0) {
       /* eof, result remains CURLE_OK */
-      break;
+      भङ्ग;
     }
     *pnread += n;
-    if(max_len) {
+    यदि(max_len) {
       DEBUGASSERT(n <= max_len);
       max_len -= n;
-      if(!max_len)
-        break;
+      यदि(!max_len)
+        भङ्ग;
     }
     /* give up slurping when we get less bytes than we asked for */
-    if(q->tail && !chunk_is_full(q->tail))
-      break;
+    यदि(q->पुच्छ && !chunk_is_पूर्णम्(q->पुच्छ))
+      भङ्ग;
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_bufq_slurp(struct bufq *q, Curl_bufq_reader *reader,
-                         void *reader_ctx, size_t *pnread)
+CURLcode Curl_bufq_slurp(संरचना bufq *q, Curl_bufq_reader *reader,
+                         शून्य *reader_ctx, size_t *pnread)
 {
-  return bufq_slurpn(q, 0, reader, reader_ctx, pnread);
+  प्रत्यागम bufq_slurpn(q, 0, reader, reader_ctx, pnread);
 }

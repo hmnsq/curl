@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_RTSP_H
-#define HEADER_CURL_RTSP_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_RTSP_H
+#परिभाषय शीर्षकम्_CURL_RTSP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,25 +23,25 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_RTSP
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header);
-extern const struct Curl_protocol Curl_protocol_rtsp;
-#else
-#define Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_RTSP
+CURLcode Curl_rtsp_parseheader(संरचना Curl_easy *दत्त, ध्रुव वर्ण *शीर्षकम्);
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_rtsp;
+#अन्यथा
+#परिभाषय Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_अन्तर्
+#यदि_अन्तः
 
-#define RTSPREQ_NONE CURL_RTSPREQ_NONE
-#define RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
-#define RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
-#define RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
-#define RTSPREQ_SETUP CURL_RTSPREQ_SETUP
-#define RTSPREQ_PLAY CURL_RTSPREQ_PLAY
-#define RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
-#define RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
-#define RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
-#define RTSPREQ_SET_PARAMETER CURL_RTSPREQ_SET_PARAMETER
-#define RTSPREQ_RECORD CURL_RTSPREQ_RECORD
-#define RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
-#define RTSPREQ_LAST CURL_RTSPREQ_LAST
+#परिभाषय RTSPREQ_NONE CURL_RTSPREQ_NONE
+#परिभाषय RTSPREQ_OPTIONS CURL_RTSPREQ_OPTIONS
+#परिभाषय RTSPREQ_DESCRIBE CURL_RTSPREQ_DESCRIBE
+#परिभाषय RTSPREQ_ANNOUNCE CURL_RTSPREQ_ANNOUNCE
+#परिभाषय RTSPREQ_सज्जता CURL_RTSPREQ_सज्जता
+#परिभाषय RTSPREQ_PLAY CURL_RTSPREQ_PLAY
+#परिभाषय RTSPREQ_PAUSE CURL_RTSPREQ_PAUSE
+#परिभाषय RTSPREQ_TEARDOWN CURL_RTSPREQ_TEARDOWN
+#परिभाषय RTSPREQ_GET_PARAMETER CURL_RTSPREQ_GET_PARAMETER
+#परिभाषय RTSPREQ_समुच्चयः_PARAMETER CURL_RTSPREQ_समुच्चयः_PARAMETER
+#परिभाषय RTSPREQ_लेखः CURL_RTSPREQ_लेखः
+#परिभाषय RTSPREQ_RECEIVE CURL_RTSPREQ_RECEIVE
+#परिभाषय RTSPREQ_चरमः CURL_RTSPREQ_चरमः
 
-#endif /* HEADER_CURL_RTSP_H */
+#यदि_अन्तः /* HEADER_CURL_RTSP_H */

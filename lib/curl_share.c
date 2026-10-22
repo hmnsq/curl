@@ -21,475 +21,475 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
-#include "multiif.h"
-#include "curl_threads.h"
-#include "curl_share.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_scache.h"
-#include "hsts.h"
-#include "url.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "curl_threads.h"
+#अन्तर्भाव "curl_share.h"
+#अन्तर्भाव "vtls/vtls.h"
+#अन्तर्भाव "vtls/vtls_scache.h"
+#अन्तर्भाव "hsts.h"
+#अन्तर्भाव "url.h"
 
-static void share_destroy(struct Curl_share *share)
+स्थिर शून्य share_destroy(संरचना Curl_share *share)
 {
-  if(!share)
-    return;
+  यदि(!share)
+    प्रत्यागम;
 
-  if(share->specifier & (1 << CURL_LOCK_DATA_CONNECT)) {
+  यदि(share->specifier & (1 << CURL_तालकम्_दत्त_CONNECT)) {
     Curl_cpool_destroy(&share->cpool, share->admin);
   }
 
   Curl_dnscache_destroy(&share->dnscache);
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
   Curl_cookie_cleanup(share->cookies);
-#endif
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_HSTS
+#यदि_अपरिभाषितम् CURL_DISABLE_HSTS
   Curl_hsts_cleanup(&share->hsts);
-#endif
+#यदि_अन्तः
 
-#ifdef USE_SSL
-  if(share->ssl_scache) {
+#यदि_परिभाषितम् USE_SSL
+  यदि(share->ssl_scache) {
     Curl_ssl_scache_destroy(share->ssl_scache);
-    share->ssl_scache = NULL;
+    share->ssl_scache = रिक्त;
   }
-#endif
+#यदि_अन्तः
 
   Curl_psl_destroy(&share->psl);
   Curl_close(&share->admin);
 
-#ifdef USE_MUTEX
-  Curl_mutex_destroy(&share->lock);
-#endif
-  curlx_memzero(share, sizeof(*share));
+#यदि_परिभाषितम् USE_MUTEX
+  Curl_mutex_destroy(&share->तालकम्);
+#यदि_अन्तः
+  curlx_memzero(share, परिमाण(*share));
   curlx_free(share);
 }
 
-CURLSH *curl_share_init(void)
+CURLSH *curl_share_init(शून्य)
 {
-  struct Curl_share *share = curlx_calloc(1, sizeof(struct Curl_share));
-  if(share) {
+  संरचना Curl_share *share = curlx_calloc(1, परिमाण(संरचना Curl_share));
+  यदि(share) {
     share->magic = CURL_GOOD_SHARE;
-    share->specifier |= (1 << CURL_LOCK_DATA_SHARE);
-#ifdef USE_MUTEX
-    Curl_mutex_init(&share->lock);
-#endif
-    share->ref_count = 1;
+    share->specifier |= (1 << CURL_तालकम्_दत्त_SHARE);
+#यदि_परिभाषितम् USE_MUTEX
+    Curl_mutex_init(&share->तालकम्);
+#यदि_अन्तः
+    share->ref_गणनम् = 1;
     Curl_dnscache_init(&share->dnscache, 23);
     share->admin = curl_easy_init();
-    if(!share->admin) {
+    यदि(!share->admin) {
       share_destroy(share);
-      return NULL;
+      प्रत्यागम रिक्त;
     }
     /* admin handles have mid 0 */
     share->admin->mid = 0;
-    share->admin->state.internal = TRUE;
-#ifdef DEBUGBUILD
-    if(getenv("CURL_DEBUG"))
-      share->admin->set.verbose = TRUE;
-#endif
+    share->admin->state.आन्तरिकम् = TRUE;
+#यदि_परिभाषितम् DEBUGBUILD
+    यदि(getenv("CURL_DEBUG"))
+      share->admin->समुच्चयः.verbose = TRUE;
+#यदि_अन्तः
   }
-  return share;
+  प्रत्यागम share;
 }
 
-static uint32_t share_ref_inc(struct Curl_share *share)
+स्थिर uint32_t share_ref_inc(संरचना Curl_share *share)
 {
   uint32_t n;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  n = ++share->ref_count;
+#यदि_परिभाषितम् USE_MUTEX
+  Curl_mutex_acquire(&share->तालकम्);
+  n = ++share->ref_गणनम्;
   share->has_been_shared = TRUE;
-  Curl_mutex_release(&share->lock);
-#else
-  n = ++share->ref_count;
+  Curl_mutex_release(&share->तालकम्);
+#अन्यथा
+  n = ++share->ref_गणनम्;
   share->has_been_shared = TRUE;
-#endif
-  return n;
+#यदि_अन्तः
+  प्रत्यागम n;
 }
 
-static uint32_t share_ref_dec(struct Curl_share *share)
+स्थिर uint32_t share_ref_dec(संरचना Curl_share *share)
 {
   uint32_t n;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  DEBUGASSERT(share->ref_count);
-  n = --share->ref_count;
-  Curl_mutex_release(&share->lock);
-#else
-  n = --share->ref_count;
-#endif
-  return n;
+#यदि_परिभाषितम् USE_MUTEX
+  Curl_mutex_acquire(&share->तालकम्);
+  DEBUGASSERT(share->ref_गणनम्);
+  n = --share->ref_गणनम्;
+  Curl_mutex_release(&share->तालकम्);
+#अन्यथा
+  n = --share->ref_गणनम्;
+#यदि_अन्तः
+  प्रत्यागम n;
 }
 
-static bool share_has_been_shared(struct Curl_share *share)
+स्थिर bool share_has_been_shared(संरचना Curl_share *share)
 {
   bool was_shared;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
+#यदि_परिभाषितम् USE_MUTEX
+  Curl_mutex_acquire(&share->तालकम्);
   was_shared = share->has_been_shared;
-  Curl_mutex_release(&share->lock);
-#else
+  Curl_mutex_release(&share->तालकम्);
+#अन्यथा
   was_shared = share->has_been_shared;
-#endif
-  return was_shared;
+#यदि_अन्तः
+  प्रत्यागम was_shared;
 }
 
-static bool share_lock_acquire(struct Curl_share *share,
-                               struct Curl_easy *data)
+स्थिर bool share_तालकम्_acquire(संरचना Curl_share *share,
+                               संरचना Curl_easy *दत्त)
 {
-  if(share->lockfunc && share->unlockfunc &&
-     (data || share_has_been_shared(share))) {
-    share->lockfunc(data, CURL_LOCK_DATA_SHARE, CURL_LOCK_ACCESS_SINGLE,
+  यदि(share->lockfunc && share->unlockfunc &&
+     (दत्त || share_has_been_shared(share))) {
+    share->lockfunc(दत्त, CURL_तालकम्_दत्त_SHARE, CURL_तालकम्_ACCESS_SINGLE,
                     share->clientdata);
-    return TRUE;
+    प्रत्यागम TRUE;
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static void share_lock_release(struct Curl_share *share,
-                               struct Curl_easy *data,
+स्थिर शून्य share_तालकम्_release(संरचना Curl_share *share,
+                               संरचना Curl_easy *दत्त,
                                bool locked)
 {
-  if(locked) {
+  यदि(locked) {
     DEBUGASSERT(share->unlockfunc);
-    if(share->unlockfunc)
-      share->unlockfunc(data, CURL_LOCK_DATA_SHARE, share->clientdata);
+    यदि(share->unlockfunc)
+      share->unlockfunc(दत्त, CURL_तालकम्_दत्त_SHARE, share->clientdata);
   }
 }
 
-static bool share_in_use(struct Curl_share *share)
+स्थिर bool share_अन्तर्_use(संरचना Curl_share *share)
 {
-  bool in_use;
-#ifdef USE_MUTEX
-  Curl_mutex_acquire(&share->lock);
-  in_use = (share->ref_count > 1);
-  Curl_mutex_release(&share->lock);
-#else
-  bool locked = share_lock_acquire(share, NULL);
-  in_use = (share->ref_count > 1);
-  share_lock_release(share, NULL, locked);
-#endif
-  return in_use;
+  bool अन्तर्_use;
+#यदि_परिभाषितम् USE_MUTEX
+  Curl_mutex_acquire(&share->तालकम्);
+  अन्तर्_use = (share->ref_गणनम् > 1);
+  Curl_mutex_release(&share->तालकम्);
+#अन्यथा
+  bool locked = share_तालकम्_acquire(share, रिक्त);
+  अन्तर्_use = (share->ref_गणनम् > 1);
+  share_तालकम्_release(share, रिक्त, locked);
+#यदि_अन्तः
+  प्रत्यागम अन्तर्_use;
 }
 
-static void share_unlink(struct Curl_share **pshare,
-                         struct Curl_easy *data,
+स्थिर शून्य share_unlink(संरचना Curl_share **pshare,
+                         संरचना Curl_easy *दत्त,
                          bool locked)
 {
-  struct Curl_share *share = *pshare;
+  संरचना Curl_share *share = *pshare;
   uint32_t n;
 
-  *pshare = NULL;
+  *pshare = रिक्त;
   n = share_ref_dec(share);
-  if(locked)
-    share_lock_release(share, data, locked);
-  if(!n)  /* last reference gone */
+  यदि(locked)
+    share_तालकम्_release(share, दत्त, locked);
+  यदि(!n)  /* last reference gone */
     share_destroy(share);
 }
 
-#undef curl_share_setopt
+#अपरिभाषय curl_share_setopt
 CURLSHcode curl_share_setopt(CURLSH *sh, CURLSHoption option, ...)
 {
   va_list param;
-  int type;
-  curl_lock_function lockfunc;
+  पूर्णाङ्क type;
+  curl_तालकम्_function lockfunc;
   curl_unlock_function unlockfunc;
-  void *ptr;
+  शून्य *ptr;
   CURLSHcode res = CURLSHE_OK;
-  struct Curl_share *share = sh;
+  संरचना Curl_share *share = sh;
 
-  if(!GOOD_SHARE_HANDLE(share))
-    return CURLSHE_INVALID;
+  यदि(!GOOD_SHARE_HANDLE(share))
+    प्रत्यागम CURLSHE_INVALID;
 
-  if(share_in_use(share)) {
+  यदि(share_अन्तर्_use(share)) {
     /* do not allow setting options while one or more handles are already
        using this share */
-    return CURLSHE_IN_USE;
+    प्रत्यागम CURLSHE_अन्तर्_USE;
   }
 
   va_start(param, option);
 
-  switch(option) {
-  case CURLSHOPT_SHARE:
+  विकल्प(option) {
+  पक्ष CURLSHOPT_SHARE:
     /* this is a type this share will share */
-    type = va_arg(param, int);
+    type = va_arg(param, पूर्णाङ्क);
 
-    switch(type) {
-    case CURL_LOCK_DATA_DNS:
-      break;
+    विकल्प(type) {
+    पक्ष CURL_तालकम्_दत्त_DNS:
+      भङ्ग;
 
-    case CURL_LOCK_DATA_COOKIE:
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-      if(!share->cookies) {
+    पक्ष CURL_तालकम्_दत्त_COOKIE:
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+      यदि(!share->cookies) {
         share->cookies = Curl_cookie_init();
-        if(!share->cookies)
+        यदि(!share->cookies)
           res = CURLSHE_NOMEM;
       }
-#else /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#अन्यथा /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    case CURL_LOCK_DATA_HSTS:
-#ifndef CURL_DISABLE_HSTS
-      if(!share->hsts) {
+    पक्ष CURL_तालकम्_दत्त_HSTS:
+#यदि_अपरिभाषितम् CURL_DISABLE_HSTS
+      यदि(!share->hsts) {
         share->hsts = Curl_hsts_init();
-        if(!share->hsts)
+        यदि(!share->hsts)
           res = CURLSHE_NOMEM;
       }
-#else /* CURL_DISABLE_HSTS */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#अन्यथा /* CURL_DISABLE_HSTS */
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    case CURL_LOCK_DATA_SSL_SESSION:
-#ifdef USE_SSL
-      if(!share->ssl_scache) {
+    पक्ष CURL_तालकम्_दत्त_SSL_SESSION:
+#यदि_परिभाषितम् USE_SSL
+      यदि(!share->ssl_scache) {
         /* There is no way (yet) for the application to configure the
          * session cache size, shared between many transfers. As for curl
          * itself, a high session count will impact startup time. Also, the
          * scache is not optimized for several hundreds of peers.
          * Keep it at a reasonable level. */
-        if(Curl_ssl_scache_create(25, 2, &share->ssl_scache))
+        यदि(Curl_ssl_scache_create(25, 2, &share->ssl_scache))
           res = CURLSHE_NOMEM;
       }
-#else
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#अन्यथा
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    case CURL_LOCK_DATA_CONNECT:
+    पक्ष CURL_तालकम्_दत्त_CONNECT:
       /* It is safe to set this option several times on a share. */
-      if(!share->cpool.initialized) {
+      यदि(!share->cpool.initialized) {
         Curl_cpool_init(&share->cpool, share, 103);
       }
-      break;
+      भङ्ग;
 
-    case CURL_LOCK_DATA_PSL:
-#ifndef USE_LIBPSL
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+    पक्ष CURL_तालकम्_दत्त_PSL:
+#यदि_अपरिभाषितम् USE_LIBPSL
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    default:
+    स्वभाव:
       res = CURLSHE_BAD_OPTION;
     }
-    if(!res)
-      share->specifier |= (unsigned int)(1 << type);
-    break;
+    यदि(!res)
+      share->specifier |= (अचिह्नित पूर्णाङ्क)(1 << type);
+    भङ्ग;
 
-  case CURLSHOPT_UNSHARE:
+  पक्ष CURLSHOPT_UNSHARE:
     /* this is a type this share will no longer share */
-    type = va_arg(param, int);
-    switch(type) {
-    case CURL_LOCK_DATA_DNS:
-      break;
+    type = va_arg(param, पूर्णाङ्क);
+    विकल्प(type) {
+    पक्ष CURL_तालकम्_दत्त_DNS:
+      भङ्ग;
 
-    case CURL_LOCK_DATA_COOKIE:
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-      if(share->cookies) {
+    पक्ष CURL_तालकम्_दत्त_COOKIE:
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+      यदि(share->cookies) {
         Curl_cookie_cleanup(share->cookies);
-        share->cookies = NULL;
+        share->cookies = रिक्त;
       }
-#else /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#अन्यथा /* CURL_DISABLE_HTTP || CURL_DISABLE_COOKIES */
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    case CURL_LOCK_DATA_HSTS:
-#ifndef CURL_DISABLE_HSTS
-      if(share->hsts) {
+    पक्ष CURL_तालकम्_दत्त_HSTS:
+#यदि_अपरिभाषितम् CURL_DISABLE_HSTS
+      यदि(share->hsts) {
         Curl_hsts_cleanup(&share->hsts);
       }
-#else /* CURL_DISABLE_HSTS */
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#अन्यथा /* CURL_DISABLE_HSTS */
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    case CURL_LOCK_DATA_SSL_SESSION:
-#ifdef USE_SSL
-      if(share->ssl_scache) {
+    पक्ष CURL_तालकम्_दत्त_SSL_SESSION:
+#यदि_परिभाषितम् USE_SSL
+      यदि(share->ssl_scache) {
         Curl_ssl_scache_destroy(share->ssl_scache);
-        share->ssl_scache = NULL;
+        share->ssl_scache = रिक्त;
       }
-#else
-      res = CURLSHE_NOT_BUILT_IN;
-#endif
-      break;
+#अन्यथा
+      res = CURLSHE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
+      भङ्ग;
 
-    case CURL_LOCK_DATA_CONNECT:
-      break;
+    पक्ष CURL_तालकम्_दत्त_CONNECT:
+      भङ्ग;
 
-    default:
+    स्वभाव:
       res = CURLSHE_BAD_OPTION;
-      break;
+      भङ्ग;
     }
-    if(!res)
-      share->specifier &= ~(unsigned int)(1 << type);
-    break;
+    यदि(!res)
+      share->specifier &= ~(अचिह्नित पूर्णाङ्क)(1 << type);
+    भङ्ग;
 
-  case CURLSHOPT_LOCKFUNC:
-    lockfunc = va_arg(param, curl_lock_function);
+  पक्ष CURLSHOPT_LOCKFUNC:
+    lockfunc = va_arg(param, curl_तालकम्_function);
     share->lockfunc = lockfunc;
-    break;
+    भङ्ग;
 
-  case CURLSHOPT_UNLOCKFUNC:
+  पक्ष CURLSHOPT_UNLOCKFUNC:
     unlockfunc = va_arg(param, curl_unlock_function);
     share->unlockfunc = unlockfunc;
-    break;
+    भङ्ग;
 
-  case CURLSHOPT_USERDATA:
-    ptr = va_arg(param, void *);
+  पक्ष CURLSHOPT_USERDATA:
+    ptr = va_arg(param, शून्य *);
     share->clientdata = ptr;
-    break;
+    भङ्ग;
 
-  default:
+  स्वभाव:
     res = CURLSHE_BAD_OPTION;
-    break;
+    भङ्ग;
   }
 
   va_end(param);
 
-  return res;
+  प्रत्यागम res;
 }
 
 CURLSHcode curl_share_cleanup(CURLSH *sh)
 {
-  struct Curl_share *share = sh;
+  संरचना Curl_share *share = sh;
   bool locked;
-  if(!GOOD_SHARE_HANDLE(share))
-    return CURLSHE_INVALID;
+  यदि(!GOOD_SHARE_HANDLE(share))
+    प्रत्यागम CURLSHE_INVALID;
 
-  if(share_in_use(share))
-    return CURLSHE_IN_USE;
+  यदि(share_अन्तर्_use(share))
+    प्रत्यागम CURLSHE_अन्तर्_USE;
 
-  locked = share_lock_acquire(share, NULL);
-  share_unlink(&share, NULL, locked);
-  return CURLSHE_OK;
+  locked = share_तालकम्_acquire(share, रिक्त);
+  share_unlink(&share, रिक्त, locked);
+  प्रत्यागम CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
-                                 curl_lock_data type,
-                                 curl_lock_access accesstype)
+CURLSHcode Curl_share_तालकम्_share(संरचना Curl_share *share,
+                                 संरचना Curl_easy *दत्त,
+                                 curl_तालकम्_दत्त type,
+                                 curl_तालकम्_access accesstype)
 {
-  if(!share)
-    return CURLSHE_INVALID;
+  यदि(!share)
+    प्रत्यागम CURLSHE_INVALID;
 
-  if(share->specifier & (unsigned int)(1 << type) &&
+  यदि(share->specifier & (अचिह्नित पूर्णाङ्क)(1 << type) &&
      share->lockfunc) /* only call this if set! */
-    share->lockfunc(data, type, accesstype, share->clientdata);
+    share->lockfunc(दत्त, type, accesstype, share->clientdata);
   /* else if we do not share this, pretend successful lock */
 
-  return CURLSHE_OK;
+  प्रत्यागम CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
-                           curl_lock_access accesstype)
+CURLSHcode Curl_share_तालकम्(संरचना Curl_easy *दत्त, curl_तालकम्_दत्त type,
+                           curl_तालकम्_access accesstype)
 {
-  return Curl_share_lock_share(data->share, data, type, accesstype);
+  प्रत्यागम Curl_share_तालकम्_share(दत्त->share, दत्त, type, accesstype);
 }
 
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
-                                   curl_lock_data type)
+CURLSHcode Curl_share_unlock_share(संरचना Curl_share *share,
+                                   संरचना Curl_easy *दत्त,
+                                   curl_तालकम्_दत्त type)
 {
-  if(!share)
-    return CURLSHE_INVALID;
+  यदि(!share)
+    प्रत्यागम CURLSHE_INVALID;
 
-  if(share->specifier & (unsigned int)(1 << type) &&
+  यदि(share->specifier & (अचिह्नित पूर्णाङ्क)(1 << type) &&
      share->unlockfunc) /* only call this if set! */
-    share->unlockfunc(data, type, share->clientdata);
+    share->unlockfunc(दत्त, type, share->clientdata);
 
-  return CURLSHE_OK;
+  प्रत्यागम CURLSHE_OK;
 }
 
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type)
+CURLSHcode Curl_share_unlock(संरचना Curl_easy *दत्त, curl_तालकम्_दत्त type)
 {
-  return Curl_share_unlock_share(data->share, data, type);
+  प्रत्यागम Curl_share_unlock_share(दत्त->share, दत्त, type);
 }
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data)
+CURLcode Curl_share_easy_unlink(संरचना Curl_easy *दत्त)
 {
-  struct Curl_share *share = data->share;
+  संरचना Curl_share *share = दत्त->share;
 
-  if(share) {
-    bool locked = share_lock_acquire(share, data);
+  यदि(share) {
+    bool locked = share_तालकम्_acquire(share, दत्त);
 
     /* If share caches connections, detach any existing connection and
      * forget its identifier. */
-    if((share->specifier & (1 << CURL_LOCK_DATA_CONNECT))) {
-      if(data->conn)
-        Curl_detach_connection(data);
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    यदि((share->specifier & (1 << CURL_तालकम्_दत्त_CONNECT))) {
+      यदि(दत्त->conn)
+        Curl_detach_connection(दत्त);
+      दत्त->state.चरमः_conn_id = -1;
+      दत्त->state.चरमः_cpid = UINT32_MAX;
     }
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-    if(share->cookies == data->cookies)
-      data->cookies = NULL;
-#endif
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+    यदि(share->cookies == दत्त->cookies)
+      दत्त->cookies = रिक्त;
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_HSTS
-    if(share->hsts == data->hsts)
-      data->hsts = NULL;
-#endif
-#ifdef USE_LIBPSL
-    if(&share->psl == data->psl)
-      data->psl = data->multi ? &data->multi->psl : NULL;
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_HSTS
+    यदि(share->hsts == दत्त->hsts)
+      दत्त->hsts = रिक्त;
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_LIBPSL
+    यदि(&share->psl == दत्त->psl)
+      दत्त->psl = दत्त->multi ? &दत्त->multi->psl : रिक्त;
+#यदि_अन्तः
 
-    share_unlink(&data->share, data, locked);
+    share_unlink(&दत्त->share, दत्त, locked);
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share)
+CURLcode Curl_share_easy_link(संरचना Curl_easy *दत्त,
+                              संरचना Curl_share *share)
 {
-  if(data->share) {
+  यदि(दत्त->share) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    प्रत्यागम CURLE_FAILED_INIT;
   }
 
-  if(share) {
-    bool locked = share_lock_acquire(share, data);
+  यदि(share) {
+    bool locked = share_तालकम्_acquire(share, दत्त);
 
     /* Forget identifiers from the previously used connection cache. */
-    if((share->specifier & (1 << CURL_LOCK_DATA_CONNECT))) {
-      data->state.last_conn_id = -1;
-      data->state.last_cpid = UINT32_MAX;
+    यदि((share->specifier & (1 << CURL_तालकम्_दत्त_CONNECT))) {
+      दत्त->state.चरमः_conn_id = -1;
+      दत्त->state.चरमः_cpid = UINT32_MAX;
     }
 
     share_ref_inc(share);
-    data->share = share;
+    दत्त->share = share;
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-    if(share->cookies) {
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+    यदि(share->cookies) {
       /* use shared cookie list, first free own one if any */
-      Curl_cookie_cleanup(data->cookies);
+      Curl_cookie_cleanup(दत्त->cookies);
       /* enable cookies since we now use a share that uses cookies! */
-      data->cookies = share->cookies;
+      दत्त->cookies = share->cookies;
     }
-#endif /* CURL_DISABLE_HTTP */
-#ifndef CURL_DISABLE_HSTS
-    if(share->hsts) {
+#यदि_अन्तः /* CURL_DISABLE_HTTP */
+#यदि_अपरिभाषितम् CURL_DISABLE_HSTS
+    यदि(share->hsts) {
       /* first free the private one if any */
-      Curl_hsts_cleanup(&data->hsts);
-      data->hsts = share->hsts;
+      Curl_hsts_cleanup(&दत्त->hsts);
+      दत्त->hsts = share->hsts;
     }
-#endif
-#ifdef USE_LIBPSL
-    if(share->specifier & (1 << CURL_LOCK_DATA_PSL))
-      data->psl = &share->psl;
-#endif
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_LIBPSL
+    यदि(share->specifier & (1 << CURL_तालकम्_दत्त_PSL))
+      दत्त->psl = &share->psl;
+#यदि_अन्तः
 
     /* check for host cache not needed,
      * it will be done by curl_easy_perform */
-    share_lock_release(share, data, locked);
+    share_तालकम्_release(share, दत्त, locked);
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }

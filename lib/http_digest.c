@@ -21,39 +21,39 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "strcase.h"
-#include "vauth/vauth.h"
-#include "http_digest.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "strcase.h"
+#अन्तर्भाव "vauth/vauth.h"
+#अन्तर्भाव "http_digest.h"
+#अन्तर्भाव "curlx/strparse.h"
 
 /* Flush the Digest state if it was created for a different origin or with
    different credentials than the ones now in use, then link the current
    ones. */
-static void digest_flush_stale(struct Curl_easy *data,
-                               struct digestdata *digest,
-                               struct Curl_peer *peer,
-                               struct Curl_creds *creds)
+स्थिर शून्य digest_flush_stale(संरचना Curl_easy *दत्त,
+                               संरचना digestdata *digest,
+                               संरचना Curl_peer *peer,
+                               संरचना Curl_creds *creds)
 {
   bool flush = FALSE;
-  if(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
-    CURL_TRC_M(data, "http_digest, reset on peer change to %s:%u",
+  यदि(!digest->origin || !Curl_peer_equal(peer, digest->origin)) {
+    CURL_TRC_M(दत्त, "http_digest, reset on peer change to %s:%u",
                peer ? peer->hostname : "-",
-               (unsigned int)(peer ? peer->port : 0));
+               (अचिह्नित पूर्णाङ्क)(peer ? peer->पत्तनम् : 0));
     flush = TRUE;
   }
-  else if(digest->creds && !Curl_creds_same(creds, digest->creds)) {
-    CURL_TRC_M(data, "http_digest, reset on creds change to %s",
+  अन्यथा यदि(digest->creds && !Curl_creds_same(creds, digest->creds)) {
+    CURL_TRC_M(दत्त, "http_digest, reset on creds change to %s",
                creds ? creds->user : "-");
     flush = TRUE;
   }
 
-  if(flush) {
+  यदि(flush) {
     /* flush Digest state */
     Curl_auth_digest_cleanup(digest);
   }
@@ -67,123 +67,123 @@ static void digest_flush_stale(struct Curl_easy *data,
    WWW-Authenticate: Digest realm="testrealm", nonce="1053604598"
    Proxy-Authenticate: Digest realm="testrealm", nonce="1053604598"
  */
-CURLcode Curl_input_digest(struct Curl_easy *data,
+CURLcode Curl_निवेशः_digest(संरचना Curl_easy *दत्त,
                            bool proxy,
-                           const char *header) /* rest of the *-authenticate:
-                                                  header */
+                           ध्रुव वर्ण *शीर्षकम्) /* rest of the *-authenticate:
+शीर्षकम्*/
 {
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct Curl_peer *origin = NULL;
-  CURLcode result;
+  संरचना digestdata *digest;
+  संरचना Curl_peer *origin = रिक्त;
+  CURLcode परिणाम;
 
-  if(proxy) {
-    digest = &data->state.proxydigest;
-#ifdef CURL_DISABLE_PROXY
+  यदि(proxy) {
+    digest = &दत्त->state.proxydigest;
+#यदि_परिभाषितम् CURL_DISABLE_PROXY
     Curl_auth_digest_cleanup(digest);
-    return CURLE_OK;  /* just ignore such a header without proxy support */
-#else
-    origin = data->conn->http_proxy.peer;
-#endif
+    प्रत्यागम CURLE_OK;  /* just ignore such a header without proxy support */
+#अन्यथा
+    origin = दत्त->conn->http_proxy.peer;
+#यदि_अन्तः
   }
-  else {
-    digest = &data->state.digest;
-    origin = data->state.origin;
+  अन्यथा {
+    digest = &दत्त->state.digest;
+    origin = दत्त->state.origin;
   }
 
-  if(!checkprefix("Digest", header) || !ISBLANK(header[6])) {
+  यदि(!checkprefix("Digest", शीर्षकम्) || !ISBLANK(शीर्षकम्[6])) {
     Curl_auth_digest_cleanup(digest);
-    return CURLE_AUTH_ERROR;
+    प्रत्यागम CURLE_AUTH_ERROR;
   }
 
-  header += CURL_CSTRLEN("Digest");
-  curlx_str_passblanks(&header);
+  शीर्षकम् += CURL_CSTRLEN("Digest");
+  curlx_str_passblanks(&शीर्षकम्);
 
   /* This resets the digest struct before decoding */
-  result = Curl_auth_decode_digest_http_message(header, digest);
+  परिणाम = Curl_auth_decode_digest_http_सन्देशः(शीर्षकम्, digest);
   /* Remember only the peer, the data we take in has no relation to creds
    * at this time. We can use it even if creds change. */
   Curl_peer_link(&digest->origin, origin);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(संरचना Curl_easy *दत्त,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath)
+                            ध्रुव अचिह्नित वर्ण *request,
+                            ध्रुव अचिह्नित वर्ण *uripath)
 {
-  struct Curl_peer *origin = NULL;
-  CURLcode result;
-  char *response;
+  संरचना Curl_peer *origin = रिक्त;
+  CURLcode परिणाम;
+  वर्ण *response;
   size_t len;
   bool have_chlg;
 
   /* Point to the address of the pointer that holds the string to send to the
      server, which is for a plain host or for an HTTP proxy */
-  char **allocuserpwd;
+  वर्ण **allocuserpwd;
 
   /* Point to the name and password for this */
-  struct Curl_creds *creds = NULL;
+  संरचना Curl_creds *creds = रिक्त;
 
   /* Point to the correct struct with this */
-  struct digestdata *digest;
-  struct auth *authp;
+  संरचना digestdata *digest;
+  संरचना auth *authp;
 
-  if(proxy) {
-#ifdef CURL_DISABLE_PROXY
-    return CURLE_NOT_BUILT_IN;
-#else
-    digest = &data->state.proxydigest;
-    origin = data->conn->http_proxy.peer;
-    creds = data->conn->http_proxy.creds;
-    allocuserpwd = &data->req.hd_proxy_auth;
-    authp = &data->state.authproxy;
-#endif
+  यदि(proxy) {
+#यदि_परिभाषितम् CURL_DISABLE_PROXY
+    प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
+#अन्यथा
+    digest = &दत्त->state.proxydigest;
+    origin = दत्त->conn->http_proxy.peer;
+    creds = दत्त->conn->http_proxy.creds;
+    allocuserpwd = &दत्त->req.hd_proxy_auth;
+    authp = &दत्त->state.authproxy;
+#यदि_अन्तः
   }
-  else {
-    DEBUGASSERT(data->state.origin);
-    digest = &data->state.digest;
-    origin = data->state.origin;
-    creds = data->state.creds;
-    allocuserpwd = &data->req.hd_auth;
-    authp = &data->state.authhost;
+  अन्यथा {
+    DEBUGASSERT(दत्त->state.origin);
+    digest = &दत्त->state.digest;
+    origin = दत्त->state.origin;
+    creds = दत्त->state.creds;
+    allocuserpwd = &दत्त->req.hd_auth;
+    authp = &दत्त->state.authhost;
   }
 
-  digest_flush_stale(data, digest, origin, creds);
+  digest_flush_stale(दत्त, digest, origin, creds);
   curlx_safefree(*allocuserpwd);
 
-#ifdef USE_WINDOWS_SSPI
-  have_chlg = !!digest->input_token;
-#else
+#यदि_परिभाषितम् USE_WINDOWS_SSPI
+  have_chlg = !!digest->निवेशः_token;
+#अन्यथा
   have_chlg = !!digest->nonce;
-#endif
+#यदि_अन्तः
 
-  if(!have_chlg) {
-    authp->done = FALSE;
-    return CURLE_OK;
+  यदि(!have_chlg) {
+    authp->समाप्तम् = FALSE;
+    प्रत्यागम CURLE_OK;
   }
 
-  result = Curl_auth_create_digest_http_message(data, creds, request,
+  परिणाम = Curl_auth_create_digest_http_सन्देशः(दत्त, creds, request,
                                                 uripath, digest,
                                                 &response, &len);
-  if(result)
-    return result;
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
   *allocuserpwd = curl_maprintf("%sAuthorization: Digest %s\r\n",
                                 proxy ? "Proxy-" : "", response);
   curlx_free(response);
-  if(!*allocuserpwd)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(!*allocuserpwd)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  authp->done = TRUE;
+  authp->समाप्तम् = TRUE;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data)
+शून्य Curl_http_auth_cleanup_digest(संरचना Curl_easy *दत्त)
 {
-  Curl_auth_digest_cleanup(&data->state.digest);
-  Curl_auth_digest_cleanup(&data->state.proxydigest);
+  Curl_auth_digest_cleanup(&दत्त->state.digest);
+  Curl_auth_digest_cleanup(&दत्त->state.proxydigest);
 }
 
-#endif
+#यदि_अन्तः

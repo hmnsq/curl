@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_DIGEST_H
-#define HEADER_CURL_HTTP_DIGEST_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_HTTP_DIGEST_H
+#परिभाषय शीर्षकम्_CURL_HTTP_DIGEST_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,22 +23,22 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 /* this is for digest header input */
-CURLcode Curl_input_digest(struct Curl_easy *data,
-                           bool proxy, const char *header);
+CURLcode Curl_निवेशः_digest(संरचना Curl_easy *दत्त,
+                           bool proxy, ध्रुव वर्ण *शीर्षकम्);
 
 /* this is for creating digest header output */
-CURLcode Curl_output_digest(struct Curl_easy *data,
+CURLcode Curl_output_digest(संरचना Curl_easy *दत्त,
                             bool proxy,
-                            const unsigned char *request,
-                            const unsigned char *uripath);
+                            ध्रुव अचिह्नित वर्ण *request,
+                            ध्रुव अचिह्नित वर्ण *uripath);
 
-void Curl_http_auth_cleanup_digest(struct Curl_easy *data);
+शून्य Curl_http_auth_cleanup_digest(संरचना Curl_easy *दत्त);
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_DIGEST_AUTH */
+#यदि_अन्तः /* !CURL_DISABLE_HTTP && !CURL_DISABLE_DIGEST_AUTH */
 
-#endif /* HEADER_CURL_HTTP_DIGEST_H */
+#यदि_अन्तः /* HEADER_CURL_HTTP_DIGEST_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP_HTTPSIG_H
-#define HEADER_CURL_HTTP_HTTPSIG_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_HTTP_HTTPSIG_H
+#परिभाषय शीर्षकम्_CURL_HTTP_HTTPSIG_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,13 +23,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
-#include "urldata.h"
+#अन्तर्भाव "urldata.h"
 
-CURLcode Curl_output_httpsig(struct Curl_easy *data);
+CURLcode Curl_output_httpsig(संरचना Curl_easy *दत्त);
 
-#endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
-#endif /* HEADER_CURL_HTTP_HTTPSIG_H */
+#यदि_अन्तः /* !CURL_DISABLE_HTTP && !CURL_DISABLE_HTTPSIG */
+#यदि_अन्तः /* HEADER_CURL_HTTP_HTTPSIG_H */

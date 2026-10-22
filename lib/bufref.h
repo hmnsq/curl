@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_BUFREF_H
-#define HEADER_CURL_BUFREF_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_BUFREF_H
+#परिभाषय शीर्षकम्_CURL_BUFREF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -27,25 +27,25 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+संरचना bufref {
+  शून्य (*dtor)(शून्य *);         /* Associated destructor. */
+  ध्रुव अचिह्नित वर्ण *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
-#ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
-#endif
+#यदि_परिभाषितम् DEBUGBUILD
+  पूर्णाङ्क signature;                /* Detect API use mistakes. */
+#यदि_अन्तः
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+शून्य Curl_bufref_init(संरचना bufref *br);
+शून्य Curl_bufref_समुच्चयः(संरचना bufref *br, ध्रुव शून्य *ptr, size_t len,
+                     शून्य (*dtor)(शून्य *));
+ध्रुव वर्ण *Curl_bufref_ptr(ध्रुव संरचना bufref *br);
+ध्रुव अचिह्नित वर्ण *Curl_bufref_uptr(ध्रुव संरचना bufref *br);
+size_t Curl_bufref_len(ध्रुव संरचना bufref *br);
+CURLcode Curl_bufref_memdup0(संरचना bufref *br, ध्रुव शून्य *ptr, size_t len);
+शून्य Curl_bufref_free(संरचना bufref *br);
 
 /* return a strdup() version of the buffer */
-#define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
+#परिभाषय Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))
 
-#endif
+#यदि_अन्तः

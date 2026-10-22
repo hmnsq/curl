@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#यदि_अपरिभाषितम् CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "bufq.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "cf-recvbuf.h"
+#अन्तर्भाव "curl_trc.h"
 
-#define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
+#परिभाषय CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+संरचना cf_recvbuf_ctx {
+  संरचना bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+स्थिर शून्य cf_recvbuf_destroy(संरचना Curl_cfilter *cf,
+                               संरचना Curl_easy *दत्त)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  संरचना cf_recvbuf_ctx *ctx = cf->ctx;
+  (शून्य)दत्त;
+  यदि(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+स्थिर CURLcode cf_recvbuf_recv(संरचना Curl_cfilter *cf,
+                                संरचना Curl_easy *दत्त,
+                                वर्ण *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  संरचना cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  यदि(!Curl_bufq_is_रिक्तानि(&ctx->recvbuf)) {
+    प्रत्यागम Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  यदि(cf->अग्र)
+    प्रत्यागम cf->अग्र->cft->do_recv(cf->अग्र, दत्त, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  प्रत्यागम CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+स्थिर bool cf_recvbuf_दत्त_pending(संरचना Curl_cfilter *cf,
+                                    ध्रुव संरचना Curl_easy *दत्त)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  संरचना cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  यदि(!Curl_bufq_is_रिक्तानि(&ctx->recvbuf))
+    प्रत्यागम TRUE;
 
-  return cf->next ?
-    cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  प्रत्यागम cf->अग्र ?
+    cf->अग्र->cft->has_दत्त_pending(cf->अग्र, दत्त) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+संरचना Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -86,7 +86,7 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_connect,
   Curl_cf_def_shutdown,
   Curl_cf_def_adjust_pollset,
-  cf_recvbuf_data_pending,
+  cf_recvbuf_दत्त_pending,
   Curl_cf_def_send,
   cf_recvbuf_recv,
   Curl_cf_def_cntrl,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+स्थिर CURLcode cf_recvbuf_create(संरचना Curl_cfilter **pcf,
+                                  संरचना Curl_easy *दत्त,
+                                  ध्रुव uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
-  CURLcode result = CURLE_OK;
+  संरचना Curl_cfilter *cf = रिक्त;
+  संरचना cf_recvbuf_ctx *ctx;
+  CURLcode परिणाम = CURLE_OK;
   size_t nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  (शून्य)दत्त;
+  ctx = curlx_calloc(1, परिमाण(*ctx));
+  यदि(!ctx) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
-                  (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
-  result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
-    result = CURLE_FAILED_INIT;
-    goto out;
+                  (BUFQ_OPT_SOFT_सीमा | BUFQ_OPT_NO_SPARES));
+  परिणाम = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  यदि(nwritten != blen) {
+    परिणाम = CURLE_FAILED_INIT;
+    गच्छ बहिर्गमनम्;
   }
 
-  result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  परिणाम = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  ctx = रिक्त;
 
-out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+बहिर्गमनम्:
+  *pcf = परिणाम ? रिक्त : cf;
+  यदि(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_सङ्कलय(संरचना Curl_easy *दत्त,
+                             संरचना connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             ध्रुव uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
-  CURLcode result = CURLE_OK;
+  संरचना Curl_cfilter *cf;
+  CURLcode परिणाम = CURLE_OK;
 
-  DEBUGASSERT(data);
-  result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  DEBUGASSERT(दत्त);
+  परिणाम = cf_recvbuf_create(&cf, दत्त, buf, blen);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
-  Curl_conn_cf_add(data, conn, sockindex, cf);
-out:
-  return result;
+  Curl_conn_cf_सङ्कलय(दत्त, conn, sockindex, cf);
+बहिर्गमनम्:
+  प्रत्यागम परिणाम;
 }
 
-#endif /* !CURL_DISABLE_WEBSOCKETS */
+#यदि_अन्तः /* !CURL_DISABLE_WEBSOCKETS */

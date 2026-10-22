@@ -21,11 +21,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
+#यदि !defined(CURL_DISABLE_DIGEST_AUTH) && !defined(CURL_DISABLE_SHA512_256)
 
-#include "curl_sha512_256.h"
+#अन्तर्भाव "curl_sha512_256.h"
 
 /* The recommended order of the TLS backends:
  * 1. USE_OPENSSL
@@ -36,10 +36,10 @@
  * 6. USE_WIN32_CRYPTO (TBD)
  * Skip the backend if it does not support the required algorithm */
 
-#ifdef USE_OPENSSL
+#यदि_परिभाषितम् USE_OPENSSL
 #  include <openssl/opensslv.h>
-#  if !defined(LIBRESSL_VERSION_NUMBER) || \
-  (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER >= 0x3080000fL)
+#  यदि !defined(LIBRESSL_संस्करणम्_सङ्ख्या) || \
+  (defined(LIBRESSL_संस्करणम्_सङ्ख्या) && LIBRESSL_संस्करणम्_सङ्ख्या >= 0x3080000fL)
 #    include <openssl/evp.h>
 #    define USE_OPENSSL_SHA512_256          1
 #    define HAS_SHA512_256_IMPLEMENTATION   1
@@ -54,7 +54,7 @@
  * NetBSD 10.99.11 development.
  * It is safe to apply the workaround even if the bug is not present, as
  * the workaround reduces performance slightly. */
-#      if  __NetBSD_Version__ <   904000000 ||  \
+#      यदि  __NetBSD_Version__ <   904000000 ||  \
           (__NetBSD_Version__ >=  999000000 &&  \
            __NetBSD_Version__ <  1000000000) || \
           (__NetBSD_Version__ >= 1099000000 &&  \
@@ -63,43 +63,43 @@
 #      endif
 #    endif
 #  endif
-#endif /* USE_OPENSSL */
+#यदि_अन्तः /* USE_OPENSSL */
 
-#if !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_WOLFSSL)
+#यदि !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_WOLFSSL)
 #  include <wolfssl/options.h>
 #  ifndef WOLFSSL_NOSHA512_256
 #    define USE_WOLFSSL_SHA512_256          1
 #    define HAS_SHA512_256_IMPLEMENTATION   1
 #  endif
-#endif
+#यदि_अन्तः
 
-#if !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_GNUTLS)
+#यदि !defined(HAS_SHA512_256_IMPLEMENTATION) && defined(USE_GNUTLS)
 #  include <nettle/sha2.h>
 #  include <nettle/version.h>
-#  ifdef SHA512_256_DIGEST_SIZE
+#  ifdef SHA512_256_DIGEST_आकार
 #    define USE_GNUTLS_SHA512_256           1
 #  endif
-#endif /* !HAS_SHA512_256_IMPLEMENTATION && USE_GNUTLS */
+#यदि_अन्तः /* !HAS_SHA512_256_IMPLEMENTATION && USE_GNUTLS */
 
-#ifdef USE_OPENSSL_SHA512_256
+#यदि_परिभाषितम् USE_OPENSSL_SHA512_256
 
 /* OpenSSL does not provide macros for SHA-512/256 sizes */
 
 /**
  * Size of the SHA-512/256 single processing block in bytes.
  */
-#define CURL_SHA512_256_BLOCK_SIZE 128
+#परिभाषय CURL_SHA512_256_खण्डम्_आकार 128
 
 /**
  * Size of the SHA-512/256 resulting digest in bytes.
  * This is the final digest size, not intermediate hash.
  */
-#define CURL_SHA512_256_DIGEST_SIZE CURL_SHA512_256_DIGEST_LENGTH
+#परिभाषय CURL_SHA512_256_DIGEST_आकार CURL_SHA512_256_DIGEST_दीर्घता
 
 /**
  * Context type used for SHA-512/256 calculations
  */
-typedef EVP_MD_CTX *Curl_sha512_256_ctx;
+प्रकारनिर्देश EVP_MD_CTX *Curl_sha512_256_ctx;
 
 /**
  * Initialize structure for SHA-512/256 calculation.
@@ -108,26 +108,26 @@ typedef EVP_MD_CTX *Curl_sha512_256_ctx;
  * @return CURLE_OK if succeed,
  *         error code otherwise
  */
-static CURLcode Curl_sha512_256_init(void *context)
+स्थिर CURLcode Curl_sha512_256_init(शून्य *context)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ध्रुव ctx = (Curl_sha512_256_ctx *)context;
 
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(!*ctx)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  if(EVP_DigestInit_ex(*ctx, EVP_sha512_256(), NULL)) {
+  यदि(EVP_DigestInit_ex(*ctx, EVP_sha512_256(), रिक्त)) {
     /* Check whether the header and this file use the same numbers */
-    DEBUGASSERT(EVP_MD_CTX_size(*ctx) == CURL_SHA512_256_DIGEST_SIZE);
+    DEBUGASSERT(EVP_MD_CTX_आकार(*ctx) == CURL_SHA512_256_DIGEST_आकार);
     /* Check whether the block size is correct */
-    DEBUGASSERT(EVP_MD_CTX_block_size(*ctx) == CURL_SHA512_256_BLOCK_SIZE);
+    DEBUGASSERT(EVP_MD_CTX_खण्डम्_आकार(*ctx) == CURL_SHA512_256_खण्डम्_आकार);
 
-    return CURLE_OK; /* Success */
+    प्रत्यागम CURLE_OK; /* Success */
   }
 
   /* Cleanup */
   EVP_MD_CTX_free(*ctx);
-  return CURLE_FAILED_INIT;
+  प्रत्यागम CURLE_FAILED_INIT;
 }
 
 /**
@@ -138,16 +138,16 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @return CURLE_OK if succeed,
  *         error code otherwise
  */
-static CURLcode Curl_sha512_256_update(void *context,
-                                       const unsigned char *data,
-                                       size_t length)
+स्थिर CURLcode Curl_sha512_256_update(शून्य *context,
+                                       ध्रुव अचिह्नित वर्ण *दत्त,
+                                       size_t दीर्घता)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ध्रुव ctx = (Curl_sha512_256_ctx *)context;
 
-  if(!EVP_DigestUpdate(*ctx, data, length))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(!EVP_DigestUpdate(*ctx, दत्त, दीर्घता))
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /**
@@ -159,76 +159,76 @@ static CURLcode Curl_sha512_256_update(void *context,
  * @return CURLE_OK if succeed,
  *         error code otherwise
  */
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
+स्थिर CURLcode Curl_sha512_256_finish(अचिह्नित वर्ण *digest, शून्य *context)
 {
-  CURLcode result;
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  CURLcode परिणाम;
+  Curl_sha512_256_ctx * ध्रुव ctx = (Curl_sha512_256_ctx *)context;
 
-#ifdef NEED_NETBSD_SHA512_256_WORKAROUND
+#यदि_परिभाषितम् NEED_NETBSD_SHA512_256_WORKAROUND
   /* Use a larger buffer to work around a bug in NetBSD:
      https://gnats.netbsd.org/cgi-bin/query-pr-single.pl?number=58039 */
-  unsigned char tmp_digest[CURL_SHA512_256_DIGEST_SIZE * 2];
-  result = EVP_DigestFinal_ex(*ctx, tmp_digest, NULL) ?
-    CURLE_OK : CURLE_BAD_FUNCTION_ARGUMENT;
-  if(result == CURLE_OK)
-    memcpy(digest, tmp_digest, CURL_SHA512_256_DIGEST_SIZE);
-  curlx_memzero(tmp_digest, sizeof(tmp_digest));
-#else /* !NEED_NETBSD_SHA512_256_WORKAROUND */
-  result = EVP_DigestFinal_ex(*ctx, digest, NULL) ?
-    CURLE_OK : CURLE_BAD_FUNCTION_ARGUMENT;
-#endif /* NEED_NETBSD_SHA512_256_WORKAROUND */
+  अचिह्नित वर्ण tmp_digest[CURL_SHA512_256_DIGEST_आकार * 2];
+  परिणाम = EVP_DigestFinal_ex(*ctx, tmp_digest, रिक्त) ?
+    CURLE_OK : CURLE_BAD_FUNCTION_तर्कः;
+  यदि(परिणाम == CURLE_OK)
+    स्मृतिं_प्रतिलिख(digest, tmp_digest, CURL_SHA512_256_DIGEST_आकार);
+  curlx_memzero(tmp_digest, परिमाण(tmp_digest));
+#अन्यथा /* !NEED_NETBSD_SHA512_256_WORKAROUND */
+  परिणाम = EVP_DigestFinal_ex(*ctx, digest, रिक्त) ?
+    CURLE_OK : CURLE_BAD_FUNCTION_तर्कः;
+#यदि_अन्तः /* NEED_NETBSD_SHA512_256_WORKAROUND */
 
   EVP_MD_CTX_free(*ctx);
-  *ctx = NULL;
+  *ctx = रिक्त;
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#elif defined(USE_WOLFSSL_SHA512_256)
-#include <wolfssl/wolfcrypt/sha512.h>
+#नोचेद्यदि defined(USE_WOLFSSL_SHA512_256)
+#अन्तर्भाव <wolfssl/wolfcrypt/sha512.h>
 
-#define CURL_SHA512_256_DIGEST_SIZE WC_SHA512_256_DIGEST_SIZE
-#define CURL_SHA512_256_BLOCK_SIZE  WC_SHA512_256_BLOCK_SIZE
+#परिभाषय CURL_SHA512_256_DIGEST_आकार WC_SHA512_256_DIGEST_आकार
+#परिभाषय CURL_SHA512_256_खण्डम्_आकार  WC_SHA512_256_खण्डम्_आकार
 
-typedef struct wc_Sha512 Curl_sha512_256_ctx;
+प्रकारनिर्देश संरचना wc_Sha512 Curl_sha512_256_ctx;
 
-static CURLcode Curl_sha512_256_init(void *ctx)
+स्थिर CURLcode Curl_sha512_256_init(शून्य *ctx)
 {
-  if(wc_InitSha512_256(ctx))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  यदि(wc_InitSha512_256(ctx))
+    प्रत्यागम CURLE_FAILED_INIT;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode Curl_sha512_256_update(void *ctx,
-                                       const unsigned char *data,
-                                       size_t length)
+स्थिर CURLcode Curl_sha512_256_update(शून्य *ctx,
+                                       ध्रुव अचिह्नित वर्ण *दत्त,
+                                       size_t दीर्घता)
 {
-  do {
-    word32 ilen = (word32)CURLMIN(length, UINT_MAX);
-    if(wc_Sha512_256Update(ctx, data, ilen))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    length -= ilen;
-    data += ilen;
-  } while(length);
-  return CURLE_OK;
+  कुरु {
+    word32 ilen = (word32)CURLMIN(दीर्घता, UINT_MAX);
+    यदि(wc_Sha512_256Update(ctx, दत्त, ilen))
+      प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
+    दीर्घता -= ilen;
+    दत्त += ilen;
+  } यावत्(दीर्घता);
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *ctx)
+स्थिर CURLcode Curl_sha512_256_finish(अचिह्नित वर्ण *digest, शून्य *ctx)
 {
-  if(wc_Sha512_256Final(ctx, digest))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return CURLE_OK;
+  यदि(wc_Sha512_256Final(ctx, digest))
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
+  प्रत्यागम CURLE_OK;
 }
 
-#elif defined(USE_GNUTLS_SHA512_256)
+#नोचेद्यदि defined(USE_GNUTLS_SHA512_256)
 
-#define CURL_SHA512_256_BLOCK_SIZE  SHA512_256_BLOCK_SIZE
-#define CURL_SHA512_256_DIGEST_SIZE SHA512_256_DIGEST_SIZE
+#परिभाषय CURL_SHA512_256_खण्डम्_आकार  SHA512_256_खण्डम्_आकार
+#परिभाषय CURL_SHA512_256_DIGEST_आकार SHA512_256_DIGEST_आकार
 
 /**
  * Context type used for SHA-512/256 calculations
  */
-typedef struct sha512_256_ctx Curl_sha512_256_ctx;
+प्रकारनिर्देश संरचना sha512_256_ctx Curl_sha512_256_ctx;
 
 /**
  * Initialize structure for SHA-512/256 calculation.
@@ -236,16 +236,16 @@ typedef struct sha512_256_ctx Curl_sha512_256_ctx;
  * @param context the calculation context
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_init(void *context)
+स्थिर CURLcode Curl_sha512_256_init(शून्य *context)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ध्रुव ctx = (Curl_sha512_256_ctx *)context;
 
   /* Check whether the header and this file use the same numbers */
-  DEBUGASSERT(CURL_SHA512_256_DIGEST_LENGTH == CURL_SHA512_256_DIGEST_SIZE);
+  DEBUGASSERT(CURL_SHA512_256_DIGEST_दीर्घता == CURL_SHA512_256_DIGEST_आकार);
 
   sha512_256_init(ctx);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /**
@@ -256,17 +256,17 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @param length number of bytes in @a data
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_update(void *context,
-                                       const unsigned char *data,
-                                       size_t length)
+स्थिर CURLcode Curl_sha512_256_update(शून्य *context,
+                                       ध्रुव अचिह्नित वर्ण *दत्त,
+                                       size_t दीर्घता)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ध्रुव ctx = (Curl_sha512_256_ctx *)context;
 
-  DEBUGASSERT(data || (length == 0));
+  DEBUGASSERT(दत्त || (दीर्घता == 0));
 
-  sha512_256_update(ctx, length, (const uint8_t *)data);
+  sha512_256_update(ctx, दीर्घता, (ध्रुव uint8_t *)दत्त);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /**
@@ -277,61 +277,61 @@ static CURLcode Curl_sha512_256_update(void *context,
  *             bytes
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
+स्थिर CURLcode Curl_sha512_256_finish(अचिह्नित वर्ण *digest, शून्य *context)
 {
-  Curl_sha512_256_ctx * const ctx = (Curl_sha512_256_ctx *)context;
+  Curl_sha512_256_ctx * ध्रुव ctx = (Curl_sha512_256_ctx *)context;
 
-#if NETTLE_VERSION_MAJOR >= 4
+#यदि NETTLE_संस्करणम्_MAJOR >= 4
   sha512_256_digest(ctx, (uint8_t *)digest);
-#else
+#अन्यथा
   sha512_256_digest(ctx,
-                    (size_t)CURL_SHA512_256_DIGEST_SIZE, (uint8_t *)digest);
-#endif
+                    (size_t)CURL_SHA512_256_DIGEST_आकार, (uint8_t *)digest);
+#यदि_अन्तः
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#else /* No system or TLS backend SHA-512/256 implementation available */
+#अन्यथा /* No system or TLS backend SHA-512/256 implementation available */
 
 /* ** This implementation of SHA-512/256 hash calculation was originally ** *
  * ** written by Evgeny Grin (Karlson2k) for GNU libmicrohttpd.          ** *
  * ** The author ported the code to libcurl. The ported code is provided ** *
  * ** under curl license.                                                ** */
 
-#ifdef __GNUC__
-#  if defined(__has_attribute) && defined(__STDC_VERSION__)
-#    if __has_attribute(always_inline) && __STDC_VERSION__ >= 199901L
+#यदि_परिभाषितम् __GNUC__
+#  यदि defined(__has_attribute) && defined(__STDC_VERSION__)
+#    यदि __has_attribute(always_inline) && __STDC_VERSION__ >= 199901L
 #      define CURL_FORCEINLINE CURL_INLINE __attribute__((always_inline))
 #    endif
 #  endif
-#endif
+#यदि_अन्तः
 
-#if !defined(CURL_FORCEINLINE) && \
+#यदि !defined(CURL_FORCEINLINE) && \
   defined(_MSC_VER) && !defined(__GNUC__) && !defined(__clang__)
-#define CURL_FORCEINLINE __forceinline
-#endif
+#परिभाषय CURL_FORCEINLINE __forceinline
+#यदि_अन्तः
 
 /* Assume that 'CURL_INLINE' keyword works or the
  * macro was already defined correctly. */
-#ifndef CURL_FORCEINLINE
-#define CURL_FORCEINLINE CURL_INLINE
-#endif
+#यदि_अपरिभाषितम् CURL_FORCEINLINE
+#परिभाषय CURL_FORCEINLINE CURL_INLINE
+#यदि_अन्तः
 
 /* Bits manipulation macros and functions.
    Can be moved to other headers to reuse. */
 
-#define CURL_GET_64BIT_BE(ptr)                       \
-  (((uint64_t)(((const uint8_t *)(ptr))[0]) << 56) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[1]) << 48) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[2]) << 40) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[3]) << 32) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[4]) << 24) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[5]) << 16) | \
-   ((uint64_t)(((const uint8_t *)(ptr))[6]) << 8)  | \
-    (uint64_t)(((const uint8_t *)(ptr))[7]))
+#परिभाषय CURL_GET_64BIT_BE(ptr)                       \
+  (((uint64_t)(((ध्रुव uint8_t *)(ptr))[0]) << 56) | \
+   ((uint64_t)(((ध्रुव uint8_t *)(ptr))[1]) << 48) | \
+   ((uint64_t)(((ध्रुव uint8_t *)(ptr))[2]) << 40) | \
+   ((uint64_t)(((ध्रुव uint8_t *)(ptr))[3]) << 32) | \
+   ((uint64_t)(((ध्रुव uint8_t *)(ptr))[4]) << 24) | \
+   ((uint64_t)(((ध्रुव uint8_t *)(ptr))[5]) << 16) | \
+   ((uint64_t)(((ध्रुव uint8_t *)(ptr))[6]) << 8)  | \
+    (uint64_t)(((ध्रुव uint8_t *)(ptr))[7]))
 
-#define CURL_PUT_64BIT_BE(ptr, val)                             \
-  do {                                                          \
+#परिभाषय CURL_PUT_64BIT_BE(ptr, val)                             \
+  कुरु {                                                          \
     ((uint8_t *)(ptr))[7] = (uint8_t)((uint64_t)(val));         \
     ((uint8_t *)(ptr))[6] = (uint8_t)(((uint64_t)(val)) >> 8);  \
     ((uint8_t *)(ptr))[5] = (uint8_t)(((uint64_t)(val)) >> 16); \
@@ -340,18 +340,18 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
     ((uint8_t *)(ptr))[2] = (uint8_t)(((uint64_t)(val)) >> 40); \
     ((uint8_t *)(ptr))[1] = (uint8_t)(((uint64_t)(val)) >> 48); \
     ((uint8_t *)(ptr))[0] = (uint8_t)(((uint64_t)(val)) >> 56); \
-  } while(0)
+  } यावत्(0)
 
 /* Defined as a function. The macro version may duplicate the binary code
  * size as each argument is used twice, so if any calculation is used
  * as an argument, the calculation could be done twice. */
-static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
+स्थिर CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t मानम्, अचिह्नित पूर्णाङ्क द्वयङ्काः)
 {
-  bits %= 64;
-  if(bits == 0)
-    return value;
+  द्वयङ्काः %= 64;
+  यदि(द्वयङ्काः == 0)
+    प्रत्यागम मानम्;
   /* Defined in a form which modern compiler could optimize. */
-  return (value >> bits) | (value << (64 - bits));
+  प्रत्यागम (मानम् >> द्वयङ्काः) | (मानम् << (64 - द्वयङ्काः));
 }
 
 /* SHA-512/256 specific data */
@@ -359,79 +359,79 @@ static CURL_FORCEINLINE uint64_t Curl_rotr64(uint64_t value, unsigned int bits)
 /**
  * Number of bits in a single SHA-512/256 word.
  */
-#define SHA512_256_WORD_SIZE_BITS 64
+#परिभाषय SHA512_256_WORD_आकार_द्वयङ्काः 64
 
 /**
  * Number of bytes in a single SHA-512/256 word.
  */
-#define SHA512_256_BYTES_IN_WORD (SHA512_256_WORD_SIZE_BITS / 8)
+#परिभाषय SHA512_256_अष्टकानि_अन्तर्_WORD (SHA512_256_WORD_आकार_द्वयङ्काः / 8)
 
 /**
  * Hash is kept internally as 8 64-bit words.
  * This is the intermediate hash size, used during computing the final digest.
  */
-#define SHA512_256_HASH_SIZE_WORDS 8
+#परिभाषय SHA512_256_HASH_आकार_शब्दाः 8
 
 /**
  * Size of the SHA-512/256 resulting digest in words.
  * This is the final digest size, not intermediate hash.
  */
-#define SHA512_256_DIGEST_SIZE_WORDS (SHA512_256_HASH_SIZE_WORDS / 2)
+#परिभाषय SHA512_256_DIGEST_आकार_शब्दाः (SHA512_256_HASH_आकार_शब्दाः / 2)
 
 /**
  * Size of the SHA-512/256 resulting digest in bytes
  * This is the final digest size, not intermediate hash.
  */
-#define CURL_SHA512_256_DIGEST_SIZE \
-  (SHA512_256_DIGEST_SIZE_WORDS * SHA512_256_BYTES_IN_WORD)
+#परिभाषय CURL_SHA512_256_DIGEST_आकार \
+  (SHA512_256_DIGEST_आकार_शब्दाः * SHA512_256_अष्टकानि_अन्तर्_WORD)
 
 /**
  * Size of the SHA-512/256 single processing block in bits.
  */
-#define SHA512_256_BLOCK_SIZE_BITS 1024
+#परिभाषय SHA512_256_खण्डम्_आकार_द्वयङ्काः 1024
 
 /**
  * Size of the SHA-512/256 single processing block in bytes.
  */
-#define CURL_SHA512_256_BLOCK_SIZE (SHA512_256_BLOCK_SIZE_BITS / 8)
+#परिभाषय CURL_SHA512_256_खण्डम्_आकार (SHA512_256_खण्डम्_आकार_द्वयङ्काः / 8)
 
 /**
  * Size of the SHA-512/256 single processing block in words.
  */
-#define SHA512_256_BLOCK_SIZE_WORDS \
-  (SHA512_256_BLOCK_SIZE_BITS / SHA512_256_WORD_SIZE_BITS)
+#परिभाषय SHA512_256_खण्डम्_आकार_शब्दाः \
+  (SHA512_256_खण्डम्_आकार_द्वयङ्काः / SHA512_256_WORD_आकार_द्वयङ्काः)
 
 /**
  * SHA-512/256 calculation context
  */
-struct Curl_sha512_256ctx {
+संरचना Curl_sha512_256ctx {
   /**
    * Intermediate hash value. The variable is properly aligned. Smart
    * compilers may automatically use fast load/store instruction for big
    * endian data on little endian machine.
    */
-  uint64_t H[SHA512_256_HASH_SIZE_WORDS];
+  uint64_t H[SHA512_256_HASH_आकार_शब्दाः];
   /**
    * SHA-512/256 input data buffer. The buffer is properly aligned. Smart
    * compilers may automatically use fast load/store instruction for big
    * endian data on little endian machine.
    */
-  uint64_t buffer[SHA512_256_BLOCK_SIZE_WORDS];
+  uint64_t बफर[SHA512_256_खण्डम्_आकार_शब्दाः];
   /**
    * The number of bytes, lower part
    */
-  uint64_t count;
+  uint64_t गणनम्;
   /**
    * The number of bits, high part. Unlike lower part, this counts the number
    * of bits, not bytes.
    */
-  uint64_t count_bits_hi;
+  uint64_t गणनम्_द्वयङ्काः_hi;
 };
 
 /**
  * Context type used for SHA-512/256 calculations
  */
-typedef struct Curl_sha512_256ctx Curl_sha512_256_ctx;
+प्रकारनिर्देश संरचना Curl_sha512_256ctx Curl_sha512_256_ctx;
 
 /**
  * Initialize structure for SHA-512/256 calculation.
@@ -439,14 +439,14 @@ typedef struct Curl_sha512_256ctx Curl_sha512_256_ctx;
  * @param context the calculation context
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_init(void *context)
+स्थिर CURLcode Curl_sha512_256_init(शून्य *context)
 {
-  struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
+  संरचना Curl_sha512_256ctx * ध्रुव ctx = (संरचना Curl_sha512_256ctx *)context;
 
   /* Check whether the header and this file use the same numbers */
-  DEBUGASSERT(CURL_SHA512_256_DIGEST_LENGTH == CURL_SHA512_256_DIGEST_SIZE);
+  DEBUGASSERT(CURL_SHA512_256_DIGEST_दीर्घता == CURL_SHA512_256_DIGEST_आकार);
 
-  DEBUGASSERT(sizeof(uint64_t) == 8);
+  DEBUGASSERT(परिमाण(uint64_t) == 8);
 
   /* Initial hash values, see FIPS PUB 180-4 section 5.3.6.2 */
   /* Values generated by "IV Generation Function" as described in
@@ -461,10 +461,10 @@ static CURLcode Curl_sha512_256_init(void *context)
   ctx->H[7] = UINT64_C(0x0EB72DDC81C52CA2);
 
   /* Initialize number of bytes and high part of number of bits. */
-  ctx->count = UINT64_C(0);
-  ctx->count_bits_hi = UINT64_C(0);
+  ctx->गणनम् = UINT64_C(0);
+  ctx->गणनम्_द्वयङ्काः_hi = UINT64_C(0);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /**
@@ -473,8 +473,8 @@ static CURLcode Curl_sha512_256_init(void *context)
  * @param H     hash values
  * @param data  the data buffer with #CURL_SHA512_256_BLOCK_SIZE bytes block
  */
-static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
-                                      const void *data)
+स्थिर शून्य Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_आकार_शब्दाः],
+                                      ध्रुव शून्य *दत्त)
 {
   /* Working variables,
      see FIPS PUB 180-4 section 6.7, 6.4. */
@@ -493,21 +493,21 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
 
   /* 'Ch' and 'Maj' macro functions are defined with widely-used optimization.
      See FIPS PUB 180-4 formulae 4.8, 4.9. */
-#define Sha512_Ch(x, y, z)    ((z) ^ ((x) & ((y) ^ (z))))
-#define Sha512_Maj(x, y, z)   (((x) & (y)) ^ ((z) & ((x) ^ (y))))
+#परिभाषय Sha512_Ch(x, y, z)    ((z) ^ ((x) & ((y) ^ (z))))
+#परिभाषय Sha512_Maj(x, y, z)   (((x) & (y)) ^ ((z) & ((x) ^ (y))))
 
   /* Four 'Sigma' macro functions.
      See FIPS PUB 180-4 formulae 4.10, 4.11, 4.12, 4.13. */
-#define SIG0(x) (Curl_rotr64(x, 28) ^ Curl_rotr64(x, 34) ^ Curl_rotr64(x, 39))
-#define SIG1(x) (Curl_rotr64(x, 14) ^ Curl_rotr64(x, 18) ^ Curl_rotr64(x, 41))
-#define sig0(x) (Curl_rotr64(x,  1) ^ Curl_rotr64(x,  8) ^ ((x) >> 7))
-#define sig1(x) (Curl_rotr64(x, 19) ^ Curl_rotr64(x, 61) ^ ((x) >> 6))
+#परिभाषय SIG0(x) (Curl_rotr64(x, 28) ^ Curl_rotr64(x, 34) ^ Curl_rotr64(x, 39))
+#परिभाषय SIG1(x) (Curl_rotr64(x, 14) ^ Curl_rotr64(x, 18) ^ Curl_rotr64(x, 41))
+#परिभाषय sig0(x) (Curl_rotr64(x,  1) ^ Curl_rotr64(x,  8) ^ ((x) >> 7))
+#परिभाषय sig1(x) (Curl_rotr64(x, 19) ^ Curl_rotr64(x, 61) ^ ((x) >> 6))
 
-  if(1) {
-    unsigned int t;
+  यदि(1) {
+    अचिह्नित पूर्णाङ्क t;
     /* K constants array.
        See FIPS PUB 180-4 section 4.2.3 for K values. */
-    static const uint64_t K[80] = {
+    स्थिर ध्रुव uint64_t K[80] = {
       UINT64_C(0x428a2f98d728ae22), UINT64_C(0x7137449123ef65cd),
       UINT64_C(0xb5c0fbcfec4d3b2f), UINT64_C(0xe9b5dba58189dbbc),
       UINT64_C(0x3956c25bf348b538), UINT64_C(0x59f111f1b605d019),
@@ -560,17 +560,17 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
        * Note: 'wt' must be used exactly one time in this macro as macro for
        'wt' calculation may change other data as well every time when
        used. */
-#define SHA2STEP64(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                    \
-  do {                                                                        \
+#परिभाषय SHA2STEP64(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                    \
+  कुरु {                                                                        \
     (vD) += ((vH) += SIG1(vE) + Sha512_Ch(vE, vF, vG) + (kt) + (wt));         \
     (vH) += SIG0(vA) + Sha512_Maj(vA, vB, vC);                                \
-  } while(0)
+  } यावत्(0)
 
     /* One step of SHA-512/256 computation with working variables rotation,
        see FIPS PUB 180-4 section 6.4.2 step 3. This macro version reassigns
        all working variables on each step. */
-#define SHA2STEP64RV(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                  \
-  do {                                                                        \
+#परिभाषय SHA2STEP64RV(vA, vB, vC, vD, vE, vF, vG, vH, kt, wt)                  \
+  कुरु {                                                                        \
     uint64_t tmp_h_ = (vH);                                                   \
     SHA2STEP64(vA, vB, vC, vD, vE, vF, vG, tmp_h_, kt, wt);                   \
     (vH) = (vG);                                                              \
@@ -581,21 +581,21 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
     (vC) = (vB);                                                              \
     (vB) = (vA);                                                              \
     (vA) = tmp_h_;                                                            \
-  } while(0)
+  } यावत्(0)
 
     /* Get value of W(t) from input data buffer for 0 <= t <= 15,
        See FIPS PUB 180-4 section 6.2.
        Input data must be read in big-endian bytes order,
        see FIPS PUB 180-4 section 3.1.2. */
-#define SHA512_GET_W_FROM_DATA(buf, t) \
-  CURL_GET_64BIT_BE((const uint8_t *)(buf) + ((t) * SHA512_256_BYTES_IN_WORD))
+#परिभाषय SHA512_GET_W_FROM_दत्त(buf, t) \
+  CURL_GET_64BIT_BE((ध्रुव uint8_t *)(buf) + ((t) * SHA512_256_अष्टकानि_अन्तर्_WORD))
 
     /* During first 16 steps, before making any calculation on each step, the
        W element is read from the input data buffer as a big-endian value and
        stored in the array of W elements. */
-    for(t = 0; t < 16; ++t) {
+    प्रति(t = 0; t < 16; ++t) {
       SHA2STEP64RV(a, b, c, d, e, f, g, h, K[t],
-                   W[t] = SHA512_GET_W_FROM_DATA(data, t));
+                   W[t] = SHA512_GET_W_FROM_दत्त(दत्त, t));
     }
 
     /* 'W' generation and assignment for 16 <= t <= 79.
@@ -603,14 +603,14 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
        As only the last 16 'W' are used in calculations, it is possible to
        use 16 elements array of W as a cyclic buffer.
        Note: ((t-16) & 15) have same value as (t & 15) */
-#define Wgen(w, t)                                               \
+#परिभाषय Wgen(w, t)                                               \
   (uint64_t)((w)[((t) - 16) & 15] + sig1((w)[((t) -  2) & 15]) + \
              (w)[((t) -  7) & 15] + sig0((w)[((t) - 15) & 15]))
 
     /* During the last 64 steps, before making any calculation on each step,
        current W element is generated from other W elements of the cyclic
        buffer and the generated value is stored back in the cyclic buffer. */
-    for(t = 16; t < 80; ++t) {
+    प्रति(t = 16; t < 80; ++t) {
       SHA2STEP64RV(a, b, c, d, e, f, g, h, K[t],
                    W[t & 15] = Wgen(W, t));
     }
@@ -636,69 +636,69 @@ static void Curl_sha512_256_transform(uint64_t H[SHA512_256_HASH_SIZE_WORDS],
  * @param length number of bytes in @a data
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_update(void *context,
-                                       const unsigned char *data,
-                                       size_t length)
+स्थिर CURLcode Curl_sha512_256_update(शून्य *context,
+                                       ध्रुव अचिह्नित वर्ण *दत्त,
+                                       size_t दीर्घता)
 {
-  unsigned int bytes_have; /* Number of bytes in the context buffer */
-  struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
+  अचिह्नित पूर्णाङ्क अष्टकानि_have; /* Number of bytes in the context buffer */
+  संरचना Curl_sha512_256ctx * ध्रुव ctx = (संरचना Curl_sha512_256ctx *)context;
   /* the void pointer here is required to mute Intel compiler warning */
-  void * const ctx_buf = ctx->buffer;
+  शून्य * ध्रुव ctx_buf = ctx->बफर;
 
-  DEBUGASSERT(data || (length == 0));
+  DEBUGASSERT(दत्त || (दीर्घता == 0));
 
-  if(length == 0)
-    return CURLE_OK; /* Shortcut, do nothing */
+  यदि(दीर्घता == 0)
+    प्रत्यागम CURLE_OK; /* Shortcut, do nothing */
 
   /* Note: (count & (CURL_SHA512_256_BLOCK_SIZE - 1))
      equals (count % CURL_SHA512_256_BLOCK_SIZE) for this block size. */
-  bytes_have = (unsigned int)(ctx->count & (CURL_SHA512_256_BLOCK_SIZE - 1));
-  ctx->count += length;
-  if(length > ctx->count)
-    ctx->count_bits_hi += 1U << 3; /* Value wrap */
-  ctx->count_bits_hi += ctx->count >> 61;
-  ctx->count &= UINT64_C(0x1FFFFFFFFFFFFFFF);
+  अष्टकानि_have = (अचिह्नित पूर्णाङ्क)(ctx->गणनम् & (CURL_SHA512_256_खण्डम्_आकार - 1));
+  ctx->गणनम् += दीर्घता;
+  यदि(दीर्घता > ctx->गणनम्)
+    ctx->गणनम्_द्वयङ्काः_hi += 1U << 3; /* Value wrap */
+  ctx->गणनम्_द्वयङ्काः_hi += ctx->गणनम् >> 61;
+  ctx->गणनम् &= UINT64_C(0x1FFFFFFFFFFFFFFF);
 
-  if(bytes_have) {
-    unsigned int bytes_left = CURL_SHA512_256_BLOCK_SIZE - bytes_have;
-    if(length >= bytes_left) {
+  यदि(अष्टकानि_have) {
+    अचिह्नित पूर्णाङ्क अष्टकानि_वामः = CURL_SHA512_256_खण्डम्_आकार - अष्टकानि_have;
+    यदि(दीर्घता >= अष्टकानि_वामः) {
       /* Combine new data with data in the buffer and process the full
          block. */
-      memcpy((unsigned char *)ctx_buf + bytes_have, data, bytes_left);
-      data += bytes_left;
-      length -= bytes_left;
-      Curl_sha512_256_transform(ctx->H, ctx->buffer);
-      bytes_have = 0;
+      स्मृतिं_प्रतिलिख((अचिह्नित वर्ण *)ctx_buf + अष्टकानि_have, दत्त, अष्टकानि_वामः);
+      दत्त += अष्टकानि_वामः;
+      दीर्घता -= अष्टकानि_वामः;
+      Curl_sha512_256_transform(ctx->H, ctx->बफर);
+      अष्टकानि_have = 0;
     }
   }
 
-  while(CURL_SHA512_256_BLOCK_SIZE <= length) {
+  यावत्(CURL_SHA512_256_खण्डम्_आकार <= दीर्घता) {
     /* Process any full blocks of new data directly,
        without copying to the buffer. */
-    Curl_sha512_256_transform(ctx->H, data);
-    data += CURL_SHA512_256_BLOCK_SIZE;
-    length -= CURL_SHA512_256_BLOCK_SIZE;
+    Curl_sha512_256_transform(ctx->H, दत्त);
+    दत्त += CURL_SHA512_256_खण्डम्_आकार;
+    दीर्घता -= CURL_SHA512_256_खण्डम्_आकार;
   }
 
-  if(length) {
+  यदि(दीर्घता) {
     /* Copy incomplete block of new data (if any)
        to the buffer. */
-    memcpy((unsigned char *)ctx_buf + bytes_have, data, length);
+    स्मृतिं_प्रतिलिख((अचिह्नित वर्ण *)ctx_buf + अष्टकानि_have, दत्त, दीर्घता);
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /**
  * Size of "length" insertion in bits.
  * See FIPS PUB 180-4 section 5.1.2.
  */
-#define SHA512_256_SIZE_OF_LEN_ADD_BITS 128
+#परिभाषय SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय_द्वयङ्काः 128
 
 /**
  * Size of "length" insertion in bytes.
  */
-#define SHA512_256_SIZE_OF_LEN_ADD (SHA512_256_SIZE_OF_LEN_ADD_BITS / 8)
+#परिभाषय SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय (SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय_द्वयङ्काः / 8)
 
 /**
  * Finalise SHA-512/256 calculation, return digest.
@@ -708,22 +708,22 @@ static CURLcode Curl_sha512_256_update(void *context,
  *             bytes
  * @return always CURLE_OK
  */
-static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
+स्थिर CURLcode Curl_sha512_256_finish(अचिह्नित वर्ण *digest, शून्य *context)
 {
-  struct Curl_sha512_256ctx * const ctx = (struct Curl_sha512_256ctx *)context;
-  uint64_t num_bits; /* Number of processed bits */
-  unsigned int bytes_have; /* Number of bytes in the context buffer */
+  संरचना Curl_sha512_256ctx * ध्रुव ctx = (संरचना Curl_sha512_256ctx *)context;
+  uint64_t अङ्कः_द्वयङ्काः; /* Number of processed bits */
+  अचिह्नित पूर्णाङ्क अष्टकानि_have; /* Number of bytes in the context buffer */
   /* the void pointer here is required to mute Intel compiler warning */
-  void * const ctx_buf = ctx->buffer;
+  शून्य * ध्रुव ctx_buf = ctx->बफर;
 
   /* Memorise the number of processed bits.
      The padding and other data added here during the postprocessing must
      not change the amount of hashed data. */
-  num_bits = ctx->count << 3;
+  अङ्कः_द्वयङ्काः = ctx->गणनम् << 3;
 
   /* Note: (count & (CURL_SHA512_256_BLOCK_SIZE-1))
            equals (count % CURL_SHA512_256_BLOCK_SIZE) for this block size. */
-  bytes_have = (unsigned int)(ctx->count & (CURL_SHA512_256_BLOCK_SIZE - 1));
+  अष्टकानि_have = (अचिह्नित पूर्णाङ्क)(ctx->गणनम् & (CURL_SHA512_256_खण्डम्_आकार - 1));
 
   /* Input data must be padded with a single bit "1", then with zeros and
      the finally the length of data in bits must be added as the final bytes
@@ -735,52 +735,52 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
      predefined (0x80). */
   /* Buffer always have space at least for one byte (as full buffers are
      processed when formed). */
-  ((unsigned char *)ctx_buf)[bytes_have++] = 0x80U;
+  ((अचिह्नित वर्ण *)ctx_buf)[अष्टकानि_have++] = 0x80U;
 
-  if(CURL_SHA512_256_BLOCK_SIZE - bytes_have < SHA512_256_SIZE_OF_LEN_ADD) {
+  यदि(CURL_SHA512_256_खण्डम्_आकार - अष्टकानि_have < SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय) {
     /* No space in the current block to put the total length of message.
        Pad the current block with zeros and process it. */
-    if(bytes_have < CURL_SHA512_256_BLOCK_SIZE)
-      memset((unsigned char *)ctx_buf + bytes_have, 0,
-             CURL_SHA512_256_BLOCK_SIZE - bytes_have);
+    यदि(अष्टकानि_have < CURL_SHA512_256_खण्डम्_आकार)
+      स्मृतिं_पूरय((अचिह्नित वर्ण *)ctx_buf + अष्टकानि_have, 0,
+             CURL_SHA512_256_खण्डम्_आकार - अष्टकानि_have);
     /* Process the full block. */
-    Curl_sha512_256_transform(ctx->H, ctx->buffer);
+    Curl_sha512_256_transform(ctx->H, ctx->बफर);
     /* Start the new block. */
-    bytes_have = 0;
+    अष्टकानि_have = 0;
   }
 
   /* Pad the rest of the buffer with zeros. */
-  memset((unsigned char *)ctx_buf + bytes_have, 0,
-         CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD - bytes_have);
+  स्मृतिं_पूरय((अचिह्नित वर्ण *)ctx_buf + अष्टकानि_have, 0,
+         CURL_SHA512_256_खण्डम्_आकार - SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय - अष्टकानि_have);
   /* Put high part of number of bits in processed message and then lower
      part of number of bits as big-endian values.
      See FIPS PUB 180-4 section 5.1.2. */
   /* Note: the target location is predefined and buffer is always aligned */
-  CURL_PUT_64BIT_BE((unsigned char *)ctx_buf +
-                    CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD,
-                    ctx->count_bits_hi);
-  CURL_PUT_64BIT_BE((unsigned char *)ctx_buf +
-                    CURL_SHA512_256_BLOCK_SIZE - SHA512_256_SIZE_OF_LEN_ADD +
-                    SHA512_256_BYTES_IN_WORD,
-                    num_bits);
+  CURL_PUT_64BIT_BE((अचिह्नित वर्ण *)ctx_buf +
+                    CURL_SHA512_256_खण्डम्_आकार - SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय,
+                    ctx->गणनम्_द्वयङ्काः_hi);
+  CURL_PUT_64BIT_BE((अचिह्नित वर्ण *)ctx_buf +
+                    CURL_SHA512_256_खण्डम्_आकार - SHA512_256_आकार_सम्बन्धि_LEN_सङ्कलय +
+                    SHA512_256_अष्टकानि_अन्तर्_WORD,
+                    अङ्कः_द्वयङ्काः);
   /* Process the full final block. */
-  Curl_sha512_256_transform(ctx->H, ctx->buffer);
+  Curl_sha512_256_transform(ctx->H, ctx->बफर);
 
   /* Put in BE mode the leftmost part of the hash as the final digest.
      See FIPS PUB 180-4 section 6.7. */
 
-  CURL_PUT_64BIT_BE(digest + (0 * SHA512_256_BYTES_IN_WORD), ctx->H[0]);
-  CURL_PUT_64BIT_BE(digest + (1 * SHA512_256_BYTES_IN_WORD), ctx->H[1]);
-  CURL_PUT_64BIT_BE(digest + (2 * SHA512_256_BYTES_IN_WORD), ctx->H[2]);
-  CURL_PUT_64BIT_BE(digest + (3 * SHA512_256_BYTES_IN_WORD), ctx->H[3]);
+  CURL_PUT_64BIT_BE(digest + (0 * SHA512_256_अष्टकानि_अन्तर्_WORD), ctx->H[0]);
+  CURL_PUT_64BIT_BE(digest + (1 * SHA512_256_अष्टकानि_अन्तर्_WORD), ctx->H[1]);
+  CURL_PUT_64BIT_BE(digest + (2 * SHA512_256_अष्टकानि_अन्तर्_WORD), ctx->H[2]);
+  CURL_PUT_64BIT_BE(digest + (3 * SHA512_256_अष्टकानि_अन्तर्_WORD), ctx->H[3]);
 
   /* Erase potentially sensitive data. */
-  memset(ctx, 0, sizeof(struct Curl_sha512_256ctx));
+  स्मृतिं_पूरय(ctx, 0, परिमाण(संरचना Curl_sha512_256ctx));
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#endif /* Local SHA-512/256 code */
+#यदि_अन्तः /* Local SHA-512/256 code */
 
 /**
  * Compute SHA-512/256 hash for the given data in one function call
@@ -789,45 +789,45 @@ static CURLcode Curl_sha512_256_finish(unsigned char *digest, void *context)
  * @param input_size the size of the data pointed by @a input
  * @return always #CURLE_OK
  */
-CURLcode Curl_sha512_256it(unsigned char *output, const unsigned char *input,
-                           size_t input_size)
+CURLcode Curl_sha512_256it(अचिह्नित वर्ण *output, ध्रुव अचिह्नित वर्ण *निवेशः,
+                           size_t निवेशः_आकार)
 {
   Curl_sha512_256_ctx ctx;
-  CURLcode result;
+  CURLcode परिणाम;
 
-  result = Curl_sha512_256_init(&ctx);
-  if(result != CURLE_OK)
-    return result;
+  परिणाम = Curl_sha512_256_init(&ctx);
+  यदि(परिणाम != CURLE_OK)
+    प्रत्यागम परिणाम;
 
-  result = Curl_sha512_256_update(&ctx, (const void *)input, input_size);
+  परिणाम = Curl_sha512_256_update(&ctx, (ध्रुव शून्य *)निवेशः, निवेशः_आकार);
 
-  if(result != CURLE_OK) {
-    (void)Curl_sha512_256_finish(output, &ctx);
-    return result;
+  यदि(परिणाम != CURLE_OK) {
+    (शून्य)Curl_sha512_256_finish(output, &ctx);
+    प्रत्यागम परिणाम;
   }
 
-  return Curl_sha512_256_finish(output, &ctx);
+  प्रत्यागम Curl_sha512_256_finish(output, &ctx);
 }
 
 /* Wrapper function, takes 'unsigned int' as length type, returns void */
-static void Curl_sha512_256_update_i(void *context,
-                                     const unsigned char *data,
-                                     unsigned int length)
+स्थिर शून्य Curl_sha512_256_update_i(शून्य *context,
+                                     ध्रुव अचिह्नित वर्ण *दत्त,
+                                     अचिह्नित पूर्णाङ्क दीर्घता)
 {
   /* Hypothetically the function may fail, but assume it does not */
-  (void)Curl_sha512_256_update(context, data, length);
+  (शून्य)Curl_sha512_256_update(context, दत्त, दीर्घता);
 }
 
 /* Wrapper function, returns void */
-static void Curl_sha512_256_finish_v(unsigned char *result, void *context)
+स्थिर शून्य Curl_sha512_256_finish_v(अचिह्नित वर्ण *परिणाम, शून्य *context)
 {
   /* Hypothetically the function may fail, but assume it does not */
-  (void)Curl_sha512_256_finish(result, context);
+  (शून्य)Curl_sha512_256_finish(परिणाम, context);
 }
 
 /* Wrapper function, takes 'unsigned int' as length type, returns void */
 
-const struct HMAC_params Curl_HMAC_SHA512_256[] = {
+ध्रुव संरचना HMAC_params Curl_HMAC_SHA512_256[] = {
   {
     /* Initialize context procedure. */
     Curl_sha512_256_init,
@@ -836,12 +836,12 @@ const struct HMAC_params Curl_HMAC_SHA512_256[] = {
     /* Get final result procedure. */
     Curl_sha512_256_finish_v,
     /* Context structure size. */
-    sizeof(Curl_sha512_256_ctx),
+    परिमाण(Curl_sha512_256_ctx),
     /* Maximum key length (bytes). */
-    CURL_SHA512_256_BLOCK_SIZE,
+    CURL_SHA512_256_खण्डम्_आकार,
     /* Result length (bytes). */
-    CURL_SHA512_256_DIGEST_SIZE
+    CURL_SHA512_256_DIGEST_आकार
   }
 };
 
-#endif /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */
+#यदि_अन्तः /* !CURL_DISABLE_DIGEST_AUTH && !CURL_DISABLE_SHA512_256 */

@@ -21,143 +21,143 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
+#यदि (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || \
   !defined(CURL_DISABLE_DIGEST_AUTH)
 
-#include "curl_md5.h"
-#include "curl_hmac.h"
+#अन्तर्भाव "curl_md5.h"
+#अन्तर्भाव "curl_hmac.h"
 
-#ifdef USE_OPENSSL
-#include <openssl/opensslconf.h>
-#endif
+#यदि_परिभाषितम् USE_OPENSSL
+#अन्तर्भाव <openssl/opensslconf.h>
+#यदि_अन्तः
 
-#ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#endif
+#यदि_परिभाषितम् USE_WOLFSSL
+#अन्तर्भाव <wolfssl/options.h>
+#यदि_अन्तः
 
-#ifdef USE_MBEDTLS
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
-#error "mbedTLS 3.2.0 or greater required"
-#endif
-#include <psa/crypto_config.h>
-#endif
+#यदि_परिभाषितम् USE_MBEDTLS
+#अन्तर्भाव <mbedtls/version.h>
+#यदि MBEDTLS_संस्करणम्_सङ्ख्या < 0x03020000
+#दोषः "mbedTLS 3.2.0 or greater required"
+#यदि_अन्तः
+#अन्तर्भाव <psa/crypto_config.h>
+#यदि_अन्तः
 
-#ifdef USE_GNUTLS
-#include <nettle/md5.h>
-#include <nettle/version.h>
+#यदि_परिभाषितम् USE_GNUTLS
+#अन्तर्भाव <nettle/md5.h>
+#अन्तर्भाव <nettle/version.h>
 
-typedef struct md5_ctx my_md5_ctx;
+प्रकारनिर्देश संरचना md5_ctx my_md5_ctx;
 
-static CURLcode my_md5_init(void *ctx)
+स्थिर CURLcode my_md5_init(शून्य *ctx)
 {
   md5_init(ctx);
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *ctx,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  md5_update(ctx, len, input);
+  md5_update(ctx, len, निवेशः);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#यदि NETTLE_संस्करणम्_MAJOR >= 4
   md5_digest(ctx, digest);
-#else
+#अन्यथा
   md5_digest(ctx, MD5_DIGEST_LEN, digest);
-#endif
+#यदि_अन्तः
 }
 
-#elif defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD5)
-#include <openssl/evp.h>
+#नोचेद्यदि defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD5)
+#अन्तर्भाव <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md5_ctx;
+प्रकारनिर्देश EVP_MD_CTX *my_md5_ctx;
 
-static CURLcode my_md5_init(void *in)
+स्थिर CURLcode my_md5_init(शून्य *अन्तर्)
 {
-  EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
+  EVP_MD_CTX **ctx = (EVP_MD_CTX **)अन्तर्;
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(!*ctx)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md5(), NULL)) {
+  यदि(!EVP_DigestInit_ex(*ctx, EVP_md5(), रिक्त)) {
     EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-    return CURLE_FAILED_INIT;
+    *ctx = रिक्त;
+    प्रत्यागम CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *अन्तर्,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  EVP_MD_CTX **ctx = (EVP_MD_CTX **)अन्तर्;
+  (शून्य)EVP_DigestUpdate(*ctx, निवेशः, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *अन्तर्)
 {
-  EVP_MD_CTX **ctx = (EVP_MD_CTX **)in;
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  EVP_MD_CTX **ctx = (EVP_MD_CTX **)अन्तर्;
+  (शून्य)EVP_DigestFinal_ex(*ctx, digest, रिक्त);
   EVP_MD_CTX_free(*ctx);
-  *ctx = NULL;
+  *ctx = रिक्त;
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD5)
-#include <wolfssl/wolfcrypt/md5.h>
+#नोचेद्यदि defined(USE_WOLFSSL) && !defined(NO_MD5)
+#अन्तर्भाव <wolfssl/wolfcrypt/md5.h>
 
-typedef wc_Md5 my_md5_ctx;
+प्रकारनिर्देश wc_Md5 my_md5_ctx;
 
-static CURLcode my_md5_init(void *ctx)
+स्थिर CURLcode my_md5_init(शून्य *ctx)
 {
-  if(wc_InitMd5(ctx))
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  यदि(wc_InitMd5(ctx))
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *ctx,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  (void)wc_Md5Update(ctx, input, (word32)len);
+  (शून्य)wc_Md5Update(ctx, निवेशः, (word32)len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *ctx)
 {
-  (void)wc_Md5Final(ctx, digest);
+  (शून्य)wc_Md5Final(ctx, digest);
 }
 
-#elif defined(USE_MBEDTLS) && \
+#नोचेद्यदि defined(USE_MBEDTLS) && \
   defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
-#include <psa/crypto.h>
+#अन्तर्भाव <psa/crypto.h>
 
-typedef psa_hash_operation_t my_md5_ctx;
+प्रकारनिर्देश psa_hash_operation_t my_md5_ctx;
 
-static CURLcode my_md5_init(void *ctx)
+स्थिर CURLcode my_md5_init(शून्य *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  यदि(psa_hash_सज्जता(pctx, PSA_ALG_MD5) != PSA_SUCCESS)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *ctx,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  (void)psa_hash_update(ctx, input, len);
+  (शून्य)psa_hash_update(ctx, निवेशः, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *ctx)
 {
-  size_t actual_length;
-  (void)psa_hash_finish(ctx, digest, MD5_DIGEST_LEN, &actual_length);
+  size_t actual_दीर्घता;
+  (शून्य)psa_hash_finish(ctx, digest, MD5_DIGEST_LEN, &actual_दीर्घता);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#नोचेद्यदि (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -165,7 +165,7 @@ static void my_md5_final(unsigned char *digest, void *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#अन्तर्भाव <CommonCrypto/CommonDigest.h>
 
 /* For Apple operating systems: CommonCrypto has the functions we need.
    These functions are available on Tiger and later, as well as iOS 2.0
@@ -175,69 +175,69 @@ static void my_md5_final(unsigned char *digest, void *ctx)
    reliable than defining COMMON_DIGEST_FOR_OPENSSL on older cats. */
 #  define my_md5_ctx CC_MD5_CTX
 
-static CURLcode my_md5_init(void *ctx)
+स्थिर CURLcode my_md5_init(शून्य *ctx)
 {
-  (void)CC_MD5_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  (शून्य)CC_MD5_Init(ctx);  /* always returns 1 */
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *ctx,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *ctx,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  CC_MD5_Update(ctx, input, len);
+  CC_MD5_Update(ctx, निवेशः, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *ctx)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *ctx)
 {
   CC_MD5_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#नोचेद्यदि defined(USE_WIN32_CRYPTO)
+#अन्तर्भाव <wincrypt.h>
 
-struct md5_ctx {
+संरचना md5_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md5_ctx my_md5_ctx;
+प्रकारनिर्देश संरचना md5_ctx my_md5_ctx;
 
-static CURLcode my_md5_init(void *in)
+स्थिर CURLcode my_md5_init(शून्य *अन्तर्)
 {
-  my_md5_ctx *ctx = (my_md5_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  my_md5_ctx *ctx = (my_md5_ctx *)अन्तर्;
+  यदि(!CryptAcquireContext(&ctx->hCryptProv, रिक्त, रिक्त, PROV_RSA_पूर्णम्,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
+  यदि(!CryptCreateHash(ctx->hCryptProv, CALG_MD5, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    प्रत्यागम CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *अन्तर्,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  my_md5_ctx *ctx = in;
-  CryptHashData(ctx->hHash, (const BYTE *)input, len, 0);
+  my_md5_ctx *ctx = अन्तर्;
+  Crypt_Hash_दत्त(ctx->hHash, (ध्रुव BYTE *)निवेशः, len, 0);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *अन्तर्)
 {
-  my_md5_ctx *ctx = (my_md5_ctx *)in;
-  unsigned long length = 0;
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD5_DIGEST_LEN)
-    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
-  if(ctx->hHash)
+  my_md5_ctx *ctx = (my_md5_ctx *)अन्तर्;
+  अचिह्नित दीर्घ दीर्घता = 0;
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, रिक्त, &दीर्घता, 0);
+  यदि(दीर्घता == MD5_DIGEST_LEN)
+    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &दीर्घता, 0);
+  यदि(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
-  if(ctx->hCryptProv)
+  यदि(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#अन्यथा
 
 /* When no other crypto library is available we use this code segment */
 
@@ -266,13 +266,13 @@ static void my_md5_final(unsigned char *digest, void *in)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md5_ctx {
+संरचना md5_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
-  uint32_t block[16];
+  अचिह्नित वर्ण बफर[64];
+  uint32_t खण्डम्[16];
 };
-typedef struct md5_ctx my_md5_ctx;
+प्रकारनिर्देश संरचना md5_ctx my_md5_ctx;
 
 /*
  * The basic MD5 functions.
@@ -281,16 +281,16 @@ typedef struct md5_ctx my_md5_ctx;
  * architectures that lack an AND-NOT instruction, like in Colin Plumb's
  * implementation.
  */
-#define MD5_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
-#define MD5_G(x, y, z)                  ((y) ^ ((z) & ((x) ^ (y))))
-#define MD5_H(x, y, z)                  (((x) ^ (y)) ^ (z))
-#define MD5_H2(x, y, z)                 ((x) ^ ((y) ^ (z)))
-#define MD5_I(x, y, z)                  ((y) ^ ((x) | ~(z)))
+#परिभाषय MD5_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
+#परिभाषय MD5_G(x, y, z)                  ((y) ^ ((z) & ((x) ^ (y))))
+#परिभाषय MD5_H(x, y, z)                  (((x) ^ (y)) ^ (z))
+#परिभाषय MD5_H2(x, y, z)                 ((x) ^ ((y) ^ (z)))
+#परिभाषय MD5_I(x, y, z)                  ((y) ^ ((x) | ~(z)))
 
 /*
  * The MD5 transformation for all four rounds.
  */
-#define MD5_STEP(f, a, b, c, d, x, t, s) \
+#परिभाषय MD5_चरणः(f, a, b, c, d, x, t, s) \
   (a) += f(b, c, d) + (x) + (t); \
   (a) = (((a) << (s)) | (((a) & 0xffffffff) >> (32 - (s)))); \
   (a) += (b);
@@ -302,36 +302,36 @@ typedef struct md5_ctx my_md5_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD5_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
-#define MD5_GET(n) MD5_SET(n)
-#else
-#define MD5_SET(n) (ctx->block[n] =      \
+#यदि defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#परिभाषय MD5_समुच्चयः(n) (*(ध्रुव uint32_t *)(ध्रुव शून्य *)&ptr[(n) * 4])
+#परिभाषय MD5_GET(n) MD5_समुच्चयः(n)
+#अन्यथा
+#परिभाषय MD5_समुच्चयः(n) (ctx->खण्डम्[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
   ((uint32_t)ptr[((n) * 4) + 2] << 16) | \
   ((uint32_t)ptr[((n) * 4) + 3] << 24))
-#define MD5_GET(n) ctx->block[n]
-#endif
+#परिभाषय MD5_GET(n) ctx->खण्डम्[n]
+#यदि_अन्तः
 
 /*
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md5_body(my_md5_ctx *ctx,
-                               const void *data, unsigned long size)
+स्थिर ध्रुव शून्य *my_md5_body(my_md5_ctx *ctx,
+                               ध्रुव शून्य *दत्त, अचिह्नित दीर्घ आकार)
 {
-  const unsigned char *ptr;
+  ध्रुव अचिह्नित वर्ण *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)data;
+  ptr = (ध्रुव अचिह्नित वर्ण *)दत्त;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  कुरु {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -340,76 +340,76 @@ static const void *my_md5_body(my_md5_ctx *ctx,
     saved_d = d;
 
     /* Round 1 */
-    MD5_STEP(MD5_F, a, b, c, d, MD5_SET(0), 0xd76aa478, 7)
-    MD5_STEP(MD5_F, d, a, b, c, MD5_SET(1), 0xe8c7b756, 12)
-    MD5_STEP(MD5_F, c, d, a, b, MD5_SET(2), 0x242070db, 17)
-    MD5_STEP(MD5_F, b, c, d, a, MD5_SET(3), 0xc1bdceee, 22)
-    MD5_STEP(MD5_F, a, b, c, d, MD5_SET(4), 0xf57c0faf, 7)
-    MD5_STEP(MD5_F, d, a, b, c, MD5_SET(5), 0x4787c62a, 12)
-    MD5_STEP(MD5_F, c, d, a, b, MD5_SET(6), 0xa8304613, 17)
-    MD5_STEP(MD5_F, b, c, d, a, MD5_SET(7), 0xfd469501, 22)
-    MD5_STEP(MD5_F, a, b, c, d, MD5_SET(8), 0x698098d8, 7)
-    MD5_STEP(MD5_F, d, a, b, c, MD5_SET(9), 0x8b44f7af, 12)
-    MD5_STEP(MD5_F, c, d, a, b, MD5_SET(10), 0xffff5bb1, 17)
-    MD5_STEP(MD5_F, b, c, d, a, MD5_SET(11), 0x895cd7be, 22)
-    MD5_STEP(MD5_F, a, b, c, d, MD5_SET(12), 0x6b901122, 7)
-    MD5_STEP(MD5_F, d, a, b, c, MD5_SET(13), 0xfd987193, 12)
-    MD5_STEP(MD5_F, c, d, a, b, MD5_SET(14), 0xa679438e, 17)
-    MD5_STEP(MD5_F, b, c, d, a, MD5_SET(15), 0x49b40821, 22)
+    MD5_चरणः(MD5_F, a, b, c, d, MD5_समुच्चयः(0), 0xd76aa478, 7)
+    MD5_चरणः(MD5_F, d, a, b, c, MD5_समुच्चयः(1), 0xe8c7b756, 12)
+    MD5_चरणः(MD5_F, c, d, a, b, MD5_समुच्चयः(2), 0x242070db, 17)
+    MD5_चरणः(MD5_F, b, c, d, a, MD5_समुच्चयः(3), 0xc1bdceee, 22)
+    MD5_चरणः(MD5_F, a, b, c, d, MD5_समुच्चयः(4), 0xf57c0faf, 7)
+    MD5_चरणः(MD5_F, d, a, b, c, MD5_समुच्चयः(5), 0x4787c62a, 12)
+    MD5_चरणः(MD5_F, c, d, a, b, MD5_समुच्चयः(6), 0xa8304613, 17)
+    MD5_चरणः(MD5_F, b, c, d, a, MD5_समुच्चयः(7), 0xfd469501, 22)
+    MD5_चरणः(MD5_F, a, b, c, d, MD5_समुच्चयः(8), 0x698098d8, 7)
+    MD5_चरणः(MD5_F, d, a, b, c, MD5_समुच्चयः(9), 0x8b44f7af, 12)
+    MD5_चरणः(MD5_F, c, d, a, b, MD5_समुच्चयः(10), 0xffff5bb1, 17)
+    MD5_चरणः(MD5_F, b, c, d, a, MD5_समुच्चयः(11), 0x895cd7be, 22)
+    MD5_चरणः(MD5_F, a, b, c, d, MD5_समुच्चयः(12), 0x6b901122, 7)
+    MD5_चरणः(MD5_F, d, a, b, c, MD5_समुच्चयः(13), 0xfd987193, 12)
+    MD5_चरणः(MD5_F, c, d, a, b, MD5_समुच्चयः(14), 0xa679438e, 17)
+    MD5_चरणः(MD5_F, b, c, d, a, MD5_समुच्चयः(15), 0x49b40821, 22)
 
     /* Round 2 */
-    MD5_STEP(MD5_G, a, b, c, d, MD5_GET(1), 0xf61e2562, 5)
-    MD5_STEP(MD5_G, d, a, b, c, MD5_GET(6), 0xc040b340, 9)
-    MD5_STEP(MD5_G, c, d, a, b, MD5_GET(11), 0x265e5a51, 14)
-    MD5_STEP(MD5_G, b, c, d, a, MD5_GET(0), 0xe9b6c7aa, 20)
-    MD5_STEP(MD5_G, a, b, c, d, MD5_GET(5), 0xd62f105d, 5)
-    MD5_STEP(MD5_G, d, a, b, c, MD5_GET(10), 0x02441453, 9)
-    MD5_STEP(MD5_G, c, d, a, b, MD5_GET(15), 0xd8a1e681, 14)
-    MD5_STEP(MD5_G, b, c, d, a, MD5_GET(4), 0xe7d3fbc8, 20)
-    MD5_STEP(MD5_G, a, b, c, d, MD5_GET(9), 0x21e1cde6, 5)
-    MD5_STEP(MD5_G, d, a, b, c, MD5_GET(14), 0xc33707d6, 9)
-    MD5_STEP(MD5_G, c, d, a, b, MD5_GET(3), 0xf4d50d87, 14)
-    MD5_STEP(MD5_G, b, c, d, a, MD5_GET(8), 0x455a14ed, 20)
-    MD5_STEP(MD5_G, a, b, c, d, MD5_GET(13), 0xa9e3e905, 5)
-    MD5_STEP(MD5_G, d, a, b, c, MD5_GET(2), 0xfcefa3f8, 9)
-    MD5_STEP(MD5_G, c, d, a, b, MD5_GET(7), 0x676f02d9, 14)
-    MD5_STEP(MD5_G, b, c, d, a, MD5_GET(12), 0x8d2a4c8a, 20)
+    MD5_चरणः(MD5_G, a, b, c, d, MD5_GET(1), 0xf61e2562, 5)
+    MD5_चरणः(MD5_G, d, a, b, c, MD5_GET(6), 0xc040b340, 9)
+    MD5_चरणः(MD5_G, c, d, a, b, MD5_GET(11), 0x265e5a51, 14)
+    MD5_चरणः(MD5_G, b, c, d, a, MD5_GET(0), 0xe9b6c7aa, 20)
+    MD5_चरणः(MD5_G, a, b, c, d, MD5_GET(5), 0xd62f105d, 5)
+    MD5_चरणः(MD5_G, d, a, b, c, MD5_GET(10), 0x02441453, 9)
+    MD5_चरणः(MD5_G, c, d, a, b, MD5_GET(15), 0xd8a1e681, 14)
+    MD5_चरणः(MD5_G, b, c, d, a, MD5_GET(4), 0xe7d3fbc8, 20)
+    MD5_चरणः(MD5_G, a, b, c, d, MD5_GET(9), 0x21e1cde6, 5)
+    MD5_चरणः(MD5_G, d, a, b, c, MD5_GET(14), 0xc33707d6, 9)
+    MD5_चरणः(MD5_G, c, d, a, b, MD5_GET(3), 0xf4d50d87, 14)
+    MD5_चरणः(MD5_G, b, c, d, a, MD5_GET(8), 0x455a14ed, 20)
+    MD5_चरणः(MD5_G, a, b, c, d, MD5_GET(13), 0xa9e3e905, 5)
+    MD5_चरणः(MD5_G, d, a, b, c, MD5_GET(2), 0xfcefa3f8, 9)
+    MD5_चरणः(MD5_G, c, d, a, b, MD5_GET(7), 0x676f02d9, 14)
+    MD5_चरणः(MD5_G, b, c, d, a, MD5_GET(12), 0x8d2a4c8a, 20)
 
     /* Round 3 */
-    MD5_STEP(MD5_H, a, b, c, d, MD5_GET(5), 0xfffa3942, 4)
-    MD5_STEP(MD5_H2, d, a, b, c, MD5_GET(8), 0x8771f681, 11)
-    MD5_STEP(MD5_H, c, d, a, b, MD5_GET(11), 0x6d9d6122, 16)
-    MD5_STEP(MD5_H2, b, c, d, a, MD5_GET(14), 0xfde5380c, 23)
-    MD5_STEP(MD5_H, a, b, c, d, MD5_GET(1), 0xa4beea44, 4)
-    MD5_STEP(MD5_H2, d, a, b, c, MD5_GET(4), 0x4bdecfa9, 11)
-    MD5_STEP(MD5_H, c, d, a, b, MD5_GET(7), 0xf6bb4b60, 16)
-    MD5_STEP(MD5_H2, b, c, d, a, MD5_GET(10), 0xbebfbc70, 23)
-    MD5_STEP(MD5_H, a, b, c, d, MD5_GET(13), 0x289b7ec6, 4)
-    MD5_STEP(MD5_H2, d, a, b, c, MD5_GET(0), 0xeaa127fa, 11)
-    MD5_STEP(MD5_H, c, d, a, b, MD5_GET(3), 0xd4ef3085, 16)
-    MD5_STEP(MD5_H2, b, c, d, a, MD5_GET(6), 0x04881d05, 23)
-    MD5_STEP(MD5_H, a, b, c, d, MD5_GET(9), 0xd9d4d039, 4)
-    MD5_STEP(MD5_H2, d, a, b, c, MD5_GET(12), 0xe6db99e5, 11)
-    MD5_STEP(MD5_H, c, d, a, b, MD5_GET(15), 0x1fa27cf8, 16)
-    MD5_STEP(MD5_H2, b, c, d, a, MD5_GET(2), 0xc4ac5665, 23)
+    MD5_चरणः(MD5_H, a, b, c, d, MD5_GET(5), 0xfffa3942, 4)
+    MD5_चरणः(MD5_H2, d, a, b, c, MD5_GET(8), 0x8771f681, 11)
+    MD5_चरणः(MD5_H, c, d, a, b, MD5_GET(11), 0x6d9d6122, 16)
+    MD5_चरणः(MD5_H2, b, c, d, a, MD5_GET(14), 0xfde5380c, 23)
+    MD5_चरणः(MD5_H, a, b, c, d, MD5_GET(1), 0xa4beea44, 4)
+    MD5_चरणः(MD5_H2, d, a, b, c, MD5_GET(4), 0x4bdecfa9, 11)
+    MD5_चरणः(MD5_H, c, d, a, b, MD5_GET(7), 0xf6bb4b60, 16)
+    MD5_चरणः(MD5_H2, b, c, d, a, MD5_GET(10), 0xbebfbc70, 23)
+    MD5_चरणः(MD5_H, a, b, c, d, MD5_GET(13), 0x289b7ec6, 4)
+    MD5_चरणः(MD5_H2, d, a, b, c, MD5_GET(0), 0xeaa127fa, 11)
+    MD5_चरणः(MD5_H, c, d, a, b, MD5_GET(3), 0xd4ef3085, 16)
+    MD5_चरणः(MD5_H2, b, c, d, a, MD5_GET(6), 0x04881d05, 23)
+    MD5_चरणः(MD5_H, a, b, c, d, MD5_GET(9), 0xd9d4d039, 4)
+    MD5_चरणः(MD5_H2, d, a, b, c, MD5_GET(12), 0xe6db99e5, 11)
+    MD5_चरणः(MD5_H, c, d, a, b, MD5_GET(15), 0x1fa27cf8, 16)
+    MD5_चरणः(MD5_H2, b, c, d, a, MD5_GET(2), 0xc4ac5665, 23)
 
     /* Round 4 */
-    MD5_STEP(MD5_I, a, b, c, d, MD5_GET(0), 0xf4292244, 6)
-    MD5_STEP(MD5_I, d, a, b, c, MD5_GET(7), 0x432aff97, 10)
-    MD5_STEP(MD5_I, c, d, a, b, MD5_GET(14), 0xab9423a7, 15)
-    MD5_STEP(MD5_I, b, c, d, a, MD5_GET(5), 0xfc93a039, 21)
-    MD5_STEP(MD5_I, a, b, c, d, MD5_GET(12), 0x655b59c3, 6)
-    MD5_STEP(MD5_I, d, a, b, c, MD5_GET(3), 0x8f0ccc92, 10)
-    MD5_STEP(MD5_I, c, d, a, b, MD5_GET(10), 0xffeff47d, 15)
-    MD5_STEP(MD5_I, b, c, d, a, MD5_GET(1), 0x85845dd1, 21)
-    MD5_STEP(MD5_I, a, b, c, d, MD5_GET(8), 0x6fa87e4f, 6)
-    MD5_STEP(MD5_I, d, a, b, c, MD5_GET(15), 0xfe2ce6e0, 10)
-    MD5_STEP(MD5_I, c, d, a, b, MD5_GET(6), 0xa3014314, 15)
-    MD5_STEP(MD5_I, b, c, d, a, MD5_GET(13), 0x4e0811a1, 21)
-    MD5_STEP(MD5_I, a, b, c, d, MD5_GET(4), 0xf7537e82, 6)
-    MD5_STEP(MD5_I, d, a, b, c, MD5_GET(11), 0xbd3af235, 10)
-    MD5_STEP(MD5_I, c, d, a, b, MD5_GET(2), 0x2ad7d2bb, 15)
-    MD5_STEP(MD5_I, b, c, d, a, MD5_GET(9), 0xeb86d391, 21)
+    MD5_चरणः(MD5_I, a, b, c, d, MD5_GET(0), 0xf4292244, 6)
+    MD5_चरणः(MD5_I, d, a, b, c, MD5_GET(7), 0x432aff97, 10)
+    MD5_चरणः(MD5_I, c, d, a, b, MD5_GET(14), 0xab9423a7, 15)
+    MD5_चरणः(MD5_I, b, c, d, a, MD5_GET(5), 0xfc93a039, 21)
+    MD5_चरणः(MD5_I, a, b, c, d, MD5_GET(12), 0x655b59c3, 6)
+    MD5_चरणः(MD5_I, d, a, b, c, MD5_GET(3), 0x8f0ccc92, 10)
+    MD5_चरणः(MD5_I, c, d, a, b, MD5_GET(10), 0xffeff47d, 15)
+    MD5_चरणः(MD5_I, b, c, d, a, MD5_GET(1), 0x85845dd1, 21)
+    MD5_चरणः(MD5_I, a, b, c, d, MD5_GET(8), 0x6fa87e4f, 6)
+    MD5_चरणः(MD5_I, d, a, b, c, MD5_GET(15), 0xfe2ce6e0, 10)
+    MD5_चरणः(MD5_I, c, d, a, b, MD5_GET(6), 0xa3014314, 15)
+    MD5_चरणः(MD5_I, b, c, d, a, MD5_GET(13), 0x4e0811a1, 21)
+    MD5_चरणः(MD5_I, a, b, c, d, MD5_GET(4), 0xf7537e82, 6)
+    MD5_चरणः(MD5_I, d, a, b, c, MD5_GET(11), 0xbd3af235, 10)
+    MD5_चरणः(MD5_I, c, d, a, b, MD5_GET(2), 0x2ad7d2bb, 15)
+    MD5_चरणः(MD5_I, b, c, d, a, MD5_GET(9), 0xeb86d391, 21)
 
     a += saved_a;
     b += saved_b;
@@ -417,19 +417,19 @@ static const void *my_md5_body(my_md5_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } यावत्(आकार -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  प्रत्यागम ptr;
 }
 
-static CURLcode my_md5_init(void *in)
+स्थिर CURLcode my_md5_init(शून्य *अन्तर्)
 {
-  my_md5_ctx *ctx = (my_md5_ctx *)in;
+  my_md5_ctx *ctx = (my_md5_ctx *)अन्तर्;
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
   ctx->c = 0x98badcfe;
@@ -438,77 +438,77 @@ static CURLcode my_md5_init(void *in)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static void my_md5_update(void *in,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md5_update(शून्य *अन्तर्,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
   uint32_t saved_lo;
-  unsigned int used;
-  my_md5_ctx *ctx = (my_md5_ctx *)in;
+  अचिह्नित पूर्णाङ्क प्रयुक्तम्;
+  my_md5_ctx *ctx = (my_md5_ctx *)अन्तर्;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  यदि(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
-  used = saved_lo & 0x3f;
+  प्रयुक्तम् = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned int available = 64 - used;
+  यदि(प्रयुक्तम्) {
+    अचिह्नित पूर्णाङ्क उपलब्धम् = 64 - प्रयुक्तम्;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    यदि(len < उपलब्धम्) {
+      स्मृतिं_प्रतिलिख(&ctx->बफर[प्रयुक्तम्], निवेशः, len);
+      प्रत्यागम;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
-    len -= available;
-    my_md5_body(ctx, ctx->buffer, 64);
+    स्मृतिं_प्रतिलिख(&ctx->बफर[प्रयुक्तम्], निवेशः, उपलब्धम्);
+    निवेशः = (ध्रुव अचिह्नित वर्ण *)निवेशः + उपलब्धम्;
+    len -= उपलब्धम्;
+    my_md5_body(ctx, ctx->बफर, 64);
   }
 
-  if(len >= 64) {
-    input = my_md5_body(ctx, input, len & ~(unsigned long)0x3f);
+  यदि(len >= 64) {
+    निवेशः = my_md5_body(ctx, निवेशः, len & ~(अचिह्नित दीर्घ)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  स्मृतिं_प्रतिलिख(ctx->बफर, निवेशः, len);
 }
 
-static void my_md5_final(unsigned char *digest, void *in)
+स्थिर शून्य my_md5_final(अचिह्नित वर्ण *digest, शून्य *अन्तर्)
 {
-  unsigned int used, available;
-  my_md5_ctx *ctx = (my_md5_ctx *)in;
+  अचिह्नित पूर्णाङ्क प्रयुक्तम्, उपलब्धम्;
+  my_md5_ctx *ctx = (my_md5_ctx *)अन्तर्;
 
-  used = ctx->lo & 0x3f;
+  प्रयुक्तम् = ctx->lo & 0x3f;
 
-  ctx->buffer[used++] = 0x80;
+  ctx->बफर[प्रयुक्तम्++] = 0x80;
 
-  available = 64 - used;
+  उपलब्धम् = 64 - प्रयुक्तम्;
 
-  if(available < 8) {
-    memset(&ctx->buffer[used], 0, available);
-    my_md5_body(ctx, ctx->buffer, 64);
-    used = 0;
-    available = 64;
+  यदि(उपलब्धम् < 8) {
+    स्मृतिं_पूरय(&ctx->बफर[प्रयुक्तम्], 0, उपलब्धम्);
+    my_md5_body(ctx, ctx->बफर, 64);
+    प्रयुक्तम् = 0;
+    उपलब्धम् = 64;
   }
 
-  memset(&ctx->buffer[used], 0, available - 8);
+  स्मृतिं_पूरय(&ctx->बफर[प्रयुक्तम्], 0, उपलब्धम् - 8);
 
   ctx->lo <<= 3;
-  ctx->buffer[56] = curlx_ultouc((ctx->lo) & 0xff);
-  ctx->buffer[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
-  ctx->buffer[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
-  ctx->buffer[59] = curlx_ultouc(ctx->lo >> 24);
-  ctx->buffer[60] = curlx_ultouc((ctx->hi) & 0xff);
-  ctx->buffer[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
-  ctx->buffer[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
-  ctx->buffer[63] = curlx_ultouc(ctx->hi >> 24);
+  ctx->बफर[56] = curlx_ultouc((ctx->lo) & 0xff);
+  ctx->बफर[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
+  ctx->बफर[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
+  ctx->बफर[59] = curlx_ultouc(ctx->lo >> 24);
+  ctx->बफर[60] = curlx_ultouc((ctx->hi) & 0xff);
+  ctx->बफर[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
+  ctx->बफर[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
+  ctx->बफर[63] = curlx_ultouc(ctx->hi >> 24);
 
-  my_md5_body(ctx, ctx->buffer, 64);
+  my_md5_body(ctx, ctx->बफर, 64);
 
   digest[0] = curlx_ultouc((ctx->a) & 0xff);
   digest[1] = curlx_ultouc((ctx->a >> 8) & 0xff);
@@ -527,25 +527,25 @@ static void my_md5_final(unsigned char *digest, void *in)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  स्मृतिं_पूरय(ctx, 0, परिमाण(*ctx));
 }
 
-#endif /* CRYPTO LIBS */
+#यदि_अन्तः /* CRYPTO LIBS */
 
-const struct HMAC_params Curl_HMAC_MD5 = {
+ध्रुव संरचना HMAC_params Curl_HMAC_MD5 = {
   my_md5_init,        /* Hash initialization function. */
   my_md5_update,      /* Hash update function. */
   my_md5_final,       /* Hash computation end function. */
-  sizeof(my_md5_ctx), /* Size of hash context structure. */
+  परिमाण(my_md5_ctx), /* Size of hash context structure. */
   64,                 /* Maximum key length. */
   MD5_DIGEST_LEN      /* Result size. */
 };
 
-const struct MD5_params Curl_DIGEST_MD5 = {
+ध्रुव संरचना MD5_params Curl_DIGEST_MD5 = {
   my_md5_init,        /* Digest initialization function */
   my_md5_update,      /* Digest update function */
   my_md5_final,       /* Digest computation end function */
-  sizeof(my_md5_ctx), /* Size of digest context struct */
+  परिमाण(my_md5_ctx), /* Size of digest context struct */
   MD5_DIGEST_LEN      /* Result size */
 };
 
@@ -553,69 +553,69 @@ const struct MD5_params Curl_DIGEST_MD5 = {
  * @unittest: 1601
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_md5it(unsigned char *output,
-                    const unsigned char *input, size_t len)
+CURLcode Curl_md5it(अचिह्नित वर्ण *output,
+                    ध्रुव अचिह्नित वर्ण *निवेशः, size_t len)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   my_md5_ctx ctx;
 
-  result = my_md5_init(&ctx);
-  if(!result) {
-    do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_md5_update(&ctx, input, ilen);
-      input += ilen;
+  परिणाम = my_md5_init(&ctx);
+  यदि(!परिणाम) {
+    कुरु {
+      अचिह्नित पूर्णाङ्क ilen = (अचिह्नित पूर्णाङ्क)CURLMIN(len, UINT_MAX);
+      my_md5_update(&ctx, निवेशः, ilen);
+      निवेशः += ilen;
       len -= ilen;
-    } while(len);
+    } यावत्(len);
     my_md5_final(output, &ctx);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-struct MD5_context *Curl_MD5_init(const struct MD5_params *md5params)
+संरचना MD5_context *Curl_MD5_init(ध्रुव संरचना MD5_params *md5params)
 {
-  struct MD5_context *ctxt;
+  संरचना MD5_context *ctxt;
 
   /* Create MD5 context */
-  ctxt = curlx_malloc(sizeof(*ctxt));
+  ctxt = curlx_malloc(परिमाण(*ctxt));
 
-  if(!ctxt)
-    return ctxt;
+  यदि(!ctxt)
+    प्रत्यागम ctxt;
 
   ctxt->md5_hashctx = curlx_malloc(md5params->md5_ctxtsize);
 
-  if(!ctxt->md5_hashctx) {
+  यदि(!ctxt->md5_hashctx) {
     curlx_free(ctxt);
-    return NULL;
+    प्रत्यागम रिक्त;
   }
 
   ctxt->md5_hash = md5params;
 
-  if((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
+  यदि((*md5params->md5_init_func)(ctxt->md5_hashctx)) {
     curlx_free(ctxt->md5_hashctx);
     curlx_free(ctxt);
-    return NULL;
+    प्रत्यागम रिक्त;
   }
 
-  return ctxt;
+  प्रत्यागम ctxt;
 }
 
-CURLcode Curl_MD5_update(struct MD5_context *context,
-                         const unsigned char *input, unsigned int len)
+CURLcode Curl_MD5_update(संरचना MD5_context *context,
+                         ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  (*context->md5_hash->md5_update_func)(context->md5_hashctx, input, len);
+  (*context->md5_hash->md5_update_func)(context->md5_hashctx, निवेशः, len);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_MD5_final(struct MD5_context *context, unsigned char *result)
+CURLcode Curl_MD5_final(संरचना MD5_context *context, अचिह्नित वर्ण *परिणाम)
 {
-  (*context->md5_hash->md5_final_func)(result, context->md5_hashctx);
+  (*context->md5_hash->md5_final_func)(परिणाम, context->md5_hashctx);
 
   curlx_free(context->md5_hashctx);
   curlx_free(context);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#endif /* Using NTLM (without SSPI) || Digest */
+#यदि_अन्तः /* Using NTLM (without SSPI) || Digest */

@@ -21,109 +21,109 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
+#यदि !defined(CURL_DISABLE_HTTP) && defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 
-#include "urldata.h"
-#include "url.h"
-#include "u32_ptrset.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "multiif.h"
-#include "cfilters.h"
-#include "cf-socket.h"
-#include "connect.h"
-#include "progress.h"
-#include "curlx/win32-fopen.h"
-#include "curlx/dynbuf.h"
-#include "http1.h"
-#include "select.h"
-#include "transfer.h"
-#include "bufref.h"
-#include "vdns/cf-dns.h"
-#include "vquic/vquic.h"
-#include "vquic/vquic_int.h"
-#include "vquic/cf-ngtcp2-cmn.h"
-#include "vquic/cf-ngtcp2.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "u32_ptrset.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "rand.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "cf-socket.h"
+#अन्तर्भाव "connect.h"
+#अन्तर्भाव "progress.h"
+#अन्तर्भाव "curlx/win32-fopen.h"
+#अन्तर्भाव "curlx/dynbuf.h"
+#अन्तर्भाव "http1.h"
+#अन्तर्भाव "select.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "bufref.h"
+#अन्तर्भाव "vdns/cf-dns.h"
+#अन्तर्भाव "vquic/vquic.h"
+#अन्तर्भाव "vquic/vquic_int.h"
+#अन्तर्भाव "vquic/cf-ngtcp2-cmn.h"
+#अन्तर्भाव "vquic/cf-ngtcp2.h"
 
 
-static int cb_h3_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                uint64_t datalen, void *user_data,
-                                void *stream_user_data);
+स्थिर पूर्णाङ्क cb_h3_acked_req_body(nghttp3_conn *conn, int64_t प्रवाहः_id,
+                                uint64_t datalen, शून्य *user_दत्त,
+                                शून्य *प्रवाहः_user_दत्त);
 
-static CURLcode cf_ngtcp2_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+स्थिर CURLcode cf_ngtcp2_adjust_pollset(संरचना Curl_cfilter *cf,
+                                         संरचना Curl_easy *दत्त,
+                                         संरचना easy_pollset *ps)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
   bool want_recv, want_send;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   curl_socket_t sock = (ctx->q.sockfd != CURL_SOCKET_BAD) ?
-   ctx->q.sockfd : Curl_conn_cf_get_socket(cf, data);
+   ctx->q.sockfd : Curl_conn_cf_get_socket(cf, दत्त);
 
-  if(!ctx->qconn || (sock == CURL_SOCKET_BAD))
-    return CURLE_OK;
+  यदि(!ctx->qconn || (sock == CURL_SOCKET_BAD))
+    प्रत्यागम CURLE_OK;
 
-  Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
-  if(!want_send && !Curl_bufq_is_empty(&ctx->q.sendbuf))
+  Curl_pollset_check(दत्त, ps, sock, &want_recv, &want_send);
+  यदि(!want_send && !Curl_bufq_is_रिक्तानि(&ctx->q.sendbuf))
     want_send = TRUE;
 
-  if(want_recv || want_send) {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    struct cf_call_data save;
+  यदि(want_recv || want_send) {
+    संरचना h3_प्रवाहः_ctx *प्रवाहः = H3_प्रवाहः_CTX(ctx, दत्त);
+    संरचना cf_call_दत्त save;
     bool c_exhaust, s_exhaust;
 
-    CF_DATA_SAVE(save, cf, data);
-    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_left(ctx->qconn) ||
-                              !ngtcp2_conn_get_max_data_left(ctx->qconn));
-    s_exhaust = want_send && stream && stream->id >= 0 &&
-                (stream->quic_flow_blocked ||
-                 stream->tx_in_flight_size >= stream->tx_in_flight_ideal);
+    CF_दत्त_SAVE(save, cf, दत्त);
+    c_exhaust = want_send && (!ngtcp2_conn_get_cwnd_वामः(ctx->qconn) ||
+                              !ngtcp2_conn_get_max_दत्त_वामः(ctx->qconn));
+    s_exhaust = want_send && प्रवाहः && प्रवाहः->id >= 0 &&
+                (प्रवाहः->quic_flow_blocked ||
+                 प्रवाहः->tx_अन्तर्_flight_आकार >= प्रवाहः->tx_अन्तर्_flight_ideal);
     want_recv = (want_recv || c_exhaust || s_exhaust);
     want_send = (!s_exhaust && want_send) ||
-                 !Curl_bufq_is_empty(&ctx->q.sendbuf);
+                 !Curl_bufq_is_रिक्तानि(&ctx->q.sendbuf);
 
-    result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
-    CF_DATA_RESTORE(cf, save);
+    परिणाम = Curl_pollset_समुच्चयः(दत्त, ps, sock, want_recv, want_send);
+    CF_दत्त_RESTORE(cf, save);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static int cb_h3_stream_close(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_प्रवाहः_close(nghttp3_conn *conn, int64_t प्रवाहः_id,
+                              uint64_t app_error_संहिता, शून्य *user_दत्त,
+                              शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  (void)conn;
-  (void)stream_id;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः;
+  संरचना Curl_easy *दत्त =
+    Curl_cf_ngtcp2_get_xfer(cf, प्रवाहः_user_दत्त, &प्रवाहः);
+  (शून्य)conn;
+  (शून्य)प्रवाहः_id;
 
   /* we might be called by nghttp3 after we already cleaned up */
-  if(!data || !stream)
-    return 0;
+  यदि(!दत्त || !प्रवाहः)
+    प्रत्यागम 0;
 
-  stream->closed = TRUE;
-  stream->error3 = app_error_code;
-  if(stream->error3 != NGHTTP3_H3_NO_ERROR) {
-    stream->reset = TRUE;
-    stream->send_closed = TRUE;
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] RESET: error %" PRIu64,
-                stream->id, stream->error3);
+  प्रवाहः->closed = TRUE;
+  प्रवाहः->error3 = app_error_संहिता;
+  यदि(प्रवाहः->error3 != NGHTTP3_H3_NO_ERROR) {
+    प्रवाहः->reset = TRUE;
+    प्रवाहः->send_closed = TRUE;
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] RESET: error %" PRIu64,
+                प्रवाहः->id, प्रवाहः->error3);
   }
-  else {
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] CLOSED", stream->id);
+  अन्यथा {
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] CLOSED", प्रवाहः->id);
   }
-  Curl_multi_mark_dirty(data);
-  return 0;
+  Curl_multi_mark_dirty(दत्त);
+  प्रत्यागम 0;
 }
 
-static void h3_xfer_write_resp_hd(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct h3_stream_ctx *stream,
-                                  const char *buf, size_t buflen, bool eos)
+स्थिर शून्य h3_xfer_write_resp_hd(संरचना Curl_cfilter *cf,
+                                  संरचना Curl_easy *दत्त,
+                                  संरचना h3_प्रवाहः_ctx *प्रवाहः,
+                                  ध्रुव वर्ण *buf, size_t buflen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -131,19 +131,19 @@ static void h3_xfer_write_resp_hd(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, buflen, eos);
-    if(stream->xfer_result)
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] error %d writing %zu "
-                  "bytes of headers", stream->id, (int)stream->xfer_result,
+  यदि(!प्रवाहः->xfer_परिणाम) {
+    प्रवाहः->xfer_परिणाम = Curl_xfer_write_resp_hd(दत्त, buf, buflen, eos);
+    यदि(प्रवाहः->xfer_परिणाम)
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] error %d writing %zu "
+                  "bytes of headers", प्रवाहः->id, (पूर्णाङ्क)प्रवाहः->xfer_परिणाम,
                   buflen);
   }
 }
 
-static void h3_xfer_write_resp(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h3_stream_ctx *stream,
-                               const char *buf, size_t buflen, bool eos)
+स्थिर शून्य h3_xfer_write_resp(संरचना Curl_cfilter *cf,
+                               संरचना Curl_easy *दत्त,
+                               संरचना h3_प्रवाहः_ctx *प्रवाहः,
+                               ध्रुव वर्ण *buf, size_t buflen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -151,290 +151,290 @@ static void h3_xfer_write_resp(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
-    stream->xfer_result = Curl_xfer_write_resp(data, buf, buflen, eos);
+  यदि(!प्रवाहः->xfer_परिणाम) {
+    प्रवाहः->xfer_परिणाम = Curl_xfer_write_resp(दत्त, buf, buflen, eos);
     /* If the transfer write is errored, we do not want any more data */
-    if(stream->xfer_result) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] error %d writing %zu bytes of data",
-                  stream->id, (int)stream->xfer_result, buflen);
+    यदि(प्रवाहः->xfer_परिणाम) {
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] error %d writing %zu bytes of data",
+                  प्रवाहः->id, (पूर्णाङ्क)प्रवाहः->xfer_परिणाम, buflen);
     }
   }
 }
 
-static void cf_ngtcp2_upd_rx_win(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream)
+स्थिर शून्य cf_ngtcp2_upd_rx_win(संरचना Curl_cfilter *cf,
+                                 संरचना Curl_easy *दत्त,
+                                 संरचना h3_प्रवाहः_ctx *प्रवाहः)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  uint64_t cur_win, wanted_win = H3_STREAM_WINDOW_SIZE_MAX;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  uint64_t cur_win, wanted_win = H3_प्रवाहः_गवाक्षः_आकार_MAX;
 
   /* how much does rate limiting allow us to acknowledge? */
-  if(Curl_rlimit_active(&data->progress.dl.rlimit)) {
+  यदि(Curl_rlimit_सक्रिय(&दत्त->प्रगतिः.dl.rlimit)) {
     int64_t avail;
 
     /* start rate limit updates only after first bytes arrived */
-    if(!stream->rx_offset)
-      return;
+    यदि(!प्रवाहः->rx_विस्थापनम्)
+      प्रत्यागम;
 
-    avail = Curl_rlimit_avail(&data->progress.dl.rlimit, NULL);
-    if(avail <= 0) {
+    avail = Curl_rlimit_avail(&दत्त->प्रगतिः.dl.rlimit, रिक्त);
+    यदि(avail <= 0) {
       /* nothing available, do not extend the rx offset */
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] dl rate limit exhausted (%" PRId64
-                  " tokens)", stream->id, avail);
-      return;
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] dl rate limit exhausted (%" PRId64
+                  " tokens)", प्रवाहः->id, avail);
+      प्रत्यागम;
     }
-    wanted_win = CURLMIN((uint64_t)avail, H3_STREAM_WINDOW_SIZE_MAX);
+    wanted_win = CURLMIN((uint64_t)avail, H3_प्रवाहः_गवाक्षः_आकार_MAX);
   }
 
-  if(stream->rx_offset_max < stream->rx_offset) {
+  यदि(प्रवाहः->rx_विस्थापनम्_max < प्रवाहः->rx_विस्थापनम्) {
     DEBUGASSERT(0);
-    return;
+    प्रत्यागम;
   }
-  cur_win = stream->rx_offset_max - stream->rx_offset;
+  cur_win = प्रवाहः->rx_विस्थापनम्_max - प्रवाहः->rx_विस्थापनम्;
 
-  if(wanted_win > cur_win) {
+  यदि(wanted_win > cur_win) {
     uint64_t delta = wanted_win - cur_win;
 
-    if(UINT64_MAX - delta < stream->rx_offset_max)
-      delta = UINT64_MAX - stream->rx_offset_max;
-    if(delta) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] rx window, extend by %" PRIu64
-                  " bytes", stream->id, delta);
-      stream->rx_offset_max += delta;
-      ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream->id, delta);
+    यदि(UINT64_MAX - delta < प्रवाहः->rx_विस्थापनम्_max)
+      delta = UINT64_MAX - प्रवाहः->rx_विस्थापनम्_max;
+    यदि(delta) {
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] rx window, extend by %" PRIu64
+                  " bytes", प्रवाहः->id, delta);
+      प्रवाहः->rx_विस्थापनम्_max += delta;
+      ngtcp2_conn_extend_max_प्रवाहः_विस्थापनम्(ctx->qconn, प्रवाहः->id, delta);
     }
   }
 }
 
-static int cb_h3_recv_data(nghttp3_conn *conn, int64_t stream3_id,
-                           const uint8_t *buf, size_t buflen,
-                           void *user_data, void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_recv_दत्त(nghttp3_conn *conn, int64_t stream3_id,
+                           ध्रुव uint8_t *buf, size_t buflen,
+                           शून्य *user_दत्त, शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः;
+  संरचना Curl_easy *दत्त =
+    Curl_cf_ngtcp2_get_xfer(cf, प्रवाहः_user_दत्त, &प्रवाहः);
 
-  (void)conn;
-  (void)stream3_id;
+  (शून्य)conn;
+  (शून्य)stream3_id;
 
-  if(!stream || !data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  यदि(!प्रवाहः || !दत्त)
+    प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
 
-  h3_xfer_write_resp(cf, data, stream, (const char *)buf, buflen, FALSE);
+  h3_xfer_write_resp(cf, दत्त, प्रवाहः, (ध्रुव वर्ण *)buf, buflen, FALSE);
 
-  ngtcp2_conn_extend_max_offset(ctx->qconn, buflen);
-  stream->rx_offset += buflen;
-  if(stream->rx_offset_max < stream->rx_offset)
-    stream->rx_offset_max = stream->rx_offset;
+  ngtcp2_conn_extend_max_विस्थापनम्(ctx->qconn, buflen);
+  प्रवाहः->rx_विस्थापनम् += buflen;
+  यदि(प्रवाहः->rx_विस्थापनम्_max < प्रवाहः->rx_विस्थापनम्)
+    प्रवाहः->rx_विस्थापनम्_max = प्रवाहः->rx_विस्थापनम्;
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
-              stream->id, buflen, stream->rx_offset_max - stream->rx_offset);
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
-  return 0;
+  CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] DATA len=%zu, rx win=%" PRIu64,
+              प्रवाहः->id, buflen, प्रवाहः->rx_विस्थापनम्_max - प्रवाहः->rx_विस्थापनम्);
+  cf_ngtcp2_upd_rx_win(cf, दत्त, प्रवाहः);
+  प्रत्यागम 0;
 }
 
-static int cb_h3_deferred_consume(nghttp3_conn *conn, int64_t stream3_id,
-                                  size_t consumed, void *user_data,
-                                  void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_deferred_consume(nghttp3_conn *conn, int64_t stream3_id,
+                                  size_t consumed, शून्य *user_दत्त,
+                                  शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = stream_user_data;
-  (void)conn;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः = प्रवाहः_user_दत्त;
+  (शून्य)conn;
 
   /* nghttp3 has consumed bytes on the QUIC stream and we need to
    * tell the QUIC connection to increase its flow control */
-  ngtcp2_conn_extend_max_stream_offset(ctx->qconn, stream3_id, consumed);
-  ngtcp2_conn_extend_max_offset(ctx->qconn, consumed);
+  ngtcp2_conn_extend_max_प्रवाहः_विस्थापनम्(ctx->qconn, stream3_id, consumed);
+  ngtcp2_conn_extend_max_विस्थापनम्(ctx->qconn, consumed);
 
-  if(stream) {
-    stream->rx_offset += consumed;
-    stream->rx_offset_max += consumed;
+  यदि(प्रवाहः) {
+    प्रवाहः->rx_विस्थापनम् += consumed;
+    प्रवाहः->rx_विस्थापनम्_max += consumed;
   }
-  return 0;
+  प्रत्यागम 0;
 }
 
-static int cb_h3_end_headers(nghttp3_conn *conn, int64_t stream_id,
-                             int fin, void *user_data, void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_अन्तः_शीर्षकाणि(nghttp3_conn *conn, int64_t प्रवाहः_id,
+                             पूर्णाङ्क fin, शून्य *user_दत्त, शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  (void)conn;
-  (void)stream_id;
-  (void)fin;
-  (void)cf;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः;
+  संरचना Curl_easy *दत्त =
+    Curl_cf_ngtcp2_get_xfer(cf, प्रवाहः_user_दत्त, &प्रवाहः);
+  (शून्य)conn;
+  (शून्य)प्रवाहः_id;
+  (शून्य)fin;
+  (शून्य)cf;
 
-  if(!stream || !data)
-    return 0;
+  यदि(!प्रवाहः || !दत्त)
+    प्रत्यागम 0;
   /* add a CRLF only if we have received some headers */
-  h3_xfer_write_resp_hd(cf, data, stream, STRCONST("\r\n"),
-                        (bool)stream->closed);
+  h3_xfer_write_resp_hd(cf, दत्त, प्रवाहः, STRCONST("\r\n"),
+                        (bool)प्रवाहः->closed);
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] end_headers, status=%d",
-              stream_id, stream->status_code);
-  if(stream->status_code / 100 != 1) {
-    stream->resp_hds_complete = TRUE;
+  CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] end_headers, status=%d",
+              प्रवाहः_id, प्रवाहः->स्थितिः_संहिता);
+  यदि(प्रवाहः->स्थितिः_संहिता / 100 != 1) {
+    प्रवाहः->resp_hds_complete = TRUE;
   }
-  Curl_multi_mark_dirty(data);
-  return 0;
+  Curl_multi_mark_dirty(दत्त);
+  प्रत्यागम 0;
 }
 
-static int cb_h3_recv_header(nghttp3_conn *conn, int64_t stream_id,
+स्थिर पूर्णाङ्क cb_h3_recv_शीर्षकम्(nghttp3_conn *conn, int64_t प्रवाहः_id,
                              int32_t token, nghttp3_rcbuf *name,
-                             nghttp3_rcbuf *value, uint8_t flags,
-                             void *user_data, void *stream_user_data)
+                             nghttp3_rcbuf *मानम्, uint8_t flags,
+                             शून्य *user_दत्त, शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
   nghttp3_vec h3name = nghttp3_rcbuf_get_buf(name);
-  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(value);
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
-  CURLcode result = CURLE_OK;
-  (void)conn;
-  (void)stream_id;
-  (void)token;
-  (void)flags;
-  (void)cf;
+  nghttp3_vec h3val = nghttp3_rcbuf_get_buf(मानम्);
+  संरचना h3_प्रवाहः_ctx *प्रवाहः;
+  संरचना Curl_easy *दत्त =
+    Curl_cf_ngtcp2_get_xfer(cf, प्रवाहः_user_दत्त, &प्रवाहः);
+  CURLcode परिणाम = CURLE_OK;
+  (शून्य)conn;
+  (शून्य)प्रवाहः_id;
+  (शून्य)token;
+  (शून्य)flags;
+  (शून्य)cf;
 
   /* we might have cleaned up this transfer already */
-  if(!stream || !data)
-    return 0;
+  यदि(!प्रवाहः || !दत्त)
+    प्रत्यागम 0;
 
-  if(token == NGHTTP3_QPACK_TOKEN__STATUS) {
+  यदि(token == NGHTTP3_QPACK_TOKEN_स्थितिः) {
 
-    result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)h3val.base, h3val.len);
-    if(result)
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    परिणाम = Curl_http_decode_स्थितिः(&प्रवाहः->स्थितिः_संहिता,
+                                     (ध्रुव वर्ण *)h3val.आधारः, h3val.len);
+    यदि(परिणाम)
+      प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/3 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch,
-                              (const char *)h3val.base, h3val.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
-    if(!result)
-      h3_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST("HTTP/3 "));
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch,
+                              (ध्रुव वर्ण *)h3val.आधारः, h3val.len);
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST(" \r\n"));
+    यदि(!परिणाम)
+      h3_xfer_write_resp_hd(cf, दत्त, प्रवाहः, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] status: %s",
-                stream_id, curlx_dyn_ptr(&ctx->scratch));
-    if(result) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] status: %s",
+                प्रवाहः_id, curlx_dyn_ptr(&ctx->scratch));
+    यदि(परिणाम) {
+      प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  else {
+  अन्यथा {
     /* store as an HTTP1-style header */
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] header: %.*s: %.*s",
-                stream_id, (int)h3name.len, h3name.base,
-                (int)h3val.len, h3val.base);
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] header: %.*s: %.*s",
+                प्रवाहः_id, (पूर्णाङ्क)h3name.len, h3name.आधारः,
+                (पूर्णाङ्क)h3val.len, h3val.आधारः);
     curlx_dyn_reset(&ctx->scratch);
-    result = curlx_dyn_addn(&ctx->scratch,
-                            (const char *)h3name.base, h3name.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch,
-                              (const char *)h3val.base, h3val.len);
-    if(!result)
-      result = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
-    if(!result)
-      h3_xfer_write_resp_hd(cf, data, stream, curlx_dyn_ptr(&ctx->scratch),
+    परिणाम = curlx_dyn_addn(&ctx->scratch,
+                            (ध्रुव वर्ण *)h3name.आधारः, h3name.len);
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST(": "));
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch,
+                              (ध्रुव वर्ण *)h3val.आधारः, h3val.len);
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addn(&ctx->scratch, STRCONST("\r\n"));
+    यदि(!परिणाम)
+      h3_xfer_write_resp_hd(cf, दत्त, प्रवाहः, curlx_dyn_ptr(&ctx->scratch),
                             curlx_dyn_len(&ctx->scratch), FALSE);
   }
-  return 0;
+  प्रत्यागम 0;
 }
 
-static int cb_h3_stop_sending(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_stop_sending(nghttp3_conn *conn, int64_t प्रवाहः_id,
+                              uint64_t app_error_संहिता, शून्य *user_दत्त,
+                              शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  int rv;
-  (void)conn;
-  (void)stream_user_data;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  पूर्णाङ्क rv;
+  (शून्य)conn;
+  (शून्य)प्रवाहः_user_दत्त;
 
-  rv = ngtcp2_conn_shutdown_stream_read(ctx->qconn, 0, stream_id,
-                                        app_error_code);
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  rv = ngtcp2_conn_shutdown_प्रवाहः_read(ctx->qconn, 0, प्रवाहः_id,
+                                        app_error_संहिता);
+  यदि(rv && rv != NGTCP2_ERR_प्रवाहः_NOT_प्राप्तम्) {
+    प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-static int cb_h3_reset_stream(nghttp3_conn *conn, int64_t stream_id,
-                              uint64_t app_error_code, void *user_data,
-                              void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_reset_प्रवाहः(nghttp3_conn *conn, int64_t प्रवाहः_id,
+                              uint64_t app_error_संहिता, शून्य *user_दत्त,
+                              शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, NULL);
-  int rv;
-  (void)conn;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना Curl_easy *दत्त = Curl_cf_ngtcp2_get_xfer(cf, प्रवाहः_user_दत्त, रिक्त);
+  पूर्णाङ्क rv;
+  (शून्य)conn;
 
-  rv = ngtcp2_conn_shutdown_stream_write(ctx->qconn, 0, stream_id,
-                                         app_error_code);
-  if(data)
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] reset -> %d", stream_id, rv);
-  if(rv && rv != NGTCP2_ERR_STREAM_NOT_FOUND) {
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  rv = ngtcp2_conn_shutdown_प्रवाहः_write(ctx->qconn, 0, प्रवाहः_id,
+                                         app_error_संहिता);
+  यदि(दत्त)
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] reset -> %d", प्रवाहः_id, rv);
+  यदि(rv && rv != NGTCP2_ERR_प्रवाहः_NOT_प्राप्तम्) {
+    प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
   }
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-static nghttp3_callbacks ngh3_callbacks = {
+#यदि_परिभाषितम् CURL_HAVE_DIAG
+#निर्देशः GCC diagnostic प्रक्षिप
+#निर्देशः GCC diagnostic ignored "-Wmissing-field-initializers"
+#यदि_अन्तः
+स्थिर nghttp3_callbacks ngh3_callbacks = {
   cb_h3_acked_req_body, /* acked_stream_data */
-  cb_h3_stream_close,
-  cb_h3_recv_data,
+  cb_h3_प्रवाहः_close,
+  cb_h3_recv_दत्त,
   cb_h3_deferred_consume,
-  NULL, /* begin_headers */
-  cb_h3_recv_header,
-  cb_h3_end_headers,
-  NULL, /* begin_trailers */
-  cb_h3_recv_header,
-  NULL, /* end_trailers */
+  रिक्त, /* begin_headers */
+  cb_h3_recv_शीर्षकम्,
+  cb_h3_अन्तः_शीर्षकाणि,
+  रिक्त, /* begin_trailers */
+  cb_h3_recv_शीर्षकम्,
+  रिक्त, /* end_trailers */
   cb_h3_stop_sending,
-  NULL, /* end_stream */
-  cb_h3_reset_stream,
-  NULL, /* shutdown */
-  NULL, /* recv_settings (deprecated) */
-#ifdef NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
-  NULL, /* recv_origin */
-  NULL, /* end_origin */
-  NULL, /* rand */
-#endif
-#ifdef NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
-  NULL, /* recv_settings2 */
-#endif
-#ifdef NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
-  NULL, /* stream_close2 */
-#endif
+  रिक्त, /* end_stream */
+  cb_h3_reset_प्रवाहः,
+  रिक्त, /* shutdown */
+  रिक्त, /* recv_settings (deprecated) */
+#यदि_परिभाषितम् NGHTTP3_CALLBACKS_V2  /* nghttp3 v1.11.0+ */
+  रिक्त, /* recv_origin */
+  रिक्त, /* end_origin */
+  रिक्त, /* rand */
+#यदि_अन्तः
+#यदि_परिभाषितम् NGHTTP3_CALLBACKS_V3  /* nghttp3 v1.14.0+ */
+  रिक्त, /* recv_settings2 */
+#यदि_अन्तः
+#यदि_परिभाषितम् NGHTTP3_CALLBACKS_V4  /* nghttp3 v1.18.0+ */
+  रिक्त, /* stream_close2 */
+#यदि_अन्तः
 };
-#ifdef CURL_HAVE_DIAG
-#pragma GCC diagnostic pop
-#endif
+#यदि_परिभाषितम् CURL_HAVE_DIAG
+#निर्देशः GCC diagnostic निष्कासय
+#यदि_अन्तः
 
-static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct cf_ngtcp2_ctx *ctx)
+स्थिर CURLcode init_ngh3_conn(संरचना Curl_cfilter *cf,
+                               संरचना Curl_easy *दत्त,
+                               संरचना cf_ngtcp2_ctx *ctx)
 {
-  int rc;
+  पूर्णाङ्क rc;
 
-  if(ngtcp2_conn_get_streams_uni_left(ctx->qconn) < 3) {
-    failf(data, "QUIC connection lacks 3 uni streams to run HTTP/3");
-    return CURLE_QUIC_CONNECT_ERROR;
+  यदि(ngtcp2_conn_get_streams_uni_वामः(ctx->qconn) < 3) {
+    failf(दत्त, "QUIC connection lacks 3 uni streams to run HTTP/3");
+    प्रत्यागम CURLE_QUIC_CONNECT_ERROR;
   }
 
   nghttp3_settings_default(&ctx->h3settings);
@@ -444,67 +444,67 @@ static CURLcode init_ngh3_conn(struct Curl_cfilter *cf,
                                &ctx->h3settings,
                                Curl_nghttp3_mem(),
                                cf);
-  if(rc) {
-    failf(data, "error creating nghttp3 connection instance");
-    return CURLE_OUT_OF_MEMORY;
+  यदि(rc) {
+    failf(दत्त, "error creating nghttp3 connection instance");
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
 
-  return Curl_cf_ngtcp2_h3_init_ctrls(ctx, data);
+  प्रत्यागम Curl_cf_ngtcp2_h3_init_ctrls(ctx, दत्त);
 }
 
-static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_stream_ctx *stream,
+स्थिर CURLcode recv_closed_प्रवाहः(संरचना Curl_cfilter *cf,
+                                   संरचना Curl_easy *दत्त,
+                                   संरचना h3_प्रवाहः_ctx *प्रवाहः,
                                    size_t *pnread)
 {
-  (void)cf;
+  (शून्य)cf;
   *pnread = 0;
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
-      infof(data, "HTTP/3 stream %" PRId64 " refused by server, try again "
-            "on a new connection", stream->id);
+  यदि(प्रवाहः->reset) {
+    यदि(प्रवाहः->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+      infof(दत्त, "HTTP/3 stream %" PRId64 " refused by server, try again "
+            "on a new connection", प्रवाहः->id);
       connclose(cf->conn); /* do not use this anymore */
-      data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      दत्त->state.refused_प्रवाहः = TRUE;
+      प्रत्यागम CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
-        CURL_TRC_CF(data, cf, "[%" PRId64 "] error after response headers, "
+    अन्यथा यदि(प्रवाहः->resp_hds_complete && दत्त->req.no_body) {
+        CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] error after response headers, "
                     "but we did not want a body anyway, ignore error 0x%"
-                    PRIx64 " %s", stream->id, stream->error3,
-                    Curl_vquic_h3_err_str(stream->error3));
-        return CURLE_OK;
+                    PRIx64 " %s", प्रवाहः->id, प्रवाहः->error3,
+                    Curl_vquic_h3_err_str(प्रवाहः->error3));
+        प्रत्यागम CURLE_OK;
     }
-    failf(data, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
-          " %s)", stream->id, stream->error3,
-          Curl_vquic_h3_err_str(stream->error3));
-    return data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
+    failf(दत्त, "HTTP/3 stream %" PRId64 " reset by server (error 0x%" PRIx64
+          " %s)", प्रवाहः->id, प्रवाहः->error3,
+          Curl_vquic_h3_err_str(प्रवाहः->error3));
+    प्रत्यागम दत्त->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
   }
-  else if(!stream->resp_hds_complete) {
-    failf(data,
+  अन्यथा यदि(!प्रवाहः->resp_hds_complete) {
+    failf(दत्त,
           "HTTP/3 stream %" PRId64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
-          stream->id);
-    return CURLE_HTTP3;
+          प्रवाहः->id);
+    प्रत्यागम CURLE_HTTP3;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* incoming data frames on the h3 stream */
-static CURLcode cf_ngtcp2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t buflen, size_t *pnread)
+स्थिर CURLcode cf_ngtcp2_recv(संरचना Curl_cfilter *cf, संरचना Curl_easy *दत्त,
+                               वर्ण *buf, size_t buflen, size_t *pnread)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
-  CURLcode result = CURLE_OK;
-  int i;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः = H3_प्रवाहः_CTX(ctx, दत्त);
+  संरचना cf_call_दत्त save;
+  संरचना cf_ngtcp2_io_ctx pktx;
+  CURLcode परिणाम = CURLE_OK;
+  पूर्णाङ्क i;
 
-  (void)ctx;
-  (void)buf;
-  NOVERBOSE((void)buflen);
+  (शून्य)ctx;
+  (शून्य)buf;
+  NOVERBOSE((शून्य)buflen);
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_दत्त_SAVE(save, cf, दत्त);
   DEBUGASSERT(cf->connected);
   DEBUGASSERT(ctx);
   DEBUGASSERT(ctx->qconn);
@@ -512,109 +512,109 @@ static CURLcode cf_ngtcp2_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   *pnread = 0;
 
   /* handshake verification failed in callback, do not recv anything */
-  if(ctx->tls_vrfy_result) {
-    result = ctx->tls_vrfy_result;
-    goto denied;
+  यदि(ctx->tls_vrfy_परिणाम) {
+    परिणाम = ctx->tls_vrfy_परिणाम;
+    गच्छ denied;
   }
 
-  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
+  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, दत्त);
 
-  if(!stream || ctx->shutdown_started) {
-    result = CURLE_RECV_ERROR;
-    goto out;
+  यदि(!प्रवाहः || ctx->shutdown_started) {
+    परिणाम = CURLE_RECV_ERROR;
+    गच्छ बहिर्गमनम्;
   }
 
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
+  cf_ngtcp2_upd_rx_win(cf, दत्त, प्रवाहः);
 
   /* first check for results/closed already known without touching
    * the connection. For an already failed/closed stream, errors on
    * the connection do not count.
    * Then handle incoming data and check for failed/closed again.
    */
-  for(i = 0; i < 2; ++i) {
-    if(stream->xfer_result) {
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
-      Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-      result = stream->xfer_result;
-      goto out;
+  प्रति(i = 0; i < 2; ++i) {
+    यदि(प्रवाहः->xfer_परिणाम) {
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] xfer write failed", प्रवाहः->id);
+      Curl_cf_ngtcp2_h3_प्रवाहः_close(cf, दत्त, प्रवाहः);
+      परिणाम = प्रवाहः->xfer_परिणाम;
+      गच्छ बहिर्गमनम्;
     }
-    else if(stream->closed) {
-      result = recv_closed_stream(cf, data, stream, pnread);
-      goto out;
+    अन्यथा यदि(प्रवाहः->closed) {
+      परिणाम = recv_closed_प्रवाहः(cf, दत्त, प्रवाहः, pnread);
+      गच्छ बहिर्गमनम्;
     }
 
-    if(!i && Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx)) {
-      result = CURLE_RECV_ERROR;
-      goto out;
+    यदि(!i && Curl_cf_ngtcp2_प्रगतिः_ingress(cf, दत्त, &pktx)) {
+      परिणाम = CURLE_RECV_ERROR;
+      गच्छ बहिर्गमनम्;
     }
   }
 
-  result = CURLE_AGAIN;
+  परिणाम = CURLE_AGAIN;
 
-out:
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_progress_egress(cf, data, &pktx));
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
-  if(ctx->tls_vrfy_result)
-    result = ctx->tls_vrfy_result;
+बहिर्गमनम्:
+  परिणाम = Curl_1st_fatal(परिणाम,
+                          Curl_cf_ngtcp2_प्रगतिः_egress(cf, दत्त, &pktx));
+  परिणाम = Curl_1st_fatal(परिणाम,
+                          Curl_cf_ngtcp2_cmn_समुच्चयः_expiry(cf, दत्त, &pktx));
+  यदि(ctx->tls_vrfy_परिणाम)
+    परिणाम = ctx->tls_vrfy_परिणाम;
 denied:
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_recv(buflen=%zu) -> %d, %zu",
-              stream ? stream->id : -1, buflen, (int)result, *pnread);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] cf_recv(buflen=%zu) -> %d, %zu",
+              प्रवाहः ? प्रवाहः->id : -1, buflen, (पूर्णाङ्क)परिणाम, *pnread);
+  CF_दत्त_RESTORE(cf, save);
+  प्रत्यागम परिणाम;
 }
 
-static int cb_h3_acked_req_body(nghttp3_conn *conn, int64_t stream_id,
-                                uint64_t datalen, void *user_data,
-                                void *stream_user_data)
+स्थिर पूर्णाङ्क cb_h3_acked_req_body(nghttp3_conn *conn, int64_t प्रवाहः_id,
+                                uint64_t datalen, शून्य *user_दत्त,
+                                शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream = stream_user_data;
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः = प्रवाहः_user_दत्त;
   size_t skiplen;
 
-  (void)cf;
-  if(!stream)
-    return 0;
+  (शून्य)cf;
+  यदि(!प्रवाहः)
+    प्रत्यागम 0;
   /* The server acknowledged `datalen` of bytes from our request body.
    * This is a delta. We have kept this data in `sendbuf` for
    * re-transmissions and can free it now. */
-  if(datalen >= (uint64_t)stream->tx_in_flight_size)
-    skiplen = stream->tx_in_flight_size;
-  else
+  यदि(datalen >= (uint64_t)प्रवाहः->tx_अन्तर्_flight_आकार)
+    skiplen = प्रवाहः->tx_अन्तर्_flight_आकार;
+  अन्यथा
     skiplen = (size_t)datalen;
-  Curl_bufq_skip(&stream->sendbuf, skiplen);
-  stream->tx_in_flight_size -= skiplen;
+  Curl_bufq_skip(&प्रवाहः->sendbuf, skiplen);
+  प्रवाहः->tx_अन्तर्_flight_आकार -= skiplen;
 
   /* Resume upload processing if we have more data to send */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
-    int rv = nghttp3_conn_resume_stream(conn, stream_id);
-    if(rv && rv != NGHTTP3_ERR_STREAM_NOT_FOUND) {
-      return NGHTTP3_ERR_CALLBACK_FAILURE;
+  यदि(प्रवाहः->tx_अन्तर्_flight_आकार < Curl_bufq_len(&प्रवाहः->sendbuf)) {
+    पूर्णाङ्क rv = nghttp3_conn_resume_प्रवाहः(conn, प्रवाहः_id);
+    यदि(rv && rv != NGHTTP3_ERR_प्रवाहः_NOT_प्राप्तम्) {
+      प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
     }
   }
-  return 0;
+  प्रत्यागम 0;
 }
 
-static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
+स्थिर nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t प्रवाहः_id,
                                          nghttp3_vec *vec, size_t veccnt,
-                                         uint32_t *pflags, void *user_data,
-                                         void *stream_user_data)
+                                         uint32_t *pflags, शून्य *user_दत्त,
+                                         शून्य *प्रवाहः_user_दत्त)
 {
-  struct Curl_cfilter *cf = user_data;
-  struct h3_stream_ctx *stream;
-  struct Curl_easy *data =
-    Curl_cf_ngtcp2_get_xfer(cf, stream_user_data, &stream);
+  संरचना Curl_cfilter *cf = user_दत्त;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः;
+  संरचना Curl_easy *दत्त =
+    Curl_cf_ngtcp2_get_xfer(cf, प्रवाहः_user_दत्त, &प्रवाहः);
   size_t nwritten = 0;
   size_t nvecs = 0;
-  (void)cf;
-  (void)conn;
-  (void)stream_id;
-  (void)user_data;
-  (void)veccnt;
+  (शून्य)cf;
+  (शून्य)conn;
+  (शून्य)प्रवाहः_id;
+  (शून्य)user_दत्त;
+  (शून्य)veccnt;
 
-  if(!stream || !data)
-    return NGHTTP3_ERR_CALLBACK_FAILURE;
+  यदि(!प्रवाहः || !दत्त)
+    प्रत्यागम NGHTTP3_ERR_CALLBACK_FAILURE;
   /* nghttp3 keeps references to the sendbuf data until it is ACKed
    * by the server (see `cb_h3_acked_req_body()` for updates).
    * `tx_in_flight_size` is the amount of bytes in `sendbuf`
@@ -622,435 +622,435 @@ static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn *conn, int64_t stream_id,
    * ACKed yet.
    * Any amount beyond `tx_in_flight_size` we need still to pass
    * to nghttp3. Do that now, if we can. */
-  if(stream->tx_in_flight_size < Curl_bufq_len(&stream->sendbuf)) {
+  यदि(प्रवाहः->tx_अन्तर्_flight_आकार < Curl_bufq_len(&प्रवाहः->sendbuf)) {
     nvecs = 0;
-    while(nvecs < veccnt &&
-          Curl_bufq_peek_at(&stream->sendbuf,
-                            stream->tx_in_flight_size,
-                            CURL_UNCONST(&vec[nvecs].base),
+    यावत्(nvecs < veccnt &&
+          Curl_bufq_peek_at(&प्रवाहः->sendbuf,
+                            प्रवाहः->tx_अन्तर्_flight_आकार,
+                            CURL_UNCONST(&vec[nvecs].आधारः),
                             &vec[nvecs].len)) {
-      stream->tx_in_flight_size += vec[nvecs].len;
+      प्रवाहः->tx_अन्तर्_flight_आकार += vec[nvecs].len;
       nwritten += vec[nvecs].len;
       ++nvecs;
     }
     DEBUGASSERT(nvecs > 0); /* we SHOULD have been be able to peek */
   }
 
-  if(nwritten > 0 && stream->upload_left != -1)
-    stream->upload_left -= nwritten;
+  यदि(nwritten > 0 && प्रवाहः->upload_वामः != -1)
+    प्रवाहः->upload_वामः -= nwritten;
 
   /* When we stopped sending and everything in `sendbuf` is "in flight",
    * we are at the end of the request body. */
-  if(stream->upload_left == 0) {
-    *pflags = NGHTTP3_DATA_FLAG_EOF;
-    stream->send_closed = TRUE;
+  यदि(प्रवाहः->upload_वामः == 0) {
+    *pflags = NGHTTP3_दत्त_FLAG_EOF;
+    प्रवाहः->send_closed = TRUE;
   }
-  else if(!nwritten) {
+  अन्यथा यदि(!nwritten) {
     /* Not EOF, and nothing to give, we signal WOULDBLOCK. */
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> AGAIN", stream->id);
-    return NGHTTP3_ERR_WOULDBLOCK;
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] read req body -> AGAIN", प्रवाहः->id);
+    प्रत्यागम NGHTTP3_ERR_WOULDBLOCK;
   }
 
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] read req body -> "
+  CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] read req body -> "
               "%zu vecs%s with %zu (buffered=%zu, left=%" FMT_OFF_T ")",
-              stream->id, nvecs,
-              *pflags == NGHTTP3_DATA_FLAG_EOF ? " EOF" : "",
-              nwritten, Curl_bufq_len(&stream->sendbuf),
-              stream->upload_left);
-  return (nghttp3_ssize)nvecs;
+              प्रवाहः->id, nvecs,
+              *pflags == NGHTTP3_दत्त_FLAG_EOF ? " EOF" : "",
+              nwritten, Curl_bufq_len(&प्रवाहः->sendbuf),
+              प्रवाहः->upload_वामः);
+  प्रत्यागम (nghttp3_ssize)nvecs;
 }
 
-static CURLcode h3_stream_open(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               const uint8_t *buf, size_t len,
+स्थिर CURLcode h3_प्रवाहः_open(संरचना Curl_cfilter *cf,
+                               संरचना Curl_easy *दत्त,
+                               ध्रुव uint8_t *buf, size_t len,
                                size_t *pnwritten)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = NULL;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः = रिक्त;
   int64_t sid;
-  struct dynhds h2_headers;
+  संरचना dynhds h2_शीर्षकाणि;
   size_t nheader;
-  nghttp3_nv *nva = NULL;
-  int rc = 0;
-  unsigned int i;
-  nghttp3_data_reader reader;
-  nghttp3_data_reader *preader = NULL;
-  CURLcode result;
+  nghttp3_nv *nva = रिक्त;
+  पूर्णाङ्क rc = 0;
+  अचिह्नित पूर्णाङ्क i;
+  nghttp3_दत्त_reader reader;
+  nghttp3_दत्त_reader *preader = रिक्त;
+  CURLcode परिणाम;
 
   *pnwritten = 0;
-  Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&h2_शीर्षकाणि, 0, DYN_HTTP_REQUEST);
 
-  result = Curl_cf_ngtcp2_h3_stream_setup(cf, data, &stream);
-  if(result)
-    goto out;
+  परिणाम = Curl_cf_ngtcp2_h3_प्रवाहः_सज्जता(cf, दत्त, &प्रवाहः);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  result = Curl_h1_req_parse_read(&stream->h1, buf, len, NULL,
-    !data->state.http_ignorecustom ?
-    CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
+  परिणाम = Curl_h1_req_parse_read(&प्रवाहः->h1, buf, len, रिक्त,
+    !दत्त->state.http_ignorecustom ?
+    CURL_EASY_STR(दत्त, STRING_CUSTOMREQUEST) : रिक्त,
     0, pnwritten);
-  if(result)
-    goto out;
-  if(!stream->h1.done) {
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  यदि(!प्रवाहः->h1.समाप्तम्) {
     /* need more data */
-    goto out;
+    गच्छ बहिर्गमनम्;
   }
-  DEBUGASSERT(stream->h1.req);
+  DEBUGASSERT(प्रवाहः->h1.req);
 
-  result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
-    goto out;
+  परिणाम = Curl_http_req_गन्तव्यम्_h2(&h2_शीर्षकाणि, प्रवाहः->h1.req, दत्त);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
   /* no longer needed */
-  Curl_h1_req_parse_free(&stream->h1);
+  Curl_h1_req_parse_free(&प्रवाहः->h1);
 
-  nheader = Curl_dynhds_count(&h2_headers);
-  nva = curlx_malloc(sizeof(nghttp3_nv) * nheader);
-  if(!nva) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  nheader = Curl_dynhds_गणनम्(&h2_शीर्षकाणि);
+  nva = curlx_malloc(परिमाण(nghttp3_nv) * nheader);
+  यदि(!nva) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
 
-  for(i = 0; i < nheader; ++i) {
-    struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
-    nva[i].name = (unsigned char *)e->name;
+  प्रति(i = 0; i < nheader; ++i) {
+    संरचना dynhds_प्रविष्टिः *e = Curl_dynhds_getn(&h2_शीर्षकाणि, i);
+    nva[i].name = (अचिह्नित वर्ण *)e->name;
     nva[i].namelen = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].मानम् = (अचिह्नित वर्ण *)e->मानम्;
     nva[i].valuelen = e->valuelen;
     nva[i].flags = NGHTTP3_NV_FLAG_NONE;
   }
 
-  rc = ngtcp2_conn_open_bidi_stream(ctx->qconn, &sid, stream);
-  if(rc) {
-    failf(data, "cannot open bidi streams");
-    result = CURLE_SEND_ERROR;
-    goto out;
+  rc = ngtcp2_conn_open_bidi_प्रवाहः(ctx->qconn, &sid, प्रवाहः);
+  यदि(rc) {
+    failf(दत्त, "cannot open bidi streams");
+    परिणाम = CURLE_SEND_ERROR;
+    गच्छ बहिर्गमनम्;
   }
-  stream->id = sid;
-  ++ctx->used_bidi_streams;
+  प्रवाहः->id = sid;
+  ++ctx->प्रयुक्तम्_bidi_streams;
 
-  switch(data->state.httpreq) {
-  case HTTPREQ_POST:
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-  case HTTPREQ_PUT:
+  विकल्प(दत्त->state.httpreq) {
+  पक्ष HTTPREQ_POST:
+  पक्ष HTTPREQ_POST_FORM:
+  पक्ष HTTPREQ_POST_MIME:
+  पक्ष HTTPREQ_PUT:
     /* known request body size or -1 */
-    if(data->state.infilesize != -1)
-      stream->upload_left = data->state.infilesize;
-    else
+    यदि(दत्त->state.infilesize != -1)
+      प्रवाहः->upload_वामः = दत्त->state.infilesize;
+    अन्यथा
       /* data sending without specifying the data amount up front */
-      stream->upload_left = -1; /* unknown */
-    break;
-  default:
+      प्रवाहः->upload_वामः = -1; /* unknown */
+    भङ्ग;
+  स्वभाव:
     /* there is no request body */
-    stream->upload_left = 0; /* no request body */
-    break;
+    प्रवाहः->upload_वामः = 0; /* no request body */
+    भङ्ग;
   }
 
-  stream->send_closed = (stream->upload_left == 0);
-  if(!stream->send_closed) {
-    reader.read_data = cb_h3_read_req_body;
+  प्रवाहः->send_closed = (प्रवाहः->upload_वामः == 0);
+  यदि(!प्रवाहः->send_closed) {
+    reader.read_दत्त = cb_h3_read_req_body;
     preader = &reader;
   }
 
-  rc = nghttp3_conn_submit_request(ctx->h3conn, stream->id,
-                                   nva, nheader, preader, stream);
-  if(rc) {
-    switch(rc) {
-    case NGHTTP3_ERR_CONN_CLOSING:
-      CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send, "
-                  "connection is closing", stream->id);
-      break;
-    default:
-      CURL_TRC_CF(data, cf, "h3sid[%" PRId64 "] failed to send -> "
-                  "%d (%s)", stream->id, rc, nghttp3_strerror(rc));
-      break;
+  rc = nghttp3_conn_submit_request(ctx->h3conn, प्रवाहः->id,
+                                   nva, nheader, preader, प्रवाहः);
+  यदि(rc) {
+    विकल्प(rc) {
+    पक्ष NGHTTP3_ERR_CONN_CLOSING:
+      CURL_TRC_CF(दत्त, cf, "h3sid[%" PRId64 "] failed to send, "
+                  "connection is closing", प्रवाहः->id);
+      भङ्ग;
+    स्वभाव:
+      CURL_TRC_CF(दत्त, cf, "h3sid[%" PRId64 "] failed to send -> "
+                  "%d (%s)", प्रवाहः->id, rc, nghttp3_strerror(rc));
+      भङ्ग;
     }
-    Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-    result = CURLE_SEND_ERROR;
-    goto out;
+    Curl_cf_ngtcp2_h3_प्रवाहः_close(cf, दत्त, प्रवाहः);
+    परिणाम = CURLE_SEND_ERROR;
+    गच्छ बहिर्गमनम्;
   }
 
-  cf_ngtcp2_upd_rx_win(cf, data, stream);
+  cf_ngtcp2_upd_rx_win(cf, दत्त, प्रवाहः);
 
-  if(Curl_trc_is_verbose(data)) {
-    infof(data, "[HTTP/3] [%" PRId64 "] OPENED stream for %s",
-          stream->id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
-      infof(data, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", stream->id,
-            (int)nva[i].namelen, nva[i].name,
-            (int)nva[i].valuelen, nva[i].value);
+  यदि(Curl_trc_is_verbose(दत्त)) {
+    infof(दत्त, "[HTTP/3] [%" PRId64 "] OPENED stream for %s",
+          प्रवाहः->id, Curl_bufref_ptr(&दत्त->state.url));
+    प्रति(i = 0; i < nheader; ++i) {
+      infof(दत्त, "[HTTP/3] [%" PRId64 "] [%.*s: %.*s]", प्रवाहः->id,
+            (पूर्णाङ्क)nva[i].namelen, nva[i].name,
+            (पूर्णाङ्क)nva[i].valuelen, nva[i].मानम्);
     }
   }
 
-out:
+बहिर्गमनम्:
   curlx_free(nva);
-  Curl_dynhds_free(&h2_headers);
-  return result;
+  Curl_dynhds_free(&h2_शीर्षकाणि);
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode cf_ngtcp2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               const uint8_t *buf, size_t len, bool eos,
+स्थिर CURLcode cf_ngtcp2_send(संरचना Curl_cfilter *cf, संरचना Curl_easy *दत्त,
+                               ध्रुव uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-  struct cf_call_data save;
-  struct cf_ngtcp2_io_ctx pktx;
-  CURLcode result = CURLE_OK;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना h3_प्रवाहः_ctx *प्रवाहः = H3_प्रवाहः_CTX(ctx, दत्त);
+  संरचना cf_call_दत्त save;
+  संरचना cf_ngtcp2_io_ctx pktx;
+  CURLcode परिणाम = CURLE_OK;
 
-  CF_DATA_SAVE(save, cf, data);
+  CF_दत्त_SAVE(save, cf, दत्त);
   DEBUGASSERT(cf->connected);
   DEBUGASSERT(ctx->qconn);
   DEBUGASSERT(ctx->h3conn);
-  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, data);
+  Curl_cf_ngtcp2_io_ctx_init(&pktx, cf, दत्त);
   *pnwritten = 0;
 
   /* handshake verification failed in callback, do not send anything */
-  if(ctx->tls_vrfy_result) {
-    result = ctx->tls_vrfy_result;
-    goto denied;
+  यदि(ctx->tls_vrfy_परिणाम) {
+    परिणाम = ctx->tls_vrfy_परिणाम;
+    गच्छ denied;
   }
 
-  (void)eos; /* use for stream EOF and block handling */
-  result = Curl_cf_ngtcp2_progress_ingress(cf, data, &pktx);
-  if(result)
-    goto out;
+  (शून्य)eos; /* use for stream EOF and block handling */
+  परिणाम = Curl_cf_ngtcp2_प्रगतिः_ingress(cf, दत्त, &pktx);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  if(!stream || stream->id < 0) {
-    if(ctx->shutdown_started) {
-      CURL_TRC_CF(data, cf, "cannot open stream on closed connection");
-      result = CURLE_SEND_ERROR;
-      goto out;
+  यदि(!प्रवाहः || प्रवाहः->id < 0) {
+    यदि(ctx->shutdown_started) {
+      CURL_TRC_CF(दत्त, cf, "cannot open stream on closed connection");
+      परिणाम = CURLE_SEND_ERROR;
+      गच्छ बहिर्गमनम्;
     }
-    result = h3_stream_open(cf, data, buf, len, pnwritten);
-    if(result) {
-      CURL_TRC_CF(data, cf, "failed to open stream -> %d", (int)result);
-      goto out;
+    परिणाम = h3_प्रवाहः_open(cf, दत्त, buf, len, pnwritten);
+    यदि(परिणाम) {
+      CURL_TRC_CF(दत्त, cf, "failed to open stream -> %d", (पूर्णाङ्क)परिणाम);
+      गच्छ बहिर्गमनम्;
     }
-    stream = H3_STREAM_CTX(ctx, data);
+    प्रवाहः = H3_प्रवाहः_CTX(ctx, दत्त);
   }
-  else if(stream->xfer_result) {
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] xfer write failed", stream->id);
-    Curl_cf_ngtcp2_h3_stream_close(cf, data, stream);
-    result = stream->xfer_result;
-    goto out;
+  अन्यथा यदि(प्रवाहः->xfer_परिणाम) {
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] xfer write failed", प्रवाहः->id);
+    Curl_cf_ngtcp2_h3_प्रवाहः_close(cf, दत्त, प्रवाहः);
+    परिणाम = प्रवाहः->xfer_परिणाम;
+    गच्छ बहिर्गमनम्;
   }
-  else if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  अन्यथा यदि(प्रवाहः->closed) {
+    यदि(प्रवाहः->resp_hds_complete) {
       /* Server decided to close the stream after having sent us a final
        * response. This is valid if it is not interested in the request
        * body. This happens on 30x or 40x responses.
        * We silently discard the data sent, since this is not a transport
        * error situation. */
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] discarding data"
-                  "on closed stream with response", stream->id);
-      result = CURLE_OK;
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] discarding data"
+                  "on closed stream with response", प्रवाहः->id);
+      परिणाम = CURLE_OK;
       *pnwritten = len;
-      goto out;
+      गच्छ बहिर्गमनम्;
     }
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] send_body(len=%zu) "
-                "-> stream closed", stream->id, len);
-    result = CURLE_HTTP3;
-    goto out;
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] send_body(len=%zu) "
+                "-> stream closed", प्रवाहः->id, len);
+    परिणाम = CURLE_HTTP3;
+    गच्छ बहिर्गमनम्;
   }
-  else if(ctx->shutdown_started) {
-    CURL_TRC_CF(data, cf, "cannot send on closed connection");
-    result = CURLE_SEND_ERROR;
-    goto out;
+  अन्यथा यदि(ctx->shutdown_started) {
+    CURL_TRC_CF(दत्त, cf, "cannot send on closed connection");
+    परिणाम = CURLE_SEND_ERROR;
+    गच्छ बहिर्गमनम्;
   }
-  else if(stream->tx_in_flight_size >= stream->tx_in_flight_ideal) {
-    result = CURLE_AGAIN;
-    goto out;
+  अन्यथा यदि(प्रवाहः->tx_अन्तर्_flight_आकार >= प्रवाहः->tx_अन्तर्_flight_ideal) {
+    परिणाम = CURLE_AGAIN;
+    गच्छ बहिर्गमनम्;
   }
-  else {
-    result = Curl_bufq_write(&stream->sendbuf, buf, len, pnwritten);
-    CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send, add to "
+  अन्यथा {
+    परिणाम = Curl_bufq_write(&प्रवाहः->sendbuf, buf, len, pnwritten);
+    CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] cf_send, add to "
                 "sendbuf(len=%zu) -> %d, %zu",
-                stream->id, len, (int)result, *pnwritten);
-    if(result)
-      goto out;
-    (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+                प्रवाहः->id, len, (पूर्णाङ्क)परिणाम, *pnwritten);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
+    (शून्य)nghttp3_conn_resume_प्रवाहः(ctx->h3conn, प्रवाहः->id);
   }
 
-  if(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
+  यदि(*pnwritten > 0 && !ctx->tls_handshake_complete && ctx->use_earlydata)
     ctx->earlydata_skip += *pnwritten;
 
-  DEBUGASSERT(!result);
-  result = Curl_cf_ngtcp2_progress_egress(cf, data, &pktx);
+  DEBUGASSERT(!परिणाम);
+  परिणाम = Curl_cf_ngtcp2_प्रगतिः_egress(cf, दत्त, &pktx);
 
-  if(*pnwritten > 0) {
-    const size_t delta = (2 * 1024);
-    if(stream->tx_in_flight_size > (stream->tx_in_flight_ideal + delta)) {
+  यदि(*pnwritten > 0) {
+    ध्रुव size_t delta = (2 * 1024);
+    यदि(प्रवाहः->tx_अन्तर्_flight_आकार > (प्रवाहः->tx_अन्तर्_flight_ideal + delta)) {
       /* ngtcp2 keeps more in flight than we try to provide for,
        * increase our "ideal" tx buffer length */
-      stream->tx_in_flight_ideal += delta;
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
+      प्रवाहः->tx_अन्तर्_flight_ideal += delta;
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
                   "inflight=%zu, increase tx_win=%zu",
-                  stream->id, len, *pnwritten,
-                  stream->tx_in_flight_size, stream->tx_in_flight_ideal);
+                  प्रवाहः->id, len, *pnwritten,
+                  प्रवाहः->tx_अन्तर्_flight_आकार, प्रवाहः->tx_अन्तर्_flight_ideal);
     }
-    else if((stream->tx_in_flight_size + delta) < stream->tx_in_flight_ideal) {
+    अन्यथा यदि((प्रवाहः->tx_अन्तर्_flight_आकार + delta) < प्रवाहः->tx_अन्तर्_flight_ideal) {
       /* ngtcp2 keeps less in flight than we try to provide for,
        * decrease our "ideal" tx buffer length */
-      stream->tx_in_flight_ideal -= delta;
-      CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
+      प्रवाहः->tx_अन्तर्_flight_ideal -= delta;
+      CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] cf_send(%zu), added %zu, "
                   "inflight=%zu, reduce tx_win=%zu",
-                  stream->id, len, *pnwritten,
-                  stream->tx_in_flight_size, stream->tx_in_flight_ideal);
+                  प्रवाहः->id, len, *pnwritten,
+                  प्रवाहः->tx_अन्तर्_flight_आकार, प्रवाहः->tx_अन्तर्_flight_ideal);
     }
   }
 
-out:
-  result = Curl_1st_fatal(result,
-                          Curl_cf_ngtcp2_cmn_set_expiry(cf, data, &pktx));
-  if(ctx->tls_vrfy_result)
-    result = ctx->tls_vrfy_result;
+बहिर्गमनम्:
+  परिणाम = Curl_1st_fatal(परिणाम,
+                          Curl_cf_ngtcp2_cmn_समुच्चयः_expiry(cf, दत्त, &pktx));
+  यदि(ctx->tls_vrfy_परिणाम)
+    परिणाम = ctx->tls_vrfy_परिणाम;
 denied:
-  CURL_TRC_CF(data, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
-              stream ? stream->id : -1, len, (int)result, *pnwritten);
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CURL_TRC_CF(दत्त, cf, "[%" PRId64 "] cf_send(len=%zu) -> %d, %zu",
+              प्रवाहः ? प्रवाहः->id : -1, len, (पूर्णाङ्क)परिणाम, *pnwritten);
+  CF_दत्त_RESTORE(cf, save);
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode h3_data_pause(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+स्थिर CURLcode h3_दत्त_pause(संरचना Curl_cfilter *cf,
+                              संरचना Curl_easy *दत्त,
                               bool pause)
 {
   /* There seems to exist no API in ngtcp2 to shrink/enlarge the streams
    * windows. As we do in HTTP/2. */
-  (void)cf;
-  if(!pause)
-    Curl_multi_mark_dirty(data);
-  return CURLE_OK;
+  (शून्य)cf;
+  यदि(!pause)
+    Curl_multi_mark_dirty(दत्त);
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode cf_ngtcp2_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+स्थिर CURLcode cf_ngtcp2_cntrl(संरचना Curl_cfilter *cf,
+                                संरचना Curl_easy *दत्त,
+                                पूर्णाङ्क event, पूर्णाङ्क arg1, शून्य *arg2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  CURLcode परिणाम = CURLE_OK;
+  संरचना cf_call_दत्त save;
 
-  CF_DATA_SAVE(save, cf, data);
-  switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
-    result = h3_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_DATA_DONE:
-    Curl_cf_ngtcp2_h3_stream_done(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE_SEND: {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    if(stream && !stream->send_closed) {
-      stream->send_closed = TRUE;
-      stream->upload_left = Curl_bufq_len(&stream->sendbuf) -
-        stream->tx_in_flight_size;
-      (void)nghttp3_conn_resume_stream(ctx->h3conn, stream->id);
+  CF_दत्त_SAVE(save, cf, दत्त);
+  विकल्प(event) {
+  पक्ष CF_CTRL_दत्त_सज्जता:
+    भङ्ग;
+  पक्ष CF_CTRL_दत्त_PAUSE:
+    परिणाम = h3_दत्त_pause(cf, दत्त, (arg1 != 0));
+    भङ्ग;
+  पक्ष CF_CTRL_दत्त_समाप्तम्:
+    Curl_cf_ngtcp2_h3_प्रवाहः_समाप्तम्(cf, दत्त);
+    भङ्ग;
+  पक्ष CF_CTRL_दत्त_समाप्तम्_SEND: {
+    संरचना h3_प्रवाहः_ctx *प्रवाहः = H3_प्रवाहः_CTX(ctx, दत्त);
+    यदि(प्रवाहः && !प्रवाहः->send_closed) {
+      प्रवाहः->send_closed = TRUE;
+      प्रवाहः->upload_वामः = Curl_bufq_len(&प्रवाहः->sendbuf) -
+        प्रवाहः->tx_अन्तर्_flight_आकार;
+      (शून्य)nghttp3_conn_resume_प्रवाहः(ctx->h3conn, प्रवाहः->id);
     }
-    break;
+    भङ्ग;
   }
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
-      cf->conn->httpversion_seen = 30;
-      Curl_conn_set_multiplex(cf->conn);
+  पक्ष CF_CTRL_CONN_INFO_UPDATE:
+    यदि(!cf->sockindex && cf->connected) {
+      cf->conn->httpversion_आलोकितम् = 30;
+      Curl_conn_समुच्चयः_multiplex(cf->conn);
     }
-    break;
-  default:
-    result = Curl_cf_ngtcp2_cmn_cntrl(cf, data, event, arg1, arg2);
-    break;
+    भङ्ग;
+  स्वभाव:
+    परिणाम = Curl_cf_ngtcp2_cmn_cntrl(cf, दत्त, event, arg1, arg2);
+    भङ्ग;
   }
-  CF_DATA_RESTORE(cf, save);
-  return result;
+  CF_दत्त_RESTORE(cf, save);
+  प्रत्यागम परिणाम;
 }
 
-static void cf_ngtcp2_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+स्थिर शून्य cf_ngtcp2_destroy(संरचना Curl_cfilter *cf, संरचना Curl_easy *दत्त)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
 
-  CURL_TRC_CF(data, cf, "destroy");
-  if(ctx) {
-    if(ctx->qconn) {
-      struct cf_call_data save;
-      CF_DATA_SAVE(save, cf, data);
-      Curl_cf_ngtcp2_cmn_conn_close(cf, data);
-      CF_DATA_RESTORE(cf, save);
+  CURL_TRC_CF(दत्त, cf, "destroy");
+  यदि(ctx) {
+    यदि(ctx->qconn) {
+      संरचना cf_call_दत्त save;
+      CF_दत्त_SAVE(save, cf, दत्त);
+      Curl_cf_ngtcp2_cmn_conn_close(cf, दत्त);
+      CF_दत्त_RESTORE(cf, save);
     }
     Curl_cf_ngtcp2_ctx_cleanup(ctx);
     curlx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = रिक्त;
   }
 }
 
-static CURLcode cf_ngtcp2_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  bool *done)
+स्थिर CURLcode cf_ngtcp2_connect(संरचना Curl_cfilter *cf,
+                                  संरचना Curl_easy *दत्त,
+                                  bool *समाप्तम्)
 {
-  return Curl_cf_ngtcp2_cmn_connect(cf, data, done);
+  प्रत्यागम Curl_cf_ngtcp2_cmn_connect(cf, दत्त, समाप्तम्);
 }
 
-static CURLcode cf_ngtcp2_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+स्थिर CURLcode cf_ngtcp2_query(संरचना Curl_cfilter *cf,
+                                संरचना Curl_easy *दत्त,
+                                पूर्णाङ्क query, पूर्णाङ्क *pres1, शून्य *pres2)
 {
-  struct cf_ngtcp2_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  संरचना cf_ngtcp2_ctx *ctx = cf->ctx;
+  संरचना cf_call_दत्त save;
 
-  switch(query) {
-  case CF_QUERY_MAX_CONCURRENT: {
+  विकल्प(query) {
+  पक्ष CF_QUERY_MAX_CONCURRENT: {
     DEBUGASSERT(pres1);
-    CF_DATA_SAVE(save, cf, data);
+    CF_दत्त_SAVE(save, cf, दत्त);
     /* Set after transport params arrived and continually updated
      * by callback. QUIC counts the number over the lifetime of the
      * connection, ever increasing.
      * We count the *open* transfers plus the budget for new ones. */
-    if(!ctx->qconn || ctx->shutdown_started) {
+    यदि(!ctx->qconn || ctx->shutdown_started) {
       *pres1 = 0;
     }
-    else if(ctx->max_bidi_streams) {
+    अन्यथा यदि(ctx->max_bidi_streams) {
       uint64_t avail_bidi_streams = 0;
       uint64_t max_streams = cf->conn->attached_xfers;
-      if(ctx->max_bidi_streams > ctx->used_bidi_streams)
-        avail_bidi_streams = ctx->max_bidi_streams - ctx->used_bidi_streams;
+      यदि(ctx->max_bidi_streams > ctx->प्रयुक्तम्_bidi_streams)
+        avail_bidi_streams = ctx->max_bidi_streams - ctx->प्रयुक्तम्_bidi_streams;
       max_streams += avail_bidi_streams;
-      *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
+      *pres1 = (max_streams > अधिकतम_पूर्णाङ्कः) ? अधिकतम_पूर्णाङ्कः : (पूर्णाङ्क)max_streams;
     }
-    else {  /* transport params not arrived yet? take our default. */
-      uint32_t n = Curl_multi_max_concurrent_streams(data->multi);
-      *pres1 = (n < INT_MAX) ? (int)n : INT_MAX;
+    अन्यथा {  /* transport params not arrived yet? take our default. */
+      uint32_t n = Curl_multi_max_concurrent_streams(दत्त->multi);
+      *pres1 = (n < अधिकतम_पूर्णाङ्कः) ? (पूर्णाङ्क)n : अधिकतम_पूर्णाङ्कः;
     }
-    CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
+    CURL_TRC_CF(दत्त, cf, "query conn[%" FMT_OFF_T "]: "
                 "MAX_CONCURRENT -> %d (%u in use)",
                 cf->conn->connection_id, *pres1, cf->conn->attached_xfers);
-    CF_DATA_RESTORE(cf, save);
-    return CURLE_OK;
+    CF_दत्त_RESTORE(cf, save);
+    प्रत्यागम CURLE_OK;
   }
-  case CF_QUERY_HTTP_VERSION:
+  पक्ष CF_QUERY_HTTP_संस्करणम्:
     *pres1 = 30;
-    return CURLE_OK;
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO: {
-    struct curl_tlssessioninfo *info = pres2;
-    if(Curl_vquic_tls_get_ssl_info(&ctx->tls,
+    प्रत्यागम CURLE_OK;
+  पक्ष CF_QUERY_SSL_INFO:
+  पक्ष CF_QUERY_SSL_CTX_INFO: {
+    संरचना curl_tlssessioninfo *info = pres2;
+    यदि(Curl_vquic_tls_get_ssl_info(&ctx->tls,
                                    (query == CF_QUERY_SSL_CTX_INFO), info))
-      return CURLE_OK;
-    break;
+      प्रत्यागम CURLE_OK;
+    भङ्ग;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  पक्ष CF_QUERY_ALPN_NEGOTIATED: {
+    ध्रुव वर्ण **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = cf->connected ? "h3" : NULL;
-    return CURLE_OK;
+    *palpn = cf->connected ? "h3" : रिक्त;
+    प्रत्यागम CURLE_OK;
   }
-  default:
-    break;
+  स्वभाव:
+    भङ्ग;
   }
-  return Curl_cf_ngtcp2_cmn_query(cf, data, query, pres1, pres2);
+  प्रत्यागम Curl_cf_ngtcp2_cmn_query(cf, दत्त, query, pres1, pres2);
 }
 
-struct Curl_cftype Curl_cft_http3 = {
+संरचना Curl_cftype Curl_cft_http3 = {
   "HTTP/3",
   CF_TYPE_IP_CONNECT | CF_TYPE_SSL | CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   0,
@@ -1058,7 +1058,7 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_ngtcp2_connect,
   Curl_cf_ngtcp2_cmn_shutdown,
   cf_ngtcp2_adjust_pollset,
-  Curl_cf_def_data_pending,
+  Curl_cf_def_दत्त_pending,
   cf_ngtcp2_send,
   cf_ngtcp2_recv,
   cf_ngtcp2_cntrl,
@@ -1067,81 +1067,81 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_ngtcp2_query,
 };
 
-CURLcode Curl_cf_ngtcp2_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr)
+CURLcode Curl_cf_ngtcp2_create(संरचना Curl_cfilter **pcf,
+                               संरचना Curl_easy *दत्त,
+                               संरचना Curl_peer *origin,
+                               संरचना Curl_peer *peer,
+                               संरचना connectdata *conn,
+                               संरचना Curl_sockaddr_ex *addr)
 {
-  struct cf_ngtcp2_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  संरचना cf_ngtcp2_ctx *ctx = रिक्त;
+  संरचना Curl_cfilter *cf = रिक्त;
+  CURLcode परिणाम;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, परिमाण(*ctx));
+  यदि(!ctx) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
-  result = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
+  परिणाम = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
                                    &conn->ssl_config, init_ngh3_conn);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
+  यदि(!परिणाम)
+    परिणाम = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
   cf->conn = conn;
 
-  result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
-                              conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
-    goto out;
-  cf->next->conn = cf->conn;
-  cf->next->sockindex = cf->sockindex;
+  परिणाम = Curl_cf_udp_create(&cf->अग्र, दत्त, origin, peer, TRNSPRT_QUIC,
+                              conn, addr, रिक्त, TRNSPRT_QUIC);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  cf->अग्र->conn = cf->conn;
+  cf->अग्र->sockindex = cf->sockindex;
 
-out:
-  *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
-      Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx) {
+बहिर्गमनम्:
+  *pcf = (!परिणाम) ? cf : रिक्त;
+  यदि(परिणाम) {
+    यदि(cf)
+      Curl_conn_cf_discard_chain(&cf, दत्त);
+    अन्यथा यदि(ctx) {
       Curl_cf_ngtcp2_ctx_cleanup(ctx);
       curlx_free(ctx);
     }
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_cf_ngtcp2_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf)
+CURLcode Curl_cf_ngtcp2_निवेशय_after(संरचना Curl_cfilter *cf_at,
+                                     संरचना Curl_peer *origin,
+                                     संरचना Curl_peer *peer,
+                                     संरचना Curl_cfilter **pcf)
 {
-  struct cf_ngtcp2_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
-  CURLcode result;
+  संरचना cf_ngtcp2_ctx *ctx = रिक्त;
+  संरचना Curl_cfilter *cf = रिक्त;
+  CURLcode परिणाम;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto out;
+  ctx = curlx_calloc(1, परिमाण(*ctx));
+  यदि(!ctx) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ बहिर्गमनम्;
   }
-  result = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
+  परिणाम = Curl_cf_ngtcp2_ctx_init(ctx, origin, peer,
                                    &cf_at->conn->ssl_config, init_ngh3_conn);
-  if(!result)
-    result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
-    goto out;
-  Curl_conn_cf_insert_after(cf_at, cf);
-out:
-  if(result) {
+  यदि(!परिणाम)
+    परिणाम = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  Curl_conn_cf_निवेशय_after(cf_at, cf);
+बहिर्गमनम्:
+  यदि(परिणाम) {
     curlx_safefree(cf);
-    if(ctx) {
+    यदि(ctx) {
       Curl_cf_ngtcp2_ctx_cleanup(ctx);
       curlx_free(ctx);
     }
   }
   *pcf = cf;
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#endif
+#यदि_अन्तः

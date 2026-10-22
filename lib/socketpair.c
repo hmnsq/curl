@@ -21,43 +21,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "socketpair.h"
-#include "urldata.h"
-#include "rand.h"
-#include "curlx/nonblock.h"
+#अन्तर्भाव "socketpair.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "rand.h"
+#अन्तर्भाव "curlx/nonblock.h"
 
-#ifndef CURL_DISABLE_SOCKETPAIR
+#यदि_अपरिभाषितम् CURL_DISABLE_SOCKETPAIR
 
 /* choose implementation */
-#ifdef USE_EVENTFD
+#यदि_परिभाषितम् USE_EVENTFD
 
-#include <sys/eventfd.h>
+#अन्तर्भाव <sys/eventfd.h>
 
-static int wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
+स्थिर पूर्णाङ्क wakeup_eventfd(curl_socket_t socks[2], bool nonblocking)
 {
-  int efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
-  if(efd == -1) {
+  पूर्णाङ्क efd = eventfd(0, nonblocking ? EFD_CLOEXEC | EFD_NONBLOCK : EFD_CLOEXEC);
+  यदि(efd == -1) {
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    प्रत्यागम -1;
   }
   socks[0] = socks[1] = efd;
-  return 0;
+  प्रत्यागम 0;
 }
 
-#elif defined(HAVE_PIPE)
+#नोचेद्यदि defined(HAVE_PIPE)
 
-#ifdef HAVE_FCNTL
-#include <fcntl.h>
-#endif
+#यदि_परिभाषितम् HAVE_FCNTL
+#अन्तर्भाव <fcntl.h>
+#यदि_अन्तः
 
-static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
+स्थिर पूर्णाङ्क wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
 {
-#ifdef HAVE_PIPE2
-  return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-#else
-#if defined(__APPLE__) && defined(HAVE_BUILTIN_AVAILABLE) && \
+#यदि_परिभाषितम् HAVE_PIPE2
+  प्रत्यागम pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+#अन्यथा
+#यदि defined(__APPLE__) && defined(HAVE_BUILTIN_उपलब्धम्) && \
   ((defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
             __MAC_OS_X_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
@@ -68,314 +68,314 @@ static int wakeup_pipe(curl_socket_t socks[2], bool nonblocking)
             __WATCH_OS_VERSION_MAX_ALLOWED >= 270000) || \
    (defined(__VISION_OS_VERSION_MAX_ALLOWED) && \
             __VISION_OS_VERSION_MAX_ALLOWED >= 270000))
-  if(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
+  यदि(__builtin_available(macOS 27, iOS 27, tvOS 27, watchOS 27, visionOS 27,
                          macCatalyst 27, *))
-    return pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
-  else
-#endif
-  if(pipe(socks))
-    return -1;
-#ifdef HAVE_FCNTL
-  if(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
+    प्रत्यागम pipe2(socks, (nonblocking ? O_NONBLOCK : 0) | O_CLOEXEC) ? -1 : 0;
+  अन्यथा
+#यदि_अन्तः
+  यदि(pipe(socks))
+    प्रत्यागम -1;
+#यदि_परिभाषितम् HAVE_FCNTL
+  यदि(fcntl(socks[0], F_SETFD, FD_CLOEXEC) ||
      fcntl(socks[1], F_SETFD, FD_CLOEXEC)) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    प्रत्यागम -1;
   }
-#endif
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+#यदि_अन्तः
+  यदि(nonblocking) {
+    यदि(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      प्रत्यागम -1;
     }
   }
-  return 0;
-#endif /* HAVE_PIPE2 */
+  प्रत्यागम 0;
+#यदि_अन्तः /* HAVE_PIPE2 */
 }
 
-#elif defined(HAVE_SOCKETPAIR)  /* !USE_EVENTFD && !HAVE_PIPE */
+#नोचेद्यदि defined(HAVE_SOCKETPAIR)  /* !USE_EVENTFD && !HAVE_PIPE */
 
-#ifndef USE_UNIX_SOCKETS
-#error "unsupported Unix domain and socketpair build combo"
-#endif
+#यदि_अपरिभाषितम् USE_UNIX_SOCKETS
+#दोषः "unsupported Unix domain and socketpair build combo"
+#यदि_अन्तः
 
-static int wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
+स्थिर पूर्णाङ्क wakeup_socketpair(curl_socket_t socks[2], bool nonblocking)
 {
-  int type = SOCK_STREAM;
-#ifdef SOCK_CLOEXEC
+  पूर्णाङ्क type = SOCK_STREAM;
+#यदि_परिभाषितम् SOCK_CLOEXEC
   type |= SOCK_CLOEXEC;
-#endif
-#ifdef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking)
+#यदि_अन्तः
+#यदि_परिभाषितम् CURL_USE_SOCK_NONBLOCK
+  यदि(nonblocking)
     type |= SOCK_NONBLOCK;
-#endif
+#यदि_अन्तः
 
-  if(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
-    return -1;
-#ifndef CURL_USE_SOCK_NONBLOCK
-  if(nonblocking) {
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  यदि(CURL_SOCKETPAIR(AF_UNIX, type, 0, socks))
+    प्रत्यागम -1;
+#यदि_अपरिभाषितम् CURL_USE_SOCK_NONBLOCK
+  यदि(nonblocking) {
+    यदि(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0) {
       sclose(socks[0]);
       sclose(socks[1]);
       socks[0] = socks[1] = CURL_SOCKET_BAD;
-      return -1;
+      प्रत्यागम -1;
     }
   }
-#endif
-#ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0) {
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_SO_NOSIGPIPE
+  यदि(Curl_sock_nosigpipe(socks[1]) < 0) {
     sclose(socks[0]);
     sclose(socks[1]);
     socks[0] = socks[1] = CURL_SOCKET_BAD;
-    return -1;
+    प्रत्यागम -1;
   }
-#endif /* USE_SO_NOSIGPIPE */
+#यदि_अन्तः /* USE_SO_NOSIGPIPE */
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-#else /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
+#अन्यथा /* !USE_EVENTFD && !HAVE_PIPE && !HAVE_SOCKETPAIR */
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> /* for IPPROTO_TCP */
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#यदि_परिभाषितम् HAVE_NETDB_H
+#अन्तर्भाव <netdb.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_NETINET_अन्तर्_H
+#अन्तर्भाव <netinet/in.h> /* for IPPROTO_TCP */
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_ARPA_INET_H
+#अन्तर्भाव <arpa/inet.h>
+#यदि_अन्तः
 
-#ifndef INADDR_LOOPBACK
-#define INADDR_LOOPBACK 0x7f000001
-#endif
+#यदि_अपरिभाषितम् INADDR_LOOPBACK
+#परिभाषय INADDR_LOOPBACK 0x7f000001
+#यदि_अन्तः
 
-#include "select.h"   /* for Curl_poll */
+#अन्तर्भाव "select.h"   /* for Curl_poll */
 
-static int wakeup_inet(curl_socket_t socks[2], bool nonblocking)
+स्थिर पूर्णाङ्क wakeup_inet(curl_socket_t socks[2], bool nonblocking)
 {
-  union {
-    struct sockaddr_in inaddr;
-    struct sockaddr addr;
+  सङ्घ {
+    संरचना sockaddr_in inaddr;
+    संरचना sockaddr addr;
   } a;
   curl_socket_t listener;
-  curl_socklen_t addrlen = sizeof(a.inaddr);
-  int reuse = 1;
-  struct pollfd pfd[1];
+  curl_socklen_t addrlen = परिमाण(a.inaddr);
+  पूर्णाङ्क reuse = 1;
+  संरचना pollfd pfd[1];
 
   listener = CURL_SOCKET(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if(listener == CURL_SOCKET_BAD)
-    return -1;
+  यदि(listener == CURL_SOCKET_BAD)
+    प्रत्यागम -1;
 
-  memset(&a, 0, sizeof(a));
+  स्मृतिं_पूरय(&a, 0, परिमाण(a));
   a.inaddr.sin_family = AF_INET;
   a.inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   a.inaddr.sin_port = 0;
 
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#यदि defined(_WIN32) || defined(__CYGWIN__)
   /* do not set SO_REUSEADDR on Windows */
-  (void)reuse;
-#ifdef SO_EXCLUSIVEADDRUSE
+  (शून्य)reuse;
+#यदि_परिभाषितम् SO_EXCLUSIVEADDRUSE
   {
-    int exclusive = 1;
-    if(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-                  (char *)&exclusive, (curl_socklen_t)sizeof(exclusive)) == -1)
-      goto error;
+    पूर्णाङ्क exclusive = 1;
+    यदि(setsockopt(listener, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+                  (वर्ण *)&exclusive, (curl_socklen_t)परिमाण(exclusive)) == -1)
+      गच्छ error;
   }
-#endif
-#else
-  if(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
-                (char *)&reuse, (curl_socklen_t)sizeof(reuse)) == -1)
-    goto error;
-#endif
-  if(bind(listener, &a.addr, sizeof(a.inaddr)) == -1)
-    goto error;
-  if(getsockname(listener, &a.addr, &addrlen) == -1 ||
-     addrlen < (int)sizeof(a.inaddr))
-    goto error;
-  if(listen(listener, 1) == -1)
-    goto error;
+#यदि_अन्तः
+#अन्यथा
+  यदि(setsockopt(listener, SOL_SOCKET, SO_REUSEADDR,
+                (वर्ण *)&reuse, (curl_socklen_t)परिमाण(reuse)) == -1)
+    गच्छ error;
+#यदि_अन्तः
+  यदि(bind(listener, &a.addr, परिमाण(a.inaddr)) == -1)
+    गच्छ error;
+  यदि(getsockname(listener, &a.addr, &addrlen) == -1 ||
+     addrlen < (पूर्णाङ्क)परिमाण(a.inaddr))
+    गच्छ error;
+  यदि(listen(listener, 1) == -1)
+    गच्छ error;
   socks[0] = CURL_SOCKET(AF_INET, SOCK_STREAM, 0);
-  if(socks[0] == CURL_SOCKET_BAD)
-    goto error;
-  if(connect(socks[0], &a.addr, sizeof(a.inaddr)) == -1)
-    goto error;
+  यदि(socks[0] == CURL_SOCKET_BAD)
+    गच्छ error;
+  यदि(connect(socks[0], &a.addr, परिमाण(a.inaddr)) == -1)
+    गच्छ error;
 
   /* use non-blocking accept to make sure we do not block forever */
-  if(curlx_nonblock(listener, TRUE) < 0)
-    goto error;
+  यदि(curlx_nonblock(listener, TRUE) < 0)
+    गच्छ error;
   pfd[0].fd = listener;
   pfd[0].events = POLLIN;
   pfd[0].revents = 0;
-  (void)Curl_poll(pfd, 1, 1000); /* one second */
-  socks[1] = CURL_ACCEPT(listener, NULL, NULL);
-  if(socks[1] == CURL_SOCKET_BAD)
-    goto error;
-  else {
-    struct curltime start = curlx_now();
-    char rnd[9];
-    char check[sizeof(rnd)];
-    char *p = &check[0];
-    size_t s = sizeof(check);
+  (शून्य)Curl_poll(pfd, 1, 1000); /* one second */
+  socks[1] = CURL_ACCEPT(listener, रिक्त, रिक्त);
+  यदि(socks[1] == CURL_SOCKET_BAD)
+    गच्छ error;
+  अन्यथा {
+    संरचना curltime start = curlx_now();
+    वर्ण rnd[9];
+    वर्ण check[परिमाण(rnd)];
+    वर्ण *p = &check[0];
+    size_t s = परिमाण(check);
 
-    if(Curl_rand(NULL, (unsigned char *)rnd, sizeof(rnd)))
-      goto error;
+    यदि(Curl_rand(रिक्त, (अचिह्नित वर्ण *)rnd, परिमाण(rnd)))
+      गच्छ error;
 
     /* write data to the socket */
-    swrite(socks[0], rnd, sizeof(rnd));
+    swrite(socks[0], rnd, परिमाण(rnd));
     /* verify that we read the correct data */
-    do {
+    कुरु {
       ssize_t nread;
 
       /* Do not block forever */
-      if(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
-        goto error;
+      यदि(curlx_timediff_ms(curlx_now(), start) > (60 * 1000))
+        गच्छ error;
 
       pfd[0].fd = socks[1];
       pfd[0].events = POLLIN;
       pfd[0].revents = 0;
-      (void)Curl_poll(pfd, 1, 1000); /* one second */
+      (शून्य)Curl_poll(pfd, 1, 1000); /* one second */
 
       nread = sread(socks[1], p, s);
-      if(!nread) { /* unexpected close before getting complete `check` */
-        goto error;
+      यदि(!nread) { /* unexpected close before getting complete `check` */
+        गच्छ error;
       }
-      else if(nread == -1) { /* error or close */
-        int sockerr = SOCKERRNO;
-        if(SOCK_EAGAIN(sockerr)
-#ifndef USE_WINSOCK
+      अन्यथा यदि(nread == -1) { /* error or close */
+        पूर्णाङ्क sockerr = SOCKERRNO;
+        यदि(SOCK_EAGAIN(sockerr)
+#यदि_अपरिभाषितम् USE_WINSOCK
            || (sockerr == SOCKEINTR) || (sockerr == SOCKEINPROGRESS)
-#endif
+#यदि_अन्तः
           ) {
-          continue;
+          अनुवर्त;
         }
-        goto error;
+        गच्छ error;
       }
       s -= nread;
-      if(s) {
+      यदि(s) {
         p += nread;
-        continue;
+        अनुवर्त;
       }
-      if(memcmp(rnd, check, sizeof(check)))
-        goto error;
-      break;
-    } while(1);
+      यदि(memcmp(rnd, check, परिमाण(check)))
+        गच्छ error;
+      भङ्ग;
+    } यावत्(1);
   }
 
-  if(nonblocking)
-    if(curlx_nonblock(socks[0], TRUE) < 0 ||
+  यदि(nonblocking)
+    यदि(curlx_nonblock(socks[0], TRUE) < 0 ||
        curlx_nonblock(socks[1], TRUE) < 0)
-      goto error;
-#ifdef USE_SO_NOSIGPIPE
-  if(Curl_sock_nosigpipe(socks[1]) < 0)
-    goto error;
-#endif
+      गच्छ error;
+#यदि_परिभाषितम् USE_SO_NOSIGPIPE
+  यदि(Curl_sock_nosigpipe(socks[1]) < 0)
+    गच्छ error;
+#यदि_अन्तः
   sclose(listener);
-  return 0;
+  प्रत्यागम 0;
 
 error:
   sclose(listener);
   sclose(socks[0]);
   sclose(socks[1]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
-  return -1;
+  प्रत्यागम -1;
 }
 
-#endif /* choose implementation */
+#यदि_अन्तः /* choose implementation */
 
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
+पूर्णाङ्क Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking)
 {
-#ifdef USE_EVENTFD
-  return wakeup_eventfd(socks, nonblocking);
-#elif defined(HAVE_PIPE)
-  return wakeup_pipe(socks, nonblocking);
-#elif defined(HAVE_SOCKETPAIR)
-  return wakeup_socketpair(socks, nonblocking);
-#else
-  return wakeup_inet(socks, nonblocking);
-#endif
+#यदि_परिभाषितम् USE_EVENTFD
+  प्रत्यागम wakeup_eventfd(socks, nonblocking);
+#नोचेद्यदि defined(HAVE_PIPE)
+  प्रत्यागम wakeup_pipe(socks, nonblocking);
+#नोचेद्यदि defined(HAVE_SOCKETPAIR)
+  प्रत्यागम wakeup_socketpair(socks, nonblocking);
+#अन्यथा
+  प्रत्यागम wakeup_inet(socks, nonblocking);
+#यदि_अन्तः
 }
 
-#if defined(USE_EVENTFD) || defined(HAVE_PIPE)
+#यदि defined(USE_EVENTFD) || defined(HAVE_PIPE)
 
-#define wakeup_write        write
-#define wakeup_read         read
-#define wakeup_close        close
+#परिभाषय wakeup_write        लिख
+#परिभाषय wakeup_read         पठ
+#परिभाषय wakeup_close        close
 
-#else /* !USE_EVENTFD && !HAVE_PIPE */
+#अन्यथा /* !USE_EVENTFD && !HAVE_PIPE */
 
-#define wakeup_write        swrite
-#define wakeup_read         sread
-#define wakeup_close        sclose
+#परिभाषय wakeup_write        swrite
+#परिभाषय wakeup_read         sread
+#परिभाषय wakeup_close        sclose
 
-#endif
+#यदि_अन्तः
 
-int Curl_wakeup_signal(curl_socket_t socks[2])
+पूर्णाङ्क Curl_wakeup_signal(curl_socket_t socks[2])
 {
-  int sockerr = 0;
-#ifdef USE_EVENTFD
-  const uint64_t buf[1] = { 1 };
-#else
-  const char buf[1] = { 1 };
-#endif
+  पूर्णाङ्क sockerr = 0;
+#यदि_परिभाषितम् USE_EVENTFD
+  ध्रुव uint64_t buf[1] = { 1 };
+#अन्यथा
+  ध्रुव वर्ण buf[1] = { 1 };
+#यदि_अन्तः
 
-  while(1) {
+  यावत्(1) {
     sockerr = 0;
-    if(wakeup_write(socks[1], buf, sizeof(buf)) < 0) {
+    यदि(wakeup_write(socks[1], buf, परिमाण(buf)) < 0) {
       sockerr = SOCKERRNO;
-#ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
-        continue;
-#endif
-      if(SOCK_EAGAIN(sockerr))
+#यदि_अपरिभाषितम् USE_WINSOCK
+      यदि(sockerr == SOCKEINTR)
+        अनुवर्त;
+#यदि_अन्तः
+      यदि(SOCK_EAGAIN(sockerr))
         sockerr = 0; /* wakeup is already ongoing */
     }
-    break;
+    भङ्ग;
   }
-  return sockerr;
+  प्रत्यागम sockerr;
 }
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all)
 {
-  char buf[64];
+  वर्ण buf[64];
   ssize_t rc;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  do {
-    rc = wakeup_read(socks[0], buf, sizeof(buf));
-    if(!rc)
-      break;
-    else if(rc < 0) {
-      int sockerr = SOCKERRNO;
-#ifndef USE_WINSOCK
-      if(sockerr == SOCKEINTR)
-        continue;
-#endif
-      if(SOCK_EAGAIN(sockerr))
-        break;
-      result = CURLE_READ_ERROR;
-      break;
+  कुरु {
+    rc = wakeup_read(socks[0], buf, परिमाण(buf));
+    यदि(!rc)
+      भङ्ग;
+    अन्यथा यदि(rc < 0) {
+      पूर्णाङ्क sockerr = SOCKERRNO;
+#यदि_अपरिभाषितम् USE_WINSOCK
+      यदि(sockerr == SOCKEINTR)
+        अनुवर्त;
+#यदि_अन्तः
+      यदि(SOCK_EAGAIN(sockerr))
+        भङ्ग;
+      परिणाम = CURLE_READ_ERROR;
+      भङ्ग;
     }
-  } while(all);
-  return result;
+  } यावत्(all);
+  प्रत्यागम परिणाम;
 }
 
-void Curl_wakeup_destroy(curl_socket_t socks[2])
+शून्य Curl_wakeup_destroy(curl_socket_t socks[2])
 {
-#ifndef USE_EVENTFD
-  if(socks[1] != CURL_SOCKET_BAD)
+#यदि_अपरिभाषितम् USE_EVENTFD
+  यदि(socks[1] != CURL_SOCKET_BAD)
     wakeup_close(socks[1]);
-#endif
-  if(socks[0] != CURL_SOCKET_BAD)
+#यदि_अन्तः
+  यदि(socks[0] != CURL_SOCKET_BAD)
     wakeup_close(socks[0]);
   socks[0] = socks[1] = CURL_SOCKET_BAD;
 }
 
-#endif /* !CURL_DISABLE_SOCKETPAIR */
+#यदि_अन्तः /* !CURL_DISABLE_SOCKETPAIR */

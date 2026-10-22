@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FTP_H
-#define HEADER_CURL_FTP_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_FTP_H
+#परिभाषय शीर्षकम्_CURL_FTP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,23 +23,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifndef CURL_DISABLE_FTP
-extern const struct Curl_protocol Curl_protocol_ftp;
+#यदि_अपरिभाषितम् CURL_DISABLE_FTP
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_ftp;
 
-bool Curl_ftp_conns_match(struct connectdata *needle,
-                          struct connectdata *conn);
+bool Curl_ftp_conns_मेलनम्(संरचना connectdata *needle,
+                          संरचना connectdata *conn);
 
-typedef enum {
+प्रकारनिर्देश गणना {
   FTPFILE_MULTICWD  = 1, /* as defined by RFC1738 */
   FTPFILE_NOCWD     = 2, /* use SIZE / RETR / STOR on the full path */
   FTPFILE_SINGLECWD = 3  /* make one CWD, then SIZE / RETR / STOR on the
                             file */
 } curl_ftpfile;
 
-#endif /* CURL_DISABLE_FTP */
+#यदि_अन्तः /* CURL_DISABLE_FTP */
 
-#define DEFAULT_ACCEPT_TIMEOUT   60000 /* milliseconds == one minute */
+#परिभाषय DEFAULT_ACCEPT_TIMEOUT   60000 /* milliseconds == one minute */
 
-#endif /* HEADER_CURL_FTP_H */
+#यदि_अन्तः /* HEADER_CURL_FTP_H */

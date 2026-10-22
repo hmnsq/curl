@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PROTOCOL_H
-#define HEADER_CURL_PROTOCOL_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_PROTOCOL_H
+#परिभाषय शीर्षकम्_CURL_PROTOCOL_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,76 +24,76 @@
  *
  ***************************************************************************/
 /* This file is for lib internal stuff */
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-struct Curl_easy;
-struct connectdata;
-struct easy_pollset;
+संरचना Curl_easy;
+संरचना connectdata;
+संरचना easy_pollset;
 
 /* Known protocol default port numbers */
-#define PORT_FTP    21
-#define PORT_FTPS   990
-#define PORT_TELNET 23
-#define PORT_HTTP   80
-#define PORT_HTTPS  443
-#define PORT_DICT   2628
-#define PORT_LDAP   389
-#define PORT_LDAPS  636
-#define PORT_TFTP   69
-#define PORT_SSH    22
-#define PORT_IMAP   143
-#define PORT_IMAPS  993
-#define PORT_POP3   110
-#define PORT_POP3S  995
-#define PORT_SMTP   25
-#define PORT_SMTPS  465 /* sometimes called SSMTP */
-#define PORT_RTSP   554
-#define PORT_GOPHER 70
-#define PORT_SOCKS  1080
-#define PORT_MQTT   1883
-#define PORT_MQTTS  8883
+#परिभाषय पत्तनम्_FTP    21
+#परिभाषय पत्तनम्_FTPS   990
+#परिभाषय पत्तनम्_TELNET 23
+#परिभाषय पत्तनम्_HTTP   80
+#परिभाषय पत्तनम्_HTTPS  443
+#परिभाषय पत्तनम्_DICT   2628
+#परिभाषय पत्तनम्_LDAP   389
+#परिभाषय पत्तनम्_LDAPS  636
+#परिभाषय पत्तनम्_TFTP   69
+#परिभाषय पत्तनम्_SSH    22
+#परिभाषय पत्तनम्_IMAP   143
+#परिभाषय पत्तनम्_IMAPS  993
+#परिभाषय पत्तनम्_POP3   110
+#परिभाषय पत्तनम्_POP3_S  995
+#परिभाषय पत्तनम्_SMTP   25
+#परिभाषय पत्तनम्_SMTPS  465 /* sometimes called SSMTP */
+#परिभाषय पत्तनम्_RTSP   554
+#परिभाषय पत्तनम्_GOPHER 70
+#परिभाषय पत्तनम्_SOCKS  1080
+#परिभाषय पत्तनम्_MQTT   1883
+#परिभाषय पत्तनम्_MQTTS  8883
 
 /* CURLPROTO_GOPHERS (29) is the highest publicly used protocol bit number,
  * the rest are internal information. If we use higher bits we only do this on
  * platforms that have a >= 64-bit type and then we use such a type for the
  * protocol fields in the scheme definition.
  */
-#define CURLPROTO_WS     (1L << 30)
-#define CURLPROTO_WSS    ((curl_prot_t)1 << 31)
-#define CURLPROTO_MQTTS  (1LL << 32)
-#define CURLPROTO_SOCKS  (1LL << 33)
+#परिभाषय CURLPROTO_WS     (1L << 30)
+#परिभाषय CURLPROTO_WSS    ((curl_prot_t)1 << 31)
+#परिभाषय CURLPROTO_MQTTS  (1LL << 32)
+#परिभाषय CURLPROTO_SOCKS  (1LL << 33)
 
-#define CURLPROTO_64ALL ((uint64_t)0xffffffffffffffff)
+#परिभाषय CURLPROTO_64ALL ((uint64_t)0xffffffffffffffff)
 
 /* the default protocols accepting a redirect to */
-#define CURLPROTO_REDIR (CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | \
+#परिभाषय CURLPROTO_REDIR (CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | \
                          CURLPROTO_FTPS)
 
-typedef curl_off_t curl_prot_t;
+प्रकारनिर्देश curl_off_t curl_prot_t;
 
 /* This mask is for all the old protocols that are provided and defined in the
    public header and shall exclude protocols added since which are not exposed
    in the API */
-#define CURLPROTO_MASK   0x3fffffff
+#परिभाषय CURLPROTO_आवरणम्   0x3fffffff
 
 /* Convenience defines for checking protocols or their SSL based version. Each
    protocol scheme should only ever have a single CURLPROTO_ in its protocol
    field. */
-#define PROTO_FAMILY_HTTP (CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_WS | \
+#परिभाषय PROTO_FAMILY_HTTP (CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_WS | \
                            CURLPROTO_WSS)
-#define PROTO_FAMILY_FTP  (CURLPROTO_FTP | CURLPROTO_FTPS)
-#define PROTO_FAMILY_POP3 (CURLPROTO_POP3 | CURLPROTO_POP3S)
-#define PROTO_FAMILY_SMTP (CURLPROTO_SMTP | CURLPROTO_SMTPS)
-#define PROTO_FAMILY_SSH  (CURLPROTO_SCP | CURLPROTO_SFTP)
+#परिभाषय PROTO_FAMILY_FTP  (CURLPROTO_FTP | CURLPROTO_FTPS)
+#परिभाषय PROTO_FAMILY_POP3 (CURLPROTO_POP3 | CURLPROTO_POP3S)
+#परिभाषय PROTO_FAMILY_SMTP (CURLPROTO_SMTP | CURLPROTO_SMTPS)
+#परिभाषय PROTO_FAMILY_SSH  (CURLPROTO_SCP | CURLPROTO_SFTP)
 
-#if !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
+#यदि !defined(CURL_DISABLE_FTP) || defined(USE_SSH) || \
   !defined(CURL_DISABLE_POP3)
 /* these protocols support CURLOPT_DIRLISTONLY */
-#define CURL_LIST_ONLY_PROTOCOL 1
-#endif
+#परिभाषय CURL_LIST_ONLY_PROTOCOL 1
+#यदि_अन्तः
 
 /* When redirecting transfers. */
-typedef enum {
+प्रकारनिर्देश गणना {
   FOLLOW_NONE,  /* not used within the function, a placeholder to allow
                    initing to this */
   FOLLOW_FAKE,  /* only records stuff, not actually following */
@@ -102,24 +102,24 @@ typedef enum {
   FOLLOW_REDIR /* a full true redirect */
 } followtype;
 
-typedef enum {
+प्रकारनिर्देश गणना {
   DOMORE_GOBACK = -1,
   DOMORE_INCOMPLETE = 0,
-  DOMORE_DONE = 1
+  DOMORE_समाप्तम् = 1
 } domore;
 
 /*
  * Specific protocol handler, an implementation of one or more URI schemes.
  */
-struct Curl_protocol {
+संरचना Curl_protocol {
   /* Complement to setup_connection_internals(). This is done before the
      transfer "owns" the connection. */
-  CURLcode (*setup_connection)(struct Curl_easy *data,
-                               struct connectdata *conn);
+  CURLcode (*सज्जता_connection)(संरचना Curl_easy *दत्त,
+                               संरचना connectdata *conn);
 
   /* These two functions MUST be set to be protocol dependent */
-  CURLcode (*do_it)(struct Curl_easy *data, bool *done);
-  CURLcode (*done)(struct Curl_easy *, CURLcode, bool);
+  CURLcode (*do_it)(संरचना Curl_easy *दत्त, bool *समाप्तम्);
+  CURLcode (*समाप्तम्)(संरचना Curl_easy *, CURLcode, bool);
 
   /* If the curl_do() function is better made in two halves, this
    * curl_do_more() function will be called afterwards, if set. For example
@@ -129,7 +129,7 @@ struct Curl_protocol {
    * DOMORE_DONE when the second phase is complete, or DOMORE_GOBACK
    * to return to the regular DO/DOING handling.
    */
-  CURLcode (*do_more)(struct Curl_easy *, domore *);
+  CURLcode (*do_अधिकम्)(संरचना Curl_easy *, domore *);
 
   /* This function *MAY* be set to a protocol-dependent function that is run
    * after the connect() and everything is done, as a step in the connection.
@@ -137,32 +137,32 @@ struct Curl_protocol {
    * function completes before return. If it does not complete, the caller
    * should call the ->connecting() function until it is.
    */
-  CURLcode (*connect_it)(struct Curl_easy *data, bool *done);
+  CURLcode (*connect_it)(संरचना Curl_easy *दत्त, bool *समाप्तम्);
 
   /* See above. */
-  CURLcode (*connecting)(struct Curl_easy *data, bool *done);
-  CURLcode (*doing)(struct Curl_easy *data, bool *done);
+  CURLcode (*connecting)(संरचना Curl_easy *दत्त, bool *समाप्तम्);
+  CURLcode (*doing)(संरचना Curl_easy *दत्त, bool *समाप्तम्);
 
   /* Called from the multi interface during the PROTOCONNECT phase, and it
      should then return a proper fd set */
-  CURLcode (*proto_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*proto_pollset)(संरचना Curl_easy *दत्त,
+                            संरचना easy_pollset *ps);
 
   /* Called from the multi interface during the DOING phase, and it should
      then return a proper fd set */
-  CURLcode (*doing_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*doing_pollset)(संरचना Curl_easy *दत्त,
+                            संरचना easy_pollset *ps);
 
   /* Called from the multi interface during the DO_MORE phase, and it should
      then return a proper fd set */
-  CURLcode (*domore_pollset)(struct Curl_easy *data,
-                            struct easy_pollset *ps);
+  CURLcode (*domore_pollset)(संरचना Curl_easy *दत्त,
+                            संरचना easy_pollset *ps);
 
   /* Called from the multi interface during the DO_DONE, PERFORM and
      WAITPERFORM phases, and it should then return a proper fd set. Not setting
      this will make libcurl use the generic default one. */
-  CURLcode (*perform_pollset)(struct Curl_easy *data,
-                              struct easy_pollset *ps);
+  CURLcode (*perform_pollset)(संरचना Curl_easy *दत्त,
+                              संरचना easy_pollset *ps);
 
   /* This function *MAY* be set to a protocol-dependent function that is run
    * by the curl_disconnect(), as a step in the disconnection. If the handler
@@ -170,76 +170,76 @@ struct Curl_protocol {
    * dead_connection is set to TRUE. The connection is (again) associated with
    * the transfer here.
    */
-  CURLcode (*disconnect)(struct Curl_easy *, struct connectdata *,
+  CURLcode (*disconnect)(संरचना Curl_easy *, संरचना connectdata *,
                          bool dead_connection);
 
   /* If used, this function gets called from transfer.c to
      allow the protocol to do extra handling in writing response to
      the client. */
-  CURLcode (*write_resp)(struct Curl_easy *data, const char *buf, size_t blen,
+  CURLcode (*write_resp)(संरचना Curl_easy *दत्त, ध्रुव वर्ण *buf, size_t blen,
                          bool is_eos);
 
   /* If used, this function gets called from transfer.c to
      allow the protocol to do extra handling in writing a single response
      header line to the client. */
-  CURLcode (*write_resp_hd)(struct Curl_easy *data,
-                            const char *hd, size_t hdlen, bool is_eos);
+  CURLcode (*write_resp_hd)(संरचना Curl_easy *दत्त,
+                            ध्रुव वर्ण *hd, size_t hdlen, bool is_eos);
 
   /* If used, this function checks for a connection managed by this
     protocol and currently not in use, if it should be considered dead. */
-  bool (*connection_is_dead)(struct Curl_easy *data,
-                             struct connectdata *conn);
+  bool (*connection_is_dead)(संरचना Curl_easy *दत्त,
+                             संरचना connectdata *conn);
 
   /* attach() attaches this transfer to this connection */
-  void (*attach)(struct Curl_easy *data, struct connectdata *conn);
+  शून्य (*attach)(संरचना Curl_easy *दत्त, संरचना connectdata *conn);
 
   /* return CURLE_OK if a redirect to `newurl` should be followed,
      CURLE_TOO_MANY_REDIRECTS otherwise. May alter `data` to change
      the way the follow request is performed. */
-  CURLcode (*follow)(struct Curl_easy *data, const char *newurl,
+  CURLcode (*follow)(संरचना Curl_easy *दत्त, ध्रुव वर्ण *newurl,
                      followtype type);
 };
 
-#define PROTOPT_NONE 0             /* nothing extra */
-#define PROTOPT_SSL (1 << 0)       /* uses SSL */
-#define PROTOPT_DUAL (1 << 1)      /* this protocol uses two connections */
-#define PROTOPT_CLOSEACTION (1 << 2) /* need action before socket close */
+#परिभाषय PROTOPT_NONE 0             /* nothing extra */
+#परिभाषय PROTOPT_SSL (1 << 0)       /* uses SSL */
+#परिभाषय PROTOPT_DUAL (1 << 1)      /* this protocol uses two connections */
+#परिभाषय PROTOPT_CLOSEACTION (1 << 2) /* need action before socket close */
 /* some protocols will have to call the underlying functions without regard to
    what exact state the socket signals. IE even if the socket says "readable",
    the send function might need to be called while uploading, or vice versa. */
-#define PROTOPT_DIRLOCK (1 << 3)
-#define PROTOPT_NONETWORK (1 << 4) /* protocol does not use the network! */
-#define PROTOPT_NEEDSPWD (1 << 5)  /* needs a password, and if none is set it
+#परिभाषय PROTOPT_DIRLOCK (1 << 3)
+#परिभाषय PROTOPT_NONETWORK (1 << 4) /* protocol does not use the network! */
+#परिभाषय PROTOPT_NEEDSPWD (1 << 5)  /* needs a password, and if none is set it
                                       gets a default */
-#define PROTOPT_NOURLQUERY (1 << 6)  /* protocol cannot handle
+#परिभाषय PROTOPT_NOURLQUERY (1 << 6)  /* protocol cannot handle
                                         URL query strings (?foo=bar) ! */
-#define PROTOPT_CREDSPERREQUEST (1 << 7) /* requires login credentials per
+#परिभाषय PROTOPT_CREDSPERREQUEST (1 << 7) /* requires login credentials per
                                             request instead of per
                                             connection */
-#define PROTOPT_ALPN (1 << 8) /* set ALPN for this */
+#परिभाषय PROTOPT_ALPN (1 << 8) /* set ALPN for this */
 /* (1 << 9) was PROTOPT_STREAM, now free */
-#define PROTOPT_URLOPTIONS (1 << 10) /* allow options part in the userinfo
+#परिभाषय PROTOPT_URLOPTIONS (1 << 10) /* allow options part in the userinfo
                                         field of the URL */
-#define PROTOPT_PROXY_AS_HTTP (1 << 11) /* allow this non-HTTP scheme over a
+#परिभाषय PROTOPT_PROXY_AS_HTTP (1 << 11) /* allow this non-HTTP scheme over a
                                            HTTP proxy as HTTP proxies may know
                                            this protocol and act as
                                            a gateway */
-#define PROTOPT_WILDCARD (1 << 12)  /* protocol supports wildcard matching */
-#define PROTOPT_USERPWDCTRL (1 << 13) /* Allow "control bytes" (< 32 ASCII) in
+#परिभाषय PROTOPT_WILDCARD (1 << 12)  /* protocol supports wildcard matching */
+#परिभाषय PROTOPT_USERPWDCTRL (1 << 13) /* Allow "control bytes" (< 32 ASCII) in
                                          username and password */
-#define PROTOPT_NOTCPPROXY (1 << 14)  /* this protocol cannot proxy over TCP */
-#define PROTOPT_SSL_REUSE (1 << 15)   /* this protocol may reuse an existing
+#परिभाषय PROTOPT_NOTCPPROXY (1 << 14)  /* this protocol cannot proxy over TCP */
+#परिभाषय PROTOPT_SSL_REUSE (1 << 15)   /* this protocol may reuse an existing
                                          SSL connection in the same family
                                          without having PROTOPT_SSL. */
-#define PROTOPT_CONN_REUSE (1 << 16)  /* this protocol can reuse connections */
-#define PROTOPT_NO_TRANSFER (1 << 17) /* this protocol is not for transfers */
-#define PROTOPT_HTTP_PROXY_TUNNEL (1 << 18) /* Using this protocol with a
+#परिभाषय PROTOPT_CONN_REUSE (1 << 16)  /* this protocol can reuse connections */
+#परिभाषय PROTOPT_NO_TRANSFER (1 << 17) /* this protocol is not for transfers */
+#परिभाषय PROTOPT_HTTP_PROXY_TUNNEL (1 << 18) /* Using this protocol with a
                                              * HTTP proxy requires tunneling */
 
 /* Everything about a URI scheme. */
-struct Curl_scheme {
-  const char *name;       /* URL scheme name in lowercase */
-  const struct Curl_protocol *run; /* implementation, optional */
+संरचना Curl_scheme {
+  ध्रुव वर्ण *name;       /* URL scheme name in lowercase */
+  ध्रुव संरचना Curl_protocol *सततम्; /* implementation, optional */
   curl_prot_t protocol;   /* See CURLPROTO_* - this needs to be the single
                              specific protocol bit */
   curl_prot_t family;     /* single bit for protocol family; the non-TLS name
@@ -252,39 +252,39 @@ struct Curl_scheme {
  * @param scheme URI scheme name, case-insensitive
  * @return NULL if scheme is not known
  */
-const struct Curl_scheme *Curl_get_scheme(const char *scheme);
-const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len);
+ध्रुव संरचना Curl_scheme *Curl_get_scheme(ध्रुव वर्ण *scheme);
+ध्रुव संरचना Curl_scheme *Curl_getn_scheme(ध्रुव वर्ण *scheme, size_t len);
 
 /* For direct access to a URI scheme */
-extern const struct Curl_scheme Curl_scheme_dict;
-extern const struct Curl_scheme Curl_scheme_file;
-extern const struct Curl_scheme Curl_scheme_ftp;
-extern const struct Curl_scheme Curl_scheme_ftps;
-extern const struct Curl_scheme Curl_scheme_gopher;
-extern const struct Curl_scheme Curl_scheme_gophers;
-extern const struct Curl_scheme Curl_scheme_http;
-extern const struct Curl_scheme Curl_scheme_https;
-extern const struct Curl_scheme Curl_scheme_imap;
-extern const struct Curl_scheme Curl_scheme_imaps;
-extern const struct Curl_scheme Curl_scheme_ldap;
-extern const struct Curl_scheme Curl_scheme_ldaps;
-extern const struct Curl_scheme Curl_scheme_mqtt;
-extern const struct Curl_scheme Curl_scheme_mqtts;
-extern const struct Curl_scheme Curl_scheme_pop3;
-extern const struct Curl_scheme Curl_scheme_pop3s;
-extern const struct Curl_scheme Curl_scheme_rtsp;
-extern const struct Curl_scheme Curl_scheme_scp;
-extern const struct Curl_scheme Curl_scheme_sftp;
-extern const struct Curl_scheme Curl_scheme_smtp;
-extern const struct Curl_scheme Curl_scheme_smtps;
-extern const struct Curl_scheme Curl_scheme_socks;
-extern const struct Curl_scheme Curl_scheme_socks4;
-extern const struct Curl_scheme Curl_scheme_socks4a;
-extern const struct Curl_scheme Curl_scheme_socks5;
-extern const struct Curl_scheme Curl_scheme_socks5h;
-extern const struct Curl_scheme Curl_scheme_telnet;
-extern const struct Curl_scheme Curl_scheme_tftp;
-extern const struct Curl_scheme Curl_scheme_ws;
-extern const struct Curl_scheme Curl_scheme_wss;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_dict;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_file;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_ftp;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_ftps;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_gopher;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_gophers;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_http;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_https;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_imap;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_imaps;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_ldap;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_ldaps;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_mqtt;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_mqtts;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_pop3;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_pop3s;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_rtsp;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_scp;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_sftp;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_smtp;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_smtps;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_socks;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_socks4;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_socks4a;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_socks5;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_socks5h;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_telnet;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_tftp;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_ws;
+बाह्य ध्रुव संरचना Curl_scheme Curl_scheme_wss;
 
-#endif /* HEADER_CURL_PROTOCOL_H */
+#यदि_अन्तः /* HEADER_CURL_PROTOCOL_H */

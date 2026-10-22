@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CONFIG_MAC_H
-#define HEADER_CURL_CONFIG_MAC_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_CONFIG_MAC_H
+#परिभाषय शीर्षकम्_CURL_CONFIG_MAC_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -30,54 +30,54 @@
 /*   On macOS you must run configure to generate curl_config.h file    */
 /* =================================================================== */
 
-#ifndef CURL_OS
-#define CURL_OS "mac"
-#endif
+#यदि_अपरिभाषितम् CURL_OS
+#परिभाषय CURL_OS "mac"
+#यदि_अन्तः
 
-#include <ConditionalMacros.h>
+#अन्तर्भाव <ConditionalMacros.h>
 
 /* Define if you want the built-in manual */
-#define USE_MANUAL              1
+#परिभाषय USE_MANUAL              1
 
-#define HAVE_NETINET_IN_H       1
-#define HAVE_NETDB_H            1
-#define HAVE_ARPA_INET_H        1
-#define HAVE_UNISTD_H           1
-#define HAVE_NET_IF_H           1
-#define HAVE_SYS_TYPES_H        1
-#define HAVE_GETTIMEOFDAY       1
-#define HAVE_FCNTL_H            1
-#define HAVE_UTIME_H            1
-#define HAVE_SYS_UTIME_H        1
-#define HAVE_SYS_IOCTL_H        1
-#define HAVE_ALARM              1
-#define HAVE_UTIME              1
-#define HAVE_SOCKET             1
-#define HAVE_STRUCT_TIMEVAL     1
+#परिभाषय HAVE_NETINET_अन्तर्_H       1
+#परिभाषय HAVE_NETDB_H            1
+#परिभाषय HAVE_ARPA_INET_H        1
+#परिभाषय HAVE_UNISTD_H           1
+#परिभाषय HAVE_NET_IF_H           1
+#परिभाषय HAVE_SYS_TYPES_H        1
+#परिभाषय HAVE_GETTIMEOFDAY       1
+#परिभाषय HAVE_FCNTL_H            1
+#परिभाषय HAVE_UTIME_H            1
+#परिभाषय HAVE_SYS_UTIME_H        1
+#परिभाषय HAVE_SYS_IOCTL_H        1
+#परिभाषय HAVE_ALARM              1
+#परिभाषय HAVE_UTIME              1
+#परिभाषय HAVE_SOCKET             1
+#परिभाषय HAVE_STRUCT_TIMEVAL     1
 
-#define HAVE_SIGACTION          1
+#परिभाषय HAVE_SIGACTION          1
 
-#define CURL_DISABLE_LDAP
+#परिभाषय CURL_DISABLE_LDAP
 
-#define HAVE_IOCTL_FIONBIO      1
+#परिभाषय HAVE_IOCTL_FIONBIO      1
 
-#define SIZEOF_INT              4
-#define SIZEOF_LONG             4
-#define SIZEOF_SIZE_T           4
-#define SIZEOF_CURL_OFF_T       8
+#परिभाषय SIZEOF_INT              4
+#परिभाषय SIZEOF_LONG             4
+#परिभाषय SIZEOF_आकार_T           4
+#परिभाषय SIZEOF_CURL_OFF_T       8
 
-#define HAVE_RECV 1
-#define RECV_TYPE_ARG1 int
-#define RECV_TYPE_ARG2 void *
-#define RECV_TYPE_ARG3 size_t
-#define RECV_TYPE_ARG4 int
-#define RECV_TYPE_RETV ssize_t
+#परिभाषय HAVE_RECV 1
+#परिभाषय RECV_TYPE_ARG1 पूर्णाङ्क
+#परिभाषय RECV_TYPE_ARG2 शून्य *
+#परिभाषय RECV_TYPE_ARG3 size_t
+#परिभाषय RECV_TYPE_ARG4 पूर्णाङ्क
+#परिभाषय RECV_TYPE_RETV ssize_t
 
-#define HAVE_SEND 1
-#define SEND_TYPE_ARG1 int
-#define SEND_TYPE_ARG2 void *
-#define SEND_TYPE_ARG3 size_t
-#define SEND_TYPE_ARG4 int
-#define SEND_TYPE_RETV ssize_t
+#परिभाषय HAVE_SEND 1
+#परिभाषय SEND_TYPE_ARG1 पूर्णाङ्क
+#परिभाषय SEND_TYPE_ARG2 शून्य *
+#परिभाषय SEND_TYPE_ARG3 size_t
+#परिभाषय SEND_TYPE_ARG4 पूर्णाङ्क
+#परिभाषय SEND_TYPE_RETV ssize_t
 
-#endif /* HEADER_CURL_CONFIG_MAC_H */
+#यदि_अन्तः /* HEADER_CURL_CONFIG_MAC_H */

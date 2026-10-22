@@ -21,123 +21,123 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
+#अन्तर्भाव "curl_setup.h"
+#अन्तर्भाव "urldata.h"
 
-#ifndef CURL_DISABLE_HTTP
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTP
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#यदि_परिभाषितम् HAVE_NETINET_अन्तर्_H
+#अन्तर्भाव <netinet/in.h>
+#यदि_अन्तः
 
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NET_IF_H
-#include <net/if.h>
-#endif
-#ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
-#endif
+#यदि_परिभाषितम् HAVE_NETDB_H
+#अन्तर्भाव <netdb.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_ARPA_INET_H
+#अन्तर्भाव <arpa/inet.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_NET_IF_H
+#अन्तर्भाव <net/if.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_SYS_IOCTL_H
+#अन्तर्भाव <sys/ioctl.h>
+#यदि_अन्तः
 
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#यदि_परिभाषितम् HAVE_SYS_PARAM_H
+#अन्तर्भाव <sys/param.h>
+#यदि_अन्तः
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "formdata.h"
-#include "mime.h"
-#include "progress.h"
-#include "curlx/base64.h"
-#include "cookie.h"
-#include "vauth/vauth.h"
-#include "vquic/vquic.h"
-#include "http_digest.h"
-#include "http_ntlm.h"
-#include "http_negotiate.h"
-#include "http_aws_sigv4.h"
-#include "http_httpsig.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "curl_share.h"
-#include "dynhds.h"
-#include "http.h"
-#include "headers.h"
-#include "select.h"
-#include "parsedate.h" /* for the week day and month names */
-#include "multiif.h"
-#include "strcase.h"
-#include "content_encoding.h"
-#include "http_proxy.h"
-#include "http2.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curlx/strdup.h"
-#include "altsvc.h"
-#include "hsts.h"
-#include "rtsp.h"
-#include "ws.h"
-#include "bufref.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "sendf.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "formdata.h"
+#अन्तर्भाव "mime.h"
+#अन्तर्भाव "progress.h"
+#अन्तर्भाव "curlx/base64.h"
+#अन्तर्भाव "cookie.h"
+#अन्तर्भाव "vauth/vauth.h"
+#अन्तर्भाव "vquic/vquic.h"
+#अन्तर्भाव "http_digest.h"
+#अन्तर्भाव "http_ntlm.h"
+#अन्तर्भाव "http_negotiate.h"
+#अन्तर्भाव "http_aws_sigv4.h"
+#अन्तर्भाव "http_httpsig.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "urlapi-int.h"
+#अन्तर्भाव "curl_share.h"
+#अन्तर्भाव "dynhds.h"
+#अन्तर्भाव "http.h"
+#अन्तर्भाव "headers.h"
+#अन्तर्भाव "select.h"
+#अन्तर्भाव "parsedate.h" /* for the week day and month names */
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "strcase.h"
+#अन्तर्भाव "content_encoding.h"
+#अन्तर्भाव "http_proxy.h"
+#अन्तर्भाव "http2.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "connect.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "altsvc.h"
+#अन्तर्भाव "hsts.h"
+#अन्तर्भाव "rtsp.h"
+#अन्तर्भाव "ws.h"
+#अन्तर्भाव "bufref.h"
+#अन्तर्भाव "curlx/strparse.h"
 
-void Curl_http_neg_init(struct Curl_easy *data, struct http_negotiation *neg)
+शून्य Curl_http_neg_init(संरचना Curl_easy *दत्त, संरचना http_negotiation *neg)
 {
-  memset(neg, 0, sizeof(*neg));
-  neg->accept_09 = data->set.http09_allowed;
-  switch(data->set.httpwant) {
-  case CURL_HTTP_VERSION_1_0:
+  स्मृतिं_पूरय(neg, 0, परिमाण(*neg));
+  neg->accept_09 = दत्त->समुच्चयः.http09_allowed;
+  विकल्प(दत्त->समुच्चयः.httpwant) {
+  पक्ष CURL_HTTP_संस्करणम्_1_0:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x);
     neg->only_10 = TRUE;
-    break;
-  case CURL_HTTP_VERSION_1_1:
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_1_1:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x);
-    break;
-  case CURL_HTTP_VERSION_2_0:
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_2_0:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x | CURL_HTTP_V2x);
     neg->h2_upgrade = TRUE;
-    break;
-  case CURL_HTTP_VERSION_2TLS:
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_2_TLS:
     neg->wanted = neg->allowed = (CURL_HTTP_V1x | CURL_HTTP_V2x);
-    break;
-  case CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE:
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_2_प्राक्_KNOWLEDGE:
     neg->wanted = neg->allowed = (CURL_HTTP_V2x);
-    data->state.http_neg.h2_prior_knowledge = TRUE;
-    break;
-  case CURL_HTTP_VERSION_3:
+    दत्त->state.http_neg.h2_प्राक्_knowledge = TRUE;
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_3:
     neg->wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x | CURL_HTTP_V3x);
     neg->allowed = neg->wanted;
-    break;
-  case CURL_HTTP_VERSION_3ONLY:
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_3_ONLY:
     neg->wanted = neg->allowed = (CURL_HTTP_V3x);
-    break;
-  case CURL_HTTP_VERSION_NONE:
-  default:
+    भङ्ग;
+  पक्ष CURL_HTTP_संस्करणम्_NONE:
+  स्वभाव:
     neg->wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x);
     neg->allowed = (CURL_HTTP_V1x | CURL_HTTP_V2x | CURL_HTTP_V3x);
-    break;
+    भङ्ग;
   }
 }
 
-CURLcode Curl_http_setup_conn(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_http_सज्जता_conn(संरचना Curl_easy *दत्त,
+                              संरचना connectdata *conn)
 {
   /* allocate the HTTP-specific struct for the Curl_easy, only to survive
      during this request */
-  if(data->state.http_neg.wanted == CURL_HTTP_V3x) {
+  यदि(दत्त->state.http_neg.wanted == CURL_HTTP_V3x) {
     /* only HTTP/3, needs to work */
-    CURLcode result = Curl_conn_may_http3(data, conn);
-    if(result)
-      return result;
+    CURLcode परिणाम = Curl_conn_may_http3(दत्त, conn);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
 /*
  * checkProxyHeaders() checks the linked list of custom proxy headers
  * if proxy headers are not available, then it will lookup into http header
@@ -147,47 +147,47 @@ CURLcode Curl_http_setup_conn(struct Curl_easy *data,
  * not, as it then might check a different header list. Provide the header
  * prefix without colon!
  */
-char *Curl_checkProxyheaders(struct Curl_easy *data,
-                             const struct connectdata *conn,
-                             const char *thisheader,
-                             const size_t thislen)
+वर्ण *Curl_checkProxyheaders(संरचना Curl_easy *दत्त,
+                             ध्रुव संरचना connectdata *conn,
+                             ध्रुव वर्ण *thisheader,
+                             ध्रुव size_t thislen)
 {
-  struct curl_slist *head;
+  संरचना curl_slist *शीर्ष;
 
-  for(head = (conn->http_proxy.peer && data->set.sep_headers) ?
-        data->set.proxyheaders : data->set.headers;
-      head; head = head->next) {
-    if(curl_strnequal(head->data, thisheader, thislen) &&
-       Curl_headersep(head->data[thislen]))
-      return head->data;
+  प्रति(शीर्ष = (conn->http_proxy.peer && दत्त->समुच्चयः.sep_शीर्षकाणि) ?
+        दत्त->समुच्चयः.proxyheaders : दत्त->समुच्चयः.शीर्षकाणि;
+      शीर्ष; शीर्ष = शीर्ष->अग्र) {
+    यदि(curl_strnequal(शीर्ष->दत्त, thisheader, thislen) &&
+       Curl_headersep(शीर्ष->दत्त[thislen]))
+      प्रत्यागम शीर्ष->दत्त;
   }
 
-  return NULL;
+  प्रत्यागम रिक्त;
 }
-#endif
+#यदि_अन्तः
 
 /* If the header has a value, this function returns TRUE and the value is in
    'outp' with blanks trimmed off. */
-static bool header_has_value(const char **headerp, struct Curl_str *outp)
+स्थिर bool शीर्षकम्_has_मानम्(ध्रुव वर्ण **headerp, संरचना Curl_str *outp)
 {
-  bool value = !curlx_str_cspn(headerp, outp, ";:") &&
+  bool मानम् = !curlx_str_cspn(headerp, outp, ";:") &&
     (!curlx_str_single(headerp, ':') || !curlx_str_single(headerp, ';'));
 
-  if(value) {
+  यदि(मानम्) {
     curlx_str_cspn(headerp, outp, "\r\n");
     curlx_str_trimblanks(outp);
   }
-  return value;
+  प्रत्यागम मानम्;
 }
 
-static bool http_header_is_empty(const char *header)
+स्थिर bool http_शीर्षकम्_is_रिक्तानि(ध्रुव वर्ण *शीर्षकम्)
 {
-  struct Curl_str out;
+  संरचना Curl_str बहिर्गमनम्;
 
-  if(header_has_value(&header, &out)) {
-    return curlx_strlen(&out) == 0;
+  यदि(शीर्षकम्_has_मानम्(&शीर्षकम्, &बहिर्गमनम्)) {
+    प्रत्यागम curlx_strlen(&बहिर्गमनम्) == 0;
   }
-  return TRUE; /* invalid header format, treat as empty */
+  प्रत्यागम TRUE; /* invalid header format, treat as empty */
 }
 
 /*
@@ -198,20 +198,20 @@ static bool http_header_is_empty(const char *header)
  * If the header is provided as "name;", ending with a semicolon, it returns a
  * blank string.
  */
-static CURLcode copy_custom_value(const char *header, char **valp)
+स्थिर CURLcode copy_custom_मानम्(ध्रुव वर्ण *शीर्षकम्, वर्ण **valp)
 {
-  struct Curl_str out = { 0 };
+  संरचना Curl_str बहिर्गमनम् = { 0 };
 
   /* find the end of the header name */
-  if(header_has_value(&header, &out)) {
-    *valp = curlx_memdup0(curlx_str(&out), curlx_strlen(&out));
-    if(*valp)
-      return CURLE_OK;
-    return CURLE_OUT_OF_MEMORY;
+  यदि(शीर्षकम्_has_मानम्(&शीर्षकम्, &बहिर्गमनम्)) {
+    *valp = curlx_memdup0(curlx_str(&बहिर्गमनम्), curlx_strlen(&बहिर्गमनम्));
+    यदि(*valp)
+      प्रत्यागम CURLE_OK;
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
   /* bad input */
-  *valp = NULL;
-  return CURLE_BAD_FUNCTION_ARGUMENT;
+  *valp = रिक्त;
+  प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 }
 
 /*
@@ -224,74 +224,74 @@ static CURLcode copy_custom_value(const char *header, char **valp)
  *
  * @unittest: 1626
  */
-char *Curl_copy_header_value(const char *header)
+वर्ण *Curl_copy_शीर्षकम्_मानम्(ध्रुव वर्ण *शीर्षकम्)
 {
-  struct Curl_str out;
+  संरचना Curl_str बहिर्गमनम्;
 
   /* find the end of the header name */
-  if(!curlx_str_until(&header, &out, MAX_HTTP_RESP_HEADER_SIZE, ':') &&
-     !curlx_str_single(&header, ':')) {
-    curlx_str_untilnl(&header, &out, MAX_HTTP_RESP_HEADER_SIZE);
-    curlx_str_trimblanks(&out);
-    return curlx_memdup0(curlx_str(&out), curlx_strlen(&out));
+  यदि(!curlx_str_until(&शीर्षकम्, &बहिर्गमनम्, MAX_HTTP_RESP_शीर्षकम्_आकार, ':') &&
+     !curlx_str_single(&शीर्षकम्, ':')) {
+    curlx_str_untilnl(&शीर्षकम्, &बहिर्गमनम्, MAX_HTTP_RESP_शीर्षकम्_आकार);
+    curlx_str_trimblanks(&बहिर्गमनम्);
+    प्रत्यागम curlx_memdup0(curlx_str(&बहिर्गमनम्), curlx_strlen(&बहिर्गमनम्));
   }
   /* bad input, should never happen */
   DEBUGASSERT(0);
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-#ifndef CURL_DISABLE_HTTP_AUTH
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTP_AUTH
 
-#ifndef CURL_DISABLE_BASIC_AUTH
+#यदि_अपरिभाषितम् CURL_DISABLE_BASIC_AUTH
 /*
  * http_output_basic() sets up an Authorization: header (or the proxy version)
  * for HTTP Basic authentication.
  *
  * Returns CURLcode.
  */
-static CURLcode http_output_basic(struct Curl_easy *data,
-                                  struct connectdata *conn, bool proxy)
+स्थिर CURLcode http_output_basic(संरचना Curl_easy *दत्त,
+                                  संरचना connectdata *conn, bool proxy)
 {
-  size_t size = 0;
-  char *authorization = NULL;
-  char **p_hd;
-  CURLcode result;
-  struct Curl_creds *creds = NULL;
-  char *out;
+  size_t आकार = 0;
+  वर्ण *authorization = रिक्त;
+  वर्ण **p_hd;
+  CURLcode परिणाम;
+  संरचना Curl_creds *creds = रिक्त;
+  वर्ण *बहिर्गमनम्;
 
   /* credentials are unique per transfer for HTTP, do not use the ones for the
      connection */
-  if(proxy) {
-#ifndef CURL_DISABLE_PROXY
-    p_hd = &data->req.hd_proxy_auth;
+  यदि(proxy) {
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+    p_hd = &दत्त->req.hd_proxy_auth;
     creds = conn->http_proxy.creds;
-#else
-    (void)conn;
-    return CURLE_NOT_BUILT_IN;
-#endif
+#अन्यथा
+    (शून्य)conn;
+    प्रत्यागम CURLE_NOT_BUILT_अन्तर्;
+#यदि_अन्तः
   }
-  else {
-    p_hd = &data->req.hd_auth;
-    creds = data->state.creds;
+  अन्यथा {
+    p_hd = &दत्त->req.hd_auth;
+    creds = दत्त->state.creds;
   }
 
-  if(!creds) {
+  यदि(!creds) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    प्रत्यागम CURLE_FAILED_INIT;
   }
 
-  out = curl_maprintf("%s:%s", creds->user, creds->passwd);
-  if(!out)
-    return CURLE_OUT_OF_MEMORY;
+  बहिर्गमनम् = curl_maprintf("%s:%s", creds->user, creds->passwd);
+  यदि(!बहिर्गमनम्)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  result = curlx_base64_encode((uint8_t *)out, strlen(out),
-                               &authorization, &size);
-  if(result)
-    goto fail;
+  परिणाम = curlx_base64_encode((uint8_t *)बहिर्गमनम्, वाक्यदैर्घ्यम्(बहिर्गमनम्),
+                               &authorization, &आकार);
+  यदि(परिणाम)
+    गच्छ fail;
 
-  if(!authorization) {
-    result = CURLE_REMOTE_ACCESS_DENIED;
-    goto fail;
+  यदि(!authorization) {
+    परिणाम = CURLE_REMOTE_ACCESS_DENIED;
+    गच्छ fail;
   }
 
   curlx_free(*p_hd);
@@ -299,95 +299,95 @@ static CURLcode http_output_basic(struct Curl_easy *data,
                         proxy ? "Proxy-" : "",
                         authorization);
   curlx_free(authorization);
-  if(!*p_hd) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  यदि(!*p_hd) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ fail;
   }
 
 fail:
-  curlx_free(out);
-  return result;
+  curlx_free(बहिर्गमनम्);
+  प्रत्यागम परिणाम;
 }
 
-#endif
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_BEARER_AUTH
+#यदि_अपरिभाषितम् CURL_DISABLE_BEARER_AUTH
 /*
  * http_output_bearer() sets up an Authorization: header
  * for HTTP Bearer authentication.
  *
  * Returns CURLcode.
  */
-static CURLcode http_output_bearer(struct Curl_easy *data)
+स्थिर CURLcode http_output_bearer(संरचना Curl_easy *दत्त)
 {
-  char **userp;
-  CURLcode result = CURLE_OK;
+  वर्ण **userp;
+  CURLcode परिणाम = CURLE_OK;
 
-  DEBUGASSERT(Curl_creds_has_oauth_bearer(data->state.creds));
-  userp = &data->req.hd_auth;
+  DEBUGASSERT(Curl_creds_has_oauth_bearer(दत्त->state.creds));
+  userp = &दत्त->req.hd_auth;
   curlx_free(*userp);
   *userp = curl_maprintf("Authorization: Bearer %s\r\n",
-                         Curl_creds_oauth_bearer(data->state.creds));
+                         Curl_creds_oauth_bearer(दत्त->state.creds));
 
-  if(!*userp) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  यदि(!*userp) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ fail;
   }
 
 fail:
-  return result;
+  प्रत्यागम परिणाम;
 }
-#endif
+#यदि_अन्तः
 
-#endif
+#यदि_अन्तः
 
 /* pickoneauth() selects the most favorable authentication method from the
  * ones available and the ones we want.
  *
  * return TRUE if one was picked
  */
-static bool pickoneauth(struct auth *pick, unsigned long mask,
-                        struct Curl_creds *creds)
+स्थिर bool pickoneauth(संरचना auth *pick, अचिह्नित दीर्घ आवरणम्,
+                        संरचना Curl_creds *creds)
 {
   bool have_user_pass = Curl_creds_has_user_or_pass(creds);
   bool picked;
   /* only deal with authentication we want */
-  unsigned long avail = pick->avail & pick->want & mask;
+  अचिह्नित दीर्घ avail = pick->avail & pick->want & आवरणम्;
   picked = TRUE;
 
   /* The order of these checks is highly relevant, as this will be the order
      of preference in case of the existence of multiple accepted types. */
-  if(avail & CURLAUTH_NEGOTIATE)  /* available on empty creds */
+  यदि(avail & CURLAUTH_NEGOTIATE)  /* available on empty creds */
     pick->picked = CURLAUTH_NEGOTIATE;
-#ifndef CURL_DISABLE_BEARER_AUTH
-  else if((avail & CURLAUTH_BEARER) && Curl_creds_has_oauth_bearer(creds))
+#यदि_अपरिभाषितम् CURL_DISABLE_BEARER_AUTH
+  अन्यथा यदि((avail & CURLAUTH_BEARER) && Curl_creds_has_oauth_bearer(creds))
     pick->picked = CURLAUTH_BEARER;
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  else if((avail & CURLAUTH_DIGEST) && have_user_pass)
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_DIGEST_AUTH
+  अन्यथा यदि((avail & CURLAUTH_DIGEST) && have_user_pass)
     pick->picked = CURLAUTH_DIGEST;
-#endif
-  else if(avail & CURLAUTH_NTLM)
+#यदि_अन्तः
+  अन्यथा यदि(avail & CURLAUTH_NTLM)
     pick->picked = CURLAUTH_NTLM;
-#ifndef CURL_DISABLE_BASIC_AUTH
-  else if((avail & CURLAUTH_BASIC) && have_user_pass)
+#यदि_अपरिभाषितम् CURL_DISABLE_BASIC_AUTH
+  अन्यथा यदि((avail & CURLAUTH_BASIC) && have_user_pass)
     pick->picked = CURLAUTH_BASIC;
-#endif
-#ifndef CURL_DISABLE_AWS
-  else if(avail & CURLAUTH_AWS_SIGV4)
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_AWS
+  अन्यथा यदि(avail & CURLAUTH_AWS_SIGV4)
     pick->picked = CURLAUTH_AWS_SIGV4;
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  else if(avail & CURLAUTH_HTTPSIG)
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTPSIG
+  अन्यथा यदि(avail & CURLAUTH_HTTPSIG)
     pick->picked = CURLAUTH_HTTPSIG;
-#endif
-  else {
+#यदि_अन्तः
+  अन्यथा {
     pick->picked = CURLAUTH_PICKNONE; /* we select to use nothing */
     picked = FALSE;
   }
   pick->avail = CURLAUTH_NONE; /* clear it here */
 
-  return picked;
+  प्रत्यागम picked;
 }
 
 /*
@@ -398,19 +398,19 @@ static bool pickoneauth(struct auth *pick, unsigned long mask,
  * 1) a rewind of the data sent to the server is necessary
  * 2) the current transfer should continue or be stopped early
  */
-static CURLcode http_perhapsrewind(struct Curl_easy *data,
-                                   struct connectdata *conn)
+स्थिर CURLcode http_perhapsrewind(संरचना Curl_easy *दत्त,
+                                   संरचना connectdata *conn)
 {
-  curl_off_t bytessent = data->req.writebytecount;
-  curl_off_t expectsend = Curl_creader_total_length(data);
+  curl_off_t bytessent = दत्त->req.writebytecount;
+  curl_off_t expectsend = Curl_creader_योग_दीर्घता(दत्त);
   curl_off_t upload_remain = (expectsend >= 0) ? (expectsend - bytessent) : -1;
   bool little_upload_remains = (upload_remain >= 0 && upload_remain < 2000);
-  bool needs_rewind = Curl_creader_needs_rewind(data);
+  bool needs_rewind = Curl_creader_needs_rewind(दत्त);
   /* By default, we would like to abort the transfer when little or unknown
    * amount remains. This may be overridden by authentications further
    * below! */
-  bool abort_upload = (!data->req.upload_done && !little_upload_remains);
-  VERBOSE(const char *ongoing_auth = NULL);
+  bool abort_upload = (!दत्त->req.upload_समाप्तम् && !little_upload_remains);
+  VERBOSE(ध्रुव वर्ण *ongoing_auth = रिक्त);
 
   /* We need a rewind before uploading client read data again. The
    * checks below influence of the upload is to be continued
@@ -418,61 +418,61 @@ static CURLcode http_perhapsrewind(struct Curl_easy *data,
    * This depends on how much remains to be sent and in what state
    * the authentication is. Some auth schemes such as NTLM do not work
    * for a new connection. */
-  if(needs_rewind) {
-    infof(data, "Need to rewind upload for next request");
-    Curl_creader_set_rewind(data, TRUE);
+  यदि(needs_rewind) {
+    infof(दत्त, "Need to rewind upload for next request");
+    Curl_creader_समुच्चयः_rewind(दत्त, TRUE);
   }
 
-  if(conn->bits.close)
+  यदि(conn->द्वयङ्काः.close)
     /* If we already decided to close this connection, we cannot veto. */
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
 
-  if(abort_upload) {
+  यदि(abort_upload) {
     /* We would like to abort the upload - but should we? */
-#ifdef USE_NTLM
-    if((data->state.authproxy.picked == CURLAUTH_NTLM) ||
-       (data->state.authhost.picked == CURLAUTH_NTLM)) {
+#यदि_परिभाषितम् USE_NTLM
+    यदि((दत्त->state.authproxy.picked == CURLAUTH_NTLM) ||
+       (दत्त->state.authhost.picked == CURLAUTH_NTLM)) {
       VERBOSE(ongoing_auth = "NTLM");
-      if((conn->http_ntlm_state != NTLMSTATE_NONE) ||
+      यदि((conn->http_ntlm_state != NTLMSTATE_NONE) ||
          (conn->proxy_ntlm_state != NTLMSTATE_NONE)) {
         /* The NTLM-negotiation has started, keep on sending.
          * Need to do further work on same connection */
         abort_upload = FALSE;
       }
     }
-#endif
-#ifdef USE_SPNEGO
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_SPNEGO
     /* There is still data left to send */
-    if((data->state.authproxy.picked == CURLAUTH_NEGOTIATE) ||
-       (data->state.authhost.picked == CURLAUTH_NEGOTIATE)) {
+    यदि((दत्त->state.authproxy.picked == CURLAUTH_NEGOTIATE) ||
+       (दत्त->state.authhost.picked == CURLAUTH_NEGOTIATE)) {
       VERBOSE(ongoing_auth = "NEGOTIATE");
-      if((conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) ||
+      यदि((conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) ||
          (conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE)) {
         /* The NEGOTIATE-negotiation has started, keep on sending.
          * Need to do further work on same connection */
         abort_upload = FALSE;
       }
     }
-#endif
+#यदि_अन्तः
   }
 
-  if(abort_upload) {
-    if(upload_remain >= 0)
-      infof(data, "%s%sclose instead of sending %" FMT_OFF_T " more bytes",
+  यदि(abort_upload) {
+    यदि(upload_remain >= 0)
+      infof(दत्त, "%s%sclose instead of sending %" FMT_OFF_T " more bytes",
             ongoing_auth ? ongoing_auth : "",
             ongoing_auth ? " send, " : "",
             upload_remain);
-    else
-      infof(data, "%s%sclose instead of sending unknown amount "
+    अन्यथा
+      infof(दत्त, "%s%sclose instead of sending unknown amount "
             "of more bytes",
             ongoing_auth ? ongoing_auth : "",
             ongoing_auth ? " send, " : "");
     /* We decided to abort the ongoing transfer */
     streamclose(conn);
-    data->req.size = 0; /* do not download any more than 0 bytes */
-    data->req.http_bodyless = TRUE;
+    दत्त->req.आकार = 0; /* do not download any more than 0 bytes */
+    दत्त->req.http_bodyless = TRUE;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /**
@@ -483,38 +483,38 @@ static CURLcode http_perhapsrewind(struct Curl_easy *data,
  *
  * @retval TRUE communications should not continue
  */
-static bool http_should_fail(struct Curl_easy *data, int httpcode)
+स्थिर bool http_should_fail(संरचना Curl_easy *दत्त, पूर्णाङ्क httpcode)
 {
-  DEBUGASSERT(data);
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(दत्त);
+  DEBUGASSERT(दत्त->conn);
 
   /*
    * If we have not been asked to fail on error,
    * do not fail.
    */
-  if(!data->set.http_fail_on_error)
-    return FALSE;
+  यदि(!दत्त->समुच्चयः.http_fail_on_error)
+    प्रत्यागम FALSE;
 
   /*
    * Any code < 400 is never terminal.
    */
-  if(httpcode < 400)
-    return FALSE;
+  यदि(httpcode < 400)
+    प्रत्यागम FALSE;
 
   /*
    * A 416 response to a resume request is presumably because the file is
    * already completely downloaded and thus not actually a fail.
    */
-  if(data->state.resume_from && data->state.httpreq == HTTPREQ_GET &&
+  यदि(दत्त->state.resume_from && दत्त->state.httpreq == HTTPREQ_GET &&
      httpcode == 416)
-    return FALSE;
+    प्रत्यागम FALSE;
 
   /*
    * Any code >= 400 that is not 401 or 407 is always
    * a terminal error
    */
-  if((httpcode != 401) && (httpcode != 407))
-    return TRUE;
+  यदि((httpcode != 401) && (httpcode != 407))
+    प्रत्यागम TRUE;
 
   /*
    * All we have left to deal with is 401 and 407
@@ -536,14 +536,14 @@ static bool http_should_fail(struct Curl_easy *data, int httpcode)
    * Either we are not authenticating, or we are supposed to be authenticating
    * something else. This is an error.
    */
-  if((httpcode == 401) && !data->state.creds)
-    return TRUE;
-#ifndef CURL_DISABLE_PROXY
-  if((httpcode == 407) && !data->conn->http_proxy.creds)
-    return TRUE;
-#endif
+  यदि((httpcode == 401) && !दत्त->state.creds)
+    प्रत्यागम TRUE;
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  यदि((httpcode == 407) && !दत्त->conn->http_proxy.creds)
+    प्रत्यागम TRUE;
+#यदि_अन्तः
 
-  return (bool)data->state.authproblem;
+  प्रत्यागम (bool)दत्त->state.authproblem;
 }
 
 /*
@@ -552,460 +552,460 @@ static bool http_should_fail(struct Curl_easy *data, int httpcode)
  * which one (if any) to use. It will set 'newurl' if an auth method was
  * picked.
  */
-CURLcode Curl_http_auth_act(struct Curl_easy *data)
+CURLcode Curl_http_auth_act(संरचना Curl_easy *दत्त)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = दत्त->conn;
   bool pickhost = FALSE;
   bool pickproxy = FALSE;
-  CURLcode result = CURLE_OK;
-  unsigned long authmask = ~0UL;
+  CURLcode परिणाम = CURLE_OK;
+  अचिह्नित दीर्घ authmask = ~0UL;
 
-  if(!Curl_creds_has_oauth_bearer(data->state.creds))
-    authmask &= (unsigned long)~CURLAUTH_BEARER;
+  यदि(!Curl_creds_has_oauth_bearer(दत्त->state.creds))
+    authmask &= (अचिह्नित दीर्घ)~CURLAUTH_BEARER;
 
-  if(100 <= data->req.httpcode && data->req.httpcode <= 199)
+  यदि(100 <= दत्त->req.httpcode && दत्त->req.httpcode <= 199)
     /* this is a transient response code, ignore */
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
 
-  if(data->state.authproblem)
-    return data->set.http_fail_on_error ? CURLE_HTTP_RETURNED_ERROR : CURLE_OK;
+  यदि(दत्त->state.authproblem)
+    प्रत्यागम दत्त->समुच्चयः.http_fail_on_error ? CURLE_HTTP_RETURNED_ERROR : CURLE_OK;
 
-  if(data->state.creds &&
-     ((data->req.httpcode == 401) ||
-      (data->req.authneg && data->req.httpcode < 300))) {
-    pickhost = pickoneauth(&data->state.authhost, authmask, data->state.creds);
-    if(!pickhost)
-      data->state.authproblem = TRUE;
-    else
-      data->info.httpauthpicked = data->state.authhost.picked;
-    if(data->state.authhost.picked == CURLAUTH_NTLM &&
-       (data->req.httpversion_sent > 11)) {
-      infof(data, "Forcing HTTP/1.1 for NTLM");
+  यदि(दत्त->state.creds &&
+     ((दत्त->req.httpcode == 401) ||
+      (दत्त->req.authneg && दत्त->req.httpcode < 300))) {
+    pickhost = pickoneauth(&दत्त->state.authhost, authmask, दत्त->state.creds);
+    यदि(!pickhost)
+      दत्त->state.authproblem = TRUE;
+    अन्यथा
+      दत्त->info.httpauthpicked = दत्त->state.authhost.picked;
+    यदि(दत्त->state.authhost.picked == CURLAUTH_NTLM &&
+       (दत्त->req.httpversion_प्रेषितम् > 11)) {
+      infof(दत्त, "Forcing HTTP/1.1 for NTLM");
       connclose(conn);
-      data->state.http_neg.wanted = CURL_HTTP_V1x;
-      data->state.http_neg.allowed = CURL_HTTP_V1x;
+      दत्त->state.http_neg.wanted = CURL_HTTP_V1x;
+      दत्त->state.http_neg.allowed = CURL_HTTP_V1x;
     }
   }
-#ifndef CURL_DISABLE_PROXY
-  if(conn->http_proxy.creds &&
-     ((data->req.httpcode == 407) ||
-      (data->req.authneg && data->req.httpcode < 300))) {
-    pickproxy = pickoneauth(&data->state.authproxy,
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  यदि(conn->http_proxy.creds &&
+     ((दत्त->req.httpcode == 407) ||
+      (दत्त->req.authneg && दत्त->req.httpcode < 300))) {
+    pickproxy = pickoneauth(&दत्त->state.authproxy,
                             authmask & ~CURLAUTH_BEARER,
                             conn->http_proxy.creds);
-    if(!pickproxy)
-      data->state.authproblem = TRUE;
-    else
-      data->info.proxyauthpicked = data->state.authproxy.picked;
+    यदि(!pickproxy)
+      दत्त->state.authproblem = TRUE;
+    अन्यथा
+      दत्त->info.proxyauthpicked = दत्त->state.authproxy.picked;
   }
-#endif
+#यदि_अन्तः
 
-  if(pickhost || pickproxy) {
-    result = http_perhapsrewind(data, conn);
-    if(result)
-      return result;
+  यदि(pickhost || pickproxy) {
+    परिणाम = http_perhapsrewind(दत्त, conn);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     /* In case this is GSS auth, the newurl field is already allocated so
        we must make sure to free it before allocating a new one. As figured
        out in bug #2284386 */
-    curlx_free(data->req.newurl);
+    curlx_free(दत्त->req.newurl);
     /* clone URL */
-    data->req.newurl = Curl_bufref_dup(&data->state.url);
-    if(!data->req.newurl)
-      return CURLE_OUT_OF_MEMORY;
+    दत्त->req.newurl = Curl_bufref_dup(&दत्त->state.url);
+    यदि(!दत्त->req.newurl)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
-  else if((data->req.httpcode < 300) &&
-          !data->state.authhost.done &&
-          data->req.authneg &&
+  अन्यथा यदि((दत्त->req.httpcode < 300) &&
+          !दत्त->state.authhost.समाप्तम् &&
+          दत्त->req.authneg &&
           /* no (known) authentication available,
              authentication is not "done" yet and
              no authentication seems to be required and
              we did not try HEAD or GET */
-          (data->state.httpreq != HTTPREQ_GET) &&
-          (data->state.httpreq != HTTPREQ_HEAD)) {
+          (दत्त->state.httpreq != HTTPREQ_GET) &&
+          (दत्त->state.httpreq != HTTPREQ_शीर्ष)) {
     /* clone URL */
-    data->req.newurl = Curl_bufref_dup(&data->state.url);
-    if(!data->req.newurl)
-      return CURLE_OUT_OF_MEMORY;
-    data->state.authhost.done = TRUE;
+    दत्त->req.newurl = Curl_bufref_dup(&दत्त->state.url);
+    यदि(!दत्त->req.newurl)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    दत्त->state.authhost.समाप्तम् = TRUE;
   }
-  if(http_should_fail(data, data->req.httpcode)) {
-    failf(data, "The requested URL returned error: %d",
-          data->req.httpcode);
-    result = CURLE_HTTP_RETURNED_ERROR;
+  यदि(http_should_fail(दत्त, दत्त->req.httpcode)) {
+    failf(दत्त, "The requested URL returned error: %d",
+          दत्त->req.httpcode);
+    परिणाम = CURLE_HTTP_RETURNED_ERROR;
   }
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#ifndef CURL_DISABLE_HTTP_AUTH
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTP_AUTH
 /*
  * Output the correct authentication header depending on the auth type
  * and whether or not it is to a proxy.
  */
-static CURLcode output_auth_headers(struct Curl_easy *data,
-                                    struct connectdata *conn,
-                                    struct auth *authstatus,
-                                    const char *request,
-                                    const char *path,
+स्थिर CURLcode output_auth_शीर्षकाणि(संरचना Curl_easy *दत्त,
+                                    संरचना connectdata *conn,
+                                    संरचना auth *authstatus,
+                                    ध्रुव वर्ण *request,
+                                    ध्रुव वर्ण *मार्गः,
                                     bool proxy)
 {
-  const char *auth = NULL;
-  CURLcode result = CURLE_OK;
-  (void)conn;
+  ध्रुव वर्ण *auth = रिक्त;
+  CURLcode परिणाम = CURLE_OK;
+  (शून्य)conn;
 
-#ifdef CURL_DISABLE_DIGEST_AUTH
-  (void)request;
-  (void)path;
-#endif
-#ifndef CURL_DISABLE_AWS
-  if((authstatus->picked == CURLAUTH_AWS_SIGV4) && !proxy) {
+#यदि_परिभाषितम् CURL_DISABLE_DIGEST_AUTH
+  (शून्य)request;
+  (शून्य)मार्गः;
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_AWS
+  यदि((authstatus->picked == CURLAUTH_AWS_SIGV4) && !proxy) {
     /* this method is never for proxy */
     auth = "AWS_SIGV4";
-    result = Curl_output_aws_sigv4(data);
-    if(result)
-      return result;
+    परिणाम = Curl_output_aws_sigv4(दत्त);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
-  if((authstatus->picked == CURLAUTH_HTTPSIG) && !proxy) {
+  अन्यथा
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTPSIG
+  यदि((authstatus->picked == CURLAUTH_HTTPSIG) && !proxy) {
     /* HTTPSIG uses its own configured key material rather than
        data->state.creds. Do not let unrelated credentials from a
        redirected URL bypass the cross-host auth boundary. */
-    if(Curl_auth_allowed_to_host(data)) {
+    यदि(Curl_auth_allowed_गन्तव्यम्_host(दत्त)) {
       auth = "HTTPSIG";
-      result = Curl_output_httpsig(data);
-      if(result)
-        return result;
+      परिणाम = Curl_output_httpsig(दत्त);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    else
-      authstatus->done = TRUE;
+    अन्यथा
+      authstatus->समाप्तम् = TRUE;
   }
-  else
-#endif
-#ifdef USE_SPNEGO
-  if(authstatus->picked == CURLAUTH_NEGOTIATE) {
-    if(
-#ifndef CURL_DISABLE_PROXY
-      (proxy && !Curl_checkProxyheaders(data, conn,
+  अन्यथा
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_SPNEGO
+  यदि(authstatus->picked == CURLAUTH_NEGOTIATE) {
+    यदि(
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+      (proxy && !Curl_checkProxyheaders(दत्त, conn,
                                         STRCONST("Proxy-authorization"))) ||
-#endif
-      (!proxy && !Curl_checkheaders(data, STRCONST("Authorization")) &&
-       Curl_auth_allowed_to_host(data))) {
+#यदि_अन्तः
+      (!proxy && !Curl_checkheaders(दत्त, STRCONST("Authorization")) &&
+       Curl_auth_allowed_गन्तव्यम्_host(दत्त))) {
       auth = "Negotiate";
-      result = Curl_output_negotiate(data, conn, proxy);
-      if(result)
-        return result;
+      परिणाम = Curl_output_negotiate(दत्त, conn, proxy);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    else
-      authstatus->done = TRUE;
+    अन्यथा
+      authstatus->समाप्तम् = TRUE;
   }
-  else
-#endif
-#ifdef USE_NTLM
-  if(authstatus->picked == CURLAUTH_NTLM) {
-    if(proxy || Curl_auth_allowed_to_host(data)) {
+  अन्यथा
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_NTLM
+  यदि(authstatus->picked == CURLAUTH_NTLM) {
+    यदि(proxy || Curl_auth_allowed_गन्तव्यम्_host(दत्त)) {
       auth = "NTLM";
-      result = Curl_output_ntlm(data, proxy);
-      if(result)
-        return result;
+      परिणाम = Curl_output_ntlm(दत्त, proxy);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    else
-      authstatus->done = TRUE;
+    अन्यथा
+      authstatus->समाप्तम् = TRUE;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-  if(authstatus->picked == CURLAUTH_DIGEST) {
+  अन्यथा
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_DIGEST_AUTH
+  यदि(authstatus->picked == CURLAUTH_DIGEST) {
     auth = "Digest";
-    result = Curl_output_digest(data,
+    परिणाम = Curl_output_digest(दत्त,
                                 proxy,
-                                (const unsigned char *)request,
-                                (const unsigned char *)path);
-    if(result)
-      return result;
+                                (ध्रुव अचिह्नित वर्ण *)request,
+                                (ध्रुव अचिह्नित वर्ण *)मार्गः);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  else
-#endif
-#ifndef CURL_DISABLE_BASIC_AUTH
-  if(authstatus->picked == CURLAUTH_BASIC) {
+  अन्यथा
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_BASIC_AUTH
+  यदि(authstatus->picked == CURLAUTH_BASIC) {
     /* Basic */
-    if(
-#ifndef CURL_DISABLE_PROXY
+    यदि(
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
        (proxy && conn->http_proxy.creds &&
         Curl_creds_has_user_or_pass(conn->http_proxy.creds) &&
-        !Curl_checkProxyheaders(data, conn,
+        !Curl_checkProxyheaders(दत्त, conn,
                                 STRCONST("Proxy-authorization"))) ||
-#endif
-       (!proxy && data->state.creds &&
-        Curl_creds_has_user_or_pass(data->state.creds) &&
-        !Curl_checkheaders(data, STRCONST("Authorization")))) {
+#यदि_अन्तः
+       (!proxy && दत्त->state.creds &&
+        Curl_creds_has_user_or_pass(दत्त->state.creds) &&
+        !Curl_checkheaders(दत्त, STRCONST("Authorization")))) {
       auth = "Basic";
-      result = http_output_basic(data, conn, proxy);
-      if(result)
-        return result;
+      परिणाम = http_output_basic(दत्त, conn, proxy);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
 
     /* NOTE: this function should set 'done' TRUE, as the other auth
        functions work that way */
-    authstatus->done = TRUE;
+    authstatus->समाप्तम् = TRUE;
   }
-#endif
-#ifndef CURL_DISABLE_BEARER_AUTH
-  if(authstatus->picked == CURLAUTH_BEARER) {
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_BEARER_AUTH
+  यदि(authstatus->picked == CURLAUTH_BEARER) {
     /* Bearer */
-    if(!proxy && Curl_creds_has_oauth_bearer(data->state.creds) &&
-       !Curl_checkheaders(data, STRCONST("Authorization"))) {
+    यदि(!proxy && Curl_creds_has_oauth_bearer(दत्त->state.creds) &&
+       !Curl_checkheaders(दत्त, STRCONST("Authorization"))) {
       auth = "Bearer";
-      result = http_output_bearer(data);
-      if(result)
-        return result;
+      परिणाम = http_output_bearer(दत्त);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
 
     /* NOTE: this function should set 'done' TRUE, as the other auth
        functions work that way */
-    authstatus->done = TRUE;
+    authstatus->समाप्तम् = TRUE;
   }
-#endif
+#यदि_अन्तः
 
-  if(auth) {
-#ifndef CURL_DISABLE_PROXY
-    if(proxy)
-      data->info.proxyauthpicked = authstatus->picked;
-    else
-      data->info.httpauthpicked = authstatus->picked;
-    infof(data, "%s auth using %s with user '%s'",
+  यदि(auth) {
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+    यदि(proxy)
+      दत्त->info.proxyauthpicked = authstatus->picked;
+    अन्यथा
+      दत्त->info.httpauthpicked = authstatus->picked;
+    infof(दत्त, "%s auth using %s with user '%s'",
           proxy ? "Proxy" : "Server", auth,
           proxy ? (conn->http_proxy.creds ?
                    conn->http_proxy.creds->user : "") :
-          (data->state.creds ?
-           data->state.creds->user : ""));
-#else
-    (void)proxy;
-    infof(data, "Server auth using %s with user '%s'",
-          auth, data->state.creds ?
-          data->state.creds->user : "");
-#endif
-    authstatus->multipass = !authstatus->done;
+          (दत्त->state.creds ?
+           दत्त->state.creds->user : ""));
+#अन्यथा
+    (शून्य)proxy;
+    infof(दत्त, "Server auth using %s with user '%s'",
+          auth, दत्त->state.creds ?
+          दत्त->state.creds->user : "");
+#यदि_अन्तः
+    authstatus->multipass = !authstatus->समाप्तम्;
   }
-  else {
+  अन्यथा {
     authstatus->multipass = FALSE;
-    if(proxy)
-      data->info.proxyauthpicked = 0;
-    else
-      data->info.httpauthpicked = 0;
+    यदि(proxy)
+      दत्त->info.proxyauthpicked = 0;
+    अन्यथा
+      दत्त->info.httpauthpicked = 0;
   }
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(संरचना Curl_easy *दत्त,
+                               संरचना connectdata *conn,
+                               ध्रुव वर्ण *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               ध्रुव वर्ण *मार्गः,
+                               ध्रुव वर्ण *query,
                                bool is_connect)
 {
-  CURLcode result = CURLE_OK;
-  struct auth *authhost;
-  struct auth *authproxy;
-  const char *path_and_query = path;
-  char *tmp_str = NULL;
+  CURLcode परिणाम = CURLE_OK;
+  संरचना auth *authhost;
+  संरचना auth *authproxy;
+  ध्रुव वर्ण *मार्गः_and_query = मार्गः;
+  वर्ण *tmp_str = रिक्त;
 
-  DEBUGASSERT(data);
-  authhost = &data->state.authhost;
-  authproxy = &data->state.authproxy;
+  DEBUGASSERT(दत्त);
+  authhost = &दत्त->state.authhost;
+  authproxy = &दत्त->state.authproxy;
 
-  if(
-#ifndef CURL_DISABLE_PROXY
+  यदि(
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
     (!conn->http_proxy.peer || !conn->http_proxy.creds) &&
-#endif
-#ifdef USE_SPNEGO
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_SPNEGO
     !(authhost->want & CURLAUTH_NEGOTIATE) &&
     !(authproxy->want & CURLAUTH_NEGOTIATE) &&
-#endif
-#ifndef CURL_DISABLE_HTTPSIG
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTPSIG
     !(authhost->want & CURLAUTH_HTTPSIG) &&
-#endif
-    !data->state.creds) {
+#यदि_अन्तः
+    !दत्त->state.creds) {
     /* no authentication with no user or password */
-    authhost->done = TRUE;
-    authproxy->done = TRUE;
-    result = CURLE_OK;
-    goto out;
+    authhost->समाप्तम् = TRUE;
+    authproxy->समाप्तम् = TRUE;
+    परिणाम = CURLE_OK;
+    गच्छ बहिर्गमनम्;
   }
 
-  if(query) {
-    tmp_str = curl_maprintf("%s?%s", path, query);
-    if(!tmp_str) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto out;
+  यदि(query) {
+    tmp_str = curl_maprintf("%s?%s", मार्गः, query);
+    यदि(!tmp_str) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ बहिर्गमनम्;
     }
-    path_and_query = tmp_str;
+    मार्गः_and_query = tmp_str;
   }
 
-  if(authhost->want && !authhost->picked)
+  यदि(authhost->want && !authhost->picked)
     /* The app has selected one or more methods, but none has been picked
        so far by a server round-trip. Then we set the picked one to the
        want one, and if this is one single bit it will be used instantly. */
     authhost->picked = authhost->want;
 
-  if(authproxy->want && !authproxy->picked)
+  यदि(authproxy->want && !authproxy->picked)
     /* The app has selected one or more methods, but none has been picked so
        far by a proxy round-trip. Then we set the picked one to the want one,
        and if this is one single bit it will be used instantly. */
     authproxy->picked = authproxy->want;
 
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
   /* Send proxy authentication header if needed */
-  if(conn->bits.origin_is_proxy || is_connect) {
-    result = output_auth_headers(data, conn, authproxy, request,
-                                 path_and_query, TRUE);
-    if(result)
-      goto out;
+  यदि(conn->द्वयङ्काः.origin_is_proxy || is_connect) {
+    परिणाम = output_auth_शीर्षकाणि(दत्त, conn, authproxy, request,
+                                 मार्गः_and_query, TRUE);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
-  else
-#else
-  (void)is_connect;
-#endif /* CURL_DISABLE_PROXY */
+  अन्यथा
+#अन्यथा
+  (शून्य)is_connect;
+#यदि_अन्तः /* CURL_DISABLE_PROXY */
     /* we have no proxy so let's pretend we are done authenticating
        with it */
-    authproxy->done = TRUE;
+    authproxy->समाप्तम् = TRUE;
 
   /* Either we have credentials for the origin we talk to or
      performing authentication is allowed here */
-  if(data->state.creds || Curl_auth_allowed_to_host(data))
-    result = output_auth_headers(data, conn, authhost, request,
-                                 path_and_query, FALSE);
-  else
-    authhost->done = TRUE;
+  यदि(दत्त->state.creds || Curl_auth_allowed_गन्तव्यम्_host(दत्त))
+    परिणाम = output_auth_शीर्षकाणि(दत्त, conn, authhost, request,
+                                 मार्गः_and_query, FALSE);
+  अन्यथा
+    authhost->समाप्तम् = TRUE;
 
-  if(((authhost->multipass && !authhost->done) ||
-      (authproxy->multipass && !authproxy->done)) &&
+  यदि(((authhost->multipass && !authhost->समाप्तम्) ||
+      (authproxy->multipass && !authproxy->समाप्तम्)) &&
      (httpreq != HTTPREQ_GET) &&
-     (httpreq != HTTPREQ_HEAD)) {
+     (httpreq != HTTPREQ_शीर्ष)) {
     /* Auth is required and we are not authenticated yet. Make a PUT or POST
        with content-length zero as a "probe". */
-    data->req.authneg = TRUE;
+    दत्त->req.authneg = TRUE;
   }
-  else
-    data->req.authneg = FALSE;
+  अन्यथा
+    दत्त->req.authneg = FALSE;
 
-out:
+बहिर्गमनम्:
   curlx_free(tmp_str);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#else /* !CURL_DISABLE_HTTP_AUTH */
+#अन्यथा /* !CURL_DISABLE_HTTP_AUTH */
 /* when disabled */
-CURLcode Curl_http_output_auth(struct Curl_easy *data,
-                               struct connectdata *conn,
-                               const char *request,
+CURLcode Curl_http_output_auth(संरचना Curl_easy *दत्त,
+                               संरचना connectdata *conn,
+                               ध्रुव वर्ण *request,
                                Curl_HttpReq httpreq,
-                               const char *path,
-                               const char *query,
+                               ध्रुव वर्ण *मार्गः,
+                               ध्रुव वर्ण *query,
                                bool is_connect)
 {
-  (void)data;
-  (void)conn;
-  (void)request;
-  (void)httpreq;
-  (void)path;
-  (void)query;
-  (void)is_connect;
-  return CURLE_OK;
+  (शून्य)दत्त;
+  (शून्य)conn;
+  (शून्य)request;
+  (शून्य)httpreq;
+  (शून्य)मार्गः;
+  (शून्य)query;
+  (शून्य)is_connect;
+  प्रत्यागम CURLE_OK;
 }
-#endif /* !CURL_DISABLE_HTTP_AUTH, else */
+#यदि_अन्तः /* !CURL_DISABLE_HTTP_AUTH, else */
 
-#if defined(USE_SPNEGO) || defined(USE_NTLM) || \
+#यदि defined(USE_SPNEGO) || defined(USE_NTLM) || \
   !defined(CURL_DISABLE_DIGEST_AUTH) || \
   !defined(CURL_DISABLE_BASIC_AUTH) || \
   !defined(CURL_DISABLE_BEARER_AUTH)
-static bool authcmp(const char *auth, const char *line)
+स्थिर bool authcmp(ध्रुव वर्ण *auth, ध्रुव वर्ण *पङ्क्तिः)
 {
   /* the auth string must not have an alnum following */
-  size_t n = strlen(auth);
-  return curl_strnequal(auth, line, n) && !ISALNUM(line[n]);
+  size_t n = वाक्यदैर्घ्यम्(auth);
+  प्रत्यागम curl_strnequal(auth, पङ्क्तिः, n) && !ISALNUM(पङ्क्तिः[n]);
 }
-#endif
+#यदि_अन्तः
 
-#ifdef USE_SPNEGO
-static CURLcode auth_spnego(struct Curl_easy *data,
+#यदि_परिभाषितम् USE_SPNEGO
+स्थिर CURLcode auth_spnego(संरचना Curl_easy *दत्त,
                             bool proxy,
-                            const char *auth,
-                            struct auth *authp,
+                            ध्रुव वर्ण *auth,
+                            संरचना auth *authp,
                             uint32_t *availp)
 {
-  if((authp->avail & CURLAUTH_NEGOTIATE) || Curl_auth_is_spnego_supported()) {
+  यदि((authp->avail & CURLAUTH_NEGOTIATE) || Curl_auth_is_spnego_supported()) {
     *availp |= CURLAUTH_NEGOTIATE;
     authp->avail |= CURLAUTH_NEGOTIATE;
 
-    if(authp->picked == CURLAUTH_NEGOTIATE) {
-      struct connectdata *conn = data->conn;
-      CURLcode result = Curl_input_negotiate(data, conn, proxy, auth);
+    यदि(authp->picked == CURLAUTH_NEGOTIATE) {
+      संरचना connectdata *conn = दत्त->conn;
+      CURLcode परिणाम = Curl_निवेशः_negotiate(दत्त, conn, proxy, auth);
       uint8_t *negstate = proxy ? &conn->proxy_negotiate_state :
         &conn->http_negotiate_state;
-      if(!result) {
-        curlx_free(data->req.newurl);
-        data->req.newurl = Curl_bufref_dup(&data->state.url);
-        if(!data->req.newurl)
-          return CURLE_OUT_OF_MEMORY;
-        data->state.authproblem = FALSE;
+      यदि(!परिणाम) {
+        curlx_free(दत्त->req.newurl);
+        दत्त->req.newurl = Curl_bufref_dup(&दत्त->state.url);
+        यदि(!दत्त->req.newurl)
+          प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        दत्त->state.authproblem = FALSE;
         /* we received a GSS auth token and we dealt with it fine */
         *negstate = CURL_NEGO_AUTH_RECV;
       }
-      else
-        data->state.authproblem = TRUE;
+      अन्यथा
+        दत्त->state.authproblem = TRUE;
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
-#ifdef USE_NTLM
-static CURLcode auth_ntlm(struct Curl_easy *data,
+#यदि_परिभाषितम् USE_NTLM
+स्थिर CURLcode auth_ntlm(संरचना Curl_easy *दत्त,
                           bool proxy,
-                          const char *auth,
-                          struct auth *authp,
+                          ध्रुव वर्ण *auth,
+                          संरचना auth *authp,
                           uint32_t *availp)
 {
   /* NTLM support requires the SSL crypto libs */
-  if((authp->avail & CURLAUTH_NTLM) || Curl_auth_is_ntlm_supported()) {
+  यदि((authp->avail & CURLAUTH_NTLM) || Curl_auth_is_ntlm_supported()) {
     *availp |= CURLAUTH_NTLM;
     authp->avail |= CURLAUTH_NTLM;
 
-    if(authp->picked == CURLAUTH_NTLM) {
+    यदि(authp->picked == CURLAUTH_NTLM) {
       /* NTLM authentication is picked and activated */
-      CURLcode result = Curl_input_ntlm(data, proxy, auth);
-      if(!result)
-        data->state.authproblem = FALSE;
-      else {
-        if(result == CURLE_OUT_OF_MEMORY)
-          return result;
-        infof(data, "NTLM authentication problem, ignoring.");
-        data->state.authproblem = TRUE;
+      CURLcode परिणाम = Curl_निवेशः_ntlm(दत्त, proxy, auth);
+      यदि(!परिणाम)
+        दत्त->state.authproblem = FALSE;
+      अन्यथा {
+        यदि(परिणाम == CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः)
+          प्रत्यागम परिणाम;
+        infof(दत्त, "NTLM authentication problem, ignoring.");
+        दत्त->state.authproblem = TRUE;
       }
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
-static CURLcode auth_digest(struct Curl_easy *data,
+#यदि_अपरिभाषितम् CURL_DISABLE_DIGEST_AUTH
+स्थिर CURLcode auth_digest(संरचना Curl_easy *दत्त,
                             bool proxy,
-                            const char *auth,
-                            struct auth *authp,
+                            ध्रुव वर्ण *auth,
+                            संरचना auth *authp,
                             uint32_t *availp)
 {
-  if(authp->avail & CURLAUTH_DIGEST) {
+  यदि(authp->avail & CURLAUTH_DIGEST) {
     *availp |= CURLAUTH_DIGEST;
-    infof(data, "Ignoring duplicate digest auth header.");
+    infof(दत्त, "Ignoring duplicate digest auth header.");
   }
-  else if(Curl_auth_is_digest_supported()) {
-    CURLcode result;
+  अन्यथा यदि(Curl_auth_is_digest_supported()) {
+    CURLcode परिणाम;
 
     *availp |= CURLAUTH_DIGEST;
     authp->avail |= CURLAUTH_DIGEST;
@@ -1014,53 +1014,53 @@ static CURLcode auth_digest(struct Curl_easy *data,
      * authentication is not activated yet, as we need to store the
      * incoming data from this header in case we are going to use
      * Digest */
-    result = Curl_input_digest(data, proxy, auth);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        return result;
-      infof(data, "Digest authentication problem, ignoring.");
-      data->state.authproblem = TRUE;
+    परिणाम = Curl_निवेशः_digest(दत्त, proxy, auth);
+    यदि(परिणाम) {
+      यदि(परिणाम == CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः)
+        प्रत्यागम परिणाम;
+      infof(दत्त, "Digest authentication problem, ignoring.");
+      दत्त->state.authproblem = TRUE;
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_BASIC_AUTH
-static CURLcode auth_basic(struct Curl_easy *data,
-                           struct auth *authp,
+#यदि_अपरिभाषितम् CURL_DISABLE_BASIC_AUTH
+स्थिर CURLcode auth_basic(संरचना Curl_easy *दत्त,
+                           संरचना auth *authp,
                            uint32_t *availp)
 {
   *availp |= CURLAUTH_BASIC;
   authp->avail |= CURLAUTH_BASIC;
-  if(authp->picked == CURLAUTH_BASIC) {
+  यदि(authp->picked == CURLAUTH_BASIC) {
     /* We asked for Basic authentication but got a 40X back anyway, which
        means our name+password is not valid. */
     authp->avail = CURLAUTH_NONE;
-    infof(data, "Basic authentication problem, ignoring.");
-    data->state.authproblem = TRUE;
+    infof(दत्त, "Basic authentication problem, ignoring.");
+    दत्त->state.authproblem = TRUE;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_BEARER_AUTH
-static CURLcode auth_bearer(struct Curl_easy *data,
-                            struct auth *authp,
+#यदि_अपरिभाषितम् CURL_DISABLE_BEARER_AUTH
+स्थिर CURLcode auth_bearer(संरचना Curl_easy *दत्त,
+                            संरचना auth *authp,
                             uint32_t *availp)
 {
   *availp |= CURLAUTH_BEARER;
   authp->avail |= CURLAUTH_BEARER;
-  if(authp->picked == CURLAUTH_BEARER) {
+  यदि(authp->picked == CURLAUTH_BEARER) {
     /* We asked for Bearer authentication but got a 40X back anyway, which
        means our token is not valid. */
     authp->avail = CURLAUTH_NONE;
-    infof(data, "Bearer authentication problem, ignoring.");
-    data->state.authproblem = TRUE;
+    infof(दत्त, "Bearer authentication problem, ignoring.");
+    दत्त->state.authproblem = TRUE;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
 /*
  * Curl_http_input_auth() deals with Proxy-Authenticate: and WWW-Authenticate:
@@ -1069,31 +1069,31 @@ static CURLcode auth_bearer(struct Curl_easy *data,
  *
  * The 'auth' line ends with a NUL byte without CR or LF present.
  */
-CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
-                              const char *auth) /* the first non-space */
+CURLcode Curl_http_निवेशः_auth(संरचना Curl_easy *दत्त, bool proxy,
+                              ध्रुव वर्ण *auth) /* the first non-space */
 {
   /*
    * This resource requires authentication
    */
-#if defined(USE_SPNEGO) ||                      \
+#यदि defined(USE_SPNEGO) ||                      \
   defined(USE_NTLM) ||                          \
   !defined(CURL_DISABLE_DIGEST_AUTH) ||         \
   !defined(CURL_DISABLE_BASIC_AUTH) ||          \
   !defined(CURL_DISABLE_BEARER_AUTH)
 
   uint32_t *availp;
-  struct auth *authp;
-  CURLcode result = CURLE_OK;
+  संरचना auth *authp;
+  CURLcode परिणाम = CURLE_OK;
   DEBUGASSERT(auth);
-  DEBUGASSERT(data);
+  DEBUGASSERT(दत्त);
 
-  if(proxy) {
-    availp = &data->info.proxyauthavail;
-    authp = &data->state.authproxy;
+  यदि(proxy) {
+    availp = &दत्त->info.proxyauthavail;
+    authp = &दत्त->state.authproxy;
   }
-  else {
-    availp = &data->info.httpauthavail;
-    authp = &data->state.authhost;
+  अन्यथा {
+    availp = &दत्त->info.httpauthavail;
+    authp = &दत्त->state.authhost;
   }
 
   /*
@@ -1112,203 +1112,203 @@ CURLcode Curl_http_input_auth(struct Curl_easy *data, bool proxy,
    * (bit).
    */
 
-  while(*auth) {
-#ifdef USE_SPNEGO
-    if(authcmp("Negotiate", auth))
-      result = auth_spnego(data, proxy, auth, authp, availp);
-#endif
-#ifdef USE_NTLM
-    if(!result && authcmp("NTLM", auth))
-      result = auth_ntlm(data, proxy, auth, authp, availp);
-#endif
-#ifndef CURL_DISABLE_DIGEST_AUTH
-    if(!result && authcmp("Digest", auth))
-      result = auth_digest(data, proxy, auth, authp, availp);
-#endif
-#ifndef CURL_DISABLE_BASIC_AUTH
-    if(!result && authcmp("Basic", auth))
-      result = auth_basic(data, authp, availp);
-#endif
-#ifndef CURL_DISABLE_BEARER_AUTH
-    if(authcmp("Bearer", auth))
-      result = auth_bearer(data, authp, availp);
-#endif
+  यावत्(*auth) {
+#यदि_परिभाषितम् USE_SPNEGO
+    यदि(authcmp("Negotiate", auth))
+      परिणाम = auth_spnego(दत्त, proxy, auth, authp, availp);
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_NTLM
+    यदि(!परिणाम && authcmp("NTLM", auth))
+      परिणाम = auth_ntlm(दत्त, proxy, auth, authp, availp);
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_DIGEST_AUTH
+    यदि(!परिणाम && authcmp("Digest", auth))
+      परिणाम = auth_digest(दत्त, proxy, auth, authp, availp);
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_BASIC_AUTH
+    यदि(!परिणाम && authcmp("Basic", auth))
+      परिणाम = auth_basic(दत्त, authp, availp);
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_BEARER_AUTH
+    यदि(authcmp("Bearer", auth))
+      परिणाम = auth_bearer(दत्त, authp, availp);
+#यदि_अन्तः
 
-    if(result)
-      break;
+    यदि(परिणाम)
+      भङ्ग;
 
     /* there may be multiple methods on one line, so keep reading */
     auth = strchr(auth, ',');
-    if(auth) /* if we are on a comma, skip it */
+    यदि(auth) /* if we are on a comma, skip it */
       auth++;
-    else
-      break;
+    अन्यथा
+      भङ्ग;
     curlx_str_passblanks(&auth);
   }
-  return result;
-#else
-  (void)data;
-  (void)proxy;
-  (void)auth;
+  प्रत्यागम परिणाम;
+#अन्यथा
+  (शून्य)दत्त;
+  (शून्य)proxy;
+  (शून्य)auth;
   /* nothing to do when disabled */
-  return CURLE_OK;
-#endif
+  प्रत्यागम CURLE_OK;
+#यदि_अन्तः
 }
 
-static void http_switch_to_get(struct Curl_easy *data, int code)
+स्थिर शून्य http_switch_गन्तव्यम्_get(संरचना Curl_easy *दत्त, पूर्णाङ्क संहिता)
 {
-  const char *req = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  ध्रुव वर्ण *req = CURL_EASY_STR(दत्त, STRING_CUSTOMREQUEST);
 
-  if((req || data->state.httpreq != HTTPREQ_GET) &&
-     (data->set.http_follow_mode == CURLFOLLOW_OBEYCODE)) {
-    NOVERBOSE((void)code);
-    infof(data, "Switch to GET because of %d response", code);
-    data->state.http_ignorecustom = TRUE;
+  यदि((req || दत्त->state.httpreq != HTTPREQ_GET) &&
+     (दत्त->समुच्चयः.http_follow_बहुलकम् == CURLFOLLOW_OBEYCODE)) {
+    NOVERBOSE((शून्य)संहिता);
+    infof(दत्त, "Switch to GET because of %d response", संहिता);
+    दत्त->state.http_ignorecustom = TRUE;
   }
-  else if(req && (data->set.http_follow_mode != CURLFOLLOW_FIRSTONLY))
-    infof(data, "Stick to %s instead of GET", req);
+  अन्यथा यदि(req && (दत्त->समुच्चयः.http_follow_बहुलकम् != CURLFOLLOW_FIRSTONLY))
+    infof(दत्त, "Stick to %s instead of GET", req);
 
-  data->state.httpreq = HTTPREQ_GET;
-  Curl_creader_set_rewind(data, FALSE);
+  दत्त->state.httpreq = HTTPREQ_GET;
+  Curl_creader_समुच्चयः_rewind(दत्त, FALSE);
 }
 
-#define HTTPREQ_IS_POST(data)                    \
-  ((data)->state.httpreq == HTTPREQ_POST ||      \
-   (data)->state.httpreq == HTTPREQ_POST_FORM || \
-   (data)->state.httpreq == HTTPREQ_POST_MIME)
+#परिभाषय HTTPREQ_IS_POST(दत्त)                    \
+  ((दत्त)->state.httpreq == HTTPREQ_POST ||      \
+   (दत्त)->state.httpreq == HTTPREQ_POST_FORM || \
+   (दत्त)->state.httpreq == HTTPREQ_POST_MIME)
 
-static CURLcode set_auto_referer(struct Curl_easy *data)
+स्थिर CURLcode समुच्चयः_auto_referer(संरचना Curl_easy *दत्त)
 {
   CURLU *u;
-  char *referer = NULL;
+  वर्ण *referer = रिक्त;
   CURLUcode uc;
 
   /* We are asked to automatically set the previous URL as the referer
      when we get the next URL. We pick the ->url field, which may or may
      not be 100% correct */
-  Curl_bufref_free(&data->state.referer);
+  Curl_bufref_free(&दत्त->state.referer);
 
   /* Make a copy of the URL without credentials and fragment */
   u = curl_url();
-  if(!u)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(!u)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  uc = curl_url_set(u, CURLUPART_URL,
-                    Curl_bufref_ptr(&data->state.url), 0);
-  if(!uc)
-    uc = curl_url_set(u, CURLUPART_FRAGMENT, NULL, 0);
-  if(!uc)
-    uc = curl_url_set(u, CURLUPART_USER, NULL, 0);
-  if(!uc)
-    uc = curl_url_set(u, CURLUPART_PASSWORD, NULL, 0);
-  if(!uc)
+  uc = curl_url_समुच्चयः(u, CURLUPART_URL,
+                    Curl_bufref_ptr(&दत्त->state.url), 0);
+  यदि(!uc)
+    uc = curl_url_समुच्चयः(u, CURLUPART_FRAGMENT, रिक्त, 0);
+  यदि(!uc)
+    uc = curl_url_समुच्चयः(u, CURLUPART_USER, रिक्त, 0);
+  यदि(!uc)
+    uc = curl_url_समुच्चयः(u, CURLUPART_PASSWORD, रिक्त, 0);
+  यदि(!uc)
     uc = curl_url_get(u, CURLUPART_URL, &referer, 0);
 
   curl_url_cleanup(u);
 
-  if(uc || !referer)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(uc || !referer)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  Curl_bufref_set(&data->state.referer, referer, 0, curl_free);
-  return CURLE_OK;
+  Curl_bufref_समुच्चयः(&दत्त->state.referer, referer, 0, curl_free);
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode follow_parse_url(struct Curl_easy *data, const char *newurl,
-                                 followtype type, char **follow_urlp,
+स्थिर CURLcode follow_parse_url(संरचना Curl_easy *दत्त, ध्रुव वर्ण *newurl,
+                                 followtype type, वर्ण **follow_urlp,
                                  CURLUcode *ucp)
 {
   CURLUcode uc;
 
-  DEBUGASSERT(data->state.uh);
-  uc = curl_url_set(data->state.uh, CURLUPART_URL, newurl, (unsigned int)
+  DEBUGASSERT(दत्त->state.uh);
+  uc = curl_url_समुच्चयः(दत्त->state.uh, CURLUPART_URL, newurl, (अचिह्नित पूर्णाङ्क)
                     ((type == FOLLOW_FAKE) ? CURLU_NON_SUPPORT_SCHEME :
                      ((type == FOLLOW_REDIR) ? CURLU_URLENCODE : 0) |
                      CURLU_ALLOW_SPACE |
-                     (data->set.path_as_is ? CURLU_PATH_AS_IS : 0)));
+                     (दत्त->समुच्चयः.मार्गः_as_is ? CURLU_मार्गः_AS_IS : 0)));
   *ucp = uc;
-  if(uc) {
-    if((uc == CURLUE_OUT_OF_MEMORY) || (type != FOLLOW_FAKE)) {
-      failf(data, "The redirect target URL could not be parsed: %s",
+  यदि(uc) {
+    यदि((uc == CURLUE_बहिर्गमनम्_सम्बन्धि_स्मृतिः) || (type != FOLLOW_FAKE)) {
+      failf(दत्त, "The redirect target URL could not be parsed: %s",
             curl_url_strerror(uc));
-      return Curl_uc_to_curlcode(uc);
+      प्रत्यागम Curl_uc_गन्तव्यम्_curlcode(uc);
     }
 
     /* the URL could not be parsed for some reason, but since this is FAKE
        mode, duplicate the field as-is */
     *follow_urlp = curlx_strdup(newurl);
-    if(!*follow_urlp)
-      return CURLE_OUT_OF_MEMORY;
+    यदि(!*follow_urlp)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
-  else {
+  अन्यथा {
     CURLU *u = curl_url();
-    if(!u)
-      return CURLE_OUT_OF_MEMORY;
-    uc = curl_url_set(u, CURLUPART_URL,
-                      Curl_bufref_ptr(&data->state.url),
+    यदि(!u)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    uc = curl_url_समुच्चयः(u, CURLUPART_URL,
+                      Curl_bufref_ptr(&दत्त->state.url),
                       CURLU_URLENCODE | CURLU_ALLOW_SPACE);
-    if(!uc)
-      uc = curl_url_get(data->state.uh, CURLUPART_URL, follow_urlp, 0);
-    if(uc) {
+    यदि(!uc)
+      uc = curl_url_get(दत्त->state.uh, CURLUPART_URL, follow_urlp, 0);
+    यदि(uc) {
       curl_url_cleanup(u);
-      return Curl_uc_to_curlcode(uc);
+      प्रत्यागम Curl_uc_गन्तव्यम्_curlcode(uc);
     }
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
+#यदि_अपरिभाषितम् CURL_DISABLE_DIGEST_AUTH
     {
-      bool same_origin = Curl_url_same_origin(u, data->state.uh);
+      bool same_origin = Curl_url_same_origin(u, दत्त->state.uh);
       curl_url_cleanup(u);
-      if(!same_origin)
-        Curl_auth_digest_cleanup(&data->state.digest);
+      यदि(!same_origin)
+        Curl_auth_digest_cleanup(&दत्त->state.digest);
     }
-#else
+#अन्यथा
     curl_url_cleanup(u);
-#endif
+#यदि_अन्तः
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode follow_fake(struct Curl_easy *data, char *follow_url,
+स्थिर CURLcode follow_fake(संरचना Curl_easy *दत्त, वर्ण *follow_url,
                             CURLUcode uc, bool reachedmax)
 {
   /* we are only figuring out the new URL if we would have followed locations
      but now we are done so we can get out! */
-  if(!uc) {
+  यदि(!uc) {
     CURLU *u = curl_url();
-    char *nocred = NULL;
+    वर्ण *nocred = रिक्त;
 
-    if(!u) {
+    यदि(!u) {
       curlx_free(follow_url);
-      return CURLE_OUT_OF_MEMORY;
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
-    if(!curl_url_set(u, CURLUPART_URL, follow_url,
+    यदि(!curl_url_समुच्चयः(u, CURLUPART_URL, follow_url,
                      CURLU_NON_SUPPORT_SCHEME |
-                     (data->set.path_as_is ? CURLU_PATH_AS_IS : 0)) &&
-       !curl_url_set(u, CURLUPART_USER, NULL, 0) &&
-       !curl_url_set(u, CURLUPART_PASSWORD, NULL, 0))
-      (void)curl_url_get(u, CURLUPART_URL, &nocred, CURLU_GET_EMPTY);
+                     (दत्त->समुच्चयः.मार्गः_as_is ? CURLU_मार्गः_AS_IS : 0)) &&
+       !curl_url_समुच्चयः(u, CURLUPART_USER, रिक्त, 0) &&
+       !curl_url_समुच्चयः(u, CURLUPART_PASSWORD, रिक्त, 0))
+      (शून्य)curl_url_get(u, CURLUPART_URL, &nocred, CURLU_GET_रिक्तानि);
     curl_url_cleanup(u);
-    if(nocred) {
+    यदि(nocred) {
       curlx_free(follow_url);
       follow_url = nocred;
     }
   }
-  data->info.wouldredirect = follow_url;
+  दत्त->info.wouldredirect = follow_url;
 
-  if(reachedmax) {
-    failf(data, "Maximum (%d) redirects followed", data->set.maxredirs);
-    return CURLE_TOO_MANY_REDIRECTS;
+  यदि(reachedmax) {
+    failf(दत्त, "Maximum (%d) redirects followed", दत्त->समुच्चयः.maxredirs);
+    प्रत्यागम CURLE_TOO_MANY_REDIRECTS;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static bool follow_switch_get(struct Curl_easy *data)
+स्थिर bool follow_switch_get(संरचना Curl_easy *दत्त)
 {
   /*
    * We get here when the HTTP code is 300-399 and 401 or 407. We need to
    * perform differently based on exactly what return code there was.
    */
-  switch(data->info.httpcode) {
-  case 301: /* Moved Permanently */
+  विकल्प(दत्त->info.httpcode) {
+  पक्ष 301: /* Moved Permanently */
     /* (quote from RFC7231, section 6.4.2)
      *
      * Note: For historical reasons, a user agent MAY change the request
@@ -1325,12 +1325,12 @@ static bool follow_switch_get(struct Curl_easy *data)
      * This behavior is forbidden by RFC1945 and the obsolete RFC2616, and
      * can be overridden with CURLOPT_POSTREDIR.
      */
-    if(HTTPREQ_IS_POST(data) && !data->set.post301) {
-      http_switch_to_get(data, 301);
-      return TRUE;
+    यदि(HTTPREQ_IS_POST(दत्त) && !दत्त->समुच्चयः.post301) {
+      http_switch_गन्तव्यम्_get(दत्त, 301);
+      प्रत्यागम TRUE;
     }
-    break;
-  case 302: /* Found */
+    भङ्ग;
+  पक्ष 302: /*प्राप्तम्*/
     /* (quote from RFC7231, section 6.4.3)
      *
      * Note: For historical reasons, a user agent MAY change the request
@@ -1347,21 +1347,21 @@ static bool follow_switch_get(struct Curl_easy *data)
      * This behavior is forbidden by RFC1945 and the obsolete RFC2616, and
      * can be overridden with CURLOPT_POSTREDIR.
      */
-    if(HTTPREQ_IS_POST(data) && !data->set.post302) {
-      http_switch_to_get(data, 302);
-      return TRUE;
+    यदि(HTTPREQ_IS_POST(दत्त) && !दत्त->समुच्चयः.post302) {
+      http_switch_गन्तव्यम्_get(दत्त, 302);
+      प्रत्यागम TRUE;
     }
-    break;
-  case 303: /* See Other */
+    भङ्ग;
+  पक्ष 303: /* See Other */
     /* 'See Other' location is not the resource but a substitute for the
      * resource. In this case we switch the method to GET/HEAD, unless the
      * method is POST and the user specified to keep it as POST.
      */
-    if(!HTTPREQ_IS_POST(data) || !data->set.post303) {
-      http_switch_to_get(data, 303);
-      return TRUE;
+    यदि(!HTTPREQ_IS_POST(दत्त) || !दत्त->समुच्चयः.post303) {
+      http_switch_गन्तव्यम्_get(दत्त, 303);
+      प्रत्यागम TRUE;
     }
-    break;
+    भङ्ग;
 
     /* 304 means we did a conditional request and it was "Not modified".
      * We should not get any Location: header in this response!
@@ -1374,87 +1374,87 @@ static bool follow_switch_get(struct Curl_easy *data)
      * via the proxy. 305 responses MUST only be generated by origin
      * servers."
      */
-  default:
-    break;
+  स्वभाव:
+    भङ्ग;
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
+CURLcode Curl_http_follow(संरचना Curl_easy *दत्त, ध्रुव वर्ण *newurl,
                           followtype type)
 {
   bool disallowport = FALSE;
   bool reachedmax = FALSE;
-  char *follow_url = NULL;
+  वर्ण *follow_url = रिक्त;
   CURLUcode uc;
-  CURLcode result;
-  CURLcode rewind_result;
-  bool switch_to_get;
+  CURLcode परिणाम;
+  CURLcode rewind_परिणाम;
+  bool switch_गन्तव्यम्_get;
 
   DEBUGASSERT(type != FOLLOW_NONE);
 
-  if(type != FOLLOW_FAKE)
-    data->state.requests++; /* count all real follows */
-  if(type == FOLLOW_REDIR) {
-    if((data->set.maxredirs != -1) &&
-       (data->state.followlocation >= data->set.maxredirs)) {
+  यदि(type != FOLLOW_FAKE)
+    दत्त->state.अनुरोधाः++; /* count all real follows */
+  यदि(type == FOLLOW_REDIR) {
+    यदि((दत्त->समुच्चयः.maxredirs != -1) &&
+       (दत्त->state.followlocation >= दत्त->समुच्चयः.maxredirs)) {
       reachedmax = TRUE;
       type = FOLLOW_FAKE; /* switch to fake to store the would-be-redirected
                              to URL */
     }
-    else {
-      data->state.followlocation++; /* count redirect-followings, including
+    अन्यथा {
+      दत्त->state.followlocation++; /* count redirect-followings, including
                                        auth reloads */
 
-      if(data->set.http_auto_referer) {
-        result = set_auto_referer(data);
-        if(result)
-          return result;
+      यदि(दत्त->समुच्चयः.http_auto_referer) {
+        परिणाम = समुच्चयः_auto_referer(दत्त);
+        यदि(परिणाम)
+          प्रत्यागम परिणाम;
       }
     }
   }
 
-  if((type != FOLLOW_RETRY) &&
-     (data->req.httpcode != 401) && (data->req.httpcode != 407) &&
-     Curl_is_absolute_url(newurl, NULL, 0, FALSE)) {
+  यदि((type != FOLLOW_RETRY) &&
+     (दत्त->req.httpcode != 401) && (दत्त->req.httpcode != 407) &&
+     Curl_is_absolute_url(newurl, रिक्त, 0, FALSE)) {
     /* If this is not redirect due to a 401 or 407 response and an absolute
        URL: do not allow a custom port number */
     disallowport = TRUE;
   }
 
-  result = follow_parse_url(data, newurl, type, &follow_url, &uc);
-  if(result)
-    return result;
+  परिणाम = follow_parse_url(दत्त, newurl, type, &follow_url, &uc);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
   DEBUGASSERT(follow_url);
 
-  if(type == FOLLOW_FAKE)
-    return follow_fake(data, follow_url, uc, reachedmax);
+  यदि(type == FOLLOW_FAKE)
+    प्रत्यागम follow_fake(दत्त, follow_url, uc, reachedmax);
 
-  if(disallowport)
-    data->state.allow_port = FALSE;
+  यदि(disallowport)
+    दत्त->state.allow_पत्तनम् = FALSE;
 
-  Curl_bufref_set(&data->state.url, follow_url, 0, curl_free);
-  rewind_result = Curl_req_soft_reset(&data->req, data);
-  infof(data, "Issue another request to this URL: '%s'", follow_url);
-  if((data->set.http_follow_mode == CURLFOLLOW_FIRSTONLY) &&
-     !data->state.http_ignorecustom &&
-     CURL_EASY_STR(data, STRING_CUSTOMREQUEST)) {
-    data->state.http_ignorecustom = TRUE;
-    infof(data, "Drop custom request method for next request");
+  Curl_bufref_समुच्चयः(&दत्त->state.url, follow_url, 0, curl_free);
+  rewind_परिणाम = Curl_req_soft_reset(&दत्त->req, दत्त);
+  infof(दत्त, "Issue another request to this URL: '%s'", follow_url);
+  यदि((दत्त->समुच्चयः.http_follow_बहुलकम् == CURLFOLLOW_FIRSTONLY) &&
+     !दत्त->state.http_ignorecustom &&
+     CURL_EASY_STR(दत्त, STRING_CUSTOMREQUEST)) {
+    दत्त->state.http_ignorecustom = TRUE;
+    infof(दत्त, "Drop custom request method for next request");
   }
 
-  switch_to_get = follow_switch_get(data);
+  switch_गन्तव्यम्_get = follow_switch_get(दत्त);
 
   /* When rewind of upload data failed and we are not switching to GET,
    * we need to fail the follow, as we cannot send the data again. */
-  if(rewind_result && !switch_to_get)
-    return rewind_result;
+  यदि(rewind_परिणाम && !switch_गन्तव्यम्_get)
+    प्रत्यागम rewind_परिणाम;
 
-  Curl_pgrsTime(data, TIMER_REDIRECT);
-  Curl_pgrsResetTransferSizes(data);
+  Curl_pgrsTime(दत्त, TIMER_REDIRECT);
+  Curl_pgrsResetTransferSizes(दत्त);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
@@ -1465,257 +1465,257 @@ CURLcode Curl_http_follow(struct Curl_easy *data, const char *newurl,
  *
  * @unittest: 1625
  */
-bool Curl_compareheader(const char *headerline, /* line to check */
-                        const char *header, /* header keyword _with_ colon */
-                        const size_t hlen, /* len of the keyword in bytes */
-                        const char *content, /* content string to find */
-                        const size_t clen) /* len of the content in bytes */
+bool Curl_compareheader(ध्रुव वर्ण *headerline, /* line to check */
+                        ध्रुव वर्ण *शीर्षकम्, /* header keyword _with_ colon */
+                        ध्रुव size_t hlen, /* len of the keyword in bytes */
+                        ध्रुव वर्ण *content, /* content string to find */
+                        ध्रुव size_t clen) /* len of the content in bytes */
 {
   /* RFC2616, section 4.2 says: "Each header field consists of a name followed
    * by a colon (":") and the field value. Field names are case-insensitive.
    * The field value MAY be preceded by any amount of LWS, though a single SP
    * is preferred." */
 
-  const char *p;
-  struct Curl_str val;
+  ध्रुव वर्ण *p;
+  संरचना Curl_str val;
   DEBUGASSERT(hlen);
   DEBUGASSERT(clen);
-  DEBUGASSERT(header);
+  DEBUGASSERT(शीर्षकम्);
   DEBUGASSERT(content);
 
-  if(!curl_strnequal(headerline, header, hlen))
-    return FALSE; /* does not start with header */
+  यदि(!curl_strnequal(headerline, शीर्षकम्, hlen))
+    प्रत्यागम FALSE; /* does not start with header */
 
   /* pass the header */
   p = &headerline[hlen];
 
-  if(curlx_str_cspn(&p, &val, "\r\n"))
-    return FALSE;
+  यदि(curlx_str_cspn(&p, &val, "\r\n"))
+    प्रत्यागम FALSE;
   curlx_str_trimblanks(&val);
 
   /* find the content string in the rest of the line */
-  if(curlx_strlen(&val) >= clen) {
+  यदि(curlx_strlen(&val) >= clen) {
     size_t len;
     p = curlx_str(&val);
-    for(len = curlx_strlen(&val); len >= clen;) {
-      struct Curl_str next;
-      const char *o = p;
+    प्रति(len = curlx_strlen(&val); len >= clen;) {
+      संरचना Curl_str अग्र;
+      ध्रुव वर्ण *o = p;
       /* after a match there must be a comma, space, newline or NUL byte */
-      if(curl_strnequal(p, content, clen) &&
+      यदि(curl_strnequal(p, content, clen) &&
          ((p[clen] == ',') || ISBLANK(p[clen]) || ISNEWLINE(p[clen]) ||
           !p[clen]))
-        return TRUE; /* match! */
+        प्रत्यागम TRUE; /* match! */
       /* advance to the next comma */
-      if(curlx_str_until(&p, &next, len, ',') ||
+      यदि(curlx_str_until(&p, &अग्र, len, ',') ||
          curlx_str_single(&p, ','))
-        break; /* no comma, get out */
+        भङ्ग; /* no comma, get out */
 
       /* if there are more dummy commas, move over them as well */
-      do
+      कुरु
         curlx_str_passblanks(&p);
-      while(!curlx_str_single(&p, ','));
+      यावत्(!curlx_str_single(&p, ','));
       /* trailing blanks may move the parsing point past the value end,
          then there is nothing left to match */
-      if((size_t)(p - o) > len)
-        break;
+      यदि((size_t)(p - o) > len)
+        भङ्ग;
       len -= (p - o);
     }
   }
-  return FALSE; /* no match */
+  प्रत्यागम FALSE; /* no match */
 }
 
-struct cr_exp100_ctx {
-  struct Curl_creader super;
-  struct curltime start; /* time started waiting */
-  enum expect100 state;
+संरचना cr_exp100_ctx {
+  संरचना Curl_creader super;
+  संरचना curltime start; /* time started waiting */
+  गणना expect100 state;
 };
 
 /* Expect: 100-continue client reader, blocking uploads */
 
-static void http_exp100_continue(struct Curl_easy *data,
-                                 struct Curl_creader *reader)
+स्थिर शून्य http_exp100_continue(संरचना Curl_easy *दत्त,
+                                 संरचना Curl_creader *reader)
 {
-  struct cr_exp100_ctx *ctx = reader->ctx;
-  if(ctx->state > EXP100_SEND_DATA) {
-    ctx->state = EXP100_SEND_DATA;
-    Curl_expire_clear(data, EXPIRE_100_TIMEOUT);
+  संरचना cr_exp100_ctx *ctx = reader->ctx;
+  यदि(ctx->state > EXP100_SEND_दत्त) {
+    ctx->state = EXP100_SEND_दत्त;
+    Curl_expire_clear(दत्त, EXPIRE_100_TIMEOUT);
   }
 }
 
-static CURLcode cr_exp100_read(struct Curl_easy *data,
-                               struct Curl_creader *reader,
-                               char *buf, size_t blen,
+स्थिर CURLcode cr_exp100_read(संरचना Curl_easy *दत्त,
+                               संरचना Curl_creader *reader,
+                               वर्ण *buf, size_t blen,
                                size_t *nread, bool *eos)
 {
-  struct cr_exp100_ctx *ctx = reader->ctx;
+  संरचना cr_exp100_ctx *ctx = reader->ctx;
   timediff_t ms;
 
-  switch(ctx->state) {
-  case EXP100_SENDING_REQUEST:
-    if(!Curl_req_sendbuf_empty(data)) {
+  विकल्प(ctx->state) {
+  पक्ष EXP100_SENDING_REQUEST:
+    यदि(!Curl_req_sendbuf_रिक्तानि(दत्त)) {
       /* The initial request data has not been fully sent yet. Do
        * not start the timer yet. */
-      DEBUGF(infof(data, "cr_exp100_read, request not full sent yet"));
+      DEBUGF(infof(दत्त, "cr_exp100_read, request not full sent yet"));
       *nread = 0;
       *eos = FALSE;
-      return CURLE_OK;
+      प्रत्यागम CURLE_OK;
     }
     /* We are now waiting for a reply from the server or
      * a timeout on our side IFF the request has been fully sent. */
-    DEBUGF(infof(data, "cr_exp100_read, start AWAITING_CONTINUE, "
-                 "timeout %dms", data->set.expect_100_timeout));
+    DEBUGF(infof(दत्त, "cr_exp100_read, start AWAITING_CONTINUE, "
+                 "timeout %dms", दत्त->समुच्चयः.expect_100_timeout));
     ctx->state = EXP100_AWAITING_CONTINUE;
-    ctx->start = *Curl_pgrs_now(data);
-    Curl_expire_set(data, EXPIRE_100_TIMEOUT,
-                    data->set.expect_100_timeout, &ctx->start);
+    ctx->start = *Curl_pgrs_now(दत्त);
+    Curl_expire_समुच्चयः(दत्त, EXPIRE_100_TIMEOUT,
+                    दत्त->समुच्चयः.expect_100_timeout, &ctx->start);
     *nread = 0;
     *eos = FALSE;
-    return CURLE_OK;
-  case EXP100_FAILED:
-    DEBUGF(infof(data, "cr_exp100_read, expectation failed, error"));
+    प्रत्यागम CURLE_OK;
+  पक्ष EXP100_FAILED:
+    DEBUGF(infof(दत्त, "cr_exp100_read, expectation failed, error"));
     *nread = 0;
     *eos = FALSE;
-    return CURLE_READ_ERROR;
-  case EXP100_AWAITING_CONTINUE:
-    ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &ctx->start);
-    if(ms < data->set.expect_100_timeout) {
-      DEBUGF(infof(data, "cr_exp100_read, AWAITING_CONTINUE, not expired"));
+    प्रत्यागम CURLE_READ_ERROR;
+  पक्ष EXP100_AWAITING_CONTINUE:
+    ms = curlx_ptimediff_ms(Curl_pgrs_now(दत्त), &ctx->start);
+    यदि(ms < दत्त->समुच्चयः.expect_100_timeout) {
+      DEBUGF(infof(दत्त, "cr_exp100_read, AWAITING_CONTINUE, not expired"));
       *nread = 0;
       *eos = FALSE;
-      return CURLE_OK;
+      प्रत्यागम CURLE_OK;
     }
     /* we have waited long enough, continue anyway */
-    http_exp100_continue(data, reader);
-    infof(data, "Done waiting for 100-continue");
+    http_exp100_continue(दत्त, reader);
+    infof(दत्त, "Done waiting for 100-continue");
     FALLTHROUGH();
-  default:
-    DEBUGF(infof(data, "cr_exp100_read, pass through"));
-    return Curl_creader_read(data, reader->next, buf, blen, nread, eos);
+  स्वभाव:
+    DEBUGF(infof(दत्त, "cr_exp100_read, pass through"));
+    प्रत्यागम Curl_creader_read(दत्त, reader->अग्र, buf, blen, nread, eos);
   }
 }
 
-static void cr_exp100_done(struct Curl_easy *data,
-                           struct Curl_creader *reader, int premature)
+स्थिर शून्य cr_exp100_समाप्तम्(संरचना Curl_easy *दत्त,
+                           संरचना Curl_creader *reader, पूर्णाङ्क premature)
 {
-  struct cr_exp100_ctx *ctx = reader->ctx;
-  ctx->state = premature ? EXP100_FAILED : EXP100_SEND_DATA;
-  Curl_expire_clear(data, EXPIRE_100_TIMEOUT);
+  संरचना cr_exp100_ctx *ctx = reader->ctx;
+  ctx->state = premature ? EXP100_FAILED : EXP100_SEND_दत्त;
+  Curl_expire_clear(दत्त, EXPIRE_100_TIMEOUT);
 }
 
-static const struct Curl_crtype cr_exp100 = {
+स्थिर ध्रुव संरचना Curl_crtype cr_exp100 = {
   "cr-exp100",
   Curl_creader_def_init,
   cr_exp100_read,
   Curl_creader_def_close,
   Curl_creader_def_needs_rewind,
-  Curl_creader_def_total_length,
+  Curl_creader_def_योग_दीर्घता,
   Curl_creader_def_resume_from,
   Curl_creader_def_cntrl,
   Curl_creader_def_is_paused,
-  cr_exp100_done,
-  sizeof(struct cr_exp100_ctx)
+  cr_exp100_समाप्तम्,
+  परिमाण(संरचना cr_exp100_ctx)
 };
 
-static CURLcode http_exp100_add_reader(struct Curl_easy *data)
+स्थिर CURLcode http_exp100_सङ्कलय_reader(संरचना Curl_easy *दत्त)
 {
-  struct Curl_creader *reader = NULL;
-  CURLcode result;
+  संरचना Curl_creader *reader = रिक्त;
+  CURLcode परिणाम;
 
-  result = Curl_creader_create(&reader, data, &cr_exp100, CURL_CR_PROTOCOL);
-  if(!result)
-    result = Curl_creader_add(data, reader);
-  if(!result) {
-    struct cr_exp100_ctx *ctx = reader->ctx;
+  परिणाम = Curl_creader_create(&reader, दत्त, &cr_exp100, CURL_CR_PROTOCOL);
+  यदि(!परिणाम)
+    परिणाम = Curl_creader_सङ्कलय(दत्त, reader);
+  यदि(!परिणाम) {
+    संरचना cr_exp100_ctx *ctx = reader->ctx;
     ctx->state = EXP100_SENDING_REQUEST;
   }
 
-  if(result && reader)
-    Curl_creader_free(data, reader);
-  return result;
+  यदि(परिणाम && reader)
+    Curl_creader_free(दत्त, reader);
+  प्रत्यागम परिणाम;
 }
 
-static void http_exp100_got100(struct Curl_easy *data)
+स्थिर शून्य http_exp100_got100(संरचना Curl_easy *दत्त)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  if(r)
-    http_exp100_continue(data, r);
+  संरचना Curl_creader *r = Curl_creader_get_by_type(दत्त, &cr_exp100);
+  यदि(r)
+    http_exp100_continue(दत्त, r);
 }
 
-static bool http_exp100_is_waiting(struct Curl_easy *data)
+स्थिर bool http_exp100_is_प्रतीक्षा(संरचना Curl_easy *दत्त)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  if(r) {
-    struct cr_exp100_ctx *ctx = r->ctx;
-    return ctx->state == EXP100_AWAITING_CONTINUE;
+  संरचना Curl_creader *r = Curl_creader_get_by_type(दत्त, &cr_exp100);
+  यदि(r) {
+    संरचना cr_exp100_ctx *ctx = r->ctx;
+    प्रत्यागम ctx->state == EXP100_AWAITING_CONTINUE;
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-static void http_exp100_send_anyway(struct Curl_easy *data)
+स्थिर शून्य http_exp100_send_anyway(संरचना Curl_easy *दत्त)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  if(r)
-    http_exp100_continue(data, r);
+  संरचना Curl_creader *r = Curl_creader_get_by_type(दत्त, &cr_exp100);
+  यदि(r)
+    http_exp100_continue(दत्त, r);
 }
 
-static bool http_exp100_is_selected(struct Curl_easy *data)
+स्थिर bool http_exp100_is_selected(संरचना Curl_easy *दत्त)
 {
-  struct Curl_creader *r = Curl_creader_get_by_type(data, &cr_exp100);
-  return !!r;
+  संरचना Curl_creader *r = Curl_creader_get_by_type(दत्त, &cr_exp100);
+  प्रत्यागम !!r;
 }
 
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we are always _sending_ a request and thus we wait for
    the single socket to become writable only */
-CURLcode Curl_http_doing_pollset(struct Curl_easy *data,
-                                 struct easy_pollset *ps)
+CURLcode Curl_http_doing_pollset(संरचना Curl_easy *दत्त,
+                                 संरचना easy_pollset *ps)
 {
   /* write mode */
-  return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
+  प्रत्यागम Curl_pollset_सङ्कलय_बहिर्गमनम्(दत्त, ps, दत्त->conn->sock[FIRSTSOCKET]);
 }
 
-CURLcode Curl_http_perform_pollset(struct Curl_easy *data,
-                                   struct easy_pollset *ps)
+CURLcode Curl_http_perform_pollset(संरचना Curl_easy *दत्त,
+                                   संरचना easy_pollset *ps)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
+  संरचना connectdata *conn = दत्त->conn;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(CURL_REQ_WANT_RECV(data)) {
-    result = Curl_pollset_add_in(data, ps, conn->sock[FIRSTSOCKET]);
+  यदि(CURL_REQ_WANT_RECV(दत्त)) {
+    परिणाम = Curl_pollset_सङ्कलय_अन्तर्(दत्त, ps, conn->sock[FIRSTSOCKET]);
   }
 
   /* on a "Expect: 100-continue" timed wait, do not poll for outgoing */
-  if(!result && Curl_req_want_send(data) && !http_exp100_is_waiting(data)) {
-    result = Curl_pollset_add_out(data, ps, conn->sock[FIRSTSOCKET]);
+  यदि(!परिणाम && Curl_req_want_send(दत्त) && !http_exp100_is_प्रतीक्षा(दत्त)) {
+    परिणाम = Curl_pollset_सङ्कलय_बहिर्गमनम्(दत्त, ps, conn->sock[FIRSTSOCKET]);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode http_write_header(struct Curl_easy *data,
-                                  const char *hd, size_t hdlen)
+स्थिर CURLcode http_write_शीर्षकम्(संरचना Curl_easy *दत्त,
+                                  ध्रुव वर्ण *hd, size_t hdlen)
 {
-  CURLcode result;
-  int writetype;
+  CURLcode परिणाम;
+  पूर्णाङ्क writetype;
 
   /* now, only output this if the header AND body are requested:
    */
-  Curl_debug(data, CURLINFO_HEADER_IN, hd, hdlen);
+  Curl_debug(दत्त, CURLINFO_शीर्षकम्_अन्तर्, hd, hdlen);
 
-  writetype = CLIENTWRITE_HEADER |
-    ((data->req.httpcode / 100 == 1) ? CLIENTWRITE_1XX : 0);
+  writetype = CLIENTWRITE_शीर्षकम् |
+    ((दत्त->req.httpcode / 100 == 1) ? CLIENTWRITE_1XX : 0);
 
-  result = Curl_client_write(data, writetype, hd, hdlen);
-  if(result)
-    return result;
+  परिणाम = Curl_client_write(दत्त, writetype, hd, hdlen);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
-  result = Curl_bump_headersize(data, hdlen, FALSE);
-  if(result)
-    return result;
+  परिणाम = Curl_bump_headersize(दत्त, hdlen, FALSE);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
-  data->req.deductheadercount = (100 <= data->req.httpcode &&
-                                 199 >= data->req.httpcode) ?
-    data->req.headerbytecount : 0;
-  return result;
+  दत्त->req.deductheadercount = (100 <= दत्त->req.httpcode &&
+                                 199 >= दत्त->req.httpcode) ?
+    दत्त->req.headerbytecount : 0;
+  प्रत्यागम परिणाम;
 }
 
 /*
@@ -1723,166 +1723,166 @@ static CURLcode http_write_header(struct Curl_easy *data,
  * performed.
  */
 
-CURLcode Curl_http_done(struct Curl_easy *data,
-                        CURLcode status, bool premature)
+CURLcode Curl_http_समाप्तम्(संरचना Curl_easy *दत्त,
+                        CURLcode स्थितिः, bool premature)
 {
-  struct connectdata *conn = data->conn;
+  संरचना connectdata *conn = दत्त->conn;
 
   /* Clear multipass flag. If authentication is not done yet, then it will get
    * a chance to be set back to true when we output the next auth header */
-  data->state.authhost.multipass = FALSE;
-  data->state.authproxy.multipass = FALSE;
+  दत्त->state.authhost.multipass = FALSE;
+  दत्त->state.authproxy.multipass = FALSE;
 
-  if(curlx_dyn_len(&data->state.headerb)) {
-    (void)http_write_header(data, curlx_dyn_ptr(&data->state.headerb),
-                            curlx_dyn_len(&data->state.headerb));
+  यदि(curlx_dyn_len(&दत्त->state.headerb)) {
+    (शून्य)http_write_शीर्षकम्(दत्त, curlx_dyn_ptr(&दत्त->state.headerb),
+                            curlx_dyn_len(&दत्त->state.headerb));
   }
-  curlx_dyn_reset(&data->state.headerb);
+  curlx_dyn_reset(&दत्त->state.headerb);
 
-  if(status)
-    return status;
+  यदि(स्थितिः)
+    प्रत्यागम स्थितिः;
 
-  if(!premature && /* this check is pointless when DONE is called before the
+  यदि(!premature && /* this check is pointless when DONE is called before the
                       entire operation is complete */
-     !conn->bits.retry &&
-     !data->set.connect_only &&
-     (data->req.bytecount +
-      data->req.headerbytecount -
-      data->req.deductheadercount) <= 0) {
+     !conn->द्वयङ्काः.retry &&
+     !दत्त->समुच्चयः.connect_only &&
+     (दत्त->req.bytecount +
+      दत्त->req.headerbytecount -
+      दत्त->req.deductheadercount) <= 0) {
     /* If this connection is not closed to be retried, AND nothing was
        read from the HTTP server (that counts), this cannot be right so we
        return an error here */
-    failf(data, "Empty reply from server");
+    failf(दत्त, "Empty reply from server");
     /* Mark it as closed to avoid the "left intact" message */
     streamclose(conn);
-    return CURLE_GOT_NOTHING;
+    प्रत्यागम CURLE_GOT_NOTHING;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Determine if we may use HTTP 1.1 for this request. */
-static bool http_may_use_1_1(const struct Curl_easy *data)
+स्थिर bool http_may_use_1_1(ध्रुव संरचना Curl_easy *दत्त)
 {
-  const struct connectdata *conn = data->conn;
+  ध्रुव संरचना connectdata *conn = दत्त->conn;
   /* We have seen a previous response for *this* transfer with 1.0,
    * on another connection or the same one. */
-  if(data->state.http_neg.rcvd_min == 10)
-    return FALSE;
+  यदि(दत्त->state.http_neg.rcvd_min == 10)
+    प्रत्यागम FALSE;
   /* We have seen a previous response on *this* connection with 1.0. */
-  if(conn && conn->httpversion_seen == 10)
-    return FALSE;
+  यदि(conn && conn->httpversion_आलोकितम् == 10)
+    प्रत्यागम FALSE;
   /* We want 1.0 and have seen no previous response on *this* connection
      with a higher version (maybe no response at all yet). */
-  if(data->state.http_neg.only_10 &&
-     (!conn || conn->httpversion_seen <= 10))
-    return FALSE;
+  यदि(दत्त->state.http_neg.only_10 &&
+     (!conn || conn->httpversion_आलोकितम् <= 10))
+    प्रत्यागम FALSE;
   /* We are not restricted to use 1.0 only. */
-  return !data->state.http_neg.only_10;
+  प्रत्यागम !दत्त->state.http_neg.only_10;
 }
 
-static unsigned char http_request_version(struct Curl_easy *data)
+स्थिर अचिह्नित वर्ण http_request_संस्करणम्(संरचना Curl_easy *दत्त)
 {
-  unsigned char v = Curl_conn_http_version(data, data->conn);
-  if(!v) {
+  अचिह्नित वर्ण v = Curl_conn_http_संस्करणम्(दत्त, दत्त->conn);
+  यदि(!v) {
     /* No specific HTTP connection filter installed. */
-    v = http_may_use_1_1(data) ? 11 : 10;
+    v = http_may_use_1_1(दत्त) ? 11 : 10;
   }
-  return v;
+  प्रत्यागम v;
 }
 
-static const char *get_http_string(int httpversion)
+स्थिर ध्रुव वर्ण *get_http_string(पूर्णाङ्क httpversion)
 {
-  switch(httpversion) {
-  case 30:
-    return "3";
-  case 20:
-    return "2";
-  case 11:
-    return "1.1";
-  default:
-    return "1.0";
+  विकल्प(httpversion) {
+  पक्ष 30:
+    प्रत्यागम "3";
+  पक्ष 20:
+    प्रत्यागम "2";
+  पक्ष 11:
+    प्रत्यागम "1.1";
+  स्वभाव:
+    प्रत्यागम "1.0";
   }
 }
 
-CURLcode Curl_add_custom_headers(struct Curl_easy *data,
-                                 bool is_connect, int httpversion,
-                                 struct dynbuf *req)
+CURLcode Curl_सङ्कलय_custom_शीर्षकाणि(संरचना Curl_easy *दत्त,
+                                 bool is_connect, पूर्णाङ्क httpversion,
+                                 संरचना dynbuf *req)
 {
-  struct curl_slist *h[2];
-  struct curl_slist *headers;
-  int numlists = 1; /* by default */
-  int i;
+  संरचना curl_slist *h[2];
+  संरचना curl_slist *शीर्षकाणि;
+  पूर्णाङ्क numlists = 1; /* by default */
+  पूर्णाङ्क i;
 
-#ifndef CURL_DISABLE_PROXY
-  enum Curl_proxy_use proxy;
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  गणना Curl_proxy_use proxy;
 
-  if(is_connect)
-    proxy = HEADER_CONNECT;
-  else
-    proxy = data->conn->bits.origin_is_proxy ? HEADER_PROXY : HEADER_SERVER;
+  यदि(is_connect)
+    proxy = शीर्षकम्_CONNECT;
+  अन्यथा
+    proxy = दत्त->conn->द्वयङ्काः.origin_is_proxy ? शीर्षकम्_PROXY : शीर्षकम्_SERVER;
 
-  switch(proxy) {
-  case HEADER_SERVER:
-    h[0] = data->set.headers;
-    break;
-  case HEADER_PROXY:
-    h[0] = data->set.headers;
-    if(data->set.sep_headers) {
-      h[1] = data->set.proxyheaders;
+  विकल्प(proxy) {
+  पक्ष शीर्षकम्_SERVER:
+    h[0] = दत्त->समुच्चयः.शीर्षकाणि;
+    भङ्ग;
+  पक्ष शीर्षकम्_PROXY:
+    h[0] = दत्त->समुच्चयः.शीर्षकाणि;
+    यदि(दत्त->समुच्चयः.sep_शीर्षकाणि) {
+      h[1] = दत्त->समुच्चयः.proxyheaders;
       numlists++;
     }
-    break;
-  case HEADER_CONNECT:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
-  case HEADER_CONNECT_UDP:
-    if(data->set.sep_headers)
-      h[0] = data->set.proxyheaders;
-    else
-      h[0] = data->set.headers;
-    break;
+    भङ्ग;
+  पक्ष शीर्षकम्_CONNECT:
+    यदि(दत्त->समुच्चयः.sep_शीर्षकाणि)
+      h[0] = दत्त->समुच्चयः.proxyheaders;
+    अन्यथा
+      h[0] = दत्त->समुच्चयः.शीर्षकाणि;
+    भङ्ग;
+  पक्ष शीर्षकम्_CONNECT_UDP:
+    यदि(दत्त->समुच्चयः.sep_शीर्षकाणि)
+      h[0] = दत्त->समुच्चयः.proxyheaders;
+    अन्यथा
+      h[0] = दत्त->समुच्चयः.शीर्षकाणि;
+    भङ्ग;
   }
-#else
-  (void)is_connect;
-  h[0] = data->set.headers;
-#endif
+#अन्यथा
+  (शून्य)is_connect;
+  h[0] = दत्त->समुच्चयः.शीर्षकाणि;
+#यदि_अन्तः
 
   /* loop through one or two lists */
-  for(i = 0; i < numlists; i++) {
-    for(headers = h[i]; headers; headers = headers->next) {
-      CURLcode result = CURLE_OK;
+  प्रति(i = 0; i < numlists; i++) {
+    प्रति(शीर्षकाणि = h[i]; शीर्षकाणि; शीर्षकाणि = शीर्षकाणि->अग्र) {
+      CURLcode परिणाम = CURLE_OK;
       bool blankheader = FALSE;
-      struct Curl_str name;
-      const char *p = headers->data;
-      const char *origp = p;
-      size_t hlen = strlen(origp);
+      संरचना Curl_str name;
+      ध्रुव वर्ण *p = शीर्षकाणि->दत्त;
+      ध्रुव वर्ण *origp = p;
+      size_t hlen = वाक्यदैर्घ्यम्(origp);
 
       /* explicitly asked to send header without content is done by a header
          that ends with a semicolon, but there must be no colon present in the
          name */
-      if(!curlx_str_until(&p, &name, hlen, ';') &&
+      यदि(!curlx_str_until(&p, &name, hlen, ';') &&
          !curlx_str_single(&p, ';') &&
          !curlx_str_single(&p, '\0') &&
          !memchr(curlx_str(&name), ':', curlx_strlen(&name)))
         blankheader = TRUE;
-      else {
+      अन्यथा {
         p = origp;
-        if(!curlx_str_until(&p, &name, hlen, ':') &&
+        यदि(!curlx_str_until(&p, &name, hlen, ':') &&
            !curlx_str_single(&p, ':')) {
-          struct Curl_str val;
+          संरचना Curl_str val;
           curlx_str_untilnl(&p, &val, hlen);
           curlx_str_trimblanks(&val);
-          if(!curlx_strlen(&val))
+          यदि(!curlx_strlen(&val))
             /* no content, do not send this */
-            continue;
+            अनुवर्त;
         }
-        else
+        अन्यथा
           /* no colon */
-          continue;
+          अनुवर्त;
       }
 
       /* a field name is a token and carries no surrounding whitespace, so
@@ -1893,98 +1893,98 @@ CURLcode Curl_add_custom_headers(struct Curl_easy *data,
 
       /* only send this if the contents was non-blank or done special */
 
-      if(data->state.http_host &&
+      यदि(दत्त->state.http_host &&
          /* a Host: header was sent already, do not pass on any custom
             Host: header as that will produce *two* in the same
             request! */
          curlx_str_casecompare(&name, "Host"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_FORM &&
+      अन्यथा यदि(दत्त->state.httpreq == HTTPREQ_POST_FORM &&
               /* this header (extended by formdata.c) is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->state.httpreq == HTTPREQ_POST_MIME &&
+      अन्यथा यदि(दत्त->state.httpreq == HTTPREQ_POST_MIME &&
               /* this header is sent later */
               curlx_str_casecompare(&name, "Content-Type"))
         ;
-      else if(data->req.authneg &&
+      अन्यथा यदि(दत्त->req.authneg &&
               /* while doing auth neg, do not allow the custom length since
                  we will force length zero then */
               curlx_str_casecompare(&name, "Content-Length"))
         ;
-      else if(curlx_str_casecompare(&name, "Connection"))
+      अन्यथा यदि(curlx_str_casecompare(&name, "Connection"))
         /* Connection headers are handled specially */
         ;
-      else if((httpversion >= 20) &&
+      अन्यथा यदि((httpversion >= 20) &&
               curlx_str_casecompare(&name, "Transfer-Encoding"))
         /* HTTP/2 does not support chunked requests */
         ;
-      else if((curlx_str_casecompare(&name, "Authorization") ||
+      अन्यथा यदि((curlx_str_casecompare(&name, "Authorization") ||
                curlx_str_casecompare(&name, "Cookie")) &&
               /* be careful of sending this potentially sensitive header to
                  other hosts */
-              !Curl_auth_allowed_to_host(data))
+              !Curl_auth_allowed_गन्तव्यम्_host(दत्त))
         ;
-      else if(blankheader) {
-        result = curlx_dyn_addn(req, curlx_str(&name), curlx_strlen(&name));
-        if(!result)
-          result = curlx_dyn_addn(req, STRCONST(":\r\n"));
+      अन्यथा यदि(blankheader) {
+        परिणाम = curlx_dyn_addn(req, curlx_str(&name), curlx_strlen(&name));
+        यदि(!परिणाम)
+          परिणाम = curlx_dyn_addn(req, STRCONST(":\r\n"));
       }
-      else
-        result = curlx_dyn_addf(req, "%s\r\n", origp);
+      अन्यथा
+        परिणाम = curlx_dyn_addf(req, "%s\r\n", origp);
 
-      if(result)
-        return result;
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#ifndef CURL_DISABLE_PARSEDATE
-CURLcode Curl_add_timecondition(struct Curl_easy *data,
-                                struct dynbuf *req)
+#यदि_अपरिभाषितम् CURL_DISABLE_PARSEDATE
+CURLcode Curl_सङ्कलय_timecondition(संरचना Curl_easy *दत्त,
+                                संरचना dynbuf *req)
 {
-  const struct tm *tm;
-  struct tm keeptime;
-  CURLcode result;
-  char datestr[80];
-  const char *condp;
+  ध्रुव संरचना tm *tm;
+  संरचना tm keeptime;
+  CURLcode परिणाम;
+  वर्ण datestr[80];
+  ध्रुव वर्ण *condp;
   size_t len;
 
-  if(data->set.timecondition == CURL_TIMECOND_NONE)
+  यदि(दत्त->समुच्चयः.timecondition == CURL_TIMECOND_NONE)
     /* no condition was asked for */
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
 
-  result = curlx_gmtime(data->set.timevalue, &keeptime);
-  if(result) {
-    failf(data, "Invalid TIMEVALUE");
-    return result;
+  परिणाम = curlx_gmtime(दत्त->समुच्चयः.timevalue, &keeptime);
+  यदि(परिणाम) {
+    failf(दत्त, "Invalid TIMEVALUE");
+    प्रत्यागम परिणाम;
   }
   tm = &keeptime;
 
-  switch(data->set.timecondition) {
-  default:
-    DEBUGF(infof(data, "invalid time condition"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  विकल्प(दत्त->समुच्चयः.timecondition) {
+  स्वभाव:
+    DEBUGF(infof(दत्त, "invalid time condition"));
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
-  case CURL_TIMECOND_IFMODSINCE:
+  पक्ष CURL_TIMECOND_IFMODSINCE:
     condp = "If-Modified-Since";
     len = 17;
-    break;
-  case CURL_TIMECOND_IFUNMODSINCE:
+    भङ्ग;
+  पक्ष CURL_TIMECOND_IFUNMODSINCE:
     condp = "If-Unmodified-Since";
     len = 19;
-    break;
-  case CURL_TIMECOND_LASTMOD:
+    भङ्ग;
+  पक्ष CURL_TIMECOND_LASTMOD:
     condp = "Last-Modified";
     len = 13;
-    break;
+    भङ्ग;
   }
 
-  if(Curl_checkheaders(data, condp, len)) {
+  यदि(Curl_checkheaders(दत्त, condp, len)) {
     /* A custom header was specified; it will be sent instead. */
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
 
   /* The If-Modified-Since header family should have their times set in
@@ -1995,7 +1995,7 @@ CURLcode Curl_add_timecondition(struct Curl_easy *data,
    */
 
   /* format: "Tue, 15 Nov 1994 12:45:26 GMT" */
-  curl_msnprintf(datestr, sizeof(datestr),
+  curl_msnprintf(datestr, परिमाण(datestr),
                  "%s: %s, %02d %s %4d %02d:%02d:%02d GMT\r\n",
                  condp,
                  Curl_wkday[tm->tm_wday ? tm->tm_wday - 1 : 6],
@@ -2006,175 +2006,175 @@ CURLcode Curl_add_timecondition(struct Curl_easy *data,
                  tm->tm_min,
                  tm->tm_sec);
 
-  result = curlx_dyn_add(req, datestr);
-  return result;
+  परिणाम = curlx_dyn_सङ्कलय(req, datestr);
+  प्रत्यागम परिणाम;
 }
-#else
+#अन्यथा
 /* disabled */
-CURLcode Curl_add_timecondition(struct Curl_easy *data,
-                                struct dynbuf *req)
+CURLcode Curl_सङ्कलय_timecondition(संरचना Curl_easy *दत्त,
+                                संरचना dynbuf *req)
 {
-  (void)data;
-  (void)req;
-  return CURLE_OK;
+  (शून्य)दत्त;
+  (शून्य)req;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
-void Curl_http_method(struct Curl_easy *data,
-                      const char **method, Curl_HttpReq *reqp)
+शून्य Curl_http_विधानम्(संरचना Curl_easy *दत्त,
+                      ध्रुव वर्ण **विधानम्, Curl_HttpReq *reqp)
 {
-  Curl_HttpReq httpreq = (Curl_HttpReq)data->state.httpreq;
-  const char *request;
-#ifndef CURL_DISABLE_WEBSOCKETS
-  if(data->conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
+  Curl_HttpReq httpreq = (Curl_HttpReq)दत्त->state.httpreq;
+  ध्रुव वर्ण *request;
+#यदि_अपरिभाषितम् CURL_DISABLE_WEBSOCKETS
+  यदि(दत्त->conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
     httpreq = HTTPREQ_GET;
-  else
-#endif
-  if((data->conn->scheme->protocol & (PROTO_FAMILY_HTTP | CURLPROTO_FTP)) &&
-     data->state.upload)
+  अन्यथा
+#यदि_अन्तः
+  यदि((दत्त->conn->scheme->protocol & (PROTO_FAMILY_HTTP | CURLPROTO_FTP)) &&
+     दत्त->state.upload)
     httpreq = HTTPREQ_PUT;
 
   /* Now set the 'request' pointer to the proper request string */
-  if(!data->state.http_ignorecustom &&
-     CURL_EASY_STR(data, STRING_CUSTOMREQUEST)) {
-    request = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  यदि(!दत्त->state.http_ignorecustom &&
+     CURL_EASY_STR(दत्त, STRING_CUSTOMREQUEST)) {
+    request = CURL_EASY_STR(दत्त, STRING_CUSTOMREQUEST);
   }
-  else {
-    if(data->req.no_body)
+  अन्यथा {
+    यदि(दत्त->req.no_body)
       request = "HEAD";
-    else {
-      DEBUGASSERT((httpreq >= HTTPREQ_GET) && (httpreq <= HTTPREQ_HEAD));
-      switch(httpreq) {
-      case HTTPREQ_POST:
-      case HTTPREQ_POST_FORM:
-      case HTTPREQ_POST_MIME:
+    अन्यथा {
+      DEBUGASSERT((httpreq >= HTTPREQ_GET) && (httpreq <= HTTPREQ_शीर्ष));
+      विकल्प(httpreq) {
+      पक्ष HTTPREQ_POST:
+      पक्ष HTTPREQ_POST_FORM:
+      पक्ष HTTPREQ_POST_MIME:
         request = "POST";
-        break;
-      case HTTPREQ_PUT:
+        भङ्ग;
+      पक्ष HTTPREQ_PUT:
         request = "PUT";
-        break;
-      default: /* this should never happen */
-      case HTTPREQ_GET:
+        भङ्ग;
+      स्वभाव: /* this should never happen */
+      पक्ष HTTPREQ_GET:
         request = "GET";
-        break;
-      case HTTPREQ_HEAD:
+        भङ्ग;
+      पक्ष HTTPREQ_शीर्ष:
         request = "HEAD";
-        break;
+        भङ्ग;
       }
     }
   }
-  *method = request;
+  *विधानम् = request;
   *reqp = httpreq;
 }
 
-static CURLcode http_set_aptr_host(struct Curl_easy *data)
+स्थिर CURLcode http_समुच्चयः_aptr_host(संरचना Curl_easy *दत्त)
 {
-  struct connectdata *conn = data->conn;
-  const char *ptr = NULL;
+  संरचना connectdata *conn = दत्त->conn;
+  ध्रुव वर्ण *ptr = रिक्त;
 
-  curlx_safefree(data->state.http_host);
-#ifndef CURL_DISABLE_COOKIES
-  curlx_safefree(data->req.cookiehost);
-#endif
+  curlx_safefree(दत्त->state.http_host);
+#यदि_अपरिभाषितम् CURL_DISABLE_COOKIES
+  curlx_safefree(दत्त->req.cookiehost);
+#यदि_अन्तः
 
-  if(Curl_peer_equal(data->state.initial_origin, data->state.origin))
-    ptr = Curl_checkheaders(data, STRCONST("Host"));
+  यदि(Curl_peer_equal(दत्त->state.initial_origin, दत्त->state.origin))
+    ptr = Curl_checkheaders(दत्त, STRCONST("Host"));
 
-  if(ptr) {
-#ifndef CURL_DISABLE_COOKIES
+  यदि(ptr) {
+#यदि_अपरिभाषितम् CURL_DISABLE_COOKIES
     /* If we have a given custom Host: header, we extract the hostname in
        order to possibly use it for cookie reasons later on. We only allow the
        custom Host: header if this is NOT a redirect, as setting Host: in the
        redirected request is being out on thin ice. Except if the hostname
        is the same as the first one! */
-    char *cookiehost;
-    CURLcode result = copy_custom_value(ptr, &cookiehost);
-    if(result)
-      return result;
-    if(!*cookiehost)
+    वर्ण *cookiehost;
+    CURLcode परिणाम = copy_custom_मानम्(ptr, &cookiehost);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
+    यदि(!*cookiehost)
       /* ignore empty data */
       curlx_free(cookiehost);
-    else {
+    अन्यथा {
       /* If the host begins with '[', we start searching for the port after
          the bracket has been closed */
-      if(*cookiehost == '[') {
-        char *closingbracket;
+      यदि(*cookiehost == '[') {
+        वर्ण *closingbracket;
         /* since the 'cookiehost' is an allocated memory area that will be
            freed later we cannot increment the pointer */
-        memmove(cookiehost, cookiehost + 1, strlen(cookiehost) - 1);
+        memmove(cookiehost, cookiehost + 1, वाक्यदैर्घ्यम्(cookiehost) - 1);
         closingbracket = strchr(cookiehost, ']');
-        if(closingbracket)
+        यदि(closingbracket)
           *closingbracket = 0;
       }
-      else {
-        int startsearch = 0;
-        char *colon = strchr(cookiehost + startsearch, ':');
-        if(colon)
+      अन्यथा {
+        पूर्णाङ्क startsearch = 0;
+        वर्ण *colon = strchr(cookiehost + startsearch, ':');
+        यदि(colon)
           *colon = 0; /* The host must not include an embedded port number */
       }
-      data->req.cookiehost = cookiehost;
+      दत्त->req.cookiehost = cookiehost;
     }
-#endif
+#यदि_अन्तः
 
-    if(!curl_strequal("Host:", ptr)) {
-      data->state.http_host = curl_maprintf("Host:%s", &ptr[5]);
-      if(!data->state.http_host)
-        return CURLE_OUT_OF_MEMORY;
+    यदि(!curl_strequal("Host:", ptr)) {
+      दत्त->state.http_host = curl_maprintf("Host:%s", &ptr[5]);
+      यदि(!दत्त->state.http_host)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
   }
-  else {
+  अन्यथा {
     /* This is the  HTTP Host: header, so we want
      * - for IPv6 origins: "[ipv6-address]" where the IPv6 address is
      *  found in origin->hostname, stripped of zoneid/scopeid.
      * - the (IDN converted) origin->hostname (DNS name or IPv4) otherwise.
      * Note: zoneid/scopeid  only applies to local routing and has no
      * meaning on the remote HTTP server (eg. would confuse it). */
-    bool ipv6 = (bool)data->state.origin->ipv6;
-    struct dynbuf tmp;
+    bool ipv6 = (bool)दत्त->state.origin->ipv6;
+    संरचना dynbuf tmp;
     size_t hlen;
-    CURLcode result;
+    CURLcode परिणाम;
 
     curlx_dyn_init(&tmp, DYN_HTTP_REQUEST);
-    result = curlx_dyn_addn(&tmp, STRCONST("Host: "));
-    if(!result && ipv6)
-      result = curlx_dyn_addn(&tmp, STRCONST("["));
-    if(!result)
-      result = curlx_dyn_add(&tmp, data->state.origin->hostname);
-    if(!result && ipv6)
-      result = curlx_dyn_addn(&tmp, STRCONST("]"));
-    if(!result &&
-       ((data->state.origin->port != data->state.origin->scheme->defport) ||
-       (data->state.origin->scheme->family != conn->scheme->family))) {
-      result = curlx_dyn_addf(&tmp, ":%u", data->state.origin->port);
+    परिणाम = curlx_dyn_addn(&tmp, STRCONST("Host: "));
+    यदि(!परिणाम && ipv6)
+      परिणाम = curlx_dyn_addn(&tmp, STRCONST("["));
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_सङ्कलय(&tmp, दत्त->state.origin->hostname);
+    यदि(!परिणाम && ipv6)
+      परिणाम = curlx_dyn_addn(&tmp, STRCONST("]"));
+    यदि(!परिणाम &&
+       ((दत्त->state.origin->पत्तनम् != दत्त->state.origin->scheme->defport) ||
+       (दत्त->state.origin->scheme->family != conn->scheme->family))) {
+      परिणाम = curlx_dyn_addf(&tmp, ":%u", दत्त->state.origin->पत्तनम्);
     }
 
-    data->state.http_host = result ? NULL : curlx_dyn_take(&tmp, &hlen);
+    दत्त->state.http_host = परिणाम ? रिक्त : curlx_dyn_take(&tmp, &hlen);
     curlx_dyn_free(&tmp);
-    return result;
+    प्रत्यागम परिणाम;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * Append the request-target to the HTTP request
  */
-static CURLcode http_target(struct Curl_easy *data,
-                            struct dynbuf *r)
+स्थिर CURLcode http_target(संरचना Curl_easy *दत्त,
+                            संरचना dynbuf *r)
 {
-  CURLcode result = CURLE_OK;
-  const char *path = data->state.up.path;
-  const char *query = data->state.up.query;
-#ifndef CURL_DISABLE_PROXY
-  struct connectdata *conn = data->conn;
-#endif
+  CURLcode परिणाम = CURLE_OK;
+  ध्रुव वर्ण *मार्गः = दत्त->state.ऊर्ध्वम्.मार्गः;
+  ध्रुव वर्ण *query = दत्त->state.ऊर्ध्वम्.query;
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  संरचना connectdata *conn = दत्त->conn;
+#यदि_अन्तः
 
-  if(CURL_EASY_STR(data, STRING_TARGET)) {
-    path = CURL_EASY_STR(data, STRING_TARGET);
-    query = NULL;
+  यदि(CURL_EASY_STR(दत्त, STRING_TARGET)) {
+    मार्गः = CURL_EASY_STR(दत्त, STRING_TARGET);
+    query = रिक्त;
   }
 
-#ifndef CURL_DISABLE_PROXY
-  if(conn->bits.origin_is_proxy) {
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  यदि(conn->द्वयङ्काः.origin_is_proxy) {
     /* Using a proxy but does not tunnel through it */
 
     /* The path sent to the proxy is in fact the entire URL, but if the remote
@@ -2183,724 +2183,724 @@ static CURLcode http_target(struct Curl_easy *data,
 
     /* and no fragment part */
     CURLUcode uc;
-    char *url;
-    CURLU *h = curl_url_dup(data->state.uh);
-    if(!h)
-      return CURLE_OUT_OF_MEMORY;
+    वर्ण *url;
+    CURLU *h = curl_url_dup(दत्त->state.uh);
+    यदि(!h)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-    if(!data->state.origin->ipv6 &&
-       (data->state.origin->user_hostname != data->state.origin->hostname)) {
-      uc = curl_url_set(h, CURLUPART_HOST, data->state.origin->hostname, 0);
-      if(uc) {
+    यदि(!दत्त->state.origin->ipv6 &&
+       (दत्त->state.origin->user_hostname != दत्त->state.origin->hostname)) {
+      uc = curl_url_समुच्चयः(h, CURLUPART_HOST, दत्त->state.origin->hostname, 0);
+      यदि(uc) {
         curl_url_cleanup(h);
-        return CURLE_OUT_OF_MEMORY;
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       }
     }
-    uc = curl_url_set(h, CURLUPART_FRAGMENT, NULL, 0);
-    if(uc) {
+    uc = curl_url_समुच्चयः(h, CURLUPART_FRAGMENT, रिक्त, 0);
+    यदि(uc) {
       curl_url_cleanup(h);
-      return CURLE_OUT_OF_MEMORY;
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
 
-    if(data->state.origin->scheme == &Curl_scheme_http) {
+    यदि(दत्त->state.origin->scheme == &Curl_scheme_http) {
       /* when getting HTTP, we do not want the userinfo the URL */
-      uc = curl_url_set(h, CURLUPART_USER, NULL, 0);
-      if(uc) {
+      uc = curl_url_समुच्चयः(h, CURLUPART_USER, रिक्त, 0);
+      यदि(uc) {
         curl_url_cleanup(h);
-        return CURLE_OUT_OF_MEMORY;
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       }
-      uc = curl_url_set(h, CURLUPART_PASSWORD, NULL, 0);
-      if(uc) {
+      uc = curl_url_समुच्चयः(h, CURLUPART_PASSWORD, रिक्त, 0);
+      यदि(uc) {
         curl_url_cleanup(h);
-        return CURLE_OUT_OF_MEMORY;
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       }
     }
-    else if(data->state.creds && (data->state.creds->source != CREDS_URL)) {
+    अन्यथा यदि(दत्त->state.creds && (दत्त->state.creds->source != CREDS_URL)) {
         /* credentials not from the URL need to be set */
-      uc = curl_url_set(h, CURLUPART_USER,
-                        data->state.creds->user, CURLU_URLENCODE);
-      if(!uc)
-        uc = curl_url_set(h, CURLUPART_PASSWORD,
-                          data->state.creds->passwd, CURLU_URLENCODE);
-      if(uc) {
+      uc = curl_url_समुच्चयः(h, CURLUPART_USER,
+                        दत्त->state.creds->user, CURLU_URLENCODE);
+      यदि(!uc)
+        uc = curl_url_समुच्चयः(h, CURLUPART_PASSWORD,
+                          दत्त->state.creds->passwd, CURLU_URLENCODE);
+      यदि(uc) {
         curl_url_cleanup(h);
-        return Curl_uc_to_curlcode(uc);
+        प्रत्यागम Curl_uc_गन्तव्यम्_curlcode(uc);
       }
     }
 
     /* Extract the URL to use in the request. */
-    uc = curl_url_get(h, CURLUPART_URL, &url, CURLU_NO_DEFAULT_PORT);
-    if(uc) {
+    uc = curl_url_get(h, CURLUPART_URL, &url, CURLU_NO_DEFAULT_पत्तनम्);
+    यदि(uc) {
       curl_url_cleanup(h);
-      return CURLE_OUT_OF_MEMORY;
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
 
     curl_url_cleanup(h);
 
     /* target or URL */
-    result = curlx_dyn_add(r, CURL_EASY_STR(data, STRING_TARGET) ?
-      CURL_EASY_STR(data, STRING_TARGET) : url);
+    परिणाम = curlx_dyn_सङ्कलय(r, CURL_EASY_STR(दत्त, STRING_TARGET) ?
+      CURL_EASY_STR(दत्त, STRING_TARGET) : url);
     curlx_free(url);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
-    if((data->state.origin->scheme == &Curl_scheme_ftp) &&
-       data->set.proxy_transfer_mode) {
+    यदि((दत्त->state.origin->scheme == &Curl_scheme_ftp) &&
+       दत्त->समुच्चयः.proxy_transfer_बहुलकम्) {
       /* when doing ftp, append ;type=<a|i> if not present */
-      size_t len = strlen(path);
+      size_t len = वाक्यदैर्घ्यम्(मार्गः);
       bool type_present = FALSE;
-      if((len >= 7) && !memcmp(&path[len - 7], ";type=", 6)) {
-        switch(Curl_raw_toupper(path[len - 1])) {
-        case 'A':
-        case 'D':
-        case 'I':
+      यदि((len >= 7) && !memcmp(&मार्गः[len - 7], ";type=", 6)) {
+        विकल्प(Curl_raw_toupper(मार्गः[len - 1])) {
+        पक्ष 'A':
+        पक्ष 'D':
+        पक्ष 'I':
           type_present = TRUE;
-          break;
+          भङ्ग;
         }
       }
-      if(!type_present) {
-        result = curlx_dyn_addf(r, ";type=%c",
-                                data->state.prefer_ascii ? 'a' : 'i');
-        if(result)
-          return result;
+      यदि(!type_present) {
+        परिणाम = curlx_dyn_addf(r, ";type=%c",
+                                दत्त->state.prefer_ascii ? 'a' : 'i');
+        यदि(परिणाम)
+          प्रत्यागम परिणाम;
       }
     }
   }
 
-  else
-#endif
+  अन्यथा
+#यदि_अन्तः
   {
-    result = curlx_dyn_add(r, path);
-    if(result)
-      return result;
-    if(query)
-      result = curlx_dyn_addf(r, "?%s", query);
+    परिणाम = curlx_dyn_सङ्कलय(r, मार्गः);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
+    यदि(query)
+      परिणाम = curlx_dyn_addf(r, "?%s", query);
   }
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-static CURLcode set_post_reader(struct Curl_easy *data, Curl_HttpReq httpreq)
+#यदि !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+स्थिर CURLcode समुच्चयः_post_reader(संरचना Curl_easy *दत्त, Curl_HttpReq httpreq)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
-  switch(httpreq) {
-#ifndef CURL_DISABLE_MIME
-  case HTTPREQ_POST_MIME:
-    data->state.mimepost = data->set.mimepostp;
-    break;
-#endif
-#ifndef CURL_DISABLE_FORM_API
-  case HTTPREQ_POST_FORM:
+  विकल्प(httpreq) {
+#यदि_अपरिभाषितम् CURL_DISABLE_MIME
+  पक्ष HTTPREQ_POST_MIME:
+    दत्त->state.mimepost = दत्त->समुच्चयः.mimepostp;
+    भङ्ग;
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_FORM_API
+  पक्ष HTTPREQ_POST_FORM:
     /* Convert the form structure into a mime structure, then keep
        the conversion */
-    if(!data->state.formp) {
-      data->state.formp = curlx_calloc(1, sizeof(curl_mimepart));
-      if(!data->state.formp)
-        return CURLE_OUT_OF_MEMORY;
-      Curl_mime_cleanpart(data->state.formp);
-      result = Curl_getformdata(data, data->state.formp, data->set.httppost,
-                                data->state.fread_func);
-      if(result) {
-        curlx_safefree(data->state.formp);
-        return result;
+    यदि(!दत्त->state.formp) {
+      दत्त->state.formp = curlx_calloc(1, परिमाण(curl_mimepart));
+      यदि(!दत्त->state.formp)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      Curl_mime_cleanpart(दत्त->state.formp);
+      परिणाम = Curl_getformdata(दत्त, दत्त->state.formp, दत्त->समुच्चयः.httppost,
+                                दत्त->state.fread_func);
+      यदि(परिणाम) {
+        curlx_safefree(दत्त->state.formp);
+        प्रत्यागम परिणाम;
       }
-      data->state.mimepost = data->state.formp;
+      दत्त->state.mimepost = दत्त->state.formp;
     }
-    break;
-#endif
-  default:
-    data->state.mimepost = NULL;
-    break;
+    भङ्ग;
+#यदि_अन्तः
+  स्वभाव:
+    दत्त->state.mimepost = रिक्त;
+    भङ्ग;
   }
 
-  switch(httpreq) {
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
+  विकल्प(httpreq) {
+  पक्ष HTTPREQ_POST_FORM:
+  पक्ष HTTPREQ_POST_MIME:
     /* This is form posting using mime data. */
-#ifndef CURL_DISABLE_MIME
-    if(data->state.mimepost) {
-      const char *cthdr = Curl_checkheaders(data, STRCONST("Content-Type"));
+#यदि_अपरिभाषितम् CURL_DISABLE_MIME
+    यदि(दत्त->state.mimepost) {
+      ध्रुव वर्ण *cthdr = Curl_checkheaders(दत्त, STRCONST("Content-Type"));
 
       /* Read and seek body only. */
-      data->state.mimepost->flags |= MIME_BODY_ONLY;
+      दत्त->state.mimepost->flags |= MIME_BODY_ONLY;
 
       /* Prepare the mime structure headers & set content type. */
 
-      if(cthdr)
-        for(cthdr += 13; *cthdr == ' '; cthdr++)
+      यदि(cthdr)
+        प्रति(cthdr += 13; *cthdr == ' '; cthdr++)
           ;
-      else if(data->state.mimepost->kind == MIMEKIND_MULTIPART)
+      अन्यथा यदि(दत्त->state.mimepost->विधा == MIMEKIND_MULTIPART)
         cthdr = "multipart/form-data";
 
-      curl_mime_headers(data->state.mimepost, data->set.headers, 0);
-      result = Curl_mime_prepare_headers(data, data->state.mimepost, cthdr,
-                                         NULL, MIMESTRATEGY_FORM);
-      if(result)
-        return result;
-      curl_mime_headers(data->state.mimepost, NULL, 0);
-      result = Curl_creader_set_mime(data, data->state.mimepost);
-      if(result)
-        return result;
+      curl_mime_शीर्षकाणि(दत्त->state.mimepost, दत्त->समुच्चयः.शीर्षकाणि, 0);
+      परिणाम = Curl_mime_prepare_शीर्षकाणि(दत्त, दत्त->state.mimepost, cthdr,
+                                         रिक्त, MIMESTRATEGY_FORM);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
+      curl_mime_शीर्षकाणि(दत्त->state.mimepost, रिक्त, 0);
+      परिणाम = Curl_creader_समुच्चयः_mime(दत्त, दत्त->state.mimepost);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    else
-#endif
+    अन्यथा
+#यदि_अन्तः
     {
-      result = Curl_creader_set_null(data);
+      परिणाम = Curl_creader_समुच्चयः_null(दत्त);
     }
-    data->state.infilesize = Curl_creader_total_length(data);
-    return result;
+    दत्त->state.infilesize = Curl_creader_योग_दीर्घता(दत्त);
+    प्रत्यागम परिणाम;
 
-  default:
-    return Curl_creader_set_null(data);
+  स्वभाव:
+    प्रत्यागम Curl_creader_समुच्चयः_null(दत्त);
   }
   /* never reached */
 }
-#endif
+#यदि_अन्तः
 
-static CURLcode set_reader(struct Curl_easy *data, Curl_HttpReq httpreq)
+स्थिर CURLcode समुच्चयः_reader(संरचना Curl_easy *दत्त, Curl_HttpReq httpreq)
 {
-  CURLcode result = CURLE_OK;
-  curl_off_t postsize = data->state.infilesize;
+  CURLcode परिणाम = CURLE_OK;
+  curl_off_t postsize = दत्त->state.infilesize;
 
-  DEBUGASSERT(data->conn);
+  DEBUGASSERT(दत्त->conn);
 
-  if(data->req.authneg) {
-    return Curl_creader_set_null(data);
+  यदि(दत्त->req.authneg) {
+    प्रत्यागम Curl_creader_समुच्चयः_null(दत्त);
   }
 
-  switch(httpreq) {
-  case HTTPREQ_PUT: /* Let's PUT the data to the server! */
-    return postsize ? Curl_creader_set_fread(data, postsize) :
-      Curl_creader_set_null(data);
+  विकल्प(httpreq) {
+  पक्ष HTTPREQ_PUT: /* Let's PUT the data to the server! */
+    प्रत्यागम postsize ? Curl_creader_समुच्चयः_fread(दत्त, postsize) :
+      Curl_creader_समुच्चयः_null(दत्त);
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-    return set_post_reader(data, httpreq);
-#endif
+#यदि !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  पक्ष HTTPREQ_POST_FORM:
+  पक्ष HTTPREQ_POST_MIME:
+    प्रत्यागम समुच्चयः_post_reader(दत्त, httpreq);
+#यदि_अन्तः
 
-  case HTTPREQ_POST:
+  पक्ष HTTPREQ_POST:
     /* this is the simple POST, using x-www-form-urlencoded style */
     /* the size of the post body */
-    if(!postsize) {
-      result = Curl_creader_set_null(data);
+    यदि(!postsize) {
+      परिणाम = Curl_creader_समुच्चयः_null(दत्त);
     }
-    else if(data->set.postfields) {
+    अन्यथा यदि(दत्त->समुच्चयः.postfields) {
       size_t plen = curlx_sotouz_range(postsize, 0, SIZE_MAX);
-      if(plen == SIZE_MAX)
-        return CURLE_OUT_OF_MEMORY;
-      else if(plen)
-        result = Curl_creader_set_buf(data, data->set.postfields, plen);
-      else
-        result = Curl_creader_set_null(data);
+      यदि(plen == SIZE_MAX)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      अन्यथा यदि(plen)
+        परिणाम = Curl_creader_समुच्चयः_buf(दत्त, दत्त->समुच्चयः.postfields, plen);
+      अन्यथा
+        परिणाम = Curl_creader_समुच्चयः_null(दत्त);
     }
-    else {
+    अन्यथा {
       /* we read the bytes from the callback. In case "chunked" encoding
        * is forced by the application, we disregard `postsize`. This is
        * a backward compatibility decision to earlier versions where
        * chunking disregarded this. See issue #13229. */
       bool chunked = FALSE;
-      char *ptr = Curl_checkheaders(data, STRCONST("Transfer-Encoding"));
-      if(ptr) {
+      वर्ण *ptr = Curl_checkheaders(दत्त, STRCONST("Transfer-Encoding"));
+      यदि(ptr) {
         /* Some kind of TE is requested, check if 'chunked' is chosen */
         chunked = Curl_compareheader(ptr, STRCONST("Transfer-Encoding:"),
                                      STRCONST("chunked"));
       }
-      result = Curl_creader_set_fread(data, chunked ? -1 : postsize);
+      परिणाम = Curl_creader_समुच्चयः_fread(दत्त, chunked ? -1 : postsize);
     }
-    return result;
+    प्रत्यागम परिणाम;
 
-  default:
+  स्वभाव:
     /* HTTP GET/HEAD download, has no body, needs no Content-Length */
-    data->state.infilesize = 0;
-    return Curl_creader_set_null(data);
+    दत्त->state.infilesize = 0;
+    प्रत्यागम Curl_creader_समुच्चयः_null(दत्त);
   }
   /* not reached */
 }
 
-static CURLcode http_resume(struct Curl_easy *data, Curl_HttpReq httpreq)
+स्थिर CURLcode http_resume(संरचना Curl_easy *दत्त, Curl_HttpReq httpreq)
 {
-  if((HTTPREQ_POST == httpreq || HTTPREQ_POST_FORM == httpreq ||
+  यदि((HTTPREQ_POST == httpreq || HTTPREQ_POST_FORM == httpreq ||
       HTTPREQ_POST_MIME == httpreq || HTTPREQ_PUT == httpreq) &&
-     data->state.resume_from) {
-    failf(data, "HTTP upload cannot be resumed");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+     दत्त->state.resume_from) {
+    failf(दत्त, "HTTP upload cannot be resumed");
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode http_req_set_TE(struct Curl_easy *data,
-                                struct dynbuf *req,
-                                int httpversion)
+स्थिर CURLcode http_req_समुच्चयः_TE(संरचना Curl_easy *दत्त,
+                                संरचना dynbuf *req,
+                                पूर्णाङ्क httpversion)
 {
-  CURLcode result = CURLE_OK;
-  const char *ptr;
+  CURLcode परिणाम = CURLE_OK;
+  ध्रुव वर्ण *ptr;
 
-  ptr = Curl_checkheaders(data, STRCONST("Transfer-Encoding"));
-  if(ptr) {
+  ptr = Curl_checkheaders(दत्त, STRCONST("Transfer-Encoding"));
+  यदि(ptr) {
     /* Some kind of TE is requested, check if 'chunked' is chosen */
-    data->req.upload_chunky =
+    दत्त->req.upload_chunky =
       Curl_compareheader(ptr,
                          STRCONST("Transfer-Encoding:"), STRCONST("chunked"));
-    if(data->req.upload_chunky && (httpversion >= 20)) {
-      infof(data, "suppressing chunked transfer encoding on connection "
+    यदि(दत्त->req.upload_chunky && (httpversion >= 20)) {
+      infof(दत्त, "suppressing chunked transfer encoding on connection "
             "using HTTP version 2 or higher");
-      data->req.upload_chunky = FALSE;
+      दत्त->req.upload_chunky = FALSE;
     }
   }
-  else {
-    curl_off_t req_clen = Curl_creader_total_length(data);
+  अन्यथा {
+    curl_off_t req_clen = Curl_creader_योग_दीर्घता(दत्त);
 
-    if(req_clen < 0) {
+    यदि(req_clen < 0) {
       /* indeterminate request content length */
-      if(httpversion > 10) {
+      यदि(httpversion > 10) {
         /* On HTTP/1.1, enable chunked, on HTTP/2 and later we do not
          * need it */
-        data->req.upload_chunky = (httpversion < 20);
+        दत्त->req.upload_chunky = (httpversion < 20);
       }
-      else {
-        failf(data, "Chunky upload is not supported by HTTP 1.0");
-        return CURLE_UPLOAD_FAILED;
+      अन्यथा {
+        failf(दत्त, "Chunky upload is not supported by HTTP 1.0");
+        प्रत्यागम CURLE_UPLOAD_FAILED;
       }
     }
-    else {
+    अन्यथा {
       /* else, no chunky upload */
-      data->req.upload_chunky = FALSE;
+      दत्त->req.upload_chunky = FALSE;
     }
 
-    if(data->req.upload_chunky)
-      result = curlx_dyn_add(req, "Transfer-Encoding: chunked\r\n");
+    यदि(दत्त->req.upload_chunky)
+      परिणाम = curlx_dyn_सङ्कलय(req, "Transfer-Encoding: chunked\r\n");
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode addexpect(struct Curl_easy *data, struct dynbuf *r,
-                          int httpversion, bool *announced_exp100)
+स्थिर CURLcode addexpect(संरचना Curl_easy *दत्त, संरचना dynbuf *r,
+                          पूर्णाङ्क httpversion, bool *announced_exp100)
 {
-  CURLcode result;
-  char *ptr;
+  CURLcode परिणाम;
+  वर्ण *ptr;
 
   *announced_exp100 = FALSE;
   /* Avoid Expect: 100-continue if Upgrade: is used */
-  if(data->req.upgr101 != UPGR101_NONE)
-    return CURLE_OK;
+  यदि(दत्त->req.upgr101 != UPGR101_NONE)
+    प्रत्यागम CURLE_OK;
 
   /* For really small puts we do not use Expect: headers at all, and for
      the somewhat bigger ones we allow the app to disable it. Make
      sure that the expect100header is always set to the preferred value
      here. */
-  ptr = Curl_checkheaders(data, STRCONST("Expect"));
-  if(ptr) {
+  ptr = Curl_checkheaders(दत्त, STRCONST("Expect"));
+  यदि(ptr) {
     *announced_exp100 =
       Curl_compareheader(ptr, STRCONST("Expect:"), STRCONST("100-continue"));
   }
-  else if(!data->state.disableexpect && (httpversion == 11)) {
+  अन्यथा यदि(!दत्त->state.disableexpect && (httpversion == 11)) {
     /* if not doing HTTP 1.0 or version 2, or disabled explicitly, we add an
        Expect: 100-continue to the headers which actually speeds up post
        operations (as there is one packet coming back from the web server) */
-    curl_off_t client_len = Curl_creader_client_length(data);
-    if(client_len > EXPECT_100_THRESHOLD || client_len < 0) {
-      result = curlx_dyn_addn(r, STRCONST("Expect: 100-continue\r\n"));
-      if(result)
-        return result;
+    curl_off_t client_len = Curl_creader_client_दीर्घता(दत्त);
+    यदि(client_len > EXPECT_100_देहली || client_len < 0) {
+      परिणाम = curlx_dyn_addn(r, STRCONST("Expect: 100-continue\r\n"));
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
       *announced_exp100 = TRUE;
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode http_add_content_hds(struct Curl_easy *data,
-                                     struct dynbuf *r,
-                                     int httpversion,
+स्थिर CURLcode http_सङ्कलय_content_hds(संरचना Curl_easy *दत्त,
+                                     संरचना dynbuf *r,
+                                     पूर्णाङ्क httpversion,
                                      Curl_HttpReq httpreq)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   curl_off_t req_clen;
   bool announced_exp100 = FALSE;
 
-  DEBUGASSERT(data->conn);
-  if(data->req.upload_chunky) {
-    result = Curl_httpchunk_add_reader(data);
-    if(result)
-      return result;
+  DEBUGASSERT(दत्त->conn);
+  यदि(दत्त->req.upload_chunky) {
+    परिणाम = Curl_httpchunk_सङ्कलय_reader(दत्त);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
 
   /* Get the request body length that has been set up */
-  req_clen = Curl_creader_total_length(data);
-  switch(httpreq) {
-  case HTTPREQ_PUT:
-  case HTTPREQ_POST:
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
-  case HTTPREQ_POST_FORM:
-  case HTTPREQ_POST_MIME:
-#endif
+  req_clen = Curl_creader_योग_दीर्घता(दत्त);
+  विकल्प(httpreq) {
+  पक्ष HTTPREQ_PUT:
+  पक्ष HTTPREQ_POST:
+#यदि !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+  पक्ष HTTPREQ_POST_FORM:
+  पक्ष HTTPREQ_POST_MIME:
+#यदि_अन्तः
     /* We only set Content-Length and allow a custom Content-Length if
        we do not upload data chunked, as RFC2616 forbids us to set both
        kinds of headers (Transfer-Encoding: chunked and Content-Length).
        We do not override a custom "Content-Length" header, but during
        authentication negotiation that header is suppressed.
      */
-    if(req_clen >= 0 && !data->req.upload_chunky &&
-       (data->req.authneg ||
-        !Curl_checkheaders(data, STRCONST("Content-Length")))) {
+    यदि(req_clen >= 0 && !दत्त->req.upload_chunky &&
+       (दत्त->req.authneg ||
+        !Curl_checkheaders(दत्त, STRCONST("Content-Length")))) {
       /* we allow replacing this header if not during auth negotiation,
          although it is not wise to actually set your own */
-      result = curlx_dyn_addf(r, "Content-Length: %" FMT_OFF_T "\r\n",
+      परिणाम = curlx_dyn_addf(r, "Content-Length: %" FMT_OFF_T "\r\n",
                               req_clen);
     }
-    if(result)
-      goto out;
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
 
-#ifndef CURL_DISABLE_MIME
+#यदि_अपरिभाषितम् CURL_DISABLE_MIME
     /* Output mime-generated headers. */
-    if(data->state.mimepost &&
+    यदि(दत्त->state.mimepost &&
        ((httpreq == HTTPREQ_POST_FORM) || (httpreq == HTTPREQ_POST_MIME))) {
-      struct curl_slist *hdr;
+      संरचना curl_slist *hdr;
 
-      for(hdr = data->state.mimepost->curlheaders; hdr; hdr = hdr->next) {
-        result = curlx_dyn_addf(r, "%s\r\n", hdr->data);
-        if(result)
-          goto out;
+      प्रति(hdr = दत्त->state.mimepost->curlheaders; hdr; hdr = hdr->अग्र) {
+        परिणाम = curlx_dyn_addf(r, "%s\r\n", hdr->दत्त);
+        यदि(परिणाम)
+          गच्छ बहिर्गमनम्;
       }
     }
-#endif
-    if(httpreq == HTTPREQ_POST &&
-       !Curl_checkheaders(data, STRCONST("Content-Type"))) {
-      result = curlx_dyn_addn(r, STRCONST("Content-Type: application/"
+#यदि_अन्तः
+    यदि(httpreq == HTTPREQ_POST &&
+       !Curl_checkheaders(दत्त, STRCONST("Content-Type"))) {
+      परिणाम = curlx_dyn_addn(r, STRCONST("Content-Type: application/"
                                           "x-www-form-urlencoded\r\n"));
-      if(result)
-        goto out;
+      यदि(परिणाम)
+        गच्छ बहिर्गमनम्;
     }
-    result = addexpect(data, r, httpversion, &announced_exp100);
-    if(result)
-      goto out;
-    break;
-  default:
-    break;
+    परिणाम = addexpect(दत्त, r, httpversion, &announced_exp100);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
+    भङ्ग;
+  स्वभाव:
+    भङ्ग;
   }
 
-  Curl_pgrsSetUploadSize(data, req_clen);
-  if(announced_exp100)
-    result = http_exp100_add_reader(data);
+  Curl_pgrs_समुच्चयः_Upload_आकार(दत्त, req_clen);
+  यदि(announced_exp100)
+    परिणाम = http_exp100_सङ्कलय_reader(दत्त);
 
-out:
-  return result;
+बहिर्गमनम्:
+  प्रत्यागम परिणाम;
 }
 
-#ifndef CURL_DISABLE_COOKIES
+#यदि_अपरिभाषितम् CURL_DISABLE_COOKIES
 
-static CURLcode http_cookies(struct Curl_easy *data,
-                             struct dynbuf *r)
+स्थिर CURLcode http_cookies(संरचना Curl_easy *दत्त,
+                             संरचना dynbuf *r)
 {
-  CURLcode result = CURLE_OK;
-  const char *addcookies = NULL;
+  CURLcode परिणाम = CURLE_OK;
+  ध्रुव वर्ण *addcookies = रिक्त;
   bool linecap = FALSE;
-  if(CURL_EASY_STR(data, STRING_COOKIE) &&
-     !Curl_checkheaders(data, STRCONST("Cookie")) &&
-     Curl_auth_allowed_to_host(data))
-    addcookies = CURL_EASY_STR(data, STRING_COOKIE);
+  यदि(CURL_EASY_STR(दत्त, STRING_COOKIE) &&
+     !Curl_checkheaders(दत्त, STRCONST("Cookie")) &&
+     Curl_auth_allowed_गन्तव्यम्_host(दत्त))
+    addcookies = CURL_EASY_STR(दत्त, STRING_COOKIE);
 
-  if(data->cookies || addcookies) {
-    struct Curl_llist list;
-    int count = 0;
+  यदि(दत्त->cookies || addcookies) {
+    संरचना Curl_llist list;
+    पूर्णाङ्क गणनम् = 0;
 
-    if(data->cookies && data->state.cookie_engine) {
+    यदि(दत्त->cookies && दत्त->state.cookie_engine) {
       bool okay;
-      const char *host = data->req.cookiehost ?
-        data->req.cookiehost : data->state.origin->hostname;
-      Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-      result = Curl_cookie_getlist(data, &okay, host, &list);
-      if(!result && okay) {
-        struct Curl_llist_node *n;
+      ध्रुव वर्ण *host = दत्त->req.cookiehost ?
+        दत्त->req.cookiehost : दत्त->state.origin->hostname;
+      Curl_share_तालकम्(दत्त, CURL_तालकम्_दत्त_COOKIE, CURL_तालकम्_ACCESS_SINGLE);
+      परिणाम = Curl_cookie_getlist(दत्त, &okay, host, &list);
+      यदि(!परिणाम && okay) {
+        संरचना Curl_llist_ग्रन्थिः *n;
         size_t clen = 8; /* hold the size of the generated Cookie: header */
 
         /* loop through all cookies that matched */
-        for(n = Curl_llist_head(&list); n; n = Curl_node_next(n)) {
-          struct Cookie *co = Curl_node_elem(n);
-          if(co->value) {
-            size_t add;
-            if(!count) {
-              result = curlx_dyn_addn(r, STRCONST("Cookie: "));
-              if(result)
-                break;
+        प्रति(n = Curl_llist_शीर्ष(&list); n; n = Curl_ग्रन्थिः_अग्र(n)) {
+          संरचना Cookie *co = Curl_ग्रन्थिः_elem(n);
+          यदि(co->मानम्) {
+            size_t सङ्कलय;
+            यदि(!गणनम्) {
+              परिणाम = curlx_dyn_addn(r, STRCONST("Cookie: "));
+              यदि(परिणाम)
+                भङ्ग;
             }
-            add = strlen(co->name) + strlen(co->value) + 1;
-            if(clen + add >= MAX_COOKIE_HEADER_LEN) {
-              infof(data, "Restricted outgoing cookies due to header size, "
+            सङ्कलय = वाक्यदैर्घ्यम्(co->name) + वाक्यदैर्घ्यम्(co->मानम्) + 1;
+            यदि(clen + सङ्कलय >= MAX_COOKIE_शीर्षकम्_LEN) {
+              infof(दत्त, "Restricted outgoing cookies due to header size, "
                     "'%s' not sent", co->name);
               linecap = TRUE;
-              break;
+              भङ्ग;
             }
-            result = curlx_dyn_addf(r, "%s%s=%s", count ? "; " : "",
-                                    co->name, co->value);
-            if(result)
-              break;
-            clen += add + (count ? 2 : 0);
-            count++;
+            परिणाम = curlx_dyn_addf(r, "%s%s=%s", गणनम् ? "; " : "",
+                                    co->name, co->मानम्);
+            यदि(परिणाम)
+              भङ्ग;
+            clen += सङ्कलय + (गणनम् ? 2 : 0);
+            गणनम्++;
           }
         }
-        Curl_llist_destroy(&list, NULL);
+        Curl_llist_destroy(&list, रिक्त);
       }
-      Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
+      Curl_share_unlock(दत्त, CURL_तालकम्_दत्त_COOKIE);
     }
-    if(addcookies && !result && !linecap) {
-      if(!count)
-        result = curlx_dyn_addn(r, STRCONST("Cookie: "));
-      if(!result) {
-        result = curlx_dyn_addf(r, "%s%s", count ? "; " : "", addcookies);
-        count++;
+    यदि(addcookies && !परिणाम && !linecap) {
+      यदि(!गणनम्)
+        परिणाम = curlx_dyn_addn(r, STRCONST("Cookie: "));
+      यदि(!परिणाम) {
+        परिणाम = curlx_dyn_addf(r, "%s%s", गणनम् ? "; " : "", addcookies);
+        गणनम्++;
       }
     }
-    if(count && !result)
-      result = curlx_dyn_addn(r, STRCONST("\r\n"));
+    यदि(गणनम् && !परिणाम)
+      परिणाम = curlx_dyn_addn(r, STRCONST("\r\n"));
 
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
-#else
-#define http_cookies(a, b) CURLE_OK
-#endif
+#अन्यथा
+#परिभाषय http_cookies(a, b) CURLE_OK
+#यदि_अन्तः
 
-static CURLcode http_range(struct Curl_easy *data,
+स्थिर CURLcode http_range(संरचना Curl_easy *दत्त,
                            Curl_HttpReq httpreq)
 {
-  if(data->state.use_range) {
+  यदि(दत्त->state.use_range) {
     /*
      * A range is selected. We use different headers whether we are downloading
      * or uploading and we always let customized headers override our internal
      * ones if any such are specified.
      */
-    if(((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_HEAD)) &&
-       !Curl_checkheaders(data, STRCONST("Range"))) {
+    यदि(((httpreq == HTTPREQ_GET) || (httpreq == HTTPREQ_शीर्ष)) &&
+       !Curl_checkheaders(दत्त, STRCONST("Range"))) {
       /* if a line like this was already allocated, free the previous one */
-      curlx_free(data->state.rangeline);
-      data->state.rangeline = curl_maprintf("Range: bytes=%s\r\n",
-                                                 data->state.range);
-      if(!data->state.rangeline)
-        return CURLE_OUT_OF_MEMORY;
+      curlx_free(दत्त->state.rangeline);
+      दत्त->state.rangeline = curl_maprintf("Range: bytes=%s\r\n",
+                                                 दत्त->state.range);
+      यदि(!दत्त->state.rangeline)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
-    else if((httpreq == HTTPREQ_POST || httpreq == HTTPREQ_PUT) &&
-            !Curl_checkheaders(data, STRCONST("Content-Range"))) {
-      curl_off_t req_clen = Curl_creader_total_length(data);
+    अन्यथा यदि((httpreq == HTTPREQ_POST || httpreq == HTTPREQ_PUT) &&
+            !Curl_checkheaders(दत्त, STRCONST("Content-Range"))) {
+      curl_off_t req_clen = Curl_creader_योग_दीर्घता(दत्त);
       /* if a line like this was already allocated, free the previous one */
-      curlx_free(data->state.rangeline);
+      curlx_free(दत्त->state.rangeline);
 
-      if(data->set.set_resume_from < 0) {
+      यदि(दत्त->समुच्चयः.समुच्चयः_resume_from < 0) {
         /* Upload resume was asked for, but we do not know the size of the
            remote part so we tell the server (and act accordingly) that we
            upload the whole file (again) */
-        data->state.rangeline =
+        दत्त->state.rangeline =
           curl_maprintf("Content-Range: bytes 0-%" FMT_OFF_T "/"
                         "%" FMT_OFF_T "\r\n", req_clen - 1, req_clen);
       }
-      else if(data->state.resume_from) {
+      अन्यथा यदि(दत्त->state.resume_from) {
         /* This is because "resume" was selected */
         /* Not sure if we want to send this header during authentication
          * negotiation, but test1084 checks for it. In which case we have a
          * "null" client reader installed that gives an unexpected length. */
-        curl_off_t total_len = data->req.authneg ?
-                               data->state.infilesize :
-                               (data->state.resume_from + req_clen);
-        data->state.rangeline =
+        curl_off_t योग_len = दत्त->req.authneg ?
+                               दत्त->state.infilesize :
+                               (दत्त->state.resume_from + req_clen);
+        दत्त->state.rangeline =
           curl_maprintf("Content-Range: bytes %s%" FMT_OFF_T "/"
                         "%" FMT_OFF_T "\r\n",
-                        data->state.range, total_len - 1, total_len);
+                        दत्त->state.range, योग_len - 1, योग_len);
       }
-      else {
+      अन्यथा {
         /* Range was selected and then we pass the incoming range and append
            total size */
-        data->state.rangeline =
+        दत्त->state.rangeline =
           curl_maprintf("Content-Range: bytes %s/%" FMT_OFF_T "\r\n",
-                        data->state.range, req_clen);
+                        दत्त->state.range, req_clen);
       }
-      if(!data->state.rangeline)
-        return CURLE_OUT_OF_MEMORY;
+      यदि(!दत्त->state.rangeline)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode http_firstwrite(struct Curl_easy *data)
+स्थिर CURLcode http_firstwrite(संरचना Curl_easy *दत्त)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
+  संरचना connectdata *conn = दत्त->conn;
+  संरचना SingleRequest *k = &दत्त->req;
 
-  if(data->req.newurl) {
-    if(conn->bits.close) {
+  यदि(दत्त->req.newurl) {
+    यदि(conn->द्वयङ्काः.close) {
       /* Abort after the headers if "follow Location" is set
          and we are set to close anyway. */
-      CURL_REQ_CLEAR_RECV(data);
-      k->done = TRUE;
-      return CURLE_OK;
+      CURL_REQ_CLEAR_RECV(दत्त);
+      k->समाप्तम् = TRUE;
+      प्रत्यागम CURLE_OK;
     }
     /* We have a new URL to load, but since we want to be able to reuse this
        connection properly, we read the full response in "ignore more" */
     k->ignorebody = TRUE;
-    infof(data, "Ignoring the response-body");
+    infof(दत्त, "Ignoring the response-body");
   }
-  if(data->state.resume_from && !k->content_range &&
-     (data->state.httpreq == HTTPREQ_GET) &&
+  यदि(दत्त->state.resume_from && !k->content_range &&
+     (दत्त->state.httpreq == HTTPREQ_GET) &&
      !k->ignorebody) {
 
-    if(k->size == data->state.resume_from) {
+    यदि(k->आकार == दत्त->state.resume_from) {
       /* The resume point is at the end of file, consider this fine even if it
          does not allow resume from here. */
-      infof(data, "The entire document is already downloaded");
+      infof(दत्त, "The entire document is already downloaded");
       streamclose(conn);
       /* Abort download */
-      CURL_REQ_CLEAR_RECV(data);
-      k->done = TRUE;
-      return CURLE_OK;
+      CURL_REQ_CLEAR_RECV(दत्त);
+      k->समाप्तम् = TRUE;
+      प्रत्यागम CURLE_OK;
     }
 
     /* we wanted to resume a download, although the server does not seem to
      * support this and we did this with a GET (if it was not a GET we did a
      * POST or PUT resume) */
-    failf(data, "HTTP server does not seem to support "
+    failf(दत्त, "HTTP server does not seem to support "
           "byte ranges. Cannot resume.");
-    return CURLE_RANGE_ERROR;
+    प्रत्यागम CURLE_RANGE_ERROR;
   }
 
-  if(data->set.timecondition && !data->state.range &&
+  यदि(दत्त->समुच्चयः.timecondition && !दत्त->state.range &&
      /* A time condition has been set AND no ranges have been requested. This
         seems to be what chapter 13.3.4 of RFC 2616 defines to be the correct
         action for an HTTP/1.1 client */
-     !Curl_meets_timecondition(data, k->timeofdoc)) {
-    k->done = TRUE;
+     !Curl_meets_timecondition(दत्त, k->timeofdoc)) {
+    k->समाप्तम् = TRUE;
     /* We are simulating an HTTP 304 from server so we return
        what should have been returned from the server */
-    data->info.httpcode = 304;
-    infof(data, "Simulate an HTTP 304 response");
+    दत्त->info.httpcode = 304;
+    infof(दत्त, "Simulate an HTTP 304 response");
     /* we abort the transfer before it is completed == we ruin the
        reuse ability. Close the connection */
     streamclose(conn);
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   } /* we have a time condition */
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode http_check_new_conn(struct Curl_easy *data)
+स्थिर CURLcode http_check_new_conn(संरचना Curl_easy *दत्त)
 {
-  struct connectdata *conn = data->conn;
-  const char *info_version = NULL;
-  const char *alpn;
-  CURLcode result;
+  संरचना connectdata *conn = दत्त->conn;
+  ध्रुव वर्ण *info_संस्करणम् = रिक्त;
+  ध्रुव वर्ण *alpn;
+  CURLcode परिणाम;
 
-  alpn = Curl_conn_get_alpn_negotiated(data, conn);
-  if(alpn && !strcmp("h3", alpn)) {
-#ifndef CURL_DISABLE_PROXY
-    if(!conn->bits.origin_is_proxy)
-#endif
-      DEBUGASSERT(Curl_conn_http_version(data, conn) == 30);
-    info_version = "HTTP/3";
+  alpn = Curl_conn_get_alpn_negotiated(दत्त, conn);
+  यदि(alpn && !वाक्यं_तुलय("h3", alpn)) {
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+    यदि(!conn->द्वयङ्काः.origin_is_proxy)
+#यदि_अन्तः
+      DEBUGASSERT(Curl_conn_http_संस्करणम्(दत्त, conn) == 30);
+    info_संस्करणम् = "HTTP/3";
   }
-  else if(alpn && !strcmp("h2", alpn)) {
-#ifndef CURL_DISABLE_PROXY
-    if((Curl_conn_http_version(data, conn) != 20) &&
-       conn->bits.origin_is_proxy) {
-      result = Curl_http2_switch(data);
-      if(result)
-        return result;
+  अन्यथा यदि(alpn && !वाक्यं_तुलय("h2", alpn)) {
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+    यदि((Curl_conn_http_संस्करणम्(दत्त, conn) != 20) &&
+       conn->द्वयङ्काः.origin_is_proxy) {
+      परिणाम = Curl_http2_switch(दत्त);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    else
-#endif
-    DEBUGASSERT(Curl_conn_http_version(data, conn) == 20);
-    info_version = "HTTP/2";
+    अन्यथा
+#यदि_अन्तः
+    DEBUGASSERT(Curl_conn_http_संस्करणम्(दत्त, conn) == 20);
+    info_संस्करणम् = "HTTP/2";
   }
-  else {
+  अन्यथा {
     /* Check if user wants to use HTTP/2 with clear TCP */
-    if(Curl_http2_may_switch(data)) {
-      DEBUGF(infof(data, "HTTP/2 over clean TCP"));
-      result = Curl_http2_switch(data);
-      if(result)
-        return result;
-      info_version = "HTTP/2";
+    यदि(Curl_http2_may_switch(दत्त)) {
+      DEBUGF(infof(दत्त, "HTTP/2 over clean TCP"));
+      परिणाम = Curl_http2_switch(दत्त);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
+      info_संस्करणम् = "HTTP/2";
       /* There is no ALPN here, but the connection is now definitely h2 */
-      conn->httpversion_seen = 20;
-      Curl_conn_set_multiplex(conn);
+      conn->httpversion_आलोकितम् = 20;
+      Curl_conn_समुच्चयः_multiplex(conn);
     }
-    else
-      info_version = "HTTP/1.x";
+    अन्यथा
+      info_संस्करणम् = "HTTP/1.x";
   }
 
-  if(info_version)
-    infof(data, "using %s", info_version);
-  return CURLE_OK;
+  यदि(info_संस्करणम्)
+    infof(दत्त, "using %s", info_संस्करणम्);
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode http_add_connection_hd(struct Curl_easy *data,
-                                       struct dynbuf *req)
+स्थिर CURLcode http_सङ्कलय_connection_hd(संरचना Curl_easy *दत्त,
+                                       संरचना dynbuf *req)
 {
-  struct curl_slist *head;
-  const char *sep = "Connection: ";
-  CURLcode result = CURLE_OK;
+  संरचना curl_slist *शीर्ष;
+  ध्रुव वर्ण *sep = "Connection: ";
+  CURLcode परिणाम = CURLE_OK;
   size_t rlen = curlx_dyn_len(req);
   bool skip;
 
   /* Add the 1st custom "Connection: " header, if there is one */
-  for(head = data->set.headers; head; head = head->next) {
-    if(curl_strnequal(head->data, "Connection", 10) &&
-       Curl_headersep(head->data[10]) &&
-       !http_header_is_empty(head->data)) {
-      char *value;
-      result = copy_custom_value(head->data, &value);
-      if(result)
-        return result;
-      result = curlx_dyn_addf(req, "%s%s", sep, value);
+  प्रति(शीर्ष = दत्त->समुच्चयः.शीर्षकाणि; शीर्ष; शीर्ष = शीर्ष->अग्र) {
+    यदि(curl_strnequal(शीर्ष->दत्त, "Connection", 10) &&
+       Curl_headersep(शीर्ष->दत्त[10]) &&
+       !http_शीर्षकम्_is_रिक्तानि(शीर्ष->दत्त)) {
+      वर्ण *मानम्;
+      परिणाम = copy_custom_मानम्(शीर्ष->दत्त, &मानम्);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
+      परिणाम = curlx_dyn_addf(req, "%s%s", sep, मानम्);
       sep = ", ";
-      curlx_free(value);
-      break; /* leave, having added 1st one */
+      curlx_free(मानम्);
+      भङ्ग; /* leave, having added 1st one */
     }
   }
 
   /* add our internal Connection: header values, if we have any */
-  if(!result && data->state.http_hd_te) {
-    result = curlx_dyn_addf(req, "%s%s", sep, "TE");
+  यदि(!परिणाम && दत्त->state.http_hd_te) {
+    परिणाम = curlx_dyn_addf(req, "%s%s", sep, "TE");
     sep = ", ";
   }
-  if(!result && data->state.http_hd_upgrade) {
-    result = curlx_dyn_addf(req, "%s%s", sep, "Upgrade");
+  यदि(!परिणाम && दत्त->state.http_hd_upgrade) {
+    परिणाम = curlx_dyn_addf(req, "%s%s", sep, "Upgrade");
     sep = ", ";
   }
-  if(!result && data->state.http_hd_h2_settings) {
-    result = curlx_dyn_addf(req, "%s%s", sep, "HTTP2-Settings");
+  यदि(!परिणाम && दत्त->state.http_hd_h2_settings) {
+    परिणाम = curlx_dyn_addf(req, "%s%s", sep, "HTTP2-Settings");
   }
-  if(!result && (rlen < curlx_dyn_len(req)))
-    result = curlx_dyn_addn(req, STRCONST("\r\n"));
-  if(result)
-    return result;
+  यदि(!परिणाम && (rlen < curlx_dyn_len(req)))
+    परिणाम = curlx_dyn_addn(req, STRCONST("\r\n"));
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
   /* Add all user-defined Connection: headers after the first */
   skip = TRUE;
-  for(head = data->set.headers; head; head = head->next) {
-    if(curl_strnequal(head->data, "Connection", 10) &&
-       Curl_headersep(head->data[10]) &&
-       !http_header_is_empty(head->data)) {
-      if(skip) {
+  प्रति(शीर्ष = दत्त->समुच्चयः.शीर्षकाणि; शीर्ष; शीर्ष = शीर्ष->अग्र) {
+    यदि(curl_strnequal(शीर्ष->दत्त, "Connection", 10) &&
+       Curl_headersep(शीर्ष->दत्त[10]) &&
+       !http_शीर्षकम्_is_रिक्तानि(शीर्ष->दत्त)) {
+      यदि(skip) {
         skip = FALSE;
-        continue;
+        अनुवर्त;
       }
-      result = curlx_dyn_addf(req, "%s\r\n", head->data);
-      if(result)
-        return result;
+      परिणाम = curlx_dyn_addf(req, "%s\r\n", शीर्ष->दत्त);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Header identifier in order we send them by default */
-typedef enum {
+प्रकारनिर्देश गणना {
   H1_HD_REQUEST,
   H1_HD_HOST,
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
   H1_HD_PROXY_AUTH,
-#endif
+#यदि_अन्तः
   H1_HD_AUTH,
   H1_HD_RANGE,
   H1_HD_USER_AGENT,
@@ -2908,170 +2908,170 @@ typedef enum {
   H1_HD_TE,
   H1_HD_ACCEPT_ENCODING,
   H1_HD_REFERER,
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
   H1_HD_PROXY_CONNECTION,
-#endif
+#यदि_अन्तः
   H1_HD_TRANSFER_ENCODING,
-#ifndef CURL_DISABLE_ALTSVC
-  H1_HD_ALT_USED,
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_ALTSVC
+  H1_HD_ALT_प्रयुक्तम्,
+#यदि_अन्तः
   H1_HD_UPGRADE,
   H1_HD_COOKIES,
   H1_HD_CONDITIONALS,
   H1_HD_CUSTOM,
   H1_HD_CONTENT,
   H1_HD_CONNECTION,
-  H1_HD_LAST  /* the last, empty header line */
+  H1_HD_चरमः  /* the last, empty header line */
 } http_hd_t;
 
-static CURLcode http_add_hd(struct Curl_easy *data,
-                            struct dynbuf *req,
+स्थिर CURLcode http_सङ्कलय_hd(संरचना Curl_easy *दत्त,
+                            संरचना dynbuf *req,
                             http_hd_t id,
-                            unsigned char httpversion,
-                            const char *method,
+                            अचिह्नित वर्ण httpversion,
+                            ध्रुव वर्ण *विधानम्,
                             Curl_HttpReq httpreq)
 {
-  CURLcode result = CURLE_OK;
-#if !defined(CURL_DISABLE_ALTSVC) || \
+  CURLcode परिणाम = CURLE_OK;
+#यदि !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_PROXY) || \
   !defined(CURL_DISABLE_WEBSOCKETS)
-  struct connectdata *conn = data->conn;
-#endif
-  switch(id) {
-  case H1_HD_REQUEST:
+  संरचना connectdata *conn = दत्त->conn;
+#यदि_अन्तः
+  विकल्प(id) {
+  पक्ष H1_HD_REQUEST:
     /* add the main request stuff */
     /* GET/HEAD/POST/PUT */
-    result = curlx_dyn_addf(req, "%s ", method);
-    if(!result)
-      result = http_target(data, req);
-    if(!result)
-      result = curlx_dyn_addf(req, " HTTP/%s\r\n",
+    परिणाम = curlx_dyn_addf(req, "%s ", विधानम्);
+    यदि(!परिणाम)
+      परिणाम = http_target(दत्त, req);
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addf(req, " HTTP/%s\r\n",
                               get_http_string(httpversion));
-    break;
+    भङ्ग;
 
-  case H1_HD_HOST:
-    if(data->state.http_host) {
-      result = curlx_dyn_add(req, data->state.http_host);
-      if(!result)
-        result = curlx_dyn_addn(req, STRCONST("\r\n"));
+  पक्ष H1_HD_HOST:
+    यदि(दत्त->state.http_host) {
+      परिणाम = curlx_dyn_सङ्कलय(req, दत्त->state.http_host);
+      यदि(!परिणाम)
+        परिणाम = curlx_dyn_addn(req, STRCONST("\r\n"));
     }
-    break;
+    भङ्ग;
 
-#ifndef CURL_DISABLE_PROXY
-  case H1_HD_PROXY_AUTH:
-    if(data->req.hd_proxy_auth)
-      result = curlx_dyn_add(req, data->req.hd_proxy_auth);
-    break;
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  पक्ष H1_HD_PROXY_AUTH:
+    यदि(दत्त->req.hd_proxy_auth)
+      परिणाम = curlx_dyn_सङ्कलय(req, दत्त->req.hd_proxy_auth);
+    भङ्ग;
+#यदि_अन्तः
 
-  case H1_HD_AUTH:
-    if(data->req.hd_auth)
-      result = curlx_dyn_add(req, data->req.hd_auth);
-    break;
+  पक्ष H1_HD_AUTH:
+    यदि(दत्त->req.hd_auth)
+      परिणाम = curlx_dyn_सङ्कलय(req, दत्त->req.hd_auth);
+    भङ्ग;
 
-  case H1_HD_RANGE:
-    if(data->state.use_range && data->state.rangeline)
-      result = curlx_dyn_add(req, data->state.rangeline);
-    break;
+  पक्ष H1_HD_RANGE:
+    यदि(दत्त->state.use_range && दत्त->state.rangeline)
+      परिणाम = curlx_dyn_सङ्कलय(req, दत्त->state.rangeline);
+    भङ्ग;
 
-  case H1_HD_USER_AGENT: {
-    const char *ua = CURL_EASY_STR(data, STRING_USERAGENT);
-    if(ua && *ua && !Curl_checkheaders(data, STRCONST("User-Agent")))
-      result = curlx_dyn_addf(req, "User-Agent: %s\r\n", ua);
-    break;
+  पक्ष H1_HD_USER_AGENT: {
+    ध्रुव वर्ण *ua = CURL_EASY_STR(दत्त, STRING_USERAGENT);
+    यदि(ua && *ua && !Curl_checkheaders(दत्त, STRCONST("User-Agent")))
+      परिणाम = curlx_dyn_addf(req, "User-Agent: %s\r\n", ua);
+    भङ्ग;
   }
 
-  case H1_HD_ACCEPT:
-    if(!Curl_checkheaders(data, STRCONST("Accept")))
-      result = curlx_dyn_add(req, "Accept: */*\r\n");
-    break;
+  पक्ष H1_HD_ACCEPT:
+    यदि(!Curl_checkheaders(दत्त, STRCONST("Accept")))
+      परिणाम = curlx_dyn_सङ्कलय(req, "Accept: */*\r\n");
+    भङ्ग;
 
-  case H1_HD_TE:
-#ifdef HAVE_LIBZ
-    if(!Curl_checkheaders(data, STRCONST("TE")) &&
-       data->set.http_transfer_encoding) {
-      data->state.http_hd_te = TRUE;
-      result = curlx_dyn_add(req, "TE: gzip\r\n");
+  पक्ष H1_HD_TE:
+#यदि_परिभाषितम् HAVE_LIBZ
+    यदि(!Curl_checkheaders(दत्त, STRCONST("TE")) &&
+       दत्त->समुच्चयः.http_transfer_encoding) {
+      दत्त->state.http_hd_te = TRUE;
+      परिणाम = curlx_dyn_सङ्कलय(req, "TE: gzip\r\n");
     }
-#endif
-    break;
+#यदि_अन्तः
+    भङ्ग;
 
-  case H1_HD_ACCEPT_ENCODING: {
-    const char *enc = CURL_EASY_STR(data, STRING_ENCODING);
-    if(enc && !Curl_checkheaders(data, STRCONST("Accept-Encoding")))
-      result = curlx_dyn_addf(req, "Accept-Encoding: %s\r\n", enc);
-    break;
+  पक्ष H1_HD_ACCEPT_ENCODING: {
+    ध्रुव वर्ण *enc = CURL_EASY_STR(दत्त, STRING_ENCODING);
+    यदि(enc && !Curl_checkheaders(दत्त, STRCONST("Accept-Encoding")))
+      परिणाम = curlx_dyn_addf(req, "Accept-Encoding: %s\r\n", enc);
+    भङ्ग;
   }
 
-  case H1_HD_REFERER:
-    if(Curl_bufref_ptr(&data->state.referer) &&
-       !Curl_checkheaders(data, STRCONST("Referer")))
-      result = curlx_dyn_addf(req, "Referer: %s\r\n",
-                              Curl_bufref_ptr(&data->state.referer));
-    break;
+  पक्ष H1_HD_REFERER:
+    यदि(Curl_bufref_ptr(&दत्त->state.referer) &&
+       !Curl_checkheaders(दत्त, STRCONST("Referer")))
+      परिणाम = curlx_dyn_addf(req, "Referer: %s\r\n",
+                              Curl_bufref_ptr(&दत्त->state.referer));
+    भङ्ग;
 
-#ifndef CURL_DISABLE_PROXY
-  case H1_HD_PROXY_CONNECTION:
-    if(conn->bits.origin_is_proxy &&
-       !Curl_checkheaders(data, STRCONST("Proxy-Connection")) &&
-       !Curl_checkProxyheaders(data, data->conn, STRCONST("Proxy-Connection")))
-      result = curlx_dyn_add(req, "Proxy-Connection: Keep-Alive\r\n");
-    break;
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  पक्ष H1_HD_PROXY_CONNECTION:
+    यदि(conn->द्वयङ्काः.origin_is_proxy &&
+       !Curl_checkheaders(दत्त, STRCONST("Proxy-Connection")) &&
+       !Curl_checkProxyheaders(दत्त, दत्त->conn, STRCONST("Proxy-Connection")))
+      परिणाम = curlx_dyn_सङ्कलय(req, "Proxy-Connection: Keep-Alive\r\n");
+    भङ्ग;
+#यदि_अन्तः
 
-  case H1_HD_TRANSFER_ENCODING:
-    result = http_req_set_TE(data, req, httpversion);
-    break;
+  पक्ष H1_HD_TRANSFER_ENCODING:
+    परिणाम = http_req_समुच्चयः_TE(दत्त, req, httpversion);
+    भङ्ग;
 
-#ifndef CURL_DISABLE_ALTSVC
-  case H1_HD_ALT_USED:
-    if(conn->bits.altused && conn->via_peer &&
-       !Curl_checkheaders(data, STRCONST("Alt-Used")))
-      result = curlx_dyn_addf(req, "Alt-Used: %s:%u\r\n",
-                              conn->via_peer->hostname, conn->via_peer->port);
-    break;
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_ALTSVC
+  पक्ष H1_HD_ALT_प्रयुक्तम्:
+    यदि(conn->द्वयङ्काः.altused && conn->द्वारा_peer &&
+       !Curl_checkheaders(दत्त, STRCONST("Alt-Used")))
+      परिणाम = curlx_dyn_addf(req, "Alt-Used: %s:%u\r\n",
+                              conn->द्वारा_peer->hostname, conn->द्वारा_peer->पत्तनम्);
+    भङ्ग;
+#यदि_अन्तः
 
-  case H1_HD_UPGRADE:
-    if(!Curl_conn_is_ssl(data->conn, FIRSTSOCKET) && (httpversion < 20) &&
-       (data->state.http_neg.wanted & CURL_HTTP_V2x) &&
-       data->state.http_neg.h2_upgrade) {
+  पक्ष H1_HD_UPGRADE:
+    यदि(!Curl_conn_is_ssl(दत्त->conn, FIRSTSOCKET) && (httpversion < 20) &&
+       (दत्त->state.http_neg.wanted & CURL_HTTP_V2x) &&
+       दत्त->state.http_neg.h2_upgrade) {
       /* append HTTP2 upgrade magic stuff to the HTTP request if it is not done
          over SSL */
-      result = Curl_http2_request_upgrade(req, data);
+      परिणाम = Curl_http2_request_upgrade(req, दत्त);
     }
-#ifndef CURL_DISABLE_WEBSOCKETS
-    if(!result && conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
-      result = Curl_ws_request(data, req);
-#endif
-    break;
+#यदि_अपरिभाषितम् CURL_DISABLE_WEBSOCKETS
+    यदि(!परिणाम && conn->scheme->protocol & (CURLPROTO_WS | CURLPROTO_WSS))
+      परिणाम = Curl_ws_request(दत्त, req);
+#यदि_अन्तः
+    भङ्ग;
 
-  case H1_HD_COOKIES:
-    result = http_cookies(data, req);
-    break;
+  पक्ष H1_HD_COOKIES:
+    परिणाम = http_cookies(दत्त, req);
+    भङ्ग;
 
-  case H1_HD_CONDITIONALS:
-    result = Curl_add_timecondition(data, req);
-    break;
+  पक्ष H1_HD_CONDITIONALS:
+    परिणाम = Curl_सङ्कलय_timecondition(दत्त, req);
+    भङ्ग;
 
-  case H1_HD_CUSTOM:
-    result = Curl_add_custom_headers(data, FALSE, httpversion, req);
-    break;
+  पक्ष H1_HD_CUSTOM:
+    परिणाम = Curl_सङ्कलय_custom_शीर्षकाणि(दत्त, FALSE, httpversion, req);
+    भङ्ग;
 
-  case H1_HD_CONTENT:
-    result = http_add_content_hds(data, req, httpversion, httpreq);
-    break;
+  पक्ष H1_HD_CONTENT:
+    परिणाम = http_सङ्कलय_content_hds(दत्त, req, httpversion, httpreq);
+    भङ्ग;
 
-  case H1_HD_CONNECTION: {
-    result = http_add_connection_hd(data, req);
-    break;
+  पक्ष H1_HD_CONNECTION: {
+    परिणाम = http_सङ्कलय_connection_hd(दत्त, req);
+    भङ्ग;
   }
 
-  case H1_HD_LAST:
-    result = curlx_dyn_addn(req, STRCONST("\r\n"));
-    break;
+  पक्ष H1_HD_चरमः:
+    परिणाम = curlx_dyn_addn(req, STRCONST("\r\n"));
+    भङ्ग;
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
@@ -3079,101 +3079,101 @@ static CURLcode http_add_hd(struct Curl_easy *data,
  * request is to be performed. This creates and sends a properly constructed
  * HTTP request.
  */
-CURLcode Curl_http(struct Curl_easy *data, bool *done)
+CURLcode Curl_http(संरचना Curl_easy *दत्त, bool *समाप्तम्)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   Curl_HttpReq httpreq;
-  const char *method;
-  struct dynbuf req;
-  unsigned char httpversion;
+  ध्रुव वर्ण *विधानम्;
+  संरचना dynbuf req;
+  अचिह्नित वर्ण httpversion;
   size_t hd_id;
 
   /* Always consider the DO phase done after this function call, even if there
      may be parts of the request that are not yet sent, since we can deal with
      the rest of the request in the PERFORM phase. */
-  *done = TRUE;
+  *समाप्तम् = TRUE;
   /* initialize a dynamic send-buffer */
   curlx_dyn_init(&req, DYN_HTTP_REQUEST);
   /* make sure the header buffer is reset - if there are leftovers from a
      previous transfer */
-  curlx_dyn_reset(&data->state.headerb);
-  data->state.maybe_folded = FALSE;
+  curlx_dyn_reset(&दत्त->state.headerb);
+  दत्त->state.maybe_folded = FALSE;
 
-  if(!data->conn->bits.reuse) {
-    result = http_check_new_conn(data);
-    if(result)
-      goto out;
+  यदि(!दत्त->conn->द्वयङ्काः.reuse) {
+    परिणाम = http_check_new_conn(दत्त);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
   /* Add collecting of headers written to client. For a new connection,
    * we might have done that already, but reuse
    * or multiplex needs it here as well. */
-  result = Curl_headers_init(data);
-  if(result)
-    goto out;
+  परिणाम = Curl_शीर्षकाणि_init(दत्त);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  data->state.http_hd_te = FALSE;
-  data->state.http_hd_upgrade = FALSE;
-  data->state.http_hd_h2_settings = FALSE;
+  दत्त->state.http_hd_te = FALSE;
+  दत्त->state.http_hd_upgrade = FALSE;
+  दत्त->state.http_hd_h2_settings = FALSE;
 
   /* what kind of request do we need to send? */
-  Curl_http_method(data, &method, &httpreq);
+  Curl_http_विधानम्(दत्त, &विधानम्, &httpreq);
 
   /* select host to send */
-  result = http_set_aptr_host(data);
+  परिणाम = http_समुच्चयः_aptr_host(दत्त);
   /* setup the authentication headers, how that method and host are known */
-  if(!result)
-    result = Curl_http_output_auth(data, data->conn, method, httpreq,
-                                   data->state.up.path,
-                                   data->state.up.query, FALSE);
+  यदि(!परिणाम)
+    परिणाम = Curl_http_output_auth(दत्त, दत्त->conn, विधानम्, httpreq,
+                                   दत्त->state.ऊर्ध्वम्.मार्गः,
+                                   दत्त->state.ऊर्ध्वम्.query, FALSE);
   /* Setup input reader, resume information and ranges */
-  if(!result)
-    result = set_reader(data, httpreq);
-  if(!result)
-    result = http_resume(data, httpreq);
-  if(!result)
-    result = http_range(data, httpreq);
-  if(result)
-    goto out;
+  यदि(!परिणाम)
+    परिणाम = समुच्चयः_reader(दत्त, httpreq);
+  यदि(!परिणाम)
+    परिणाम = http_resume(दत्त, httpreq);
+  यदि(!परिणाम)
+    परिणाम = http_range(दत्त, httpreq);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  httpversion = http_request_version(data);
+  httpversion = http_request_संस्करणम्(दत्त);
   /* Add request line and all headers to `req` */
-  for(hd_id = 0; hd_id <= H1_HD_LAST; ++hd_id) {
-    result = http_add_hd(data, &req, (http_hd_t)hd_id,
-                         httpversion, method, httpreq);
-    if(result)
-      goto out;
+  प्रति(hd_id = 0; hd_id <= H1_HD_चरमः; ++hd_id) {
+    परिणाम = http_सङ्कलय_hd(दत्त, &req, (http_hd_t)hd_id,
+                         httpversion, विधानम्, httpreq);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
   /* setup variables for the upcoming transfer and send */
-  Curl_xfer_setup_sendrecv(data, FIRSTSOCKET, -1);
-  result = Curl_req_send(data, &req, httpversion);
+  Curl_xfer_सज्जता_sendrecv(दत्त, FIRSTSOCKET, -1);
+  परिणाम = Curl_req_send(दत्त, &req, httpversion);
 
-  if((httpversion >= 20) && data->req.upload_chunky)
+  यदि((httpversion >= 20) && दत्त->req.upload_chunky)
     /* upload_chunky was set above to set up the request in a chunky fashion,
        but is disabled here again to avoid that the chunked encoded version is
        actually used when sending the request body over h2 */
-    data->req.upload_chunky = FALSE;
+    दत्त->req.upload_chunky = FALSE;
 
-out:
-  if(result == CURLE_TOO_LARGE)
-    failf(data, "HTTP request too large");
+बहिर्गमनम्:
+  यदि(परिणाम == CURLE_TOO_LARGE)
+    failf(दत्त, "HTTP request too large");
 
   curlx_dyn_free(&req);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-typedef enum {
-  STATUS_UNKNOWN, /* not enough data to tell yet */
-  STATUS_DONE, /* a status line was read */
-  STATUS_BAD /* not a status line */
+प्रकारनिर्देश गणना {
+  स्थितिः_UNKNOWN, /* not enough data to tell yet */
+  स्थितिः_समाप्तम्, /* a status line was read */
+  स्थितिः_BAD /* not a status line */
 } statusline;
 
 /* Check a string for a prefix. Check no more than 'len' bytes */
-static bool checkprefixmax(const char *prefix, const char *buffer, size_t len)
+स्थिर bool checkprefixmax(ध्रुव वर्ण *उपसर्गः, ध्रुव वर्ण *बफर, size_t len)
 {
-  size_t ch = CURLMIN(strlen(prefix), len);
-  return curl_strnequal(prefix, buffer, ch);
+  size_t ch = CURLMIN(वाक्यदैर्घ्यम्(उपसर्गः), len);
+  प्रत्यागम curl_strnequal(उपसर्गः, बफर, ch);
 }
 
 /*
@@ -3181,184 +3181,184 @@ static bool checkprefixmax(const char *prefix, const char *buffer, size_t len)
  *
  * Returns TRUE if member of the list matches prefix of string
  */
-static statusline checkhttpprefix(struct Curl_easy *data,
-                                  const char *s, size_t len)
+स्थिर statusline checkhttpprefix(संरचना Curl_easy *दत्त,
+                                  ध्रुव वर्ण *s, size_t len)
 {
-  struct curl_slist *head = data->set.http200aliases;
-  statusline rc = STATUS_BAD;
-  statusline onmatch = len >= 5 ? STATUS_DONE : STATUS_UNKNOWN;
+  संरचना curl_slist *शीर्ष = दत्त->समुच्चयः.http200aliases;
+  statusline rc = स्थितिः_BAD;
+  statusline onmatch = len >= 5 ? स्थितिः_समाप्तम् : स्थितिः_UNKNOWN;
 
-  while(head) {
-    if(checkprefixmax(head->data, s, len)) {
+  यावत्(शीर्ष) {
+    यदि(checkprefixmax(शीर्ष->दत्त, s, len)) {
       rc = onmatch;
-      break;
+      भङ्ग;
     }
-    head = head->next;
+    शीर्ष = शीर्ष->अग्र;
   }
 
-  if((rc != STATUS_DONE) && checkprefixmax("HTTP/", s, len))
+  यदि((rc != स्थितिः_समाप्तम्) && checkprefixmax("HTTP/", s, len))
     rc = onmatch;
 
-  return rc;
+  प्रत्यागम rc;
 }
 
-#ifndef CURL_DISABLE_RTSP
-static statusline checkrtspprefix(struct Curl_easy *data,
-                                  const char *s, size_t len)
+#यदि_अपरिभाषितम् CURL_DISABLE_RTSP
+स्थिर statusline checkrtspprefix(संरचना Curl_easy *दत्त,
+                                  ध्रुव वर्ण *s, size_t len)
 {
-  statusline status = STATUS_BAD;
-  statusline onmatch = len >= 5 ? STATUS_DONE : STATUS_UNKNOWN;
-  (void)data;
-  if(checkprefixmax("RTSP/", s, len))
-    status = onmatch;
+  statusline स्थितिः = स्थितिः_BAD;
+  statusline onmatch = len >= 5 ? स्थितिः_समाप्तम् : स्थितिः_UNKNOWN;
+  (शून्य)दत्त;
+  यदि(checkprefixmax("RTSP/", s, len))
+    स्थितिः = onmatch;
 
-  return status;
+  प्रत्यागम स्थितिः;
 }
-#endif /* CURL_DISABLE_RTSP */
+#यदि_अन्तः /* CURL_DISABLE_RTSP */
 
-static statusline checkprotoprefix(struct Curl_easy *data,
-                                   struct connectdata *conn,
-                                   const char *s, size_t len)
+स्थिर statusline checkprotoprefix(संरचना Curl_easy *दत्त,
+                                   संरचना connectdata *conn,
+                                   ध्रुव वर्ण *s, size_t len)
 {
-#ifndef CURL_DISABLE_RTSP
-  if(conn->scheme->protocol & CURLPROTO_RTSP)
-    return checkrtspprefix(data, s, len);
-#else
-  (void)conn;
-#endif /* CURL_DISABLE_RTSP */
+#यदि_अपरिभाषितम् CURL_DISABLE_RTSP
+  यदि(conn->scheme->protocol & CURLPROTO_RTSP)
+    प्रत्यागम checkrtspprefix(दत्त, s, len);
+#अन्यथा
+  (शून्य)conn;
+#यदि_अन्तः /* CURL_DISABLE_RTSP */
 
-  return checkhttpprefix(data, s, len);
+  प्रत्यागम checkhttpprefix(दत्त, s, len);
 }
 
 /* HTTP header has field name `n` (a string constant) */
-#define HD_IS(hd, hdlen, n) \
-  (((hdlen) >= (sizeof(n) - 1)) && curl_strnequal(n, hd, sizeof(n) - 1))
+#परिभाषय HD_IS(hd, hdlen, n) \
+  (((hdlen) >= (परिमाण(n) - 1)) && curl_strnequal(n, hd, परिमाण(n) - 1))
 
-#define HD_VAL(hd, hdlen, n) \
-  ((((hdlen) >= (sizeof(n) - 1)) && (hd) && \
-    curl_strnequal(n, hd, sizeof(n) - 1)) ? ((hd) + (sizeof(n) - 1)) : NULL)
+#परिभाषय HD_VAL(hd, hdlen, n) \
+  ((((hdlen) >= (परिमाण(n) - 1)) && (hd) && \
+    curl_strnequal(n, hd, परिमाण(n) - 1)) ? ((hd) + (परिमाण(n) - 1)) : रिक्त)
 
 /* HTTP header has field name `n` (a string constant) and contains `v`
  * (a string constant) in its value(s) */
-#define HD_IS_AND_SAYS(hd, hdlen, n, v) \
+#परिभाषय HD_IS_AND_SAYS(hd, hdlen, n, v) \
   (HD_IS(hd, hdlen, n) && \
-   ((hdlen) > ((sizeof(n) - 1) + (sizeof(v) - 1))) && \
+   ((hdlen) > ((परिमाण(n) - 1) + (परिमाण(v) - 1))) && \
    Curl_compareheader(hd, STRCONST(n), STRCONST(v)))
 
 /*
  * http_header_a() parses a single response header starting with A.
  */
-static CURLcode http_header_a(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_a(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-#ifndef CURL_DISABLE_ALTSVC
-  const char *v;
-  v = (data->asi &&
-       (Curl_xfer_is_secure(data) ||
-#ifdef DEBUGBUILD
+#यदि_अपरिभाषितम् CURL_DISABLE_ALTSVC
+  ध्रुव वर्ण *v;
+  v = (दत्त->asi &&
+       (Curl_xfer_is_secure(दत्त) ||
+#यदि_परिभाषितम् DEBUGBUILD
         /* allow debug builds to circumvent the HTTPS restriction */
         getenv("CURL_ALTSVC_HTTP")
-#else
+#अन्यथा
         0
-#endif
-         )) ? HD_VAL(hd, hdlen, "Alt-Svc:") : NULL;
-  if(v) {
+#यदि_अन्तः
+         )) ? HD_VAL(hd, hdlen, "Alt-Svc:") : रिक्त;
+  यदि(v) {
     /* the ALPN of the current request */
-    struct SingleRequest *k = &data->req;
-    enum alpnid id = (k->httpversion == 30) ? ALPN_h3 :
+    संरचना SingleRequest *k = &दत्त->req;
+    गणना alpnid id = (k->httpversion == 30) ? ALPN_h3 :
       (k->httpversion == 20) ? ALPN_h2 : ALPN_h1;
-    return Curl_altsvc_parse(data, data->asi, v, data->state.origin, id);
+    प्रत्यागम Curl_altsvc_parse(दत्त, दत्त->asi, v, दत्त->state.origin, id);
   }
-#else
-  (void)data;
-  (void)hd;
-  (void)hdlen;
-#endif
-  return CURLE_OK;
+#अन्यथा
+  (शून्य)दत्त;
+  (शून्य)hd;
+  (शून्य)hdlen;
+#यदि_अन्तः
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_c() parses a single response header starting with C.
  */
-static CURLcode http_header_c(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_c(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
-  const char *v;
+  संरचना connectdata *conn = दत्त->conn;
+  संरचना SingleRequest *k = &दत्त->req;
+  ध्रुव वर्ण *v;
 
   /* Check for Content-Length: header lines to get size. Browsers insist we
      should accept multiple Content-Length headers and that a comma separated
      list also is fine and then we should accept them all as long as they are
      the same value. Different values trigger error.
    */
-  v = (!k->http_bodyless && !data->set.ignorecl && !k->ignore_cl) ?
-    HD_VAL(hd, hdlen, "Content-Length:") : NULL;
-  if(v) {
-    do {
+  v = (!k->http_bodyless && !दत्त->समुच्चयः.ignorecl && !k->ignore_cl) ?
+    HD_VAL(hd, hdlen, "Content-Length:") : रिक्त;
+  यदि(v) {
+    कुरु {
       curl_off_t contentlength;
-      int offt = curlx_str_numblanks(&v, &contentlength);
+      पूर्णाङ्क offt = curlx_str_numblanks(&v, &contentlength);
 
-      if(offt == STRE_OVERFLOW) {
+      यदि(offt == STRE_अतिप्रवाहः) {
         /* out of range */
-        if(data->set.max_filesize) {
-          failf(data, "Maximum file size exceeded");
-          return CURLE_FILESIZE_EXCEEDED;
+        यदि(दत्त->समुच्चयः.max_filesize) {
+          failf(दत्त, "Maximum file size exceeded");
+          प्रत्यागम CURLE_FILESIZE_EXCEEDED;
         }
         streamclose(conn);
-        infof(data, "Overflow Content-Length: value");
-        return CURLE_OK;
+        infof(दत्त, "Overflow Content-Length: value");
+        प्रत्यागम CURLE_OK;
       }
-      else {
-        if((offt == STRE_OK) &&
-           ((k->size == -1) || /* not set to something before */
-            (k->size == contentlength))) { /* or the same value */
+      अन्यथा {
+        यदि((offt == STRE_OK) &&
+           ((k->आकार == -1) || /* not set to something before */
+            (k->आकार == contentlength))) { /* or the same value */
 
-          k->size = contentlength;
+          k->आकार = contentlength;
           curlx_str_passblanks(&v);
 
           /* on a comma, loop and get the next instead */
-          if(!curlx_str_single(&v, ','))
-            continue;
+          यदि(!curlx_str_single(&v, ','))
+            अनुवर्त;
 
-          if(!curlx_str_newline(&v)) {
-            k->maxdownload = k->size;
-            return CURLE_OK;
+          यदि(!curlx_str_newline(&v)) {
+            k->maxdownload = k->आकार;
+            प्रत्यागम CURLE_OK;
           }
         }
         /* negative, different value or rubbish - bad HTTP */
-        failf(data, "Invalid Content-Length: value");
-        return CURLE_WEIRD_SERVER_REPLY;
+        failf(दत्त, "Invalid Content-Length: value");
+        प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
       }
-    } while(1);
+    } यावत्(1);
   }
-  v = (!k->http_bodyless && CURL_EASY_STR(data, STRING_ENCODING)) ?
-    HD_VAL(hd, hdlen, "Content-Encoding:") : NULL;
-  if(v) {
+  v = (!k->http_bodyless && CURL_EASY_STR(दत्त, STRING_ENCODING)) ?
+    HD_VAL(hd, hdlen, "Content-Encoding:") : रिक्त;
+  यदि(v) {
     /*
      * Process Content-Encoding. Look for the values: identity, gzip, deflate,
      * compress, x-gzip and x-compress. x-gzip and x-compress are the same as
      * gzip and compress. (Sec 3.5 RFC 2616). zlib cannot handle compress.
      * Errors are handled further down when the response body is processed
      */
-    return Curl_build_unencoding_stack(data, v, FALSE);
+    प्रत्यागम Curl_build_unencoding_राशिः(दत्त, v, FALSE);
   }
   /* check for Content-Type: header lines to get the MIME-type */
   v = HD_VAL(hd, hdlen, "Content-Type:");
-  if(v) {
-    char *contenttype = Curl_copy_header_value(hd);
-    if(!contenttype)
-      return CURLE_OUT_OF_MEMORY;
-    if(!*contenttype)
+  यदि(v) {
+    वर्ण *contenttype = Curl_copy_शीर्षकम्_मानम्(hd);
+    यदि(!contenttype)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    यदि(!*contenttype)
       /* ignore empty data */
       curlx_free(contenttype);
-    else {
-      curlx_free(data->info.contenttype);
-      data->info.contenttype = contenttype;
+    अन्यथा {
+      curlx_free(दत्त->info.contenttype);
+      दत्त->info.contenttype = contenttype;
     }
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
-  if((k->httpversion < 20) &&
+  यदि((k->httpversion < 20) &&
      HD_IS_AND_SAYS(hd, hdlen, "Connection:", "close")) {
     /*
      * [RFC 2616, section 8.1.2.1]
@@ -3367,9 +3367,9 @@ static CURLcode http_header_c(struct Curl_easy *data,
      * served.
      */
     connclose(conn);
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
-  if((k->httpversion == 10) &&
+  यदि((k->httpversion == 10) &&
      HD_IS_AND_SAYS(hd, hdlen, "Connection:", "keep-alive")) {
     /*
      * An HTTP/1.0 reply with the 'Connection: keep-alive' line
@@ -3378,11 +3378,11 @@ static CURLcode http_header_c(struct Curl_easy *data,
      *
      * [RFC2068, section 19.7.1] */
     connkeep(conn);
-    infof(data, "HTTP/1.0 connection set to keep alive");
-    return CURLE_OK;
+    infof(दत्त, "HTTP/1.0 connection set to keep alive");
+    प्रत्यागम CURLE_OK;
   }
-  v = !k->http_bodyless ? HD_VAL(hd, hdlen, "Content-Range:") : NULL;
-  if(v) {
+  v = !k->http_bodyless ? HD_VAL(hd, hdlen, "Content-Range:") : रिक्त;
+  यदि(v) {
     /* Content-Range: bytes [num]-
        Content-Range: bytes: [num]-
        Content-Range: [num]-
@@ -3394,98 +3394,98 @@ static CURLcode http_header_c(struct Curl_easy *data,
        The fourth means the requested range was unsatisfied.
      */
 
-    const char *ptr = v;
+    ध्रुव वर्ण *ptr = v;
 
     /* Move forward until first digit or asterisk */
-    while(*ptr && !ISDIGIT(*ptr) && *ptr != '*')
+    यावत्(*ptr && !ISDIGIT(*ptr) && *ptr != '*')
       ptr++;
 
     /* if it truly stopped on a digit */
-    if(ISDIGIT(*ptr)) {
-      if(!curlx_str_number(&ptr, &k->offset, CURL_OFF_T_MAX) &&
-         (data->state.resume_from == k->offset))
+    यदि(ISDIGIT(*ptr)) {
+      यदि(!curlx_str_सङ्ख्या(&ptr, &k->विस्थापनम्, CURL_OFF_T_MAX) &&
+         (दत्त->state.resume_from == k->विस्थापनम्))
         /* we asked for a resume and we got it */
         k->content_range = TRUE;
     }
-    else if(k->httpcode < 300)
-      data->state.resume_from = 0; /* get everything */
+    अन्यथा यदि(k->httpcode < 300)
+      दत्त->state.resume_from = 0; /* get everything */
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_l() parses a single response header starting with L.
  */
-static CURLcode http_header_l(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_l(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
-  const char *v = (!k->http_bodyless &&
-                   (data->set.timecondition || data->set.get_filetime)) ?
-    HD_VAL(hd, hdlen, "Last-Modified:") : NULL;
-  if(v) {
-    if(Curl_getdate_capped(v, &k->timeofdoc))
+  संरचना connectdata *conn = दत्त->conn;
+  संरचना SingleRequest *k = &दत्त->req;
+  ध्रुव वर्ण *v = (!k->http_bodyless &&
+                   (दत्त->समुच्चयः.timecondition || दत्त->समुच्चयः.get_filetime)) ?
+    HD_VAL(hd, hdlen, "Last-Modified:") : रिक्त;
+  यदि(v) {
+    यदि(Curl_getdate_capped(v, &k->timeofdoc))
       k->timeofdoc = 0;
-    if(data->set.get_filetime)
-      data->info.filetime = k->timeofdoc;
-    return CURLE_OK;
+    यदि(दत्त->समुच्चयः.get_filetime)
+      दत्त->info.filetime = k->timeofdoc;
+    प्रत्यागम CURLE_OK;
   }
-  if(HD_IS(hd, hdlen, "Location:")) {
+  यदि(HD_IS(hd, hdlen, "Location:")) {
     /* this is the URL that the server advises us to use instead */
-    char *location = Curl_copy_header_value(hd);
-    if(!location)
-      return CURLE_OUT_OF_MEMORY;
-    if(!*location ||
-       (data->req.location && !strcmp(data->req.location, location))) {
+    वर्ण *location = Curl_copy_शीर्षकम्_मानम्(hd);
+    यदि(!location)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    यदि(!*location ||
+       (दत्त->req.location && !वाक्यं_तुलय(दत्त->req.location, location))) {
       /* ignore empty header, or exact repeat of a previous one */
       curlx_free(location);
-      return CURLE_OK;
+      प्रत्यागम CURLE_OK;
     }
-    else {
+    अन्यथा {
       /* has value and is not an exact repeat */
-      if(data->req.location) {
-        failf(data, "Multiple Location headers");
+      यदि(दत्त->req.location) {
+        failf(दत्त, "Multiple Location headers");
         curlx_free(location);
-        return CURLE_WEIRD_SERVER_REPLY;
+        प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
       }
-      data->req.location = location;
+      दत्त->req.location = location;
 
-      if((k->httpcode >= 300 && k->httpcode < 400) &&
-         data->set.http_follow_mode) {
-        CURLcode result;
-        DEBUGASSERT(!data->req.newurl);
-        data->req.newurl = curlx_strdup(data->req.location); /* clone */
-        if(!data->req.newurl)
-          return CURLE_OUT_OF_MEMORY;
+      यदि((k->httpcode >= 300 && k->httpcode < 400) &&
+         दत्त->समुच्चयः.http_follow_बहुलकम्) {
+        CURLcode परिणाम;
+        DEBUGASSERT(!दत्त->req.newurl);
+        दत्त->req.newurl = curlx_strdup(दत्त->req.location); /* clone */
+        यदि(!दत्त->req.newurl)
+          प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
         /* some cases of POST and PUT etc needs to rewind the data
            stream at this point */
-        result = http_perhapsrewind(data, conn);
-        if(result)
-          return result;
+        परिणाम = http_perhapsrewind(दत्त, conn);
+        यदि(परिणाम)
+          प्रत्यागम परिणाम;
 
         /* mark the next request as a followed location: */
-        data->state.this_is_a_follow = TRUE;
+        दत्त->state.this_is_a_follow = TRUE;
       }
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_p() parses a single response header starting with P.
  */
-static CURLcode http_header_p(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_p(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-  struct SingleRequest *k = &data->req;
+  संरचना SingleRequest *k = &दत्त->req;
 
-#ifndef CURL_DISABLE_PROXY
-  const char *v = HD_VAL(hd, hdlen, "Proxy-Connection:");
-  if(v) {
-    struct connectdata *conn = data->conn;
-    if((k->httpversion == 10) && conn->http_proxy.peer &&
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  ध्रुव वर्ण *v = HD_VAL(hd, hdlen, "Proxy-Connection:");
+  यदि(v) {
+    संरचना connectdata *conn = दत्त->conn;
+    यदि((k->httpversion == 10) && conn->http_proxy.peer &&
        HD_IS_AND_SAYS(hd, hdlen, "Proxy-Connection:", "keep-alive")) {
       /*
        * When an HTTP/1.0 reply comes when using a proxy, the
@@ -3494,66 +3494,66 @@ static CURLcode http_header_p(struct Curl_easy *data,
        * Default action for 1.0 is to close.
        */
       connkeep(conn); /* do not close */
-      infof(data, "HTTP/1.0 proxy connection set to keep alive");
+      infof(दत्त, "HTTP/1.0 proxy connection set to keep alive");
     }
-    else if((k->httpversion == 11) && conn->http_proxy.peer &&
+    अन्यथा यदि((k->httpversion == 11) && conn->http_proxy.peer &&
             HD_IS_AND_SAYS(hd, hdlen, "Proxy-Connection:", "close")) {
       /*
        * We get an HTTP/1.1 response from a proxy and it says it will
        * close down after this transfer.
        */
       connclose(conn);
-      infof(data, "HTTP/1.1 proxy connection set close");
+      infof(दत्त, "HTTP/1.1 proxy connection set close");
     }
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
-#endif
-  if((407 == k->httpcode) && HD_IS(hd, hdlen, "Proxy-authenticate:")) {
-    char *auth;
-    CURLcode result;
-#ifndef CURL_DISABLE_PROXY
-    if(!data->conn->bits.origin_is_proxy)
+#यदि_अन्तः
+  यदि((407 == k->httpcode) && HD_IS(hd, hdlen, "Proxy-authenticate:")) {
+    वर्ण *auth;
+    CURLcode परिणाम;
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+    यदि(!दत्त->conn->द्वयङ्काः.origin_is_proxy)
       /* this response is not from a forward proxy, not for us */
-      return CURLE_OK;
-#endif
-    auth = Curl_copy_header_value(hd);
-    result = auth ? CURLE_OK : CURLE_OUT_OF_MEMORY;
-    if(!result) {
-      result = Curl_http_input_auth(data, TRUE, auth);
+      प्रत्यागम CURLE_OK;
+#यदि_अन्तः
+    auth = Curl_copy_शीर्षकम्_मानम्(hd);
+    परिणाम = auth ? CURLE_OK : CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    यदि(!परिणाम) {
+      परिणाम = Curl_http_निवेशः_auth(दत्त, TRUE, auth);
       curlx_free(auth);
     }
-    return result;
+    प्रत्यागम परिणाम;
   }
-#ifdef USE_SPNEGO
-  if(HD_IS(hd, hdlen, "Persistent-Auth:")) {
-    struct connectdata *conn = data->conn;
-    struct negotiatedata *negdata = Curl_auth_nego_get(conn, FALSE);
-    struct auth *authp = &data->state.authhost;
-    if(!negdata)
-      return CURLE_OUT_OF_MEMORY;
-    if(authp->picked == CURLAUTH_NEGOTIATE) {
-      char *persistentauth = Curl_copy_header_value(hd);
-      if(!persistentauth)
-        return CURLE_OUT_OF_MEMORY;
+#यदि_परिभाषितम् USE_SPNEGO
+  यदि(HD_IS(hd, hdlen, "Persistent-Auth:")) {
+    संरचना connectdata *conn = दत्त->conn;
+    संरचना negotiatedata *negdata = Curl_auth_nego_get(conn, FALSE);
+    संरचना auth *authp = &दत्त->state.authhost;
+    यदि(!negdata)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    यदि(authp->picked == CURLAUTH_NEGOTIATE) {
+      वर्ण *persistentauth = Curl_copy_शीर्षकम्_मानम्(hd);
+      यदि(!persistentauth)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
       negdata->noauthpersist = !!checkprefix("false", persistentauth);
       negdata->havenoauthpersist = TRUE;
-      infof(data, "Negotiate: noauthpersist -> %d, header part: %s",
+      infof(दत्त, "Negotiate: noauthpersist -> %d, header part: %s",
             negdata->noauthpersist, persistentauth);
       curlx_free(persistentauth);
     }
   }
-#endif
-  return CURLE_OK;
+#यदि_अन्तः
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_r() parses a single response header starting with R.
  */
-static CURLcode http_header_r(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_r(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-  const char *v = HD_VAL(hd, hdlen, "Retry-After:");
-  if(v) {
+  ध्रुव वर्ण *v = HD_VAL(hd, hdlen, "Retry-After:");
+  यदि(v) {
     /* Retry-After = HTTP-date / delay-seconds */
     curl_off_t retry_after = 0; /* zero for unknown or "now" */
     time_t date = 0;
@@ -3561,96 +3561,96 @@ static CURLcode http_header_r(struct Curl_easy *data,
 
     /* try it as a date first, because a date can otherwise start with and
        get treated as a number */
-    if(!Curl_getdate_capped(v, &date)) {
-      time_t current = time(NULL);
-      if(date >= current)
+    यदि(!Curl_getdate_capped(v, &date)) {
+      time_t current = time(रिक्त);
+      यदि(date >= current)
         /* convert date to number of seconds into the future */
         retry_after = date - current;
     }
-    else
+    अन्यथा
       /* Try it as a decimal number, ignore errors */
-      (void)curlx_str_number(&v, &retry_after, CURL_OFF_T_MAX);
+      (शून्य)curlx_str_सङ्ख्या(&v, &retry_after, CURL_OFF_T_MAX);
     /* limit to 6 hours max. this is not documented so that it can be changed
        in the future if necessary. */
-    if(retry_after > 21600)
+    यदि(retry_after > 21600)
       retry_after = 21600;
-    data->info.retry_after = retry_after;
+    दत्त->info.retry_after = retry_after;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_s() parses a single response header starting with S.
  */
-static CURLcode http_header_s(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_s(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_HSTS)
-  const char *v;
-#else
-  (void)data;
-  (void)hd;
-  (void)hdlen;
-#endif
+#यदि !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_HSTS)
+  ध्रुव वर्ण *v;
+#अन्यथा
+  (शून्य)दत्त;
+  (शून्य)hd;
+  (शून्य)hdlen;
+#यदि_अन्तः
 
-#ifndef CURL_DISABLE_COOKIES
-  v = (data->cookies && data->state.cookie_engine) ?
-    HD_VAL(hd, hdlen, "Set-Cookie:") : NULL;
-  if(v) {
+#यदि_अपरिभाषितम् CURL_DISABLE_COOKIES
+  v = (दत्त->cookies && दत्त->state.cookie_engine) ?
+    HD_VAL(hd, hdlen, "Set-Cookie:") : रिक्त;
+  यदि(v) {
     /* If there is a custom-set Host: name, use it here, or else use
      * real peer hostname. */
-    const char *host = data->req.cookiehost ?
-      data->req.cookiehost : data->state.origin->hostname;
-    const unsigned char secure_context = Curl_secure_context(data, host) ?
+    ध्रुव वर्ण *host = दत्त->req.cookiehost ?
+      दत्त->req.cookiehost : दत्त->state.origin->hostname;
+    ध्रुव अचिह्नित वर्ण secure_context = Curl_secure_context(दत्त, host) ?
       COOKIE_SECURE : 0;
-    CURLcode result;
-    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
-    result = Curl_cookie_add(data, data->cookies, v, host,
-                             data->state.up.path,
+    CURLcode परिणाम;
+    Curl_share_तालकम्(दत्त, CURL_तालकम्_दत्त_COOKIE, CURL_तालकम्_ACCESS_SINGLE);
+    परिणाम = Curl_cookie_सङ्कलय(दत्त, दत्त->cookies, v, host,
+                             दत्त->state.ऊर्ध्वम्.मार्गः,
                              COOKIE_HTTPHEADER | secure_context);
-    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
-    return result;
+    Curl_share_unlock(दत्त, CURL_तालकम्_दत्त_COOKIE);
+    प्रत्यागम परिणाम;
   }
-#endif
-#ifndef CURL_DISABLE_HSTS
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_HSTS
   /* If enabled, the header is incoming and this is over HTTPS */
-  v = (data->hsts &&
-       (Curl_xfer_is_secure(data) ||
-#ifdef DEBUGBUILD
+  v = (दत्त->hsts &&
+       (Curl_xfer_is_secure(दत्त) ||
+#यदि_परिभाषितम् DEBUGBUILD
         /* allow debug builds to circumvent the HTTPS restriction */
         getenv("CURL_HSTS_HTTP")
-#else
+#अन्यथा
         0
-#endif
+#यदि_अन्तः
          )
-    ) ? HD_VAL(hd, hdlen, "Strict-Transport-Security:") : NULL;
-  if(v) {
-    CURLcode result = Curl_hsts_parse(
-      data->hsts, data->state.origin->hostname, v);
-    if(result) {
-      if(result == CURLE_OUT_OF_MEMORY)
-        return result;
-      infof(data, "Illegal STS header skipped");
+    ) ? HD_VAL(hd, hdlen, "Strict-Transport-Security:") : रिक्त;
+  यदि(v) {
+    CURLcode परिणाम = Curl_hsts_parse(
+      दत्त->hsts, दत्त->state.origin->hostname, v);
+    यदि(परिणाम) {
+      यदि(परिणाम == CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः)
+        प्रत्यागम परिणाम;
+      infof(दत्त, "Illegal STS header skipped");
     }
-#ifdef DEBUGBUILD
-    else
-      infof(data, "Parsed STS header fine (%zu entries)",
-            Curl_llist_count(&data->hsts->list));
-#endif
+#यदि_परिभाषितम् DEBUGBUILD
+    अन्यथा
+      infof(दत्त, "Parsed STS header fine (%zu entries)",
+            Curl_llist_गणनम्(&दत्त->hsts->list));
+#यदि_अन्तः
   }
-#endif
+#यदि_अन्तः
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_t() parses a single response header starting with T.
  */
-static CURLcode http_header_t(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_t(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
+  संरचना connectdata *conn = दत्त->conn;
+  संरचना SingleRequest *k = &दत्त->req;
 
   /* RFC 9112, ch. 6.1
    * "Transfer-Encoding MAY be sent in a response to a HEAD request or
@@ -3662,146 +3662,146 @@ static CURLcode http_header_t(struct Curl_easy *data,
    * Read: in these cases the 'Transfer-Encoding' does not apply
    * to any data following the response headers. Do not add any decoders.
    */
-  const char *v = (!k->http_bodyless &&
-                   (data->state.httpreq != HTTPREQ_HEAD) &&
+  ध्रुव वर्ण *v = (!k->http_bodyless &&
+                   (दत्त->state.httpreq != HTTPREQ_शीर्ष) &&
                    (k->httpcode != 304)) ?
-    HD_VAL(hd, hdlen, "Transfer-Encoding:") : NULL;
-  if(v) {
+    HD_VAL(hd, hdlen, "Transfer-Encoding:") : रिक्त;
+  यदि(v) {
     /* One or more encodings. We check for chunked and/or a compression
        algorithm. */
-    CURLcode result = Curl_build_unencoding_stack(data, v, TRUE);
-    if(result)
-      return result;
-    if(!k->chunk) {
+    CURLcode परिणाम = Curl_build_unencoding_राशिः(दत्त, v, TRUE);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
+    यदि(!k->chunk) {
       /* if this is not chunked, only close can signal the end of this
        * transfer as Content-Length is said not to be trusted for
        * transfer-encoding! */
-      CURL_TRC_M(data, "HTTP/1.1 transfer-encoding without chunks");
+      CURL_TRC_M(दत्त, "HTTP/1.1 transfer-encoding without chunks");
       connclose(conn);
       k->ignore_cl = TRUE;
     }
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
   v = HD_VAL(hd, hdlen, "Trailer:");
-  if(v) {
-    data->req.resp_trailer = TRUE;
-    return CURLE_OK;
+  यदि(v) {
+    दत्त->req.resp_trailer = TRUE;
+    प्रत्यागम CURLE_OK;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * http_header_w() parses a single response header starting with W.
  */
-static CURLcode http_header_w(struct Curl_easy *data,
-                              const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्_w(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *hd, size_t hdlen)
 {
-  struct SingleRequest *k = &data->req;
-  CURLcode result = CURLE_OK;
+  संरचना SingleRequest *k = &दत्त->req;
+  CURLcode परिणाम = CURLE_OK;
 
-  if((401 == k->httpcode) && HD_IS(hd, hdlen, "WWW-Authenticate:")) {
-    char *auth = Curl_copy_header_value(hd);
-    if(!auth)
-      result = CURLE_OUT_OF_MEMORY;
-    else {
-      result = Curl_http_input_auth(data, FALSE, auth);
+  यदि((401 == k->httpcode) && HD_IS(hd, hdlen, "WWW-Authenticate:")) {
+    वर्ण *auth = Curl_copy_शीर्षकम्_मानम्(hd);
+    यदि(!auth)
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    अन्यथा {
+      परिणाम = Curl_http_निवेशः_auth(दत्त, FALSE, auth);
       curlx_free(auth);
     }
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
  * http_header() parses a single response header.
  */
-static CURLcode http_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen)
+स्थिर CURLcode http_शीर्षकम्(संरचना Curl_easy *दत्त,
+                            ध्रुव वर्ण *hd, size_t hdlen)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
-  switch(hd[0]) {
-  case 'a':
-  case 'A':
-    result = http_header_a(data, hd, hdlen);
-    break;
-  case 'c':
-  case 'C':
-    result = http_header_c(data, hd, hdlen);
-    break;
-  case 'l':
-  case 'L':
-    result = http_header_l(data, hd, hdlen);
-    break;
-  case 'p':
-  case 'P':
-    result = http_header_p(data, hd, hdlen);
-    break;
-  case 'r':
-  case 'R':
-    result = http_header_r(data, hd, hdlen);
-    break;
-  case 's':
-  case 'S':
-    result = http_header_s(data, hd, hdlen);
-    break;
-  case 't':
-  case 'T':
-    result = http_header_t(data, hd, hdlen);
-    break;
-  case 'w':
-  case 'W':
-    result = http_header_w(data, hd, hdlen);
-    break;
+  विकल्प(hd[0]) {
+  पक्ष 'a':
+  पक्ष 'A':
+    परिणाम = http_शीर्षकम्_a(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 'c':
+  पक्ष 'C':
+    परिणाम = http_शीर्षकम्_c(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 'l':
+  पक्ष 'L':
+    परिणाम = http_शीर्षकम्_l(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 'p':
+  पक्ष 'P':
+    परिणाम = http_शीर्षकम्_p(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 'r':
+  पक्ष 'R':
+    परिणाम = http_शीर्षकम्_r(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 's':
+  पक्ष 'S':
+    परिणाम = http_शीर्षकम्_s(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 't':
+  पक्ष 'T':
+    परिणाम = http_शीर्षकम्_t(दत्त, hd, hdlen);
+    भङ्ग;
+  पक्ष 'w':
+  पक्ष 'W':
+    परिणाम = http_शीर्षकम्_w(दत्त, hd, hdlen);
+    भङ्ग;
   }
 
-  if(!result) {
-    struct connectdata *conn = data->conn;
-    if(conn->scheme->protocol & CURLPROTO_RTSP)
-      result = Curl_rtsp_parseheader(data, hd);
+  यदि(!परिणाम) {
+    संरचना connectdata *conn = दत्त->conn;
+    यदि(conn->scheme->protocol & CURLPROTO_RTSP)
+      परिणाम = Curl_rtsp_parseheader(दत्त, hd);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
  * Called after the first HTTP response line (the status line) has been
  * received and parsed.
  */
-static CURLcode http_statusline(struct Curl_easy *data,
-                                struct connectdata *conn)
+स्थिर CURLcode http_statusline(संरचना Curl_easy *दत्त,
+                                संरचना connectdata *conn)
 {
-  struct SingleRequest *k = &data->req;
+  संरचना SingleRequest *k = &दत्त->req;
 
-  switch(k->httpversion) {
-  case 10:
-  case 11:
-#ifdef USE_HTTP2
-  case 20:
-#endif
-#ifdef USE_HTTP3
-  case 30:
-#endif
+  विकल्प(k->httpversion) {
+  पक्ष 10:
+  पक्ष 11:
+#यदि_परिभाषितम् USE_HTTP2
+  पक्ष 20:
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_HTTP3
+  पक्ष 30:
+#यदि_अन्तः
     /* no major version switch mid-connection */
-    if(k->httpversion_sent &&
-       (k->httpversion / 10 != k->httpversion_sent / 10)) {
-      failf(data, "Version mismatch (from HTTP/%d to HTTP/%d)",
-            k->httpversion_sent / 10, k->httpversion / 10);
-      return CURLE_WEIRD_SERVER_REPLY;
+    यदि(k->httpversion_प्रेषितम् &&
+       (k->httpversion / 10 != k->httpversion_प्रेषितम् / 10)) {
+      failf(दत्त, "Version mismatch (from HTTP/%d to HTTP/%d)",
+            k->httpversion_प्रेषितम् / 10, k->httpversion / 10);
+      प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
     }
-    break;
-  default:
-    failf(data, "Unsupported HTTP version (%d.%d) in response",
+    भङ्ग;
+  स्वभाव:
+    failf(दत्त, "Unsupported HTTP version (%d.%d) in response",
           k->httpversion / 10, k->httpversion % 10);
-    return CURLE_UNSUPPORTED_PROTOCOL;
+    प्रत्यागम CURLE_UNSUPPORTED_PROTOCOL;
   }
 
-  data->info.httpcode = k->httpcode;
-  data->info.httpversion = k->httpversion;
-  conn->httpversion_seen = k->httpversion;
+  दत्त->info.httpcode = k->httpcode;
+  दत्त->info.httpversion = k->httpversion;
+  conn->httpversion_आलोकितम् = k->httpversion;
 
-  if(!data->state.http_neg.rcvd_min ||
-     data->state.http_neg.rcvd_min > k->httpversion)
+  यदि(!दत्त->state.http_neg.rcvd_min ||
+     दत्त->state.http_neg.rcvd_min > k->httpversion)
     /* store the lowest server version we encounter */
-    data->state.http_neg.rcvd_min = k->httpversion;
+    दत्त->state.http_neg.rcvd_min = k->httpversion;
 
   /*
    * This code executes as part of processing the header. As a
@@ -3811,45 +3811,45 @@ static CURLcode http_statusline(struct Curl_easy *data,
    * depending on how authentication is working. Other codes
    * are definitely errors, so give up here.
    */
-  if(data->state.resume_from && data->state.httpreq == HTTPREQ_GET &&
+  यदि(दत्त->state.resume_from && दत्त->state.httpreq == HTTPREQ_GET &&
      k->httpcode == 416) {
     /* "Requested Range Not Satisfiable", proceed and pretend this is no
        error */
     k->ignorebody = TRUE; /* Avoid appending error msg to good data. */
   }
 
-  if(k->httpversion == 10) {
+  यदि(k->httpversion == 10) {
     /* Default action for HTTP/1.0 must be to close, unless
        we get one of those fancy headers that tell us the
        server keeps it open for us! */
-    infof(data, "HTTP 1.0, assume close after body");
+    infof(दत्त, "HTTP 1.0, assume close after body");
     connclose(conn);
   }
 
   k->http_bodyless = k->httpcode >= 100 && k->httpcode < 200;
-  switch(k->httpcode) {
-  case 304:
+  विकल्प(k->httpcode) {
+  पक्ष 304:
     /* (quote from RFC2616, section 10.3.5): The 304 response
      * MUST NOT contain a message-body, and thus is always
      * terminated by the first empty line after the header
      * fields. */
-    if(data->set.timecondition)
-      data->info.timecond = TRUE;
+    यदि(दत्त->समुच्चयः.timecondition)
+      दत्त->info.timecond = TRUE;
     FALLTHROUGH();
-  case 204:
+  पक्ष 204:
     /* (quote from RFC2616, section 10.2.5): The server has
      * fulfilled the request but does not need to return an
      * entity-body ... The 204 response MUST NOT include a
      * message-body, and thus is always terminated by the first
      * empty line after the header fields. */
-    k->size = 0;
+    k->आकार = 0;
     k->maxdownload = 0;
     k->http_bodyless = TRUE;
-    break;
-  default:
-    break;
+    भङ्ग;
+  स्वभाव:
+    भङ्ग;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Content-Length must be ignored if any Transfer-Encoding is present in the
@@ -3857,244 +3857,244 @@ static CURLcode http_statusline(struct Curl_easy *data,
    figured out here after all headers have been received but before the final
    call to the user's header callback, so that a valid content length can be
    retrieved by the user in the final call. */
-static CURLcode http_size(struct Curl_easy *data)
+स्थिर CURLcode http_आकार(संरचना Curl_easy *दत्त)
 {
-  struct SingleRequest *k = &data->req;
-  if(data->req.ignore_cl || k->chunk) {
-    k->size = k->maxdownload = -1;
+  संरचना SingleRequest *k = &दत्त->req;
+  यदि(दत्त->req.ignore_cl || k->chunk) {
+    k->आकार = k->maxdownload = -1;
   }
-  else if(k->size != -1) {
-    if(data->set.max_filesize &&
+  अन्यथा यदि(k->आकार != -1) {
+    यदि(दत्त->समुच्चयः.max_filesize &&
        !k->ignorebody &&
-       (k->size > data->set.max_filesize)) {
-      failf(data, "Maximum file size exceeded");
-      return CURLE_FILESIZE_EXCEEDED;
+       (k->आकार > दत्त->समुच्चयः.max_filesize)) {
+      failf(दत्त, "Maximum file size exceeded");
+      प्रत्यागम CURLE_FILESIZE_EXCEEDED;
     }
-    if(k->ignorebody)
-      infof(data, "setting size while ignoring");
-    Curl_pgrsSetDownloadSize(data, k->size);
-    k->maxdownload = k->size;
+    यदि(k->ignorebody)
+      infof(दत्त, "setting size while ignoring");
+    Curl_pgrs_समुच्चयः_Download_आकार(दत्त, k->आकार);
+    k->maxdownload = k->आकार;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_verify_header(struct Curl_easy *data,
-                            const char *hd, size_t hdlen)
+CURLcode Curl_verify_शीर्षकम्(संरचना Curl_easy *दत्त,
+                            ध्रुव वर्ण *hd, size_t hdlen)
 {
-  struct SingleRequest *k = &data->req;
+  संरचना SingleRequest *k = &दत्त->req;
   size_t i;
   bool has_colon = FALSE;
-  for(i = 0; i < hdlen; i++) {
-    switch(hd[i]) {
-    case '\0':
+  प्रति(i = 0; i < hdlen; i++) {
+    विकल्प(hd[i]) {
+    पक्ष '\0':
       /* this is bad, bail out */
-      failf(data, "NUL byte in header");
-      return CURLE_WEIRD_SERVER_REPLY;
-    case '\r':
-      if(i < hdlen - 2) {
+      failf(दत्त, "NUL byte in header");
+      प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
+    पक्ष '\r':
+      यदि(i < hdlen - 2) {
         /* CR may only precede the LF, nothing else */
-        failf(data, "Carriage return found in header");
-        return CURLE_WEIRD_SERVER_REPLY;
+        failf(दत्त, "Carriage return found in header");
+        प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
       }
-      break;
-    case ':':
+      भङ्ग;
+    पक्ष ':':
       has_colon = TRUE;
-      break;
+      भङ्ग;
     }
   }
-  if(k->headerline < 2)
+  यदि(k->headerline < 2)
     /* the first "header" is the status-line and it has no colon */
-    return CURLE_OK;
-  if(((hd[0] == ' ') || (hd[0] == '\t')) && k->headerline > 2)
+    प्रत्यागम CURLE_OK;
+  यदि(((hd[0] == ' ') || (hd[0] == '\t')) && k->headerline > 2)
     /* line folding, cannot happen on line 2 */
     ;
-  else if(!has_colon) {
+  अन्यथा यदि(!has_colon) {
     /* this is bad, bail out */
-    failf(data, "Header without colon");
-    return CURLE_WEIRD_SERVER_REPLY;
+    failf(दत्त, "Header without colon");
+    प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_bump_headersize(struct Curl_easy *data,
+CURLcode Curl_bump_headersize(संरचना Curl_easy *दत्त,
                               size_t delta,
                               bool connect_only)
 {
   size_t bad = 0;
-  unsigned int max = MAX_HTTP_RESP_HEADER_SIZE;
-  if(delta < MAX_HTTP_RESP_HEADER_SIZE) {
-    data->info.header_size += (unsigned int)delta;
-    data->req.allheadercount += (unsigned int)delta;
-    if(!connect_only)
-      data->req.headerbytecount += (unsigned int)delta;
-    if(data->req.allheadercount > max)
-      bad = data->req.allheadercount;
-    else if(data->info.header_size > (max * 20)) {
-      bad = data->info.header_size;
+  अचिह्नित पूर्णाङ्क max = MAX_HTTP_RESP_शीर्षकम्_आकार;
+  यदि(delta < MAX_HTTP_RESP_शीर्षकम्_आकार) {
+    दत्त->info.शीर्षकम्_आकार += (अचिह्नित पूर्णाङ्क)delta;
+    दत्त->req.allheadercount += (अचिह्नित पूर्णाङ्क)delta;
+    यदि(!connect_only)
+      दत्त->req.headerbytecount += (अचिह्नित पूर्णाङ्क)delta;
+    यदि(दत्त->req.allheadercount > max)
+      bad = दत्त->req.allheadercount;
+    अन्यथा यदि(दत्त->info.शीर्षकम्_आकार > (max * 20)) {
+      bad = दत्त->info.शीर्षकम्_आकार;
       max *= 20;
     }
   }
-  else
-    bad = data->req.allheadercount + delta;
-  if(bad) {
-    failf(data, "Too large response headers: %zu > %u", bad, max);
-    return CURLE_RECV_ERROR;
+  अन्यथा
+    bad = दत्त->req.allheadercount + delta;
+  यदि(bad) {
+    failf(दत्त, "Too large response headers: %zu > %u", bad, max);
+    प्रत्यागम CURLE_RECV_ERROR;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * Handle a 101 Switching Protocols response. Performs the actual protocol
  * upgrade to HTTP/2 or WebSocket based on what was requested.
  */
-static CURLcode http_on_101_upgrade(struct Curl_easy *data,
-                                    const char *buf, size_t blen,
+स्थिर CURLcode http_on_101_upgrade(संरचना Curl_easy *दत्त,
+                                    ध्रुव वर्ण *buf, size_t blen,
                                     size_t *pconsumed,
-                                    bool *conn_changed)
+                                    bool *conn_परिवर्तितम्)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
+  संरचना connectdata *conn = दत्त->conn;
+  संरचना SingleRequest *k = &दत्त->req;
 
-#if !defined(USE_NGHTTP2) && defined(CURL_DISABLE_WEBSOCKETS)
-  (void)buf;
-  (void)blen;
-  (void)pconsumed;
-#else
-  CURLcode result;
-  int upgr101_requested = k->upgr101;
-#endif
+#यदि !defined(USE_NGHTTP2) && defined(CURL_DISABLE_WEBSOCKETS)
+  (शून्य)buf;
+  (शून्य)blen;
+  (शून्य)pconsumed;
+#अन्यथा
+  CURLcode परिणाम;
+  पूर्णाङ्क upgr101_requested = k->upgr101;
+#यदि_अन्तः
 
-  if(k->httpversion_sent != 11) {
+  यदि(k->httpversion_प्रेषितम् != 11) {
     /* invalid for other HTTP versions */
-    failf(data, "server sent 101 response while not talking HTTP/1.1");
-    return CURLE_WEIRD_SERVER_REPLY;
+    failf(दत्त, "server sent 101 response while not talking HTTP/1.1");
+    प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
   }
 
   /* Whatever the success, upgrade was selected. */
   k->upgr101 = UPGR101_RECEIVED;
-  conn->bits.upgrade_in_progress = FALSE;
-  *conn_changed = TRUE;
+  conn->द्वयङ्काः.upgrade_अन्तर्_प्रगतिः = FALSE;
+  *conn_परिवर्तितम् = TRUE;
 
   /* To be fully compliant, we would check the "Upgrade:" response header to
    * mention the protocol we requested. */
-#ifdef USE_NGHTTP2
-  if(upgr101_requested == UPGR101_H2) {
+#यदि_परिभाषितम् USE_NGHTTP2
+  यदि(upgr101_requested == UPGR101_H2) {
     /* Switch to HTTP/2, where we will get more responses. blen bytes in buf
      * are already h2 protocol bytes */
-    infof(data, "Received 101, Switching to HTTP/2");
-    result = Curl_http2_upgrade(data, conn, FIRSTSOCKET, buf, blen);
-    if(!result)
+    infof(दत्त, "Received 101, Switching to HTTP/2");
+    परिणाम = Curl_http2_upgrade(दत्त, conn, FIRSTSOCKET, buf, blen);
+    यदि(!परिणाम)
       *pconsumed += blen;
-    return result;
+    प्रत्यागम परिणाम;
   }
-#endif
-#ifndef CURL_DISABLE_WEBSOCKETS
-  if(upgr101_requested == UPGR101_WS) {
+#यदि_अन्तः
+#यदि_अपरिभाषितम् CURL_DISABLE_WEBSOCKETS
+  यदि(upgr101_requested == UPGR101_WS) {
     /* Switch to WebSocket, where we now stream ws frames. blen bytes in buf
      * are already ws protocol bytes */
-    infof(data, "Received 101, Switching to WebSocket");
-    result = Curl_ws_accept(data, buf, blen);
-    if(!result)
+    infof(दत्त, "Received 101, Switching to WebSocket");
+    परिणाम = Curl_ws_accept(दत्त, buf, blen);
+    यदि(!परिणाम)
       *pconsumed += blen; /* ws accept handled the data */
-    return result;
+    प्रत्यागम परिणाम;
   }
-#endif
+#यदि_अन्तः
   /* We silently accept this as the final response. What are we switching to
    * if we did not ask for an Upgrade? Maybe the application provided an
    * `Upgrade: xxx` header? */
-  k->header = FALSE;
-  return CURLE_OK;
+  k->शीर्षकम् = FALSE;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * Handle 1xx intermediate HTTP responses. Sets up state for more
  * headers and processes 100-continue and 101 upgrade responses.
  */
-static CURLcode http_on_1xx_response(struct Curl_easy *data,
-                                     const char *buf, size_t blen,
+स्थिर CURLcode http_on_1xx_response(संरचना Curl_easy *दत्त,
+                                     ध्रुव वर्ण *buf, size_t blen,
                                      size_t *pconsumed,
-                                     bool *conn_changed)
+                                     bool *conn_परिवर्तितम्)
 {
-  struct SingleRequest *k = &data->req;
+  संरचना SingleRequest *k = &दत्त->req;
 
   /* "A user agent MAY ignore unexpected 1xx status responses."
    * By default, we expect to get more responses after this one. */
-  k->header = TRUE;
+  k->शीर्षकम् = TRUE;
   k->headerline = 0; /* restart the header line counter */
 
-  switch(k->httpcode) {
-  case 100:
+  विकल्प(k->httpcode) {
+  पक्ष 100:
     /* We have made an HTTP PUT or POST and this is 1.1-lingo that tells us
      * that the server is OK with this and ready to receive the data. */
-    http_exp100_got100(data);
-    break;
-  case 101:
-    return http_on_101_upgrade(data, buf, blen, pconsumed, conn_changed);
-  default:
+    http_exp100_got100(दत्त);
+    भङ्ग;
+  पक्ष 101:
+    प्रत्यागम http_on_101_upgrade(दत्त, buf, blen, pconsumed, conn_परिवर्तितम्);
+  स्वभाव:
     /* The server may send us other 1xx responses, like informative 103. This
      * has no influence on request processing and we expect to receive a
      * final response eventually. */
-    break;
+    भङ्ग;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#if defined(USE_NTLM) || defined(USE_SPNEGO)
+#यदि defined(USE_NTLM) || defined(USE_SPNEGO)
 /*
  * Check if NTLM or SPNEGO authentication negotiation failed due to
  * connection closure (typically on HTTP/1.0 servers).
  */
-static void http_check_auth_closure(struct Curl_easy *data,
-                                    struct connectdata *conn)
+स्थिर शून्य http_check_auth_संवृतिः(संरचना Curl_easy *दत्त,
+                                    संरचना connectdata *conn)
 {
   /* At this point we have some idea about the fate of the connection. If we
      are closing the connection it may result auth failure. */
-#ifdef USE_NTLM
-  if(conn->bits.close &&
-     (((data->req.httpcode == 401) &&
+#यदि_परिभाषितम् USE_NTLM
+  यदि(conn->द्वयङ्काः.close &&
+     (((दत्त->req.httpcode == 401) &&
        (conn->http_ntlm_state == NTLMSTATE_TYPE2)) ||
-      ((data->req.httpcode == 407) &&
+      ((दत्त->req.httpcode == 407) &&
        (conn->proxy_ntlm_state == NTLMSTATE_TYPE2)))) {
-    infof(data, "Connection closure while negotiating auth (HTTP 1.0?)");
-    data->state.authproblem = TRUE;
+    infof(दत्त, "Connection closure while negotiating auth (HTTP 1.0?)");
+    दत्त->state.authproblem = TRUE;
   }
-#endif
-#ifdef USE_SPNEGO
-  if(conn->bits.close &&
-    (((data->req.httpcode == 401) &&
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_SPNEGO
+  यदि(conn->द्वयङ्काः.close &&
+    (((दत्त->req.httpcode == 401) &&
       (conn->http_negotiate_state == CURL_NEGO_AUTH_RECV)) ||
-     ((data->req.httpcode == 407) &&
+     ((दत्त->req.httpcode == 407) &&
       (conn->proxy_negotiate_state == CURL_NEGO_AUTH_RECV)))) {
-    infof(data, "Connection closure while negotiating auth (HTTP 1.0?)");
-    data->state.authproblem = TRUE;
+    infof(दत्त, "Connection closure while negotiating auth (HTTP 1.0?)");
+    दत्त->state.authproblem = TRUE;
   }
-  if((conn->http_negotiate_state == CURL_NEGO_AUTH_DONE) &&
-     (data->req.httpcode != 401)) {
+  यदि((conn->http_negotiate_state == CURL_NEGO_AUTH_समाप्तम्) &&
+     (दत्त->req.httpcode != 401)) {
     conn->http_negotiate_state = CURL_NEGO_AUTH_SUCC;
   }
-  if((conn->proxy_negotiate_state == CURL_NEGO_AUTH_DONE) &&
-     (data->req.httpcode != 407)) {
+  यदि((conn->proxy_negotiate_state == CURL_NEGO_AUTH_समाप्तम्) &&
+     (दत्त->req.httpcode != 407)) {
     conn->proxy_negotiate_state = CURL_NEGO_AUTH_SUCC;
   }
-#endif
+#यदि_अन्तः
 }
-#else
-#define http_check_auth_closure(x, y) /* empty */
-#endif
+#अन्यथा
+#परिभाषय http_check_auth_संवृतिः(x, y) /*रिक्तानि*/
+#यदि_अन्तः
 
 /*
  * Handle an error response (>= 300) received while still sending the
  * request body. Deals with 417 Expectation Failed retries, keep-sending
  * on error, and aborting the send.
  */
-static CURLcode http_handle_send_error(struct Curl_easy *data)
+स्थिर CURLcode http_handle_send_error(संरचना Curl_easy *दत्त)
 {
-  struct connectdata *conn = data->conn;
-  struct SingleRequest *k = &data->req;
-  CURLcode result = CURLE_OK;
+  संरचना connectdata *conn = दत्त->conn;
+  संरचना SingleRequest *k = &दत्त->req;
+  CURLcode परिणाम = CURLE_OK;
 
-  if(!data->req.authneg && !conn->bits.close &&
-     !Curl_creader_will_rewind(data)) {
+  यदि(!दत्त->req.authneg && !conn->द्वयङ्काः.close &&
+     !Curl_creader_will_rewind(दत्त)) {
     /*
      * General treatment of errors when about to send data.
      * Including: "417 Expectation Failed", while waiting for
@@ -4106,244 +4106,244 @@ static CURLcode http_handle_send_error(struct Curl_easy *data)
      * we avoid this check.
      */
 
-    switch(data->state.httpreq) {
-    case HTTPREQ_PUT:
-    case HTTPREQ_POST:
-    case HTTPREQ_POST_FORM:
-    case HTTPREQ_POST_MIME:
+    विकल्प(दत्त->state.httpreq) {
+    पक्ष HTTPREQ_PUT:
+    पक्ष HTTPREQ_POST:
+    पक्ष HTTPREQ_POST_FORM:
+    पक्ष HTTPREQ_POST_MIME:
       /* We got an error response. If this happened before the
        * whole request body has been sent we stop sending and
        * mark the connection for closure after we have read the
        * entire response. */
-      if(!Curl_req_done_sending(data)) {
-        if((k->httpcode == 417) && http_exp100_is_selected(data)) {
+      यदि(!Curl_req_समाप्तम्_sending(दत्त)) {
+        यदि((k->httpcode == 417) && http_exp100_is_selected(दत्त)) {
           /* 417 Expectation Failed - try again without the
              Expect header */
-          if(!k->writebytecount && http_exp100_is_waiting(data)) {
-            infof(data, "Got HTTP failure 417 while waiting for a 100");
+          यदि(!k->writebytecount && http_exp100_is_प्रतीक्षा(दत्त)) {
+            infof(दत्त, "Got HTTP failure 417 while waiting for a 100");
           }
-          else {
-            infof(data, "Got HTTP failure 417 while sending data");
+          अन्यथा {
+            infof(दत्त, "Got HTTP failure 417 while sending data");
             streamclose(conn);
-            result = http_perhapsrewind(data, conn);
-            if(result)
-              return result;
+            परिणाम = http_perhapsrewind(दत्त, conn);
+            यदि(परिणाम)
+              प्रत्यागम परिणाम;
           }
-          data->state.disableexpect = TRUE;
-          Curl_req_abort_sending(data);
-          DEBUGASSERT(!data->req.newurl);
-          data->req.newurl = Curl_bufref_dup(&data->state.url);
-          if(!data->req.newurl)
-            return CURLE_OUT_OF_MEMORY;
+          दत्त->state.disableexpect = TRUE;
+          Curl_req_abort_sending(दत्त);
+          DEBUGASSERT(!दत्त->req.newurl);
+          दत्त->req.newurl = Curl_bufref_dup(&दत्त->state.url);
+          यदि(!दत्त->req.newurl)
+            प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
         }
-        else if(data->set.http_keep_sending_on_error) {
-          infof(data, "HTTP error before end of send, keep sending");
-          http_exp100_send_anyway(data);
+        अन्यथा यदि(दत्त->समुच्चयः.http_keep_sending_on_error) {
+          infof(दत्त, "HTTP error before end of send, keep sending");
+          http_exp100_send_anyway(दत्त);
         }
-        else {
-          infof(data, "HTTP error before end of send, stop sending");
+        अन्यथा {
+          infof(दत्त, "HTTP error before end of send, stop sending");
           streamclose(conn);
-          result = Curl_req_abort_sending(data);
-          if(result)
-            return result;
+          परिणाम = Curl_req_abort_sending(दत्त);
+          यदि(परिणाम)
+            प्रत्यागम परिणाम;
         }
       }
-      break;
+      भङ्ग;
 
-    default: /* default label present to avoid compiler warnings */
-      break;
+    स्वभाव: /* default label present to avoid compiler warnings */
+      भङ्ग;
     }
   }
 
-  if(Curl_creader_will_rewind(data) && !Curl_req_done_sending(data)) {
+  यदि(Curl_creader_will_rewind(दत्त) && !Curl_req_समाप्तम्_sending(दत्त)) {
     /* We rewind before next send, continue sending now */
-    infof(data, "Keep sending data to get tossed away");
-    CURL_REQ_SET_SEND(data);
+    infof(दत्त, "Keep sending data to get tossed away");
+    CURL_REQ_समुच्चयः_SEND(दत्त);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode http_on_response(struct Curl_easy *data,
-                                 const char *last_hd, size_t last_hd_len,
-                                 const char *buf, size_t blen,
+स्थिर CURLcode http_on_response(संरचना Curl_easy *दत्त,
+                                 ध्रुव वर्ण *चरमः_hd, size_t चरमः_hd_len,
+                                 ध्रुव वर्ण *buf, size_t blen,
                                  size_t *pconsumed)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
-  bool conn_changed = FALSE;
+  संरचना connectdata *conn = दत्त->conn;
+  CURLcode परिणाम = CURLE_OK;
+  संरचना SingleRequest *k = &दत्त->req;
+  bool conn_परिवर्तितम् = FALSE;
 
-  (void)buf; /* not used without HTTP2 enabled */
+  (शून्य)buf; /* not used without HTTP2 enabled */
   *pconsumed = 0;
 
-  if(k->upgr101 == UPGR101_RECEIVED) {
+  यदि(k->upgr101 == UPGR101_RECEIVED) {
     /* supposedly upgraded to http2 now */
-    if(data->req.httpversion != 20)
-      infof(data, "Lying server, not serving HTTP/2");
+    यदि(दत्त->req.httpversion != 20)
+      infof(दत्त, "Lying server, not serving HTTP/2");
   }
 
-  if(k->httpcode < 200 && last_hd) {
+  यदि(k->httpcode < 200 && चरमः_hd) {
     /* Intermediate responses might trigger processing of more responses,
      * write the last header to the client before proceeding. */
-    result = http_write_header(data, last_hd, last_hd_len);
-    last_hd = NULL; /* handled it */
-    if(result)
-      goto out;
+    परिणाम = http_write_शीर्षकम्(दत्त, चरमः_hd, चरमः_hd_len);
+    चरमः_hd = रिक्त; /* handled it */
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
-  if(k->httpcode < 100) {
-    failf(data, "Unsupported response code in HTTP response");
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+  यदि(k->httpcode < 100) {
+    failf(दत्त, "Unsupported response code in HTTP response");
+    परिणाम = CURLE_UNSUPPORTED_PROTOCOL;
+    गच्छ बहिर्गमनम्;
   }
-  else if(k->httpcode < 200) {
-    result = http_on_1xx_response(data, buf, blen, pconsumed, &conn_changed);
-    goto out;
+  अन्यथा यदि(k->httpcode < 200) {
+    परिणाम = http_on_1xx_response(दत्त, buf, blen, pconsumed, &conn_परिवर्तितम्);
+    गच्छ बहिर्गमनम्;
   }
 
   /* k->httpcode >= 200, final response */
-  k->header = FALSE;
-  if(conn->bits.upgrade_in_progress) {
+  k->शीर्षकम् = FALSE;
+  यदि(conn->द्वयङ्काः.upgrade_अन्तर्_प्रगतिः) {
     /* Asked for protocol upgrade, but it was not selected */
-    conn->bits.upgrade_in_progress = FALSE;
-    conn_changed = TRUE;
+    conn->द्वयङ्काः.upgrade_अन्तर्_प्रगतिः = FALSE;
+    conn_परिवर्तितम् = TRUE;
   }
 
-  if((k->size == -1) && !k->chunk && !conn->bits.close &&
+  यदि((k->आकार == -1) && !k->chunk && !conn->द्वयङ्काः.close &&
      (k->httpversion == 11) &&
      !(conn->scheme->protocol & CURLPROTO_RTSP) &&
-     data->state.httpreq != HTTPREQ_HEAD) {
+     दत्त->state.httpreq != HTTPREQ_शीर्ष) {
     /* On HTTP 1.1, when connection is not to get closed, but no
        Content-Length nor Transfer-Encoding chunked have been received,
        according to RFC2616 section 4.4 point 5, we assume that the server
        will close the connection to signal the end of the document. */
-    infof(data, "no chunk, no close, no size. Assume close to signal end");
+    infof(दत्त, "no chunk, no close, no size. Assume close to signal end");
     streamclose(conn);
   }
 
-  http_check_auth_closure(data, conn);
+  http_check_auth_संवृतिः(दत्त, conn);
 
-#ifndef CURL_DISABLE_WEBSOCKETS
+#यदि_अपरिभाषितम् CURL_DISABLE_WEBSOCKETS
   /* All >=200 HTTP status codes are errors when wanting ws */
-  if(data->req.upgr101 == UPGR101_WS) {
-    failf(data, "Refused WebSocket upgrade: %d", k->httpcode);
-    result = CURLE_HTTP_RETURNED_ERROR;
-    goto out;
+  यदि(दत्त->req.upgr101 == UPGR101_WS) {
+    failf(दत्त, "Refused WebSocket upgrade: %d", k->httpcode);
+    परिणाम = CURLE_HTTP_RETURNED_ERROR;
+    गच्छ बहिर्गमनम्;
   }
-#endif
+#यदि_अन्तः
 
   /* Check if this response means the transfer errored. */
-  if(http_should_fail(data, data->req.httpcode)) {
-    failf(data, "The requested URL returned error: %d",
+  यदि(http_should_fail(दत्त, दत्त->req.httpcode)) {
+    failf(दत्त, "The requested URL returned error: %d",
           k->httpcode);
-    result = CURLE_HTTP_RETURNED_ERROR;
-    goto out;
+    परिणाम = CURLE_HTTP_RETURNED_ERROR;
+    गच्छ बहिर्गमनम्;
   }
 
   /* Curl_http_auth_act() checks what authentication methods that are
    * available and decides which one (if any) to use. It will set 'newurl' if
    * an auth method was picked. */
-  result = Curl_http_auth_act(data);
-  if(result)
-    goto out;
+  परिणाम = Curl_http_auth_act(दत्त);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  if(k->httpcode >= 300) {
-    result = http_handle_send_error(data);
-    if(result)
-      goto out;
+  यदि(k->httpcode >= 300) {
+    परिणाम = http_handle_send_error(दत्त);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
   /* final response without error, prepare to receive the body */
-  result = http_firstwrite(data);
-  if(result)
-    goto out;
+  परिणाम = http_firstwrite(दत्त);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
   /* This is the last response that we get for the current request. Check on
    * the body size and determine if the response is complete. */
-  result = http_size(data);
-  if(result)
-    goto out;
+  परिणाम = http_आकार(दत्त);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-#ifndef CURL_DISABLE_RTSP
+#यदि_अपरिभाषितम् CURL_DISABLE_RTSP
   /* An RTSP response to any method may carry a body, which is announced
      with Content-Length (RFC 2326 section 12.14). Read it instead of
      treating it as excess data, unless the application asked for no body
      with CURLOPT_NOBODY. */
-  if((conn->scheme->protocol & CURLPROTO_RTSP) && data->req.no_body &&
-     !data->set.opt_no_body && (k->size > 0))
-    data->req.no_body = FALSE;
-#endif
+  यदि((conn->scheme->protocol & CURLPROTO_RTSP) && दत्त->req.no_body &&
+     !दत्त->समुच्चयः.opt_no_body && (k->आकार > 0))
+    दत्त->req.no_body = FALSE;
+#यदि_अन्तः
 
   /* If we requested a "no body", this is a good time to get
    * out and return home.
    */
-  if(data->req.no_body)
-    k->download_done = TRUE;
+  यदि(दत्त->req.no_body)
+    k->download_समाप्तम् = TRUE;
 
   /* If max download size is *zero* (nothing) we already have nothing and can
      safely return ok now! For HTTP/2, we would like to call
      http2_handle_stream_close to properly close a stream. In order to do
      this, we keep reading until we close the stream. */
-  if((k->maxdownload == 0) && (k->httpversion_sent < 20))
-    k->download_done = TRUE;
+  यदि((k->maxdownload == 0) && (k->httpversion_प्रेषितम् < 20))
+    k->download_समाप्तम् = TRUE;
 
-out:
-  if(last_hd)
+बहिर्गमनम्:
+  यदि(चरमः_hd)
     /* if not written yet, write it now */
-    result = Curl_1st_fatal(result,
-                            http_write_header(data, last_hd, last_hd_len));
-  if(conn_changed)
+    परिणाम = Curl_1st_fatal(परिणाम,
+                            http_write_शीर्षकम्(दत्त, चरमः_hd, चरमः_hd_len));
+  यदि(conn_परिवर्तितम्)
     /* poke the multi handle to allow pending pipewait to retry */
-    Curl_multi_connchanged(data->multi);
-  return result;
+    Curl_multi_connchanged(दत्त->multi);
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode http_rw_hd(struct Curl_easy *data,
-                           const char *hd, size_t hdlen,
-                           const char *buf_remain, size_t blen,
+स्थिर CURLcode http_rw_hd(संरचना Curl_easy *दत्त,
+                           ध्रुव वर्ण *hd, size_t hdlen,
+                           ध्रुव वर्ण *buf_remain, size_t blen,
                            size_t *pconsumed)
 {
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
-  int writetype;
+  CURLcode परिणाम = CURLE_OK;
+  संरचना SingleRequest *k = &दत्त->req;
+  पूर्णाङ्क writetype;
   DEBUGASSERT(!hd[hdlen]); /* null-terminated */
 
   *pconsumed = 0;
-  if((0x0a == *hd) || (0x0d == *hd)) {
+  यदि((0x0a == *hd) || (0x0d == *hd)) {
     /* Empty header line means end of headers! */
-    struct dynbuf last_header;
+    संरचना dynbuf चरमः_शीर्षकम्;
     size_t consumed;
 
-    curlx_dyn_init(&last_header, hdlen + 1);
-    result = curlx_dyn_addn(&last_header, hd, hdlen);
-    if(result)
-      return result;
+    curlx_dyn_init(&चरमः_शीर्षकम्, hdlen + 1);
+    परिणाम = curlx_dyn_addn(&चरमः_शीर्षकम्, hd, hdlen);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     /* analyze the response to find out what to do. */
     /* Caveat: we clear anything in the header brigade, because a
      * response might switch HTTP version which may call use recursively.
      * Not nice, but that is currently the way of things. */
-    curlx_dyn_reset(&data->state.headerb);
-    result = http_on_response(data, curlx_dyn_ptr(&last_header),
-                              curlx_dyn_len(&last_header),
+    curlx_dyn_reset(&दत्त->state.headerb);
+    परिणाम = http_on_response(दत्त, curlx_dyn_ptr(&चरमः_शीर्षकम्),
+                              curlx_dyn_len(&चरमः_शीर्षकम्),
                               buf_remain, blen, &consumed);
     *pconsumed += consumed;
-    curlx_dyn_free(&last_header);
-    return result;
+    curlx_dyn_free(&चरमः_शीर्षकम्);
+    प्रत्यागम परिणाम;
   }
 
   /*
    * Checks for special headers coming up.
    */
 
-  writetype = CLIENTWRITE_HEADER;
-  if(!k->headerline++) {
+  writetype = CLIENTWRITE_शीर्षकम्;
+  यदि(!k->headerline++) {
     /* This is the first header, it MUST be the error code line
        or else we consider this to be the body right away! */
     bool fine_statusline = FALSE;
 
     k->httpversion = 0; /* Do not know yet */
-    if(data->conn->scheme->protocol & PROTO_FAMILY_HTTP) {
+    यदि(दत्त->conn->scheme->protocol & PROTO_FAMILY_HTTP) {
       /*
        * https://datatracker.ietf.org/doc/html/rfc7230#section-3.1.2
        *
@@ -4351,19 +4351,19 @@ static CURLcode http_rw_hd(struct Curl_easy *data,
        * says. We allow any three-digit number here, but we cannot make
        * guarantees on future behaviors since it is not within the protocol.
        */
-      const char *p = hd;
+      ध्रुव वर्ण *p = hd;
 
       curlx_str_passblanks(&p);
-      if(!strncmp(p, "HTTP/", 5)) {
+      यदि(!वाक्ये_तुलय(p, "HTTP/", 5)) {
         p += 5;
-        switch(*p) {
-        case '1':
+        विकल्प(*p) {
+        पक्ष '1':
           p++;
-          if((p[0] == '.') && (p[1] == '0' || p[1] == '1')) {
-            if(ISBLANK(p[2])) {
-              k->httpversion = (unsigned char)(10 + (p[1] - '0'));
+          यदि((p[0] == '.') && (p[1] == '0' || p[1] == '1')) {
+            यदि(ISBLANK(p[2])) {
+              k->httpversion = (अचिह्नित वर्ण)(10 + (p[1] - '0'));
               p += 3;
-              if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+              यदि(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
                 k->httpcode = ((p[0] - '0') * 100) + ((p[1] - '0') * 10) +
                   (p[2] - '0');
                 /* RFC 9112 requires a single space following the status code,
@@ -4372,220 +4372,220 @@ static CURLcode http_rw_hd(struct Curl_easy *data,
               }
             }
           }
-          if(!fine_statusline) {
-            failf(data, "Unsupported HTTP/1 subversion in response");
-            return CURLE_UNSUPPORTED_PROTOCOL;
+          यदि(!fine_statusline) {
+            failf(दत्त, "Unsupported HTTP/1 subversion in response");
+            प्रत्यागम CURLE_UNSUPPORTED_PROTOCOL;
           }
-          break;
-        case '2':
-        case '3':
-          if(!ISBLANK(p[1]))
-            break;
-          k->httpversion = (unsigned char)((*p - '0') * 10);
+          भङ्ग;
+        पक्ष '2':
+        पक्ष '3':
+          यदि(!ISBLANK(p[1]))
+            भङ्ग;
+          k->httpversion = (अचिह्नित वर्ण)((*p - '0') * 10);
           p += 2;
-          if(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
+          यदि(ISDIGIT(p[0]) && ISDIGIT(p[1]) && ISDIGIT(p[2])) {
             k->httpcode = ((p[0] - '0') * 100) + ((p[1] - '0') * 10) +
               (p[2] - '0');
             p += 3;
-            if(!ISBLANK(*p))
-              break;
+            यदि(!ISBLANK(*p))
+              भङ्ग;
             fine_statusline = TRUE;
           }
-          break;
-        default: /* unsupported */
-          failf(data, "Unsupported HTTP version in response");
-          return CURLE_UNSUPPORTED_PROTOCOL;
+          भङ्ग;
+        स्वभाव: /* unsupported */
+          failf(दत्त, "Unsupported HTTP version in response");
+          प्रत्यागम CURLE_UNSUPPORTED_PROTOCOL;
         }
       }
 
-      if(!fine_statusline) {
+      यदि(!fine_statusline) {
         /* If user has set option HTTP200ALIASES,
            compare header line against list of aliases */
-        statusline check = checkhttpprefix(data, hd, hdlen);
-        if(check == STATUS_DONE) {
+        statusline check = checkhttpprefix(दत्त, hd, hdlen);
+        यदि(check == स्थितिः_समाप्तम्) {
           fine_statusline = TRUE;
           k->httpcode = 200;
           k->httpversion = 10;
         }
       }
     }
-    else if(data->conn->scheme->protocol & CURLPROTO_RTSP) {
-      const char *p = hd;
-      struct Curl_str ver;
-      curl_off_t status;
+    अन्यथा यदि(दत्त->conn->scheme->protocol & CURLPROTO_RTSP) {
+      ध्रुव वर्ण *p = hd;
+      संरचना Curl_str ver;
+      curl_off_t स्थितिः;
       /* we set the max string a little excessive to forgive some leading
          spaces */
-      if(!curlx_str_until(&p, &ver, 32, ' ') &&
+      यदि(!curlx_str_until(&p, &ver, 32, ' ') &&
          !curlx_str_single(&p, ' ') &&
-         !curlx_str_number(&p, &status, 999)) {
+         !curlx_str_सङ्ख्या(&p, &स्थितिः, 999)) {
         curlx_str_trimblanks(&ver);
-        if(curlx_str_cmp(&ver, "RTSP/1.0")) {
-          k->httpcode = (int)status;
+        यदि(curlx_str_cmp(&ver, "RTSP/1.0")) {
+          k->httpcode = (पूर्णाङ्क)स्थितिः;
           fine_statusline = TRUE;
           k->httpversion = 11; /* RTSP acts like HTTP 1.1 */
         }
       }
-      if(!fine_statusline)
-        return CURLE_WEIRD_SERVER_REPLY;
+      यदि(!fine_statusline)
+        प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
     }
 
-    if(fine_statusline) {
-      result = http_statusline(data, data->conn);
-      if(result)
-        return result;
-      writetype |= CLIENTWRITE_STATUS;
+    यदि(fine_statusline) {
+      परिणाम = http_statusline(दत्त, दत्त->conn);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
+      writetype |= CLIENTWRITE_स्थितिः;
     }
-    else {
-      k->header = FALSE;   /* this is not a header line */
-      return CURLE_WEIRD_SERVER_REPLY;
+    अन्यथा {
+      k->शीर्षकम् = FALSE;   /* this is not a header line */
+      प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
     }
   }
 
-  result = Curl_verify_header(data, hd, hdlen);
-  if(result)
-    return result;
+  परिणाम = Curl_verify_शीर्षकम्(दत्त, hd, hdlen);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
-  result = http_header(data, hd, hdlen);
-  if(result)
-    return result;
+  परिणाम = http_शीर्षकम्(दत्त, hd, hdlen);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
   /*
    * Taken in one (more) header. Write it to the client.
    */
-  Curl_debug(data, CURLINFO_HEADER_IN, hd, hdlen);
+  Curl_debug(दत्त, CURLINFO_शीर्षकम्_अन्तर्, hd, hdlen);
 
-  if(k->httpcode / 100 == 1)
+  यदि(k->httpcode / 100 == 1)
     writetype |= CLIENTWRITE_1XX;
-  result = Curl_client_write(data, writetype, hd, hdlen);
-  if(result)
-    return result;
+  परिणाम = Curl_client_write(दत्त, writetype, hd, hdlen);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
-  result = Curl_bump_headersize(data, hdlen, FALSE);
-  if(result)
-    return result;
+  परिणाम = Curl_bump_headersize(दत्त, hdlen, FALSE);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* remove trailing CRLF then all trailing whitespace */
-void Curl_http_to_fold(struct dynbuf *bf)
+शून्य Curl_http_गन्तव्यम्_fold(संरचना dynbuf *bf)
 {
   size_t len = curlx_dyn_len(bf);
-  const char *hd = curlx_dyn_ptr(bf);
-  if(len && (hd[len - 1] == '\n'))
+  ध्रुव वर्ण *hd = curlx_dyn_ptr(bf);
+  यदि(len && (hd[len - 1] == '\n'))
     len--;
-  if(len && (hd[len - 1] == '\r'))
+  यदि(len && (hd[len - 1] == '\r'))
     len--;
-  while(len && ISBLANK(hd[len - 1])) /* strip off trailing whitespace */
+  यावत्(len && ISBLANK(hd[len - 1])) /* strip off trailing whitespace */
     len--;
   curlx_dyn_setlen(bf, len);
 }
 
-static void unfold_header(struct Curl_easy *data)
+स्थिर शून्य unfold_शीर्षकम्(संरचना Curl_easy *दत्त)
 {
-  Curl_http_to_fold(&data->state.headerb);
-  data->state.leading_unfold = TRUE;
+  Curl_http_गन्तव्यम्_fold(&दत्त->state.headerb);
+  दत्त->state.leading_unfold = TRUE;
 }
 
 /*
  * Read any HTTP header lines from the server and pass them to the client app.
  */
-static CURLcode http_parse_headers(struct Curl_easy *data,
-                                   const char *buf, size_t blen,
+स्थिर CURLcode http_parse_शीर्षकाणि(संरचना Curl_easy *दत्त,
+                                   ध्रुव वर्ण *buf, size_t blen,
                                    size_t *pconsumed)
 {
-  struct connectdata *conn = data->conn;
-  CURLcode result = CURLE_OK;
-  struct SingleRequest *k = &data->req;
-  const char *end_ptr;
+  संरचना connectdata *conn = दत्त->conn;
+  CURLcode परिणाम = CURLE_OK;
+  संरचना SingleRequest *k = &दत्त->req;
+  ध्रुव वर्ण *अन्तः_ptr;
   bool leftover_body = FALSE;
 
   /* we have bytes for the next header, make sure it is not a folded header
      before passing it on */
-  if(data->state.maybe_folded && blen) {
-    if(ISBLANK(buf[0])) {
+  यदि(दत्त->state.maybe_folded && blen) {
+    यदि(ISBLANK(buf[0])) {
       /* folded, remove the trailing newlines and append the next header */
-      unfold_header(data);
+      unfold_शीर्षकम्(दत्त);
     }
-    else {
+    अन्यथा {
       /* the header data we hold is a complete header, pass it on */
       size_t ignore_this;
-      result = http_rw_hd(data, curlx_dyn_ptr(&data->state.headerb),
-                          curlx_dyn_len(&data->state.headerb),
-                          NULL, 0, &ignore_this);
-      curlx_dyn_reset(&data->state.headerb);
-      if(result)
-        return result;
+      परिणाम = http_rw_hd(दत्त, curlx_dyn_ptr(&दत्त->state.headerb),
+                          curlx_dyn_len(&दत्त->state.headerb),
+                          रिक्त, 0, &ignore_this);
+      curlx_dyn_reset(&दत्त->state.headerb);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    data->state.maybe_folded = FALSE;
+    दत्त->state.maybe_folded = FALSE;
   }
 
   /* header line within buffer loop */
   *pconsumed = 0;
-  while(blen && k->header) {
+  यावत्(blen && k->शीर्षकम्) {
     size_t consumed;
     size_t hlen;
-    const char *hd;
+    ध्रुव वर्ण *hd;
     size_t unfold_len = 0;
 
-    if(data->state.leading_unfold) {
+    यदि(दत्त->state.leading_unfold) {
       /* immediately after an unfold, keep only a single whitespace */
-      while(blen && ISBLANK(buf[0])) {
+      यावत्(blen && ISBLANK(buf[0])) {
         buf++;
         blen--;
         unfold_len++;
       }
-      if(blen) {
+      यदि(blen) {
         /* insert a single space */
-        result = curlx_dyn_addn(&data->state.headerb, " ", 1);
-        if(result)
-          return result;
-        data->state.leading_unfold = FALSE; /* done now */
+        परिणाम = curlx_dyn_addn(&दत्त->state.headerb, " ", 1);
+        यदि(परिणाम)
+          प्रत्यागम परिणाम;
+        दत्त->state.leading_unfold = FALSE; /* done now */
       }
     }
 
-    end_ptr = memchr(buf, '\n', blen);
-    if(!end_ptr) {
+    अन्तः_ptr = memchr(buf, '\n', blen);
+    यदि(!अन्तः_ptr) {
       /* Not a complete header line within buffer, append the data to
          the end of the headerbuff. */
-      result = curlx_dyn_addn(&data->state.headerb, buf, blen);
-      if(result)
-        return result;
+      परिणाम = curlx_dyn_addn(&दत्त->state.headerb, buf, blen);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
       *pconsumed += blen + unfold_len;
 
-      if(!k->headerline) {
+      यदि(!k->headerline) {
         /* check if this looks like a protocol header */
         statusline st =
-          checkprotoprefix(data, conn,
-                           curlx_dyn_ptr(&data->state.headerb),
-                           curlx_dyn_len(&data->state.headerb));
+          checkprotoprefix(दत्त, conn,
+                           curlx_dyn_ptr(&दत्त->state.headerb),
+                           curlx_dyn_len(&दत्त->state.headerb));
 
-        if(st == STATUS_BAD) {
+        यदि(st == स्थितिः_BAD) {
           /* this is not the beginning of a protocol first header line.
            * Cannot be 0.9 if version was detected or connection was reused. */
-          k->header = FALSE;
+          k->शीर्षकम् = FALSE;
           streamclose(conn);
-          if((k->httpversion >= 10) || conn->bits.reuse) {
-            failf(data, "Invalid status line");
-            return CURLE_WEIRD_SERVER_REPLY;
+          यदि((k->httpversion >= 10) || conn->द्वयङ्काः.reuse) {
+            failf(दत्त, "Invalid status line");
+            प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
           }
-          if(!data->state.http_neg.accept_09) {
-            failf(data, "Received HTTP/0.9 when not allowed");
-            return CURLE_UNSUPPORTED_PROTOCOL;
+          यदि(!दत्त->state.http_neg.accept_09) {
+            failf(दत्त, "Received HTTP/0.9 when not allowed");
+            प्रत्यागम CURLE_UNSUPPORTED_PROTOCOL;
           }
           leftover_body = TRUE;
-          goto out;
+          गच्छ बहिर्गमनम्;
         }
       }
-      goto out; /* read more and try again */
+      गच्छ बहिर्गमनम्; /* read more and try again */
     }
 
     /* the size of the remaining header line */
-    consumed = (end_ptr - buf) + 1;
+    consumed = (अन्तः_ptr - buf) + 1;
 
-    result = curlx_dyn_addn(&data->state.headerb, buf, consumed);
-    if(result)
-      return result;
+    परिणाम = curlx_dyn_addn(&दत्त->state.headerb, buf, consumed);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
     blen -= consumed;
     buf += consumed;
     *pconsumed += consumed + unfold_len;
@@ -4594,363 +4594,363 @@ static CURLcode http_parse_headers(struct Curl_easy *data,
      * We now have a FULL header line in 'headerb'.
      *****/
 
-    hlen = curlx_dyn_len(&data->state.headerb);
-    hd = curlx_dyn_ptr(&data->state.headerb);
+    hlen = curlx_dyn_len(&दत्त->state.headerb);
+    hd = curlx_dyn_ptr(&दत्त->state.headerb);
 
-    if(!k->headerline) {
+    यदि(!k->headerline) {
       /* the first read "header", the status line */
-      statusline st = checkprotoprefix(data, conn, hd, hlen);
-      if(st == STATUS_BAD) {
+      statusline st = checkprotoprefix(दत्त, conn, hd, hlen);
+      यदि(st == स्थितिः_BAD) {
         streamclose(conn);
         /* this is not the beginning of a protocol first header line.
          * Cannot be 0.9 if version was detected or connection was reused. */
-        if((k->httpversion >= 10) || conn->bits.reuse) {
-          failf(data, "Invalid status line");
-          return CURLE_WEIRD_SERVER_REPLY;
+        यदि((k->httpversion >= 10) || conn->द्वयङ्काः.reuse) {
+          failf(दत्त, "Invalid status line");
+          प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
         }
-        if(!data->state.http_neg.accept_09) {
-          failf(data, "Received HTTP/0.9 when not allowed");
-          return CURLE_UNSUPPORTED_PROTOCOL;
+        यदि(!दत्त->state.http_neg.accept_09) {
+          failf(दत्त, "Received HTTP/0.9 when not allowed");
+          प्रत्यागम CURLE_UNSUPPORTED_PROTOCOL;
         }
-        k->header = FALSE;
+        k->शीर्षकम् = FALSE;
         leftover_body = TRUE;
-        goto out;
+        गच्छ बहिर्गमनम्;
       }
     }
-    else {
-      if(hlen && !ISNEWLINE(hd[0])) {
+    अन्यथा {
+      यदि(hlen && !ISNEWLINE(hd[0])) {
         /* this is NOT the header separator */
 
         /* if we have bytes for the next header, check for folding */
-        if(blen && ISBLANK(buf[0])) {
+        यदि(blen && ISBLANK(buf[0])) {
           /* remove the trailing CRLF and append the next header */
-          unfold_header(data);
-          continue;
+          unfold_शीर्षकम्(दत्त);
+          अनुवर्त;
         }
-        else if(!blen) {
+        अन्यथा यदि(!blen) {
           /* this might be a folded header so deal with it in next invoke */
-          data->state.maybe_folded = TRUE;
-          break;
+          दत्त->state.maybe_folded = TRUE;
+          भङ्ग;
         }
       }
     }
 
-    result = http_rw_hd(data, hd, hlen, buf, blen, &consumed);
+    परिणाम = http_rw_hd(दत्त, hd, hlen, buf, blen, &consumed);
     /* We are done with this line. We reset because response
      * processing might switch to HTTP/2 and that might call us
      * directly again. */
-    curlx_dyn_reset(&data->state.headerb);
-    if(consumed) {
+    curlx_dyn_reset(&दत्त->state.headerb);
+    यदि(consumed) {
       blen -= consumed;
       buf += consumed;
       *pconsumed += consumed;
     }
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
 
   /* We might have reached the end of the header part here, but
      there might be a non-header part left in the end of the read
      buffer. */
-out:
-  if(!k->header && !leftover_body) {
-    curlx_dyn_free(&data->state.headerb);
+बहिर्गमनम्:
+  यदि(!k->शीर्षकम् && !leftover_body) {
+    curlx_dyn_free(&दत्त->state.headerb);
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_http_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd, size_t hdlen,
+CURLcode Curl_http_write_resp_hd(संरचना Curl_easy *दत्त,
+                                 ध्रुव वर्ण *hd, size_t hdlen,
                                  bool is_eos)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   size_t consumed;
-  char tmp = 0;
+  वर्ण tmp = 0;
   DEBUGASSERT(!hd[hdlen]); /* null-terminated */
 
-  result = http_rw_hd(data, hd, hdlen, &tmp, 0, &consumed);
-  if(!result && is_eos) {
-    result = Curl_client_write(data, (CLIENTWRITE_BODY | CLIENTWRITE_EOS),
+  परिणाम = http_rw_hd(दत्त, hd, hdlen, &tmp, 0, &consumed);
+  यदि(!परिणाम && is_eos) {
+    परिणाम = Curl_client_write(दत्त, (CLIENTWRITE_BODY | CLIENTWRITE_EOS),
                                &tmp, 0);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
  * HTTP protocol `write_resp` implementation. Parse headers
  * when not done yet and otherwise return without consuming data.
  */
-CURLcode Curl_http_write_resp_hds(struct Curl_easy *data,
-                                  const char *buf, size_t blen,
+CURLcode Curl_http_write_resp_hds(संरचना Curl_easy *दत्त,
+                                  ध्रुव वर्ण *buf, size_t blen,
                                   size_t *pconsumed)
 {
-  if(!data->req.header) {
+  यदि(!दत्त->req.शीर्षकम्) {
     *pconsumed = 0;
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
   }
-  else {
-    CURLcode result;
+  अन्यथा {
+    CURLcode परिणाम;
 
-    result = http_parse_headers(data, buf, blen, pconsumed);
-    if(!result && !data->req.header) {
-      if(!data->req.no_body && curlx_dyn_len(&data->state.headerb)) {
+    परिणाम = http_parse_शीर्षकाणि(दत्त, buf, blen, pconsumed);
+    यदि(!परिणाम && !दत्त->req.शीर्षकम्) {
+      यदि(!दत्त->req.no_body && curlx_dyn_len(&दत्त->state.headerb)) {
         /* leftover from parsing something that turned out not
          * to be a header, only happens if we allow for
          * HTTP/0.9 like responses */
-        result = Curl_client_write(data, CLIENTWRITE_BODY,
-                                   curlx_dyn_ptr(&data->state.headerb),
-                                   curlx_dyn_len(&data->state.headerb));
+        परिणाम = Curl_client_write(दत्त, CLIENTWRITE_BODY,
+                                   curlx_dyn_ptr(&दत्त->state.headerb),
+                                   curlx_dyn_len(&दत्त->state.headerb));
       }
-      curlx_dyn_free(&data->state.headerb);
+      curlx_dyn_free(&दत्त->state.headerb);
     }
-    return result;
+    प्रत्यागम परिणाम;
   }
 }
 
-CURLcode Curl_http_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_http_write_resp(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *buf, size_t blen,
                               bool is_eos)
 {
-  CURLcode result;
+  CURLcode परिणाम;
   size_t consumed;
-  int flags;
+  पूर्णाङ्क flags;
 
-  result = Curl_http_write_resp_hds(data, buf, blen, &consumed);
-  if(result || data->req.done)
-    goto out;
+  परिणाम = Curl_http_write_resp_hds(दत्त, buf, blen, &consumed);
+  यदि(परिणाम || दत्त->req.समाप्तम्)
+    गच्छ बहिर्गमनम्;
 
   DEBUGASSERT(consumed <= blen);
   blen -= consumed;
   buf += consumed;
   /* either all was consumed in header parsing, or we have data left
    * and are done with headers, e.g. it is BODY data */
-  DEBUGASSERT(!blen || !data->req.header);
-  if(!data->req.header && (blen || is_eos)) {
+  DEBUGASSERT(!blen || !दत्त->req.शीर्षकम्);
+  यदि(!दत्त->req.शीर्षकम् && (blen || is_eos)) {
     /* BODY data after header been parsed, write and consume */
     flags = CLIENTWRITE_BODY;
-    if(is_eos)
+    यदि(is_eos)
       flags |= CLIENTWRITE_EOS;
-    result = Curl_client_write(data, flags, buf, blen);
+    परिणाम = Curl_client_write(दत्त, flags, buf, blen);
   }
-out:
-  return result;
+बहिर्गमनम्:
+  प्रत्यागम परिणाम;
 }
 
 /* Decode HTTP status code string. */
-CURLcode Curl_http_decode_status(int32_t *pstatus, const char *s, size_t len)
+CURLcode Curl_http_decode_स्थितिः(int32_t *pstatus, ध्रुव वर्ण *s, size_t len)
 {
-  CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  int32_t status = 0;
-  int i;
+  CURLcode परिणाम = CURLE_BAD_FUNCTION_तर्कः;
+  int32_t स्थितिः = 0;
+  पूर्णाङ्क i;
 
-  if(len != 3)
-    goto out;
+  यदि(len != 3)
+    गच्छ बहिर्गमनम्;
 
-  for(i = 0; i < 3; ++i) {
-    char c = s[i];
+  प्रति(i = 0; i < 3; ++i) {
+    वर्ण c = s[i];
 
-    if(c < '0' || c > '9')
-      goto out;
+    यदि(c < '0' || c > '9')
+      गच्छ बहिर्गमनम्;
 
-    status *= 10;
-    status += c - '0';
+    स्थितिः *= 10;
+    स्थितिः += c - '0';
   }
-  result = CURLE_OK;
-out:
-  *pstatus = result ? -1 : status;
-  return result;
+  परिणाम = CURLE_OK;
+बहिर्गमनम्:
+  *pstatus = परिणाम ? -1 : स्थितिः;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_http_req_make(struct httpreq **preq,
-                            const char *method, size_t m_len,
-                            const char *scheme, size_t s_len,
-                            const char *authority, size_t a_len,
-                            const char *path, size_t p_len)
+CURLcode Curl_http_req_make(संरचना httpreq **preq,
+                            ध्रुव वर्ण *विधानम्, size_t m_len,
+                            ध्रुव वर्ण *scheme, size_t s_len,
+                            ध्रुव वर्ण *authority, size_t a_len,
+                            ध्रुव वर्ण *मार्गः, size_t p_len)
 {
-  struct httpreq *req;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  संरचना httpreq *req;
+  CURLcode परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  DEBUGASSERT(method && m_len);
+  DEBUGASSERT(विधानम् && m_len);
 
-  req = curlx_calloc(1, sizeof(*req) + m_len);
-  if(!req)
-    goto out;
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic push
+  req = curlx_calloc(1, परिमाण(*req) + m_len);
+  यदि(!req)
+    गच्छ बहिर्गमनम्;
+#यदि defined(__GNUC__) && __GNUC__ >= 13
+#निर्देशः GCC diagnostic प्रक्षिप
 /* error: 'memcpy' offset [137, 142] from the object at 'req' is out of
    the bounds of referenced subobject 'method' with type 'char[1]' at
    offset 136 */
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-  memcpy(req->method, method, m_len);
-#if defined(__GNUC__) && __GNUC__ >= 13
-#pragma GCC diagnostic pop
-#endif
-  if(scheme) {
+#निर्देशः GCC diagnostic ignored "-Warray-bounds"
+#यदि_अन्तः
+  स्मृतिं_प्रतिलिख(req->विधानम्, विधानम्, m_len);
+#यदि defined(__GNUC__) && __GNUC__ >= 13
+#निर्देशः GCC diagnostic निष्कासय
+#यदि_अन्तः
+  यदि(scheme) {
     req->scheme = curlx_memdup0(scheme, s_len);
-    if(!req->scheme)
-      goto out;
+    यदि(!req->scheme)
+      गच्छ बहिर्गमनम्;
   }
-  if(authority) {
+  यदि(authority) {
     req->authority = curlx_memdup0(authority, a_len);
-    if(!req->authority)
-      goto out;
+    यदि(!req->authority)
+      गच्छ बहिर्गमनम्;
   }
-  if(path) {
-    req->path = curlx_memdup0(path, p_len);
-    if(!req->path)
-      goto out;
+  यदि(मार्गः) {
+    req->मार्गः = curlx_memdup0(मार्गः, p_len);
+    यदि(!req->मार्गः)
+      गच्छ बहिर्गमनम्;
   }
-  Curl_dynhds_init(&req->headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&req->शीर्षकाणि, 0, DYN_HTTP_REQUEST);
   Curl_dynhds_init(&req->trailers, 0, DYN_HTTP_REQUEST);
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
-out:
-  if(result && req)
+बहिर्गमनम्:
+  यदि(परिणाम && req)
     Curl_http_req_free(req);
-  *preq = result ? NULL : req;
-  return result;
+  *preq = परिणाम ? रिक्त : req;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode req_assign_url_authority(struct httpreq *req, CURLU *url)
+स्थिर CURLcode req_नियोजय_url_authority(संरचना httpreq *req, CURLU *url)
 {
-  char *host, *port;
-  struct dynbuf buf;
+  वर्ण *host, *पत्तनम्;
+  संरचना dynbuf buf;
   CURLUcode uc;
-  CURLcode result = CURLE_URL_MALFORMAT;
+  CURLcode परिणाम = CURLE_URL_MALFORMAT;
 
-  host = port = NULL;
+  host = पत्तनम् = रिक्त;
   curlx_dyn_init(&buf, DYN_HTTP_REQUEST);
 
   uc = curl_url_get(url, CURLUPART_HOST, &host, 0);
-  if(uc && uc != CURLUE_NO_HOST)
-    goto out;
-  if(!host) {
-    req->authority = NULL;
-    result = CURLE_OK;
-    goto out;
+  यदि(uc && uc != CURLUE_NO_HOST)
+    गच्छ बहिर्गमनम्;
+  यदि(!host) {
+    req->authority = रिक्त;
+    परिणाम = CURLE_OK;
+    गच्छ बहिर्गमनम्;
   }
 
-  uc = curl_url_get(url, CURLUPART_PORT, &port, CURLU_NO_DEFAULT_PORT);
-  if(uc && uc != CURLUE_NO_PORT)
-    goto out;
+  uc = curl_url_get(url, CURLUPART_पत्तनम्, &पत्तनम्, CURLU_NO_DEFAULT_पत्तनम्);
+  यदि(uc && uc != CURLUE_NO_पत्तनम्)
+    गच्छ बहिर्गमनम्;
 
-  result = curlx_dyn_add(&buf, host);
-  if(result)
-    goto out;
-  if(port) {
-    result = curlx_dyn_addf(&buf, ":%s", port);
-    if(result)
-      goto out;
+  परिणाम = curlx_dyn_सङ्कलय(&buf, host);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  यदि(पत्तनम्) {
+    परिणाम = curlx_dyn_addf(&buf, ":%s", पत्तनम्);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
   req->authority = curlx_dyn_ptr(&buf);
-out:
+बहिर्गमनम्:
   curlx_free(host);
-  curlx_free(port);
-  if(result)
+  curlx_free(पत्तनम्);
+  यदि(परिणाम)
     curlx_dyn_free(&buf);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode req_assign_url_path(struct httpreq *req, CURLU *url)
+स्थिर CURLcode req_नियोजय_url_मार्गः(संरचना httpreq *req, CURLU *url)
 {
-  char *path, *query;
-  struct dynbuf buf;
+  वर्ण *मार्गः, *query;
+  संरचना dynbuf buf;
   CURLUcode uc;
-  CURLcode result = CURLE_URL_MALFORMAT;
+  CURLcode परिणाम = CURLE_URL_MALFORMAT;
 
-  path = query = NULL;
+  मार्गः = query = रिक्त;
   curlx_dyn_init(&buf, DYN_HTTP_REQUEST);
 
-  uc = curl_url_get(url, CURLUPART_PATH, &path, 0);
-  if(uc)
-    goto out;
+  uc = curl_url_get(url, CURLUPART_मार्गः, &मार्गः, 0);
+  यदि(uc)
+    गच्छ बहिर्गमनम्;
   uc = curl_url_get(url, CURLUPART_QUERY, &query, 0);
-  if(uc && uc != CURLUE_NO_QUERY)
-    goto out;
+  यदि(uc && uc != CURLUE_NO_QUERY)
+    गच्छ बहिर्गमनम्;
 
-  if(!query) {
-    req->path = path;
-    path = NULL;
+  यदि(!query) {
+    req->मार्गः = मार्गः;
+    मार्गः = रिक्त;
   }
-  else {
-    result = curlx_dyn_add(&buf, path);
-    if(!result)
-      result = curlx_dyn_addf(&buf, "?%s", query);
-    if(result)
-      goto out;
-    req->path = curlx_dyn_ptr(&buf);
+  अन्यथा {
+    परिणाम = curlx_dyn_सङ्कलय(&buf, मार्गः);
+    यदि(!परिणाम)
+      परिणाम = curlx_dyn_addf(&buf, "?%s", query);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
+    req->मार्गः = curlx_dyn_ptr(&buf);
   }
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
-out:
-  curlx_free(path);
+बहिर्गमनम्:
+  curlx_free(मार्गः);
   curlx_free(query);
-  if(result)
+  यदि(परिणाम)
     curlx_dyn_free(&buf);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_http_req_make2(struct httpreq **preq,
-                             const char *method, size_t m_len,
-                             CURLU *url, const char *scheme_default)
+CURLcode Curl_http_req_make2(संरचना httpreq **preq,
+                             ध्रुव वर्ण *विधानम्, size_t m_len,
+                             CURLU *url, ध्रुव वर्ण *scheme_default)
 {
-  struct httpreq *req;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  संरचना httpreq *req;
+  CURLcode परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   CURLUcode uc;
 
-  DEBUGASSERT(method && m_len);
+  DEBUGASSERT(विधानम् && m_len);
 
-  req = curlx_calloc(1, sizeof(*req) + m_len);
-  if(!req)
-    goto out;
-  memcpy(req->method, method, m_len);
+  req = curlx_calloc(1, परिमाण(*req) + m_len);
+  यदि(!req)
+    गच्छ बहिर्गमनम्;
+  स्मृतिं_प्रतिलिख(req->विधानम्, विधानम्, m_len);
 
   uc = curl_url_get(url, CURLUPART_SCHEME, &req->scheme, 0);
-  if(uc && uc != CURLUE_NO_SCHEME)
-    goto out;
-  if(!req->scheme && scheme_default) {
+  यदि(uc && uc != CURLUE_NO_SCHEME)
+    गच्छ बहिर्गमनम्;
+  यदि(!req->scheme && scheme_default) {
     req->scheme = curlx_strdup(scheme_default);
-    if(!req->scheme)
-      goto out;
+    यदि(!req->scheme)
+      गच्छ बहिर्गमनम्;
   }
 
-  result = req_assign_url_authority(req, url);
-  if(result)
-    goto out;
-  result = req_assign_url_path(req, url);
-  if(result)
-    goto out;
+  परिणाम = req_नियोजय_url_authority(req, url);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
+  परिणाम = req_नियोजय_url_मार्गः(req, url);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  Curl_dynhds_init(&req->headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&req->शीर्षकाणि, 0, DYN_HTTP_REQUEST);
   Curl_dynhds_init(&req->trailers, 0, DYN_HTTP_REQUEST);
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
-out:
-  if(result && req)
+बहिर्गमनम्:
+  यदि(परिणाम && req)
     Curl_http_req_free(req);
-  *preq = result ? NULL : req;
-  return result;
+  *preq = परिणाम ? रिक्त : req;
+  प्रत्यागम परिणाम;
 }
 
-void Curl_http_req_free(struct httpreq *req)
+शून्य Curl_http_req_free(संरचना httpreq *req)
 {
-  if(req) {
+  यदि(req) {
     curlx_free(req->scheme);
     curlx_free(req->authority);
-    curlx_free(req->path);
-    Curl_dynhds_free(&req->headers);
+    curlx_free(req->मार्गः);
+    Curl_dynhds_free(&req->शीर्षकाणि);
     Curl_dynhds_free(&req->trailers);
     curlx_free(req);
   }
 }
 
-struct name_const {
-  const char *name;
+संरचना name_const {
+  ध्रुव वर्ण *name;
   size_t namelen;
 };
 
-static const struct name_const H2_NON_FIELD[] = {
+स्थिर ध्रुव संरचना name_const H2_NON_क्षेत्रम्[] = {
   { STRCONST("Host") },
   { STRCONST("Upgrade") },
   { STRCONST("Connection") },
@@ -4959,151 +4959,151 @@ static const struct name_const H2_NON_FIELD[] = {
   { STRCONST("Transfer-Encoding") },
 };
 
-static bool h2_permissible_field(struct dynhds_entry *e)
+स्थिर bool h2_permissible_क्षेत्रम्(संरचना dynhds_प्रविष्टिः *e)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(H2_NON_FIELD); ++i) {
-    if(e->namelen == H2_NON_FIELD[i].namelen &&
-       curl_strnequal(H2_NON_FIELD[i].name, e->name, e->namelen))
-      return FALSE;
+  प्रति(i = 0; i < CURL_ARRAYSIZE(H2_NON_क्षेत्रम्); ++i) {
+    यदि(e->namelen == H2_NON_क्षेत्रम्[i].namelen &&
+       curl_strnequal(H2_NON_क्षेत्रम्[i].name, e->name, e->namelen))
+      प्रत्यागम FALSE;
   }
-  return TRUE;
+  प्रत्यागम TRUE;
 }
 
-static bool http_TE_has_token(const char *fvalue, const char *token)
+स्थिर bool http_TE_has_token(ध्रुव वर्ण *fvalue, ध्रुव वर्ण *token)
 {
-  while(*fvalue) {
-    struct Curl_str name;
+  यावत्(*fvalue) {
+    संरचना Curl_str name;
 
     /* skip to first token */
-    while(ISBLANK(*fvalue) || *fvalue == ',')
+    यावत्(ISBLANK(*fvalue) || *fvalue == ',')
       fvalue++;
-    if(curlx_str_cspn(&fvalue, &name, " \t\r;,"))
-      return FALSE;
-    if(curlx_str_casecompare(&name, token))
-      return TRUE;
+    यदि(curlx_str_cspn(&fvalue, &name, " \t\r;,"))
+      प्रत्यागम FALSE;
+    यदि(curlx_str_casecompare(&name, token))
+      प्रत्यागम TRUE;
 
     /* skip any remainder after token, e.g. parameters with quoted strings */
-    while(*fvalue && *fvalue != ',') {
-      if(*fvalue == '"') {
-        struct Curl_str qw;
+    यावत्(*fvalue && *fvalue != ',') {
+      यदि(*fvalue == '"') {
+        संरचना Curl_str qw;
         /* if we do not cleanly find a quoted word here, the header value
          * does not follow HTTP syntax and we reject */
-        if(curlx_str_quotedword(&fvalue, &qw, CURL_MAX_HTTP_HEADER))
-          return FALSE;
+        यदि(curlx_str_quotedword(&fvalue, &qw, CURL_MAX_HTTP_शीर्षकम्))
+          प्रत्यागम FALSE;
       }
-      else
+      अन्यथा
         fvalue++;
     }
   }
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-CURLcode Curl_http_req_to_h2(struct dynhds *h2_headers,
-                             struct httpreq *req, struct Curl_easy *data)
+CURLcode Curl_http_req_गन्तव्यम्_h2(संरचना dynhds *h2_शीर्षकाणि,
+                             संरचना httpreq *req, संरचना Curl_easy *दत्त)
 {
-  const char *scheme = NULL, *authority = NULL;
-  struct dynhds_entry *e;
+  ध्रुव वर्ण *scheme = रिक्त, *authority = रिक्त;
+  संरचना dynhds_प्रविष्टिः *e;
   size_t i;
-  CURLcode result;
+  CURLcode परिणाम;
 
   DEBUGASSERT(req);
-  DEBUGASSERT(h2_headers);
+  DEBUGASSERT(h2_शीर्षकाणि);
 
-  if(req->scheme) {
+  यदि(req->scheme) {
     scheme = req->scheme;
   }
-  else if(strcmp("CONNECT", req->method)) {
-    scheme = Curl_checkheaders(data, STRCONST(HTTP_PSEUDO_SCHEME));
-    if(scheme) {
-      scheme += sizeof(HTTP_PSEUDO_SCHEME);
+  अन्यथा यदि(वाक्यं_तुलय("CONNECT", req->विधानम्)) {
+    scheme = Curl_checkheaders(दत्त, STRCONST(HTTP_PSEUDO_SCHEME));
+    यदि(scheme) {
+      scheme += परिमाण(HTTP_PSEUDO_SCHEME);
       curlx_str_passblanks(&scheme);
-      infof(data, "set pseudo header %s to %s", HTTP_PSEUDO_SCHEME, scheme);
+      infof(दत्त, "set pseudo header %s to %s", HTTP_PSEUDO_SCHEME, scheme);
     }
-    else {
-      scheme = data->state.origin->scheme->name;
+    अन्यथा {
+      scheme = दत्त->state.origin->scheme->name;
     }
   }
 
-  if(req->authority) {
+  यदि(req->authority) {
     authority = req->authority;
   }
-  else {
-    e = Curl_dynhds_get(&req->headers, STRCONST("Host"));
-    if(e)
-      authority = e->value;
+  अन्यथा {
+    e = Curl_dynhds_get(&req->शीर्षकाणि, STRCONST("Host"));
+    यदि(e)
+      authority = e->मानम्;
   }
 
-  Curl_dynhds_reset(h2_headers);
-  Curl_dynhds_set_opts(h2_headers, DYNHDS_OPT_LOWERCASE);
-  result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_METHOD),
-                           req->method, strlen(req->method));
-  if(!result && scheme) {
-    result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_SCHEME),
-                             scheme, strlen(scheme));
+  Curl_dynhds_reset(h2_शीर्षकाणि);
+  Curl_dynhds_समुच्चयः_opts(h2_शीर्षकाणि, DYNHDS_OPT_LOWERCASE);
+  परिणाम = Curl_dynhds_सङ्कलय(h2_शीर्षकाणि, STRCONST(HTTP_PSEUDO_विधानम्),
+                           req->विधानम्, वाक्यदैर्घ्यम्(req->विधानम्));
+  यदि(!परिणाम && scheme) {
+    परिणाम = Curl_dynhds_सङ्कलय(h2_शीर्षकाणि, STRCONST(HTTP_PSEUDO_SCHEME),
+                             scheme, वाक्यदैर्घ्यम्(scheme));
   }
-  if(!result && authority) {
-    result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_AUTHORITY),
-                             authority, strlen(authority));
+  यदि(!परिणाम && authority) {
+    परिणाम = Curl_dynhds_सङ्कलय(h2_शीर्षकाणि, STRCONST(HTTP_PSEUDO_AUTHORITY),
+                             authority, वाक्यदैर्घ्यम्(authority));
   }
-  if(!result && req->path) {
-    result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_PATH),
-                             req->path, strlen(req->path));
+  यदि(!परिणाम && req->मार्गः) {
+    परिणाम = Curl_dynhds_सङ्कलय(h2_शीर्षकाणि, STRCONST(HTTP_PSEUDO_मार्गः),
+                             req->मार्गः, वाक्यदैर्घ्यम्(req->मार्गः));
   }
-  for(i = 0; !result && i < Curl_dynhds_count(&req->headers); ++i) {
-    e = Curl_dynhds_getn(&req->headers, i);
+  प्रति(i = 0; !परिणाम && i < Curl_dynhds_गणनम्(&req->शीर्षकाणि); ++i) {
+    e = Curl_dynhds_getn(&req->शीर्षकाणि, i);
     /* "TE" is special in that it is only permissible when it
      * has only value "trailers". RFC 9113 ch. 8.2.2 */
-    if(e->namelen == 2 && curl_strequal("TE", e->name)) {
-      if(http_TE_has_token(e->value, "trailers"))
-        result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
+    यदि(e->namelen == 2 && curl_strequal("TE", e->name)) {
+      यदि(http_TE_has_token(e->मानम्, "trailers"))
+        परिणाम = Curl_dynhds_सङ्कलय(h2_शीर्षकाणि, e->name, e->namelen,
                                  "trailers", CURL_CSTRLEN("trailers"));
     }
-    else if(h2_permissible_field(e)) {
-      result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
-                               e->value, e->valuelen);
+    अन्यथा यदि(h2_permissible_क्षेत्रम्(e)) {
+      परिणाम = Curl_dynhds_सङ्कलय(h2_शीर्षकाणि, e->name, e->namelen,
+                               e->मानम्, e->valuelen);
     }
   }
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_http_resp_make(struct http_resp **presp,
-                             int status,
-                             const char *description)
+CURLcode Curl_http_resp_make(संरचना http_resp **presp,
+                             पूर्णाङ्क स्थितिः,
+                             ध्रुव वर्ण *description)
 {
-  struct http_resp *resp;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
+  संरचना http_resp *resp;
+  CURLcode परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  resp = curlx_calloc(1, sizeof(*resp));
-  if(!resp)
-    goto out;
+  resp = curlx_calloc(1, परिमाण(*resp));
+  यदि(!resp)
+    गच्छ बहिर्गमनम्;
 
-  resp->status = status;
-  if(description) {
+  resp->स्थितिः = स्थितिः;
+  यदि(description) {
     resp->description = curlx_strdup(description);
-    if(!resp->description)
-      goto out;
+    यदि(!resp->description)
+      गच्छ बहिर्गमनम्;
   }
-  Curl_dynhds_init(&resp->headers, 0, DYN_HTTP_REQUEST);
+  Curl_dynhds_init(&resp->शीर्षकाणि, 0, DYN_HTTP_REQUEST);
   Curl_dynhds_init(&resp->trailers, 0, DYN_HTTP_REQUEST);
-  result = CURLE_OK;
+  परिणाम = CURLE_OK;
 
-out:
-  if(result && resp)
+बहिर्गमनम्:
+  यदि(परिणाम && resp)
     Curl_http_resp_free(resp);
-  *presp = result ? NULL : resp;
-  return result;
+  *presp = परिणाम ? रिक्त : resp;
+  प्रत्यागम परिणाम;
 }
 
-void Curl_http_resp_free(struct http_resp *resp)
+शून्य Curl_http_resp_free(संरचना http_resp *resp)
 {
-  if(resp) {
+  यदि(resp) {
     curlx_free(resp->description);
-    Curl_dynhds_free(&resp->headers);
+    Curl_dynhds_free(&resp->शीर्षकाणि);
     Curl_dynhds_free(&resp->trailers);
-    if(resp->prev)
-      Curl_http_resp_free(resp->prev);
+    यदि(resp->पूर्व)
+      Curl_http_resp_free(resp->पूर्व);
     curlx_free(resp);
   }
 }
@@ -5111,10 +5111,10 @@ void Curl_http_resp_free(struct http_resp *resp)
 /*
  * HTTP handler interface.
  */
-const struct Curl_protocol Curl_protocol_http = {
-  Curl_http_setup_conn,                 /* setup_connection */
+ध्रुव संरचना Curl_protocol Curl_protocol_http = {
+  Curl_http_सज्जता_conn,                 /* setup_connection */
   Curl_http,                            /* do_it */
-  Curl_http_done,                       /* done */
+  Curl_http_समाप्तम्,                       /* done */
   ZERO_NULL,                            /* do_more */
   ZERO_NULL,                            /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -5131,4 +5131,4 @@ const struct Curl_protocol Curl_protocol_http = {
   Curl_http_follow,                     /* follow */
 };
 
-#endif /* CURL_DISABLE_HTTP */
+#यदि_अन्तः /* CURL_DISABLE_HTTP */

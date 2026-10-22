@@ -21,36 +21,36 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "llist.h"
+#अन्तर्भाव "llist.h"
 
-#ifdef DEBUGBUILD
-#define LLISTINIT 0x100cc001 /* random pattern */
-#define NODEINIT  0x12344321 /* random pattern */
-#define NODEREM   0x54321012 /* random pattern */
+#यदि_परिभाषितम् DEBUGBUILD
+#परिभाषय LLISTINIT 0x100cc001 /* random pattern */
+#परिभाषय NODEINIT  0x12344321 /* random pattern */
+#परिभाषय NODEREM   0x54321012 /* random pattern */
 
-#define VERIFYNODE(x) verifynode(x)
-static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
+#परिभाषय VERIFYNODE(x) verifynode(x)
+स्थिर संरचना Curl_llist_ग्रन्थिः *verifynode(संरचना Curl_llist_ग्रन्थिः *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  प्रत्यागम n;
 }
-#else
-#define VERIFYNODE(x) x
-#endif
+#अन्यथा
+#परिभाषय VERIFYNODE(x) x
+#यदि_अन्तः
 /*
  * @unittest 1300
  */
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
+शून्य Curl_llist_init(संरचना Curl_llist *l, Curl_llist_dtor dtor)
 {
-  l->_size = 0;
+  l->आकार_2 = 0;
   l->_dtor = dtor;
-  l->_head = NULL;
-  l->_tail = NULL;
-#ifdef DEBUGBUILD
+  l->शीर्ष_2 = रिक्त;
+  l->पुच्छ_2 = रिक्त;
+#यदि_परिभाषितम् DEBUGBUILD
   l->_init = LLISTINIT;
-#endif
+#यदि_अन्तः
 }
 
 /*
@@ -64,48 +64,48 @@ void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
  *
  * @unittest 1300
  */
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, const void *p,
-                                struct Curl_llist_node *ne);
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, /* may be NULL */
-                                const void *p,
-                                struct Curl_llist_node *ne)
+UNITTEST शून्य llist_निवेशय_अग्र(संरचना Curl_llist *list,
+                                संरचना Curl_llist_ग्रन्थिः *e, ध्रुव शून्य *p,
+                                संरचना Curl_llist_ग्रन्थिः *ne);
+UNITTEST शून्य llist_निवेशय_अग्र(संरचना Curl_llist *list,
+                                संरचना Curl_llist_ग्रन्थिः *e, /* may be NULL */
+                                ध्रुव शून्य *p,
+                                संरचना Curl_llist_ग्रन्थिः *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
 
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
   ne->_init = NODEINIT;
-#endif
+#यदि_अन्तः
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
-    list->_head = ne;
-    list->_head->_prev = NULL;
-    list->_head->_next = NULL;
-    list->_tail = ne;
+  यदि(list->आकार_2 == 0) {
+    list->शीर्ष_2 = ne;
+    list->शीर्ष_2->पूर्व_2 = रिक्त;
+    list->शीर्ष_2->अग्र_2 = रिक्त;
+    list->पुच्छ_2 = ne;
   }
-  else {
+  अन्यथा {
     /* if 'e' is NULL here, we insert the new element first in the list */
-    ne->_next = e ? e->_next : list->_head;
-    ne->_prev = e;
-    if(!e) {
-      list->_head->_prev = ne;
-      list->_head = ne;
+    ne->अग्र_2 = e ? e->अग्र_2 : list->शीर्ष_2;
+    ne->पूर्व_2 = e;
+    यदि(!e) {
+      list->शीर्ष_2->पूर्व_2 = ne;
+      list->शीर्ष_2 = ne;
     }
-    else if(e->_next) {
-      e->_next->_prev = ne;
+    अन्यथा यदि(e->अग्र_2) {
+      e->अग्र_2->पूर्व_2 = ne;
     }
-    else {
-      list->_tail = ne;
+    अन्यथा {
+      list->पुच्छ_2 = ne;
     }
-    if(e)
-      e->_next = ne;
+    यदि(e)
+      e->अग्र_2 = ne;
   }
 
-  ++list->_size;
+  ++list->आकार_2;
 }
 
 /*
@@ -117,157 +117,157 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
  *
  * @unittest 1300
  */
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne)
+शून्य Curl_llist_append(संरचना Curl_llist *list, ध्रुव शून्य *p,
+                       संरचना Curl_llist_ग्रन्थिः *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
-  llist_insert_next(list, list->_tail, p, ne);
+  llist_निवेशय_अग्र(list, list->पुच्छ_2, p, ne);
 }
 
-void *Curl_node_take_elem(struct Curl_llist_node *e)
+शून्य *Curl_ग्रन्थिः_take_elem(संरचना Curl_llist_ग्रन्थिः *e)
 {
-  void *ptr;
-  struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  शून्य *ptr;
+  संरचना Curl_llist *list;
+  यदि(!e)
+    प्रत्यागम रिक्त;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  DEBUGASSERT(list->_size);
+  DEBUGASSERT(list->आकार_2);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
-      list->_head = e->_next;
+  यदि(list) {
+    यदि(e == list->शीर्ष_2) {
+      list->शीर्ष_2 = e->अग्र_2;
 
-      if(!list->_head)
-        list->_tail = NULL;
-      else
-        e->_next->_prev = NULL;
+      यदि(!list->शीर्ष_2)
+        list->पुच्छ_2 = रिक्त;
+      अन्यथा
+        e->अग्र_2->पूर्व_2 = रिक्त;
     }
-    else {
-      if(e->_prev)
-        e->_prev->_next = e->_next;
+    अन्यथा {
+      यदि(e->पूर्व_2)
+        e->पूर्व_2->अग्र_2 = e->अग्र_2;
 
-      if(!e->_next)
-        list->_tail = e->_prev;
-      else
-        e->_next->_prev = e->_prev;
+      यदि(!e->अग्र_2)
+        list->पुच्छ_2 = e->पूर्व_2;
+      अन्यथा
+        e->अग्र_2->पूर्व_2 = e->पूर्व_2;
     }
-    --list->_size;
+    --list->आकार_2;
   }
   ptr = e->_ptr;
 
-  e->_list = NULL;
-  e->_ptr  = NULL;
-  e->_prev = NULL;
-  e->_next = NULL;
-#ifdef DEBUGBUILD
+  e->_list = रिक्त;
+  e->_ptr  = रिक्त;
+  e->पूर्व_2 = रिक्त;
+  e->अग्र_2 = रिक्त;
+#यदि_परिभाषितम् DEBUGBUILD
   e->_init = NODEREM; /* specific pattern on remove - not zero */
-#endif
+#यदि_अन्तः
 
-  return ptr;
+  प्रत्यागम ptr;
 }
 
-static void node_uremove(struct Curl_llist_node *e, void *user)
+स्थिर शून्य ग्रन्थिः_uremove(संरचना Curl_llist_ग्रन्थिः *e, शून्य *user)
 {
-  struct Curl_llist *list;
-  void *ptr;
-  if(!e)
-    return;
+  संरचना Curl_llist *list;
+  शून्य *ptr;
+  यदि(!e)
+    प्रत्यागम;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
-    ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+  यदि(list) {
+    ptr = Curl_ग्रन्थिः_take_elem(e);
+    यदि(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
 
-void Curl_node_remove(struct Curl_llist_node *e)
+शून्य Curl_ग्रन्थिः_remove(संरचना Curl_llist_ग्रन्थिः *e)
 {
-  node_uremove(e, NULL);
+  ग्रन्थिः_uremove(e, रिक्त);
 }
 
-void Curl_llist_destroy(struct Curl_llist *list, void *user)
+शून्य Curl_llist_destroy(संरचना Curl_llist *list, शून्य *user)
 {
-  if(list) {
+  यदि(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
-      node_uremove(list->_tail, user);
+    यावत्(list->आकार_2 > 0)
+      ग्रन्थिः_uremove(list->पुच्छ_2, user);
   }
 }
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
+संरचना Curl_llist_ग्रन्थिः *Curl_llist_शीर्ष(ध्रुव संरचना Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  प्रत्यागम VERIFYNODE(list->शीर्ष_2);
 }
 
-#ifdef UNITTESTS
+#यदि_परिभाषितम् UNITTESTS
 /* llist_tail() returns the last 'struct Curl_llist_node *', which might be
    NULL
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list);
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
+UNITTEST संरचना Curl_llist_ग्रन्थिः *llist_पुच्छ(ध्रुव संरचना Curl_llist *list);
+UNITTEST संरचना Curl_llist_ग्रन्थिः *llist_पुच्छ(ध्रुव संरचना Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  प्रत्यागम VERIFYNODE(list->पुच्छ_2);
 }
-#endif
+#यदि_अन्तः
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list)
+size_t Curl_llist_गणनम्(ध्रुव संरचना Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  प्रत्यागम list->आकार_2;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n)
+शून्य *Curl_ग्रन्थिः_elem(ध्रुव संरचना Curl_llist_ग्रन्थिः *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  प्रत्यागम n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
+संरचना Curl_llist_ग्रन्थिः *Curl_ग्रन्थिः_अग्र(ध्रुव संरचना Curl_llist_ग्रन्थिः *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  प्रत्यागम VERIFYNODE(n->अग्र_2);
 }
 
-#ifdef UNITTESTS
+#यदि_परिभाषितम् UNITTESTS
 /* llist_node_prev() returns the previous element in a list from a given
    Curl_llist_node
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n);
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n)
+UNITTEST संरचना Curl_llist_ग्रन्थिः *llist_ग्रन्थिः_पूर्व(
+  ध्रुव संरचना Curl_llist_ग्रन्थिः *n);
+UNITTEST संरचना Curl_llist_ग्रन्थिः *llist_ग्रन्थिः_पूर्व(
+  ध्रुव संरचना Curl_llist_ग्रन्थिः *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  प्रत्यागम VERIFYNODE(n->पूर्व_2);
 }
-#endif
+#यदि_अन्तः
 
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
+संरचना Curl_llist *Curl_ग्रन्थिः_llist(ध्रुव संरचना Curl_llist_ग्रन्थिः *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  प्रत्यागम n->_list;
 }

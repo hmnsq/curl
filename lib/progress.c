@@ -21,57 +21,57 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "progress.h"
-#include "transfer.h"
-#include "curlx/strcopy.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "progress.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "curlx/strcopy.h"
 
-#ifndef CURL_DISABLE_PROGRESS_METER
+#यदि_अपरिभाषितम् CURL_DISABLE_प्रगतिः_METER
 /* Provide a string that is 7 letters long (plus the zero byte).
 
    @unittest 1636 */
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds);
-UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
+UNITTEST शून्य time2str(वर्ण *r, size_t rsize, curl_off_t seconds);
+UNITTEST शून्य time2str(वर्ण *r, size_t rsize, curl_off_t seconds)
 {
   curl_off_t h;
-  if(seconds <= 0) {
+  यदि(seconds <= 0) {
     curlx_strcopy(r, rsize, STRCONST("       "));
-    return;
+    प्रत्यागम;
   }
   h = seconds / 3600;
-  if(h <= 99) {
+  यदि(h <= 99) {
     curl_off_t m = (seconds - (h * 3600)) / 60;
-    if(h <= 9) {
+    यदि(h <= 9) {
       curl_off_t s = (seconds - (h * 3600)) - (m * 60);
-      if(h)
+      यदि(h)
         curl_msnprintf(r, rsize, "%" FMT_OFF_T ":%02" FMT_OFF_T ":"
                        "%02" FMT_OFF_T, h, m, s);
-      else
+      अन्यथा
         curl_msnprintf(r, rsize, "  %02" FMT_OFF_T ":%02" FMT_OFF_T, m, s);
     }
-    else
+    अन्यथा
       curl_msnprintf(r, rsize, "%" FMT_OFF_T "h %02" FMT_OFF_T "m", h, m);
   }
-  else {
+  अन्यथा {
     curl_off_t d = seconds / 86400;
     h = (seconds - (d * 86400)) / 3600;
-    if(d <= 99)
+    यदि(d <= 99)
       curl_msnprintf(r, rsize, "%2" FMT_OFF_T "d %02" FMT_OFF_T "h", d, h);
-    else if(d <= 999)
+    अन्यथा यदि(d <= 999)
       curl_msnprintf(r, rsize, "%6" FMT_OFF_T "d", d);
-    else { /* more than 999 days */
+    अन्यथा { /* more than 999 days */
       curl_off_t m = d / 30;
-      if(m <= 999)
+      यदि(m <= 999)
         curl_msnprintf(r, rsize, "%6" FMT_OFF_T "m", m);
-      else { /* more than 999 months */
+      अन्यथा { /* more than 999 months */
         curl_off_t y = d / 365;
-        if(y <= 99999)
+        यदि(y <= 99999)
           curl_msnprintf(r, rsize, "%6" FMT_OFF_T "y", y);
-        else
+        अन्यथा
           curlx_strcopy(r, rsize, STRCONST(">99999y"));
       }
     }
@@ -83,95 +83,95 @@ UNITTEST void time2str(char *r, size_t rsize, curl_off_t seconds)
    Add suffix k, M, G when suitable...
 
    @unittest 1636 */
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen);
-UNITTEST char *max6out(curl_off_t bytes, char *max6, size_t mlen)
+UNITTEST वर्ण *max6out(curl_off_t अष्टकानि, वर्ण *max6, size_t mlen);
+UNITTEST वर्ण *max6out(curl_off_t अष्टकानि, वर्ण *max6, size_t mlen)
 {
   /* a signed 64-bit value is 8192 petabytes maximum, shown as
      8.0E (exabytes)*/
-  if(bytes < 100000)
-    curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, bytes);
-  else {
-    static const char unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
-    int k = 0;
+  यदि(अष्टकानि < 100000)
+    curl_msnprintf(max6, mlen, "%6" CURL_FORMAT_CURL_OFF_T, अष्टकानि);
+  अन्यथा {
+    स्थिर ध्रुव वर्ण unit[] = { 'k', 'M', 'G', 'T', 'P', 'E', 0 };
+    पूर्णाङ्क k = 0;
     curl_off_t nbytes;
     curl_off_t rest;
-    do {
-      nbytes = bytes / 1024;
-      if(nbytes < 1000)
-        break;
-      bytes = nbytes;
+    कुरु {
+      nbytes = अष्टकानि / 1024;
+      यदि(nbytes < 1000)
+        भङ्ग;
+      अष्टकानि = nbytes;
       k++;
       DEBUGASSERT(unit[k]);
-    } while(unit[k]);
-    rest = bytes % 1024;
-    if(nbytes <= 99)
+    } यावत्(unit[k]);
+    rest = अष्टकानि % 1024;
+    यदि(nbytes <= 99)
       /* xx.yyU */
       curl_msnprintf(max6, mlen, "%2" CURL_FORMAT_CURL_OFF_T
                      ".%02" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 100 / 1024, unit[k]);
-    else
+    अन्यथा
       /* xxx.yU */
       curl_msnprintf(max6, mlen, "%3" CURL_FORMAT_CURL_OFF_T
                      ".%" CURL_FORMAT_CURL_OFF_T "%c", nbytes,
                      rest * 10 / 1024, unit[k]);
   }
-  return max6;
+  प्रत्यागम max6;
 }
-#endif
+#यदि_अन्तः
 
-static void pgrs_speedinit(struct Curl_easy *data)
+स्थिर शून्य pgrs_speedinit(संरचना Curl_easy *दत्त)
 {
-  memset(&data->state.keeps_speed, 0, sizeof(struct curltime));
+  स्मृतिं_पूरय(&दत्त->state.keeps_जवः, 0, परिमाण(संरचना curltime));
 }
 
 /*
  * @unittest 1606
  */
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow);
-UNITTEST CURLcode pgrs_speedcheck(struct Curl_easy *data,
-                                  const struct curltime *pnow)
+UNITTEST CURLcode pgrs_speedcheck(संरचना Curl_easy *दत्त,
+                                  ध्रुव संरचना curltime *pnow);
+UNITTEST CURLcode pgrs_speedcheck(संरचना Curl_easy *दत्त,
+                                  ध्रुव संरचना curltime *pnow)
 {
-  if(!data->set.low_speed_time || !data->set.low_speed_limit ||
-     Curl_xfer_recv_is_paused(data) || Curl_xfer_send_is_paused(data))
+  यदि(!दत्त->समुच्चयः.नीचः_जवः_time || !दत्त->समुच्चयः.नीचः_जवः_सीमा ||
+     Curl_xfer_recv_is_paused(दत्त) || Curl_xfer_send_is_paused(दत्त))
     /* A paused transfer is not qualified for speed checks */
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
 
-  if(data->progress.current_speed >= 0) {
-    if(data->progress.current_speed < data->set.low_speed_limit) {
-      if(!data->state.keeps_speed.tv_sec)
+  यदि(दत्त->प्रगतिः.current_जवः >= 0) {
+    यदि(दत्त->प्रगतिः.current_जवः < दत्त->समुच्चयः.नीचः_जवः_सीमा) {
+      यदि(!दत्त->state.keeps_जवः.tv_sec)
         /* under the limit at this moment */
-        data->state.keeps_speed = *pnow;
-      else {
+        दत्त->state.keeps_जवः = *pnow;
+      अन्यथा {
         /* how long has it been under the limit */
         timediff_t howlong =
-          curlx_ptimediff_ms(pnow, &data->state.keeps_speed);
+          curlx_ptimediff_ms(pnow, &दत्त->state.keeps_जवः);
 
-        if(howlong >= data->set.low_speed_time * 1000) {
+        यदि(howlong >= दत्त->समुच्चयः.नीचः_जवः_time * 1000) {
           /* too long */
-          failf(data, "Operation too slow. Less than %" FMT_OFF_T
+          failf(दत्त, "Operation too slow. Less than %" FMT_OFF_T
                 " bytes/sec transferred the last %u seconds",
-                data->set.low_speed_limit, data->set.low_speed_time);
-          return CURLE_OPERATION_TIMEDOUT;
+                दत्त->समुच्चयः.नीचः_जवः_सीमा, दत्त->समुच्चयः.नीचः_जवः_time);
+          प्रत्यागम CURLE_OPERATION_TIMEDOUT;
         }
       }
     }
-    else
+    अन्यथा
       /* faster right now */
-      data->state.keeps_speed.tv_sec = 0;
+      दत्त->state.keeps_जवः.tv_sec = 0;
   }
 
   /* since low speed limit is enabled, set the expire timer to make this
      connection's speed get checked again in a second */
-  Curl_expire_set(data, EXPIRE_SPEEDCHECK, 1000, pnow);
+  Curl_expire_समुच्चयः(दत्त, EXPIRE_SPEEDCHECK, 1000, pnow);
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
+ध्रुव संरचना curltime *Curl_pgrs_now(संरचना Curl_easy *दत्त)
 {
-  curlx_pnow(&data->progress.now);
-  return &data->progress.now;
+  curlx_pnow(&दत्त->प्रगतिः.now);
+  प्रत्यागम &दत्त->प्रगतिः.now;
 }
 
 /* New proposed interface, 9th of February 2000:
@@ -185,58 +185,58 @@ const struct curltime *Curl_pgrs_now(struct Curl_easy *data)
    pgrsDone() - transfer complete
  */
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow)
+पूर्णाङ्क Curl_pgrs_समाप्तम्(संरचना Curl_easy *दत्त, ध्रुव संरचना curltime *pnow)
 {
-  int rc;
-  data->progress.delta.lastshow_us = -1;
-  rc = Curl_pgrsUpdateX(data, pnow); /* the final (forced) update */
-  if(rc)
-    return rc;
+  पूर्णाङ्क rc;
+  दत्त->प्रगतिः.delta.lastshow_us = -1;
+  rc = Curl_pgrsUpdateX(दत्त, pnow); /* the final (forced) update */
+  यदि(rc)
+    प्रत्यागम rc;
 
-  if(!data->progress.hide && !data->progress.callback)
+  यदि(!दत्त->प्रगतिः.hide && !दत्त->प्रगतिः.callback)
     /* only output if we do not use a progress callback and we are not
      * hidden */
-    curl_mfprintf(data->set.err, "\n");
+    curl_mfprintf(दत्त->समुच्चयः.err, "\n");
 
-  return 0;
+  प्रत्यागम 0;
 }
 
-void Curl_pgrsReset(struct Curl_easy *data)
+शून्य Curl_pgrsReset(संरचना Curl_easy *दत्त)
 {
-  Curl_pgrsSetUploadCounter(data, 0);
-  data->progress.dl.cur_size = 0;
-  Curl_pgrsSetUploadSize(data, -1);
-  Curl_pgrsSetDownloadSize(data, -1);
-  data->progress.speeder_c = 0; /* reset speed records */
-  data->progress.deliver = 0;
-  pgrs_speedinit(data);
+  Curl_pgrs_समुच्चयः_Upload_गणक(दत्त, 0);
+  दत्त->प्रगतिः.dl.cur_आकार = 0;
+  Curl_pgrs_समुच्चयः_Upload_आकार(दत्त, -1);
+  Curl_pgrs_समुच्चयः_Download_आकार(दत्त, -1);
+  दत्त->प्रगतिः.speeder_c = 0; /* reset speed records */
+  दत्त->प्रगतिः.deliver = 0;
+  pgrs_speedinit(दत्त);
 }
 
 /* reset the known transfer sizes */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data)
+शून्य Curl_pgrsResetTransferSizes(संरचना Curl_easy *दत्त)
 {
-  Curl_pgrsSetDownloadSize(data, -1);
-  Curl_pgrsSetUploadSize(data, -1);
+  Curl_pgrs_समुच्चयः_Download_आकार(दत्त, -1);
+  Curl_pgrs_समुच्चयः_Upload_आकार(दत्त, -1);
 }
 
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable)
+शून्य Curl_pgrsRecvPause(संरचना Curl_easy *दत्त, bool enable)
 {
-  if(!enable) {
-    data->progress.speeder_c = 0; /* reset speed records */
-    pgrs_speedinit(data); /* reset low speed measurements */
+  यदि(!enable) {
+    दत्त->प्रगतिः.speeder_c = 0; /* reset speed records */
+    pgrs_speedinit(दत्त); /* reset low speed measurements */
   }
 }
 
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable)
+शून्य Curl_pgrsSendPause(संरचना Curl_easy *दत्त, bool enable)
 {
-  if(!enable) {
-    data->progress.speeder_c = 0; /* reset speed records */
-    pgrs_speedinit(data); /* reset low speed measurements */
+  यदि(!enable) {
+    दत्त->प्रगतिः.speeder_c = 0; /* reset speed records */
+    pgrs_speedinit(दत्त); /* reset low speed measurements */
   }
 }
 
-#ifdef CURLVERBOSE
-static const char * const pgrs_timer_names[] = {
+#यदि_परिभाषितम् CURLVERBOSE
+स्थिर ध्रुव वर्ण * ध्रुव pgrs_timer_नामानि[] = {
   "PGRS-NONE",
   "PGRS-STARTOP",
   "PGRS-STARTSINGLE",
@@ -250,93 +250,93 @@ static const char * const pgrs_timer_names[] = {
   "PGRS-REDIRECT",
 };
 
-static const char *pgrs_timer_name(timerid timer)
+स्थिर ध्रुव वर्ण *pgrs_timer_name(timerid timer)
 {
-  if((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_names))
-    return pgrs_timer_names[(size_t)timer];
-  return "?";
+  यदि((size_t)timer < CURL_ARRAYSIZE(pgrs_timer_नामानि))
+    प्रत्यागम pgrs_timer_नामानि[(size_t)timer];
+  प्रत्यागम "?";
 }
-#endif /* CURLVERBOSE */
+#यदि_अन्तः /* CURLVERBOSE */
 
 /*
  * Curl_pgrsTimeWas(). Store the timestamp time at the given label.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp)
+शून्य Curl_pgrsTimeWas(संरचना Curl_easy *दत्त, timerid timer,
+                      संरचना curltime timestamp)
 {
-  timediff_t *delta = NULL;
+  timediff_t *delta = रिक्त;
 
-  switch(timer) {
-  default:
-  case TIMER_NONE:
+  विकल्प(timer) {
+  स्वभाव:
+  पक्ष TIMER_NONE:
     /* mistake filter */
-    break;
-  case TIMER_STARTOP:
+    भङ्ग;
+  पक्ष TIMER_STARTOP:
     /* This is set at the start of a transfer */
-    data->progress.delta.startop_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
-    data->progress.delta.startqueue_us = data->progress.delta.startop_us;
-    break;
-  case TIMER_STARTSINGLE:
+    दत्त->प्रगतिः.delta.startop_us =
+      curlx_ptimediff_us(&timestamp, &दत्त->प्रगतिः.start);
+    दत्त->प्रगतिः.delta.startqueue_us = दत्त->प्रगतिः.delta.startop_us;
+    भङ्ग;
+  पक्ष TIMER_STARTSINGLE:
     /* This is set at the start of each single transfer */
-    data->progress.delta.startsingle_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
-    data->progress.startransfer_added = FALSE;
-    break;
-  case TIMER_POSTQUEUE:
+    दत्त->प्रगतिः.delta.startsingle_us =
+      curlx_ptimediff_us(&timestamp, &दत्त->प्रगतिः.start);
+    दत्त->प्रगतिः.startransfer_added = FALSE;
+    भङ्ग;
+  पक्ष TIMER_POSTQUEUE:
     /* Queue time is accumulative from all involved redirects */
-    data->progress.total.queued_us +=
-      curlx_ptimediff_us(&timestamp, &data->progress.start) -
-      data->progress.delta.startqueue_us;
-    break;
-  case TIMER_NAMELOOKUP:
-    delta = &data->progress.total.nslookup_us;
-    break;
-  case TIMER_CONNECT:
-    delta = &data->progress.total.connect_us;
-    break;
-  case TIMER_APPCONNECT:
-    delta = &data->progress.total.appconnect_us;
-    break;
-  case TIMER_PRETRANSFER:
-    delta = &data->progress.total.pretransfer_us;
-    break;
-  case TIMER_STARTTRANSFER:
+    दत्त->प्रगतिः.योग.queued_us +=
+      curlx_ptimediff_us(&timestamp, &दत्त->प्रगतिः.start) -
+      दत्त->प्रगतिः.delta.startqueue_us;
+    भङ्ग;
+  पक्ष TIMER_NAMELOOKUP:
+    delta = &दत्त->प्रगतिः.योग.nslookup_us;
+    भङ्ग;
+  पक्ष TIMER_CONNECT:
+    delta = &दत्त->प्रगतिः.योग.connect_us;
+    भङ्ग;
+  पक्ष TIMER_APPCONNECT:
+    delta = &दत्त->प्रगतिः.योग.appconnect_us;
+    भङ्ग;
+  पक्ष TIMER_PRETRANSFER:
+    delta = &दत्त->प्रगतिः.योग.pretransfer_us;
+    भङ्ग;
+  पक्ष TIMER_STARTTRANSFER:
     /* prevent updating t_starttransfer unless:
      *   1. this is the first time we are setting t_starttransfer
      *   2. a redirect has occurred since the last time t_starttransfer was set
      * This prevents repeated invocations of the function from incorrectly
      * changing the t_starttransfer time.
      */
-    if(data->progress.startransfer_added) {
-      CURL_TRC_M(data, "[%s] ignored", pgrs_timer_name(timer));
-      return;
+    यदि(दत्त->प्रगतिः.startransfer_added) {
+      CURL_TRC_M(दत्त, "[%s] ignored", pgrs_timer_name(timer));
+      प्रत्यागम;
     }
-    data->progress.startransfer_added = TRUE;
-    delta = &data->progress.total.starttransfer_us;
-    break;
-  case TIMER_POSTRANSFER:
-    delta = &data->progress.total.posttransfer_us;
-    break;
-  case TIMER_REDIRECT:
-    data->progress.delta.startredirect_us =
-      curlx_ptimediff_us(&timestamp, &data->progress.start);
+    दत्त->प्रगतिः.startransfer_added = TRUE;
+    delta = &दत्त->प्रगतिः.योग.starttransfer_us;
+    भङ्ग;
+  पक्ष TIMER_POSTRANSFER:
+    delta = &दत्त->प्रगतिः.योग.posttransfer_us;
+    भङ्ग;
+  पक्ष TIMER_REDIRECT:
+    दत्त->प्रगतिः.delta.startredirect_us =
+      curlx_ptimediff_us(&timestamp, &दत्त->प्रगतिः.start);
     /* transfer starts queueing again */
-    data->progress.delta.startqueue_us =
-      data->progress.delta.startredirect_us;
-    break;
+    दत्त->प्रगतिः.delta.startqueue_us =
+      दत्त->प्रगतिः.delta.startredirect_us;
+    भङ्ग;
   }
-  if(delta) {
-    timediff_t us = curlx_ptimediff_us(&timestamp, &data->progress.start) -
-                    data->progress.delta.startsingle_us;
-    if(us < 1)
+  यदि(delta) {
+    timediff_t us = curlx_ptimediff_us(&timestamp, &दत्त->प्रगतिः.start) -
+                    दत्त->प्रगतिः.delta.startsingle_us;
+    यदि(us < 1)
       us = 1; /* make sure at least one microsecond passed */
     *delta += us;
-    CURL_TRC_M(data, "[%s] added %" FMT_TIMEDIFF_T "us",
+    CURL_TRC_M(दत्त, "[%s] added %" FMT_TIMEDIFF_T "us",
                pgrs_timer_name(timer), us);
   }
-  else
-    CURL_TRC_M(data, "[%s] set", pgrs_timer_name(timer));
+  अन्यथा
+    CURL_TRC_M(दत्त, "[%s] set", pgrs_timer_name(timer));
 }
 
 /*
@@ -345,427 +345,427 @@ void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
  *
  * @unittest: 1399
  */
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer)
+शून्य Curl_pgrsTime(संरचना Curl_easy *दत्त, timerid timer)
 {
-  Curl_pgrsTimeWas(data, timer, *Curl_pgrs_now(data));
+  Curl_pgrsTimeWas(दत्त, timer, *Curl_pgrs_now(दत्त));
 }
 
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow)
+शून्य Curl_pgrsStart(संरचना Curl_easy *दत्त, ध्रुव संरचना curltime *pnow)
 {
-  struct Progress *p = &data->progress;
+  संरचना प्रगतिः_2 *p = &दत्त->प्रगतिः;
 
-  if(!pnow)
-    pnow = Curl_pgrs_now(data);
+  यदि(!pnow)
+    pnow = Curl_pgrs_now(दत्त);
   p->speeder_c = 0; /* reset the progress meter display */
   p->start = *pnow;
-  memset(&p->delta, 0, sizeof(p->delta));
-  memset(&p->total, 0, sizeof(p->total));
+  स्मृतिं_पूरय(&p->delta, 0, परिमाण(p->delta));
+  स्मृतिं_पूरय(&p->योग, 0, परिमाण(p->योग));
   p->startransfer_added = FALSE;
-  p->dl.cur_size = 0;
-  p->ul.cur_size = 0;
+  p->dl.cur_आकार = 0;
+  p->ul.cur_आकार = 0;
   /* the sizes are unknown at start */
-  p->dl_size_known = FALSE;
-  p->ul_size_known = FALSE;
+  p->dl_आकार_ज्ञातम् = FALSE;
+  p->ul_आकार_ज्ञातम् = FALSE;
 }
 
 /* check that the 'delta' amount of bytes are okay to deliver to the
    application, or return error if not. */
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta)
+CURLcode Curl_pgrs_deliver_check(संरचना Curl_easy *दत्त, size_t delta)
 {
-  if(data->set.max_filesize &&
-     ((curl_off_t)delta > data->set.max_filesize - data->progress.deliver)) {
-    failf(data, "Would have exceeded max file size");
-    return CURLE_FILESIZE_EXCEEDED;
+  यदि(दत्त->समुच्चयः.max_filesize &&
+     ((curl_off_t)delta > दत्त->समुच्चयः.max_filesize - दत्त->प्रगतिः.deliver)) {
+    failf(दत्त, "Would have exceeded max file size");
+    प्रत्यागम CURLE_FILESIZE_EXCEEDED;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /* this counts how much data is delivered to the application, which
    in compressed cases may differ from downloaded amount */
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta)
+शून्य Curl_pgrs_deliver_inc(संरचना Curl_easy *दत्त, size_t delta)
 {
-  data->progress.deliver += delta;
+  दत्त->प्रगतिः.deliver += delta;
 }
 
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta)
+शून्य Curl_pgrs_download_inc(संरचना Curl_easy *दत्त, size_t delta)
 {
-  if(delta) {
-    data->progress.dl.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.dl.rlimit, delta, NULL);
+  यदि(delta) {
+    दत्त->प्रगतिः.dl.cur_आकार += delta;
+    Curl_rlimit_drain(&दत्त->प्रगतिः.dl.rlimit, delta, रिक्त);
   }
 }
 
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta)
+शून्य Curl_pgrs_upload_inc(संरचना Curl_easy *दत्त, size_t delta)
 {
-  if(delta) {
-    data->progress.ul.cur_size += delta;
-    Curl_rlimit_drain(&data->progress.ul.rlimit, delta, NULL);
+  यदि(delta) {
+    दत्त->प्रगतिः.ul.cur_आकार += delta;
+    Curl_rlimit_drain(&दत्त->प्रगतिः.ul.rlimit, delta, रिक्त);
   }
 }
 
 /*
  * Set the number of uploaded bytes so far.
  */
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size)
+शून्य Curl_pgrs_समुच्चयः_Upload_गणक(संरचना Curl_easy *दत्त, curl_off_t आकार)
 {
-  data->progress.ul.cur_size = size;
+  दत्त->प्रगतिः.ul.cur_आकार = आकार;
 }
 
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size)
+शून्य Curl_pgrs_समुच्चयः_Download_आकार(संरचना Curl_easy *दत्त, curl_off_t आकार)
 {
-  if(size >= 0) {
-    data->progress.dl.total_size = size;
-    data->progress.dl_size_known = TRUE;
+  यदि(आकार >= 0) {
+    दत्त->प्रगतिः.dl.योग_आकार = आकार;
+    दत्त->प्रगतिः.dl_आकार_ज्ञातम् = TRUE;
   }
-  else {
-    data->progress.dl.total_size = 0;
-    data->progress.dl_size_known = FALSE;
-  }
-}
-
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size)
-{
-  if(size >= 0) {
-    data->progress.ul.total_size = size;
-    data->progress.ul_size_known = TRUE;
-  }
-  else {
-    data->progress.ul.total_size = 0;
-    data->progress.ul_size_known = FALSE;
+  अन्यथा {
+    दत्त->प्रगतिः.dl.योग_आकार = 0;
+    दत्त->प्रगतिः.dl_आकार_ज्ञातम् = FALSE;
   }
 }
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent)
+शून्य Curl_pgrs_समुच्चयः_Upload_आकार(संरचना Curl_easy *दत्त, curl_off_t आकार)
 {
-  data->progress.earlydata_sent = sent;
+  यदि(आकार >= 0) {
+    दत्त->प्रगतिः.ul.योग_आकार = आकार;
+    दत्त->प्रगतिः.ul_आकार_ज्ञातम् = TRUE;
+  }
+  अन्यथा {
+    दत्त->प्रगतिः.ul.योग_आकार = 0;
+    दत्त->प्रगतिः.ul_आकार_ज्ञातम् = FALSE;
+  }
+}
+
+शून्य Curl_pgrs_Early_दत्त(संरचना Curl_easy *दत्त, curl_off_t प्रेषितम्)
+{
+  दत्त->प्रगतिः.earlydata_प्रेषितम् = प्रेषितम्;
 }
 
 /* returns the average speed in bytes / second */
-static curl_off_t trspeed(curl_off_t size, /* number of bytes */
+स्थिर curl_off_t trspeed(curl_off_t आकार, /* number of bytes */
                           curl_off_t us)   /* microseconds */
 {
-  if(us < 1)
-    return size * 1000000;
-  else if(size < CURL_OFF_T_MAX / 1000000)
-    return (size * 1000000) / us;
-  else if(us >= 1000000)
-    return size / (us / 1000000);
-  else
-    return CURL_OFF_T_MAX;
+  यदि(us < 1)
+    प्रत्यागम आकार * 1000000;
+  अन्यथा यदि(आकार < CURL_OFF_T_MAX / 1000000)
+    प्रत्यागम (आकार * 1000000) / us;
+  अन्यथा यदि(us >= 1000000)
+    प्रत्यागम आकार / (us / 1000000);
+  अन्यथा
+    प्रत्यागम CURL_OFF_T_MAX;
 }
 
 /* returns TRUE if it is time to show the progress meter */
-static bool progress_calc(struct Curl_easy *data,
-                          const struct curltime *pnow)
+स्थिर bool प्रगतिः_calc(संरचना Curl_easy *दत्त,
+                          ध्रुव संरचना curltime *pnow)
 {
-  struct Progress * const p = &data->progress;
-  int i_next, i_oldest, i_latest;
+  संरचना प्रगतिः_2 * ध्रुव p = &दत्त->प्रगतिः;
+  पूर्णाङ्क i_अग्र, i_oldest, i_latest;
   timediff_t duration_us, elapsed_us;
   curl_off_t amount;
 
   /* The time spent so far (from the start) in microseconds */
   elapsed_us = curlx_ptimediff_us(pnow, &p->start);
-  p->total.spent_us = elapsed_us;
-  p->dl.speed = trspeed(p->dl.cur_size, p->total.spent_us);
-  p->ul.speed = trspeed(p->ul.cur_size, p->total.spent_us);
+  p->योग.spent_us = elapsed_us;
+  p->dl.जवः = trspeed(p->dl.cur_आकार, p->योग.spent_us);
+  p->ul.जवः = trspeed(p->ul.cur_आकार, p->योग.spent_us);
 
-  if(!p->speeder_c) { /* no previous record exists */
-    p->speed_amount[0] = p->dl.cur_size + p->ul.cur_size;
-    p->speed_time[0] = elapsed_us;
+  यदि(!p->speeder_c) { /* no previous record exists */
+    p->जवः_amount[0] = p->dl.cur_आकार + p->ul.cur_आकार;
+    p->जवः_time[0] = elapsed_us;
     p->speeder_c++;
     /* use the overall average at the start */
-    p->current_speed = p->ul.speed + p->dl.speed;
+    p->current_जवः = p->ul.जवः + p->dl.जवः;
     p->delta.lastshow_us = elapsed_us;
-    return TRUE;
+    प्रत्यागम TRUE;
   }
   /* We have at least one record now. Where to put the next and
    * where is the latest one? */
-  i_next = p->speeder_c % CURL_SPEED_RECORDS;
-  i_latest = (i_next > 0) ? (i_next - 1) : (CURL_SPEED_RECORDS - 1);
+  i_अग्र = p->speeder_c % CURL_जवः_लेखाः;
+  i_latest = (i_अग्र > 0) ? (i_अग्र - 1) : (CURL_जवः_लेखाः - 1);
 
   /* Make a new record only when some time has passed.
    * Too frequent calls otherwise ruin the history. */
-  if((elapsed_us - p->speed_time[i_latest]) >= (1000 * 1000)) {
+  यदि((elapsed_us - p->जवः_time[i_latest]) >= (1000 * 1000)) {
     p->speeder_c++;
-    i_latest = i_next;
-    p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
-    p->speed_time[i_latest] = elapsed_us;
+    i_latest = i_अग्र;
+    p->जवः_amount[i_latest] = p->dl.cur_आकार + p->ul.cur_आकार;
+    p->जवः_time[i_latest] = elapsed_us;
   }
-  else if(data->req.done) {
+  अन्यथा यदि(दत्त->req.समाप्तम्) {
     /* When a transfer is done, and we did not have a current speed
      * already, update the last record. Otherwise, stay at the speed
      * we have. The last chunk of data, when rate limiting, would increase
      * reported speed since it no longer measures a full second. */
-    if(!p->current_speed) {
-      p->speed_amount[i_latest] = p->dl.cur_size + p->ul.cur_size;
-      p->speed_time[i_latest] = elapsed_us;
+    यदि(!p->current_जवः) {
+      p->जवः_amount[i_latest] = p->dl.cur_आकार + p->ul.cur_आकार;
+      p->जवः_time[i_latest] = elapsed_us;
     }
   }
-  else {
+  अन्यथा {
     /* transfer ongoing, wait for more time to pass. */
-    return FALSE;
+    प्रत्यागम FALSE;
   }
 
-  i_oldest = (p->speeder_c < CURL_SPEED_RECORDS) ? 0 :
-             ((i_latest + 1) % CURL_SPEED_RECORDS);
+  i_oldest = (p->speeder_c < CURL_जवः_लेखाः) ? 0 :
+             ((i_latest + 1) % CURL_जवः_लेखाः);
 
   /* How much we transferred between oldest and current records */
-  amount = p->speed_amount[i_latest] - p->speed_amount[i_oldest];
+  amount = p->जवः_amount[i_latest] - p->जवः_amount[i_oldest];
   /* How long this took */
-  duration_us = p->speed_time[i_latest] - p->speed_time[i_oldest];
-  if(duration_us <= 0)
+  duration_us = p->जवः_time[i_latest] - p->जवः_time[i_oldest];
+  यदि(duration_us <= 0)
     duration_us = 1;
 
-  if(amount > (CURL_OFF_T_MAX / 1000000)) {
+  यदि(amount > (CURL_OFF_T_MAX / 1000000)) {
     /* the 'amount' value is bigger than would fit in 64 bits if
        multiplied with 1000000, so we use the double math for this */
-    p->current_speed =
-      (curl_off_t)(((double)amount * 1000000.0) / (double)duration_us);
+    p->current_जवः =
+      (curl_off_t)(((द्विगुण)amount * 1000000.0) / (द्विगुण)duration_us);
   }
-  else {
-    p->current_speed = amount * 1000000 / duration_us;
+  अन्यथा {
+    p->current_जवः = amount * 1000000 / duration_us;
   }
 
-  if((p->delta.lastshow_us >= 0) && !data->req.done &&
+  यदि((p->delta.lastshow_us >= 0) && !दत्त->req.समाप्तम् &&
      ((elapsed_us - p->delta.lastshow_us) < (1000 * 1000)))
-    return FALSE;
+    प्रत्यागम FALSE;
   p->delta.lastshow_us = elapsed_us;
-  return TRUE;
+  प्रत्यागम TRUE;
 }
 
-#ifndef CURL_DISABLE_PROGRESS_METER
+#यदि_अपरिभाषितम् CURL_DISABLE_प्रगतिः_METER
 
-struct pgrs_estimate {
+संरचना pgrs_estimate {
   curl_off_t secs;
   curl_off_t percent;
 };
 
-static curl_off_t pgrs_est_percent(curl_off_t total, curl_off_t cur)
+स्थिर curl_off_t pgrs_est_percent(curl_off_t योग, curl_off_t cur)
 {
-  if(total > 10000)
-    return cur / (total / 100);
-  else if(total > 0)
-    return (cur * 100) / total;
-  return 0;
+  यदि(योग > 10000)
+    प्रत्यागम cur / (योग / 100);
+  अन्यथा यदि(योग > 0)
+    प्रत्यागम (cur * 100) / योग;
+  प्रत्यागम 0;
 }
 
-static void pgrs_estimates(struct pgrs_dir *d,
-                           bool total_known,
-                           struct pgrs_estimate *est)
+स्थिर शून्य pgrs_estimates(संरचना pgrs_dir *d,
+                           bool योग_ज्ञातम्,
+                           संरचना pgrs_estimate *est)
 {
   est->secs = 0;
   est->percent = 0;
-  if(total_known && (d->speed > 0)) {
-    est->secs = d->total_size / d->speed;
-    est->percent = pgrs_est_percent(d->total_size, d->cur_size);
+  यदि(योग_ज्ञातम् && (d->जवः > 0)) {
+    est->secs = d->योग_आकार / d->जवः;
+    est->percent = pgrs_est_percent(d->योग_आकार, d->cur_आकार);
   }
 }
 
-static void progress_meter(struct Curl_easy *data)
+स्थिर शून्य प्रगतिः_meter(संरचना Curl_easy *दत्त)
 {
-  struct Progress *p = &data->progress;
-  char max6[6][7];
-  struct pgrs_estimate dl_estm;
-  struct pgrs_estimate ul_estm;
-  struct pgrs_estimate total_estm;
-  curl_off_t total_cur_size;
-  curl_off_t total_expected_size;
-  curl_off_t dl_size;
-  char time_left[8];
-  char time_total[8];
-  char time_spent[8];
-  curl_off_t cur_secs = (curl_off_t)p->total.spent_us / 1000000;
+  संरचना प्रगतिः_2 *p = &दत्त->प्रगतिः;
+  वर्ण max6[6][7];
+  संरचना pgrs_estimate dl_estm;
+  संरचना pgrs_estimate ul_estm;
+  संरचना pgrs_estimate योग_estm;
+  curl_off_t योग_cur_आकार;
+  curl_off_t योग_expected_आकार;
+  curl_off_t dl_आकार;
+  वर्ण time_वामः[8];
+  वर्ण time_योग[8];
+  वर्ण time_spent[8];
+  curl_off_t cur_secs = (curl_off_t)p->योग.spent_us / 1000000;
 
-  if(!p->headers_out) {
-    if(data->state.resume_from) {
-      curl_mfprintf(data->set.err,
+  यदि(!p->शीर्षकाणि_बहिर्गमनम्) {
+    यदि(दत्त->state.resume_from) {
+      curl_mfprintf(दत्त->समुच्चयः.err,
                     "** Resuming transfer from byte position %" FMT_OFF_T "\n",
-                    data->state.resume_from);
+                    दत्त->state.resume_from);
     }
-    curl_mfprintf(data->set.err,
+    curl_mfprintf(दत्त->समुच्चयः.err,
                   "  %% Total    %% Received %% Xferd  Average Speed  "
                   "Time    Time    Time   Current\n"
                   "                                 Dload  Upload  "
                   "Total   Spent   Left   Speed\n");
-    p->headers_out = TRUE; /* headers are shown */
+    p->शीर्षकाणि_बहिर्गमनम् = TRUE; /* headers are shown */
   }
 
   /* Figure out the estimated time of arrival for upload and download */
-  pgrs_estimates(&p->ul, (bool)p->ul_size_known, &ul_estm);
-  pgrs_estimates(&p->dl, (bool)p->dl_size_known, &dl_estm);
+  pgrs_estimates(&p->ul, (bool)p->ul_आकार_ज्ञातम्, &ul_estm);
+  pgrs_estimates(&p->dl, (bool)p->dl_आकार_ज्ञातम्, &dl_estm);
 
   /* Since both happen at the same time, total expected duration is max. */
-  total_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
+  योग_estm.secs = CURLMAX(ul_estm.secs, dl_estm.secs);
   /* create the three time strings */
-  time2str(time_left, sizeof(time_left),
-           total_estm.secs > 0 ? (total_estm.secs - cur_secs) : 0);
-  time2str(time_total, sizeof(time_total), total_estm.secs);
-  time2str(time_spent, sizeof(time_spent), cur_secs);
+  time2str(time_वामः, परिमाण(time_वामः),
+           योग_estm.secs > 0 ? (योग_estm.secs - cur_secs) : 0);
+  time2str(time_योग, परिमाण(time_योग), योग_estm.secs);
+  time2str(time_spent, परिमाण(time_spent), cur_secs);
 
   /* Get the total amount of data expected to get transferred */
-  total_expected_size = p->ul_size_known ? p->ul.total_size : p->ul.cur_size;
+  योग_expected_आकार = p->ul_आकार_ज्ञातम् ? p->ul.योग_आकार : p->ul.cur_आकार;
 
-  dl_size = p->dl_size_known ? p->dl.total_size : p->dl.cur_size;
+  dl_आकार = p->dl_आकार_ज्ञातम् ? p->dl.योग_आकार : p->dl.cur_आकार;
 
   /* integer overflow check */
-  if((CURL_OFF_T_MAX - total_expected_size) < dl_size)
-    total_expected_size = CURL_OFF_T_MAX; /* capped */
-  else
-    total_expected_size += dl_size;
+  यदि((CURL_OFF_T_MAX - योग_expected_आकार) < dl_आकार)
+    योग_expected_आकार = CURL_OFF_T_MAX; /* capped */
+  अन्यथा
+    योग_expected_आकार += dl_आकार;
 
   /* We have transferred this much so far */
-  total_cur_size = p->dl.cur_size + p->ul.cur_size;
+  योग_cur_आकार = p->dl.cur_आकार + p->ul.cur_आकार;
 
   /* Get the percentage of data transferred so far */
-  total_estm.percent = pgrs_est_percent(total_expected_size, total_cur_size);
+  योग_estm.percent = pgrs_est_percent(योग_expected_आकार, योग_cur_आकार);
 
-  curl_mfprintf(data->set.err,
+  curl_mfprintf(दत्त->समुच्चयः.err,
                 "\r"
                 "%3" FMT_OFF_T " %s "
                 "%3" FMT_OFF_T " %s "
                 "%3" FMT_OFF_T " %s %s %s %s %s %s %s",
-                total_estm.percent, /* 3 letters */    /* total % */
-                max6out(total_expected_size, max6[2],
-                        sizeof(max6[2])),              /* total size */
+                योग_estm.percent, /* 3 letters */    /* total % */
+                max6out(योग_expected_आकार, max6[2],
+                        परिमाण(max6[2])),              /* total size */
                 dl_estm.percent, /* 3 letters */       /* rcvd % */
-                max6out(p->dl.cur_size, max6[0],
-                        sizeof(max6[0])),              /* rcvd size */
+                max6out(p->dl.cur_आकार, max6[0],
+                        परिमाण(max6[0])),              /* rcvd size */
                 ul_estm.percent, /* 3 letters */       /* xfer % */
-                max6out(p->ul.cur_size, max6[1],
-                        sizeof(max6[1])),              /* xfer size */
-                max6out(p->dl.speed, max6[3],
-                        sizeof(max6[3])),              /* avrg dl speed */
-                max6out(p->ul.speed, max6[4],
-                        sizeof(max6[4])),              /* avrg ul speed */
-                time_total,    /* 7 letters */         /* total time */
+                max6out(p->ul.cur_आकार, max6[1],
+                        परिमाण(max6[1])),              /* xfer size */
+                max6out(p->dl.जवः, max6[3],
+                        परिमाण(max6[3])),              /* avrg dl speed */
+                max6out(p->ul.जवः, max6[4],
+                        परिमाण(max6[4])),              /* avrg ul speed */
+                time_योग,    /* 7 letters */         /* total time */
                 time_spent,    /* 7 letters */         /* time spent */
-                time_left,     /* 7 letters */         /* time left */
-                max6out(p->current_speed, max6[5],
-                        sizeof(max6[5]))               /* current speed */
+                time_वामः,     /* 7 letters */         /* time left */
+                max6out(p->current_जवः, max6[5],
+                        परिमाण(max6[5]))               /* current speed */
     );
 
   /* we flush the output stream to make it appear as soon as possible */
-  fflush(data->set.err);
+  fflush(दत्त->समुच्चयः.err);
 }
-#else /* CURL_DISABLE_PROGRESS_METER */
-#define progress_meter(x) Curl_nop_stmt
-#endif
+#अन्यथा /* CURL_DISABLE_PROGRESS_METER */
+#परिभाषय प्रगतिः_meter(x) Curl_nop_stmt
+#यदि_अन्तः
 
 /*
  * Curl_pgrsUpdate() returns 0 for success or the value returned by the
  * progress callback!
  */
-static CURLcode pgrsupdate(struct Curl_easy *data, bool showprogress)
+स्थिर CURLcode pgrsupdate(संरचना Curl_easy *दत्त, bool showprogress)
 {
-  if(!data->progress.hide) {
-    int rc;
-    if(data->set.fxferinfo) {
+  यदि(!दत्त->प्रगतिः.hide) {
+    पूर्णाङ्क rc;
+    यदि(दत्त->समुच्चयः.fxferinfo) {
       /* There is a callback set, call that */
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fxferinfo);
-      rc = data->set.fxferinfo(data->set.progress_client,
-                               data->progress.dl.total_size,
-                               data->progress.dl.cur_size,
-                               data->progress.ul.total_size,
-                               data->progress.ul.cur_size);
-      CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
-          failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+      संरचना Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, दत्त, easy_fxferinfo);
+      rc = दत्त->समुच्चयः.fxferinfo(दत्त->समुच्चयः.प्रगतिः_client,
+                               दत्त->प्रगतिः.dl.योग_आकार,
+                               दत्त->प्रगतिः.dl.cur_आकार,
+                               दत्त->प्रगतिः.ul.योग_आकार,
+                               दत्त->प्रगतिः.ul.cur_आकार);
+      CURL_CBAPI_अन्तः(&guard);
+      यदि(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        यदि(rc) {
+          failf(दत्त, "Callback aborted");
+          प्रत्यागम CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        प्रत्यागम CURLE_OK;
       }
     }
-    else if(data->set.fprogress) {
+    अन्यथा यदि(दत्त->समुच्चयः.fprogress) {
       /* The older deprecated callback is set, call that */
-      struct Curl_mapi_guard guard;
-      CURL_CBAPI_START(&guard, data, easy_fprogress);
-      rc = data->set.fprogress(data->set.progress_client,
-                               (double)data->progress.dl.total_size,
-                               (double)data->progress.dl.cur_size,
-                               (double)data->progress.ul.total_size,
-                               (double)data->progress.ul.cur_size);
-      CURL_CBAPI_END(&guard);
-      if(rc != CURL_PROGRESSFUNC_CONTINUE) {
-        if(rc) {
-          failf(data, "Callback aborted");
-          return CURLE_ABORTED_BY_CALLBACK;
+      संरचना Curl_mapi_guard guard;
+      CURL_CBAPI_START(&guard, दत्त, easy_fprogress);
+      rc = दत्त->समुच्चयः.fprogress(दत्त->समुच्चयः.प्रगतिः_client,
+                               (द्विगुण)दत्त->प्रगतिः.dl.योग_आकार,
+                               (द्विगुण)दत्त->प्रगतिः.dl.cur_आकार,
+                               (द्विगुण)दत्त->प्रगतिः.ul.योग_आकार,
+                               (द्विगुण)दत्त->प्रगतिः.ul.cur_आकार);
+      CURL_CBAPI_अन्तः(&guard);
+      यदि(rc != CURL_PROGRESSFUNC_CONTINUE) {
+        यदि(rc) {
+          failf(दत्त, "Callback aborted");
+          प्रत्यागम CURLE_ABORTED_BY_CALLBACK;
         }
-        return CURLE_OK;
+        प्रत्यागम CURLE_OK;
       }
     }
 
-    if(showprogress)
-      progress_meter(data);
+    यदि(showprogress)
+      प्रगतिः_meter(दत्त);
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode pgrs_update(struct Curl_easy *data,
-                            const struct curltime *pnow)
+स्थिर CURLcode pgrs_update(संरचना Curl_easy *दत्त,
+                            ध्रुव संरचना curltime *pnow)
 {
-  bool showprogress = progress_calc(data, pnow);
-  return pgrsupdate(data, showprogress);
+  bool showprogress = प्रगतिः_calc(दत्त, pnow);
+  प्रत्यागम pgrsupdate(दत्त, showprogress);
 }
 
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data)
+CURLcode Curl_pgrsUpdate(संरचना Curl_easy *दत्त)
 {
-  return pgrs_update(data, Curl_pgrs_now(data));
+  प्रत्यागम pgrs_update(दत्त, Curl_pgrs_now(दत्त));
 }
 
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data,
-                          const struct curltime *pnow)
+CURLcode Curl_pgrsUpdateX(संरचना Curl_easy *दत्त,
+                          ध्रुव संरचना curltime *pnow)
 {
-  return pgrs_update(data, pnow);
+  प्रत्यागम pgrs_update(दत्त, pnow);
 }
 
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data,
-                         const struct curltime *pnow)
+CURLcode Curl_pgrsCheckX(संरचना Curl_easy *दत्त,
+                         ध्रुव संरचना curltime *pnow)
 {
-  CURLcode result;
+  CURLcode परिणाम;
 
-  result = pgrs_update(data, pnow);
-  if(!result && !data->req.done)
-    result = pgrs_speedcheck(data, pnow);
-  return result;
+  परिणाम = pgrs_update(दत्त, pnow);
+  यदि(!परिणाम && !दत्त->req.समाप्तम्)
+    परिणाम = pgrs_speedcheck(दत्त, pnow);
+  प्रत्यागम परिणाम;
 }
 
-CURLcode Curl_pgrsCheck(struct Curl_easy *data)
+CURLcode Curl_pgrsCheck(संरचना Curl_easy *दत्त)
 {
-  return Curl_pgrsCheckX(data, Curl_pgrs_now(data));
+  प्रत्यागम Curl_pgrsCheckX(दत्त, Curl_pgrs_now(दत्त));
 }
 
 /*
  * Update all progress, do not do progress meter/callbacks.
  */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data)
+शून्य Curl_pgrsUpdate_nometer(संरचना Curl_easy *दत्त)
 {
-  (void)progress_calc(data, Curl_pgrs_now(data));
+  (शून्य)प्रगतिः_calc(दत्त, Curl_pgrs_now(दत्त));
 }
 
-void Curl_pgrsCompleted(struct Curl_easy *data)
+शून्य Curl_pgrsCompleted(संरचना Curl_easy *दत्त)
 {
-  struct Progress * const p = &data->progress;
-  p->total.spent_us = curlx_ptimediff_us(Curl_pgrs_now(data), &p->start);
+  संरचना प्रगतिः_2 * ध्रुव p = &दत्त->प्रगतिः;
+  p->योग.spent_us = curlx_ptimediff_us(Curl_pgrs_now(दत्त), &p->start);
 }
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(संरचना Curl_easy *दत्त,
+                              ध्रुव संरचना curltime *pnow,
                               timerid timer)
 {
-  if(!pnow)
-    pnow = Curl_pgrs_now(data);
-  switch(timer) {
-  case TIMER_STARTOP:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
-            data->progress.delta.startop_us) / 1000;
-  case TIMER_STARTSINGLE:
-    return (curlx_ptimediff_us(pnow, &data->progress.start) -
-            data->progress.delta.startsingle_us) / 1000;
-  default:
+  यदि(!pnow)
+    pnow = Curl_pgrs_now(दत्त);
+  विकल्प(timer) {
+  पक्ष TIMER_STARTOP:
+    प्रत्यागम (curlx_ptimediff_us(pnow, &दत्त->प्रगतिः.start) -
+            दत्त->प्रगतिः.delta.startop_us) / 1000;
+  पक्ष TIMER_STARTSINGLE:
+    प्रत्यागम (curlx_ptimediff_us(pnow, &दत्त->प्रगतिः.start) -
+            दत्त->प्रगतिः.delta.startsingle_us) / 1000;
+  स्वभाव:
     DEBUGASSERT(0);
-    return 0;
+    प्रत्यागम 0;
   }
 }

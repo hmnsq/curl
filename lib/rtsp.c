@@ -21,270 +21,270 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "rtsp.h"
+#अन्तर्भाव "curl_setup.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "rtsp.h"
 
-#ifndef CURL_DISABLE_RTSP
+#यदि_अपरिभाषितम् CURL_DISABLE_RTSP
 
-#include "transfer.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "multiif.h"
-#include "http.h"
-#include "url.h"
-#include "progress.h"
-#include "strcase.h"
-#include "select.h"
-#include "connect.h"
-#include "cfilters.h"
-#include "curlx/strdup.h"
-#include "bufref.h"
-#include "curlx/strparse.h"
-#include "peer.h"
+#अन्तर्भाव "transfer.h"
+#अन्तर्भाव "sendf.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "multiif.h"
+#अन्तर्भाव "http.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "progress.h"
+#अन्तर्भाव "strcase.h"
+#अन्तर्भाव "select.h"
+#अन्तर्भाव "connect.h"
+#अन्तर्भाव "cfilters.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "bufref.h"
+#अन्तर्भाव "curlx/strparse.h"
+#अन्तर्भाव "peer.h"
 
 /* meta key for storing protocol meta at easy handle */
-#define CURL_META_RTSP_EASY   "meta:proto:rtsp:easy"
+#परिभाषय CURL_META_RTSP_EASY   "meta:proto:rtsp:easy"
 /* meta key for storing protocol meta at connection */
-#define CURL_META_RTSP_CONN   "meta:proto:rtsp:conn"
+#परिभाषय CURL_META_RTSP_CONN   "meta:proto:rtsp:conn"
 
-typedef enum {
+प्रकारनिर्देश गणना {
   RTP_PARSE_SKIP,
   RTP_PARSE_CHANNEL,
   RTP_PARSE_LEN,
-  RTP_PARSE_DATA
+  RTP_PARSE_दत्त
 } rtp_parse_st;
 
 /* RTSP Connection data
  * Currently, only used for tracking incomplete RTP data reads */
-struct rtsp_conn {
-  struct dynbuf buf;
-  int rtp_channel;
+संरचना rtsp_conn {
+  संरचना dynbuf buf;
+  पूर्णाङ्क rtp_channel;
   size_t rtp_len;
   rtp_parse_st state;
-  BIT(in_header);
+  BIT(अन्तर्_शीर्षकम्);
 };
 
 /* RTSP transfer data */
-struct RTSP {
-  uint32_t CSeq_sent; /* CSeq of this request */
+संरचना RTSP {
+  uint32_t CSeq_प्रेषितम्; /* CSeq of this request */
   uint32_t CSeq_recv; /* CSeq received */
 };
 
-#define RTP_PKT_LENGTH(p) ((((unsigned int)((unsigned char)((p)[2]))) << 8) | \
-                            ((unsigned int)((unsigned char)((p)[3]))))
+#परिभाषय RTP_PKT_दीर्घता(p) ((((अचिह्नित पूर्णाङ्क)((अचिह्नित वर्ण)((p)[2]))) << 8) | \
+                            ((अचिह्नित पूर्णाङ्क)((अचिह्नित वर्ण)((p)[3]))))
 
 /* this returns the socket to wait for in the DO and DOING state for the multi
    interface and then we are always _sending_ a request and thus we wait for
    the single socket to become writable only */
-static CURLcode rtsp_do_pollset(struct Curl_easy *data,
-                                struct easy_pollset *ps)
+स्थिर CURLcode rtsp_do_pollset(संरचना Curl_easy *दत्त,
+                                संरचना easy_pollset *ps)
 {
   /* write mode */
-  return Curl_pollset_add_out(data, ps, data->conn->sock[FIRSTSOCKET]);
+  प्रत्यागम Curl_pollset_सङ्कलय_बहिर्गमनम्(दत्त, ps, दत्त->conn->sock[FIRSTSOCKET]);
 }
 
-#define MAX_RTP_BUFFERSIZE 1000000 /* arbitrary */
+#परिभाषय MAX_RTP_BUFFERSIZE 1000000 /* arbitrary */
 
-static void rtsp_easy_dtor(const void *key, size_t klen, void *entry)
+स्थिर शून्य rtsp_easy_dtor(ध्रुव शून्य *कुञ्चिका, size_t klen, शून्य *प्रविष्टिः)
 {
-  struct RTSP *rtsp = entry;
-  (void)key;
-  (void)klen;
+  संरचना RTSP *rtsp = प्रविष्टिः;
+  (शून्य)कुञ्चिका;
+  (शून्य)klen;
   curlx_free(rtsp);
 }
 
-static void rtsp_conn_dtor(const void *key, size_t klen, void *entry)
+स्थिर शून्य rtsp_conn_dtor(ध्रुव शून्य *कुञ्चिका, size_t klen, शून्य *प्रविष्टिः)
 {
-  struct rtsp_conn *rtspc = entry;
-  (void)key;
-  (void)klen;
+  संरचना rtsp_conn *rtspc = प्रविष्टिः;
+  (शून्य)कुञ्चिका;
+  (शून्य)klen;
   curlx_dyn_free(&rtspc->buf);
   curlx_free(rtspc);
 }
 
-static CURLcode rtsp_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+स्थिर CURLcode rtsp_सज्जता_connection(संरचना Curl_easy *दत्त,
+                                      संरचना connectdata *conn)
 {
-  struct rtsp_conn *rtspc;
-  struct RTSP *rtsp;
+  संरचना rtsp_conn *rtspc;
+  संरचना RTSP *rtsp;
 
-  rtspc = curlx_calloc(1, sizeof(*rtspc));
-  if(!rtspc)
-    return CURLE_OUT_OF_MEMORY;
+  rtspc = curlx_calloc(1, परिमाण(*rtspc));
+  यदि(!rtspc)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   curlx_dyn_init(&rtspc->buf, MAX_RTP_BUFFERSIZE);
-  if(Curl_conn_meta_set(conn, CURL_META_RTSP_CONN, rtspc, rtsp_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  यदि(Curl_conn_meta_समुच्चयः(conn, CURL_META_RTSP_CONN, rtspc, rtsp_conn_dtor))
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  rtsp = curlx_calloc(1, sizeof(struct RTSP));
-  if(!rtsp ||
-     Curl_meta_set(data, CURL_META_RTSP_EASY, rtsp, rtsp_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+  rtsp = curlx_calloc(1, परिमाण(संरचना RTSP));
+  यदि(!rtsp ||
+     Curl_meta_समुच्चयः(दत्त, CURL_META_RTSP_EASY, rtsp, rtsp_easy_dtor))
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * Function to check on various aspects of a connection.
  */
-static bool rtsp_conn_is_dead(struct Curl_easy *data,
-                              struct connectdata *conn)
+स्थिर bool rtsp_conn_is_dead(संरचना Curl_easy *दत्त,
+                              संरचना connectdata *conn)
 {
-  bool input_pending;
+  bool निवेशः_pending;
   /* Contrary to default handling, this protocol allows pending
    * input on an unused connection. */
-  return !Curl_conn_is_alive(data, conn, &input_pending);
+  प्रत्यागम !Curl_conn_is_alive(दत्त, conn, &निवेशः_pending);
 }
 
-static CURLcode rtsp_connect(struct Curl_easy *data, bool *done)
+स्थिर CURLcode rtsp_connect(संरचना Curl_easy *दत्त, bool *समाप्तम्)
 {
-  struct rtsp_conn *rtspc =
-    Curl_conn_meta_get(data->conn, CURL_META_RTSP_CONN);
+  संरचना rtsp_conn *rtspc =
+    Curl_conn_meta_get(दत्त->conn, CURL_META_RTSP_CONN);
 
-  if(!rtspc)
-    return CURLE_FAILED_INIT;
+  यदि(!rtspc)
+    प्रत्यागम CURLE_FAILED_INIT;
 
   /* Initialize the CSeq if not already done */
-  if(data->state.rtsp_next_client_CSeq == 0)
-    data->state.rtsp_next_client_CSeq = 1;
-  if(data->state.rtsp_next_server_CSeq == 0)
-    data->state.rtsp_next_server_CSeq = 1;
+  यदि(दत्त->state.rtsp_अग्र_client_CSeq == 0)
+    दत्त->state.rtsp_अग्र_client_CSeq = 1;
+  यदि(दत्त->state.rtsp_अग्र_server_CSeq == 0)
+    दत्त->state.rtsp_अग्र_server_CSeq = 1;
 
   rtspc->rtp_channel = -1;
-  *done = TRUE;
-  return CURLE_OK;
+  *समाप्तम् = TRUE;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode rtsp_done(struct Curl_easy *data,
-                          CURLcode status, bool premature)
+स्थिर CURLcode rtsp_समाप्तम्(संरचना Curl_easy *दत्त,
+                          CURLcode स्थितिः, bool premature)
 {
-  struct rtsp_conn *rtspc =
-    Curl_conn_meta_get(data->conn, CURL_META_RTSP_CONN);
-  struct RTSP *rtsp = Curl_meta_get(data, CURL_META_RTSP_EASY);
-  CURLcode result;
+  संरचना rtsp_conn *rtspc =
+    Curl_conn_meta_get(दत्त->conn, CURL_META_RTSP_CONN);
+  संरचना RTSP *rtsp = Curl_meta_get(दत्त, CURL_META_RTSP_EASY);
+  CURLcode परिणाम;
 
-  if(!rtspc || !rtsp)
-    return CURLE_FAILED_INIT;
+  यदि(!rtspc || !rtsp)
+    प्रत्यागम CURLE_FAILED_INIT;
 
   /* Bypass HTTP empty-reply checks on receive */
-  if(data->set.rtspreq == RTSPREQ_RECEIVE)
+  यदि(दत्त->समुच्चयः.rtspreq == RTSPREQ_RECEIVE)
     premature = TRUE;
 
-  result = Curl_http_done(data, status, premature);
+  परिणाम = Curl_http_समाप्तम्(दत्त, स्थितिः, premature);
 
-  if(!status && !result) {
+  यदि(!स्थितिः && !परिणाम) {
     /* Check the sequence numbers */
-    uint32_t CSeq_sent = rtsp->CSeq_sent;
+    uint32_t CSeq_प्रेषितम् = rtsp->CSeq_प्रेषितम्;
     uint32_t CSeq_recv = rtsp->CSeq_recv;
-    if((data->set.rtspreq != RTSPREQ_RECEIVE) && (CSeq_sent != CSeq_recv)) {
-      failf(data,
+    यदि((दत्त->समुच्चयः.rtspreq != RTSPREQ_RECEIVE) && (CSeq_प्रेषितम् != CSeq_recv)) {
+      failf(दत्त,
             "The CSeq of this request %u did not match the response %u",
-            CSeq_sent, CSeq_recv);
-      return CURLE_RTSP_CSEQ_ERROR;
+            CSeq_प्रेषितम्, CSeq_recv);
+      प्रत्यागम CURLE_RTSP_CSEQ_ERROR;
     }
-    if(data->set.rtspreq == RTSPREQ_RECEIVE && (rtspc->rtp_channel == -1)) {
-      infof(data, "Got an RTP Receive with a CSeq of %u", CSeq_recv);
+    यदि(दत्त->समुच्चयः.rtspreq == RTSPREQ_RECEIVE && (rtspc->rtp_channel == -1)) {
+      infof(दत्त, "Got an RTP Receive with a CSeq of %u", CSeq_recv);
     }
-    if(data->set.rtspreq == RTSPREQ_RECEIVE &&
-       data->req.eos_written) {
-      failf(data, "Server prematurely closed the RTSP connection.");
-      return CURLE_RECV_ERROR;
+    यदि(दत्त->समुच्चयः.rtspreq == RTSPREQ_RECEIVE &&
+       दत्त->req.eos_written) {
+      failf(दत्त, "Server prematurely closed the RTSP connection.");
+      प्रत्यागम CURLE_RECV_ERROR;
     }
   }
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode rtsp_setup_body(struct Curl_easy *data,
-                                unsigned char rtspreq,
-                                struct dynbuf *reqp)
+स्थिर CURLcode rtsp_सज्जता_body(संरचना Curl_easy *दत्त,
+                                अचिह्नित वर्ण rtspreq,
+                                संरचना dynbuf *reqp)
 {
-  CURLcode result;
-  if(rtspreq == RTSPREQ_ANNOUNCE ||
-     rtspreq == RTSPREQ_SET_PARAMETER ||
+  CURLcode परिणाम;
+  यदि(rtspreq == RTSPREQ_ANNOUNCE ||
+     rtspreq == RTSPREQ_समुच्चयः_PARAMETER ||
      rtspreq == RTSPREQ_GET_PARAMETER) {
     curl_off_t req_clen; /* request content length */
 
-    if(data->state.upload) {
-      req_clen = data->state.infilesize;
-      data->state.httpreq = HTTPREQ_PUT;
-      result = Curl_creader_set_fread(data, req_clen);
-      if(result)
-        return result;
+    यदि(दत्त->state.upload) {
+      req_clen = दत्त->state.infilesize;
+      दत्त->state.httpreq = HTTPREQ_PUT;
+      परिणाम = Curl_creader_समुच्चयः_fread(दत्त, req_clen);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
-    else {
-      if(data->set.postfields) {
-        size_t plen = (data->set.postfieldsize >= 0) ?
-          (size_t)data->set.postfieldsize : strlen(data->set.postfields);
+    अन्यथा {
+      यदि(दत्त->समुच्चयः.postfields) {
+        size_t plen = (दत्त->समुच्चयः.postfieldsize >= 0) ?
+          (size_t)दत्त->समुच्चयः.postfieldsize : वाक्यदैर्घ्यम्(दत्त->समुच्चयः.postfields);
         req_clen = (curl_off_t)plen;
-        result = Curl_creader_set_buf(data, data->set.postfields, plen);
+        परिणाम = Curl_creader_समुच्चयः_buf(दत्त, दत्त->समुच्चयः.postfields, plen);
       }
-      else if(data->state.infilesize >= 0) {
-        req_clen = data->state.infilesize;
-        result = Curl_creader_set_fread(data, req_clen);
+      अन्यथा यदि(दत्त->state.infilesize >= 0) {
+        req_clen = दत्त->state.infilesize;
+        परिणाम = Curl_creader_समुच्चयः_fread(दत्त, req_clen);
       }
-      else {
+      अन्यथा {
         req_clen = 0;
-        result = Curl_creader_set_null(data);
+        परिणाम = Curl_creader_समुच्चयः_null(दत्त);
       }
-      if(result)
-        return result;
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
 
-    if(req_clen > 0) {
-      if(data->set.crlf) {
-        failf(data, "Cannot do CRLF conversions on upload");
-        return CURLE_UPLOAD_FAILED;
+    यदि(req_clen > 0) {
+      यदि(दत्त->समुच्चयः.crlf) {
+        failf(दत्त, "Cannot do CRLF conversions on upload");
+        प्रत्यागम CURLE_UPLOAD_FAILED;
       }
       /* As stated in the http comments, it is probably not wise to
        * actually set a custom Content-Length in the headers */
-      if(!Curl_checkheaders(data, STRCONST("Content-Length"))) {
-        result = curlx_dyn_addf(reqp, "Content-Length: %" FMT_OFF_T "\r\n",
+      यदि(!Curl_checkheaders(दत्त, STRCONST("Content-Length"))) {
+        परिणाम = curlx_dyn_addf(reqp, "Content-Length: %" FMT_OFF_T "\r\n",
                                 req_clen);
-        if(result)
-          return result;
+        यदि(परिणाम)
+          प्रत्यागम परिणाम;
       }
 
-      if(rtspreq == RTSPREQ_SET_PARAMETER ||
+      यदि(rtspreq == RTSPREQ_समुच्चयः_PARAMETER ||
          rtspreq == RTSPREQ_GET_PARAMETER) {
-        if(!Curl_checkheaders(data, STRCONST("Content-Type"))) {
-          result = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
+        यदि(!Curl_checkheaders(दत्त, STRCONST("Content-Type"))) {
+          परिणाम = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
                                                  "text/parameters\r\n"));
-          if(result)
-            return result;
+          यदि(परिणाम)
+            प्रत्यागम परिणाम;
         }
       }
 
-      if(rtspreq == RTSPREQ_ANNOUNCE) {
-        if(!Curl_checkheaders(data, STRCONST("Content-Type"))) {
-          result = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
+      यदि(rtspreq == RTSPREQ_ANNOUNCE) {
+        यदि(!Curl_checkheaders(दत्त, STRCONST("Content-Type"))) {
+          परिणाम = curlx_dyn_addn(reqp, STRCONST("Content-Type: "
                                                  "application/sdp\r\n"));
-          if(result)
-            return result;
+          यदि(परिणाम)
+            प्रत्यागम परिणाम;
         }
       }
     }
-    else if(rtspreq == RTSPREQ_GET_PARAMETER) {
+    अन्यथा यदि(rtspreq == RTSPREQ_GET_PARAMETER) {
       /* Check for an empty GET_PARAMETER (heartbeat) request */
-      data->state.httpreq = HTTPREQ_HEAD;
-      data->req.no_body = TRUE;
+      दत्त->state.httpreq = HTTPREQ_शीर्ष;
+      दत्त->req.no_body = TRUE;
     }
   }
-  else
-    result = Curl_creader_set_null(data);
-  return result;
+  अन्यथा
+    परिणाम = Curl_creader_समुच्चयः_null(दत्त);
+  प्रत्यागम परिणाम;
 }
 
-struct rtspselect {
-  const char *method;
+संरचना rtspselect {
+  ध्रुव वर्ण *विधानम्;
   bool no_body;
 };
 
-static CURLcode pick_method(struct Curl_easy *data,
-                            const unsigned char rtspreq,
-                            const char **p)
+स्थिर CURLcode pick_विधानम्(संरचना Curl_easy *दत्त,
+                            ध्रुव अचिह्नित वर्ण rtspreq,
+                            ध्रुव वर्ण **p)
 {
-  static const struct rtspselect req[] = {
+  स्थिर ध्रुव संरचना rtspselect req[] = {
     { "OPTIONS",       TRUE },
     { "DESCRIBE",      FALSE },
     { "ANNOUNCE",      TRUE },
@@ -298,111 +298,111 @@ static CURLcode pick_method(struct Curl_easy *data,
     { "", FALSE }, /* RECEIVE: treat interleaved RTP as body */
   };
   /* this is verified already in setopt, this is just added precaution */
-  DEBUGASSERT((rtspreq > RTSPREQ_NONE) && (rtspreq < RTSPREQ_LAST));
-  if((rtspreq <= RTSPREQ_NONE) || (rtspreq >= RTSPREQ_LAST))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  *p = req[rtspreq - 1].method;
-  data->req.no_body = req[rtspreq - 1].no_body;
-  return CURLE_OK;
+  DEBUGASSERT((rtspreq > RTSPREQ_NONE) && (rtspreq < RTSPREQ_चरमः));
+  यदि((rtspreq <= RTSPREQ_NONE) || (rtspreq >= RTSPREQ_चरमः))
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
+  *p = req[rtspreq - 1].विधानम्;
+  दत्त->req.no_body = req[rtspreq - 1].no_body;
+  प्रत्यागम CURLE_OK;
 }
 
 /* Allocate and store a header string. */
-static CURLcode rtsp_header_alloc(const char *header_name,
-                                  const char *value,
-                                  char **target)
+स्थिर CURLcode rtsp_शीर्षकम्_alloc(ध्रुव वर्ण *शीर्षकम्_name,
+                                  ध्रुव वर्ण *मानम्,
+                                  वर्ण **target)
 {
-  if(!value)
-    return CURLE_OK;
+  यदि(!मानम्)
+    प्रत्यागम CURLE_OK;
   curlx_free(*target);
-  *target = curl_maprintf("%s: %s\r\n", header_name, value);
-  if(!*target)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  *target = curl_maprintf("%s: %s\r\n", शीर्षकम्_name, मानम्);
+  यदि(!*target)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+  प्रत्यागम CURLE_OK;
 }
 
-struct rtsp_blocks {
-  const char *request;
-  const char *session_id;
-  const char *accept;
-  const char *range;
-  const char *stream_uri;
-  const char *hd_proxy_auth;
-  const char *hd_auth;
-  char *referrer;
-  char *accept_encoding;
-  char *transport;
+संरचना rtsp_खण्डानि {
+  ध्रुव वर्ण *request;
+  ध्रुव वर्ण *session_id;
+  ध्रुव वर्ण *accept;
+  ध्रुव वर्ण *range;
+  ध्रुव वर्ण *प्रवाहः_uri;
+  ध्रुव वर्ण *hd_proxy_auth;
+  ध्रुव वर्ण *hd_auth;
+  वर्ण *referrer;
+  वर्ण *accept_encoding;
+  वर्ण *transport;
   BIT(transport_alloc); /* if 'transport' is allocated */
 };
 
-static CURLcode rtsp_setup_request(struct Curl_easy *data,
-                                   struct rtsp_blocks *b,
-                                   const unsigned char rtspreq)
+स्थिर CURLcode rtsp_सज्जता_request(संरचना Curl_easy *दत्त,
+                                   संरचना rtsp_खण्डानि *b,
+                                   ध्रुव अचिह्नित वर्ण rtspreq)
 {
-  CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
+  CURLcode परिणाम = CURLE_OK;
+  संरचना connectdata *conn = दत्त->conn;
 
-  b->session_id = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
+  b->session_id = CURL_EASY_STR(दत्त, STRING_RTSP_SESSION_ID);
 
   /* Stream URI. Default to server '*' if not specified */
-  if(CURL_EASY_STR(data, STRING_RTSP_STREAM_URI))
-    b->stream_uri = CURL_EASY_STR(data, STRING_RTSP_STREAM_URI);
-  else
-    b->stream_uri = "*";
+  यदि(CURL_EASY_STR(दत्त, STRING_RTSP_प्रवाहः_URI))
+    b->प्रवाहः_uri = CURL_EASY_STR(दत्त, STRING_RTSP_प्रवाहः_URI);
+  अन्यथा
+    b->प्रवाहः_uri = "*";
 
   /* Transport Header for SETUP requests */
-  b->transport = Curl_checkheaders(data, STRCONST("Transport"));
-  if(rtspreq == RTSPREQ_SETUP && !b->transport) {
+  b->transport = Curl_checkheaders(दत्त, STRCONST("Transport"));
+  यदि(rtspreq == RTSPREQ_सज्जता && !b->transport) {
     /* New Transport: setting? */
-    if(CURL_EASY_STR(data, STRING_RTSP_TRANSPORT)) {
-      result = rtsp_header_alloc(
-        "Transport", CURL_EASY_STR(data, STRING_RTSP_TRANSPORT),
+    यदि(CURL_EASY_STR(दत्त, STRING_RTSP_TRANSPORT)) {
+      परिणाम = rtsp_शीर्षकम्_alloc(
+        "Transport", CURL_EASY_STR(दत्त, STRING_RTSP_TRANSPORT),
         &b->transport);
-      if(result)
-        return result;
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
       b->transport_alloc = TRUE;
     }
-    else {
-      failf(data,
+    अन्यथा {
+      failf(दत्त,
             "Refusing to issue an RTSP SETUP without a Transport: header.");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
     }
   }
 
   /* Accept Headers for DESCRIBE requests */
-  if(rtspreq == RTSPREQ_DESCRIBE) {
+  यदि(rtspreq == RTSPREQ_DESCRIBE) {
     /* Accept Header */
-    b->accept = Curl_checkheaders(data, STRCONST("Accept")) ?
-      NULL : "Accept: application/sdp\r\n";
+    b->accept = Curl_checkheaders(दत्त, STRCONST("Accept")) ?
+      रिक्त : "Accept: application/sdp\r\n";
 
     /* Accept-Encoding header */
-    if(!Curl_checkheaders(data, STRCONST("Accept-Encoding")) &&
-       CURL_EASY_STR(data, STRING_ENCODING)) {
-      result = rtsp_header_alloc("Accept-Encoding",
-                                 CURL_EASY_STR(data, STRING_ENCODING),
+    यदि(!Curl_checkheaders(दत्त, STRCONST("Accept-Encoding")) &&
+       CURL_EASY_STR(दत्त, STRING_ENCODING)) {
+      परिणाम = rtsp_शीर्षकम्_alloc("Accept-Encoding",
+                                 CURL_EASY_STR(दत्त, STRING_ENCODING),
                                  &b->accept_encoding);
-      if(result)
-        return result;
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
   }
 
   /* setup the authentication headers */
-  result = Curl_http_output_auth(data, conn, b->request, HTTPREQ_GET,
-                                 b->stream_uri, NULL, FALSE);
-  if(result)
-    return result;
+  परिणाम = Curl_http_output_auth(दत्त, conn, b->request, HTTPREQ_GET,
+                                 b->प्रवाहः_uri, रिक्त, FALSE);
+  यदि(परिणाम)
+    प्रत्यागम परिणाम;
 
-#ifndef CURL_DISABLE_PROXY
-  b->hd_proxy_auth = data->req.hd_proxy_auth;
-#endif
-  b->hd_auth = data->req.hd_auth;
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
+  b->hd_proxy_auth = दत्त->req.hd_proxy_auth;
+#यदि_अन्तः
+  b->hd_auth = दत्त->req.hd_auth;
 
   /* Referrer */
-  if(Curl_bufref_ptr(&data->state.referer) &&
-     !Curl_checkheaders(data, STRCONST("Referer"))) {
+  यदि(Curl_bufref_ptr(&दत्त->state.referer) &&
+     !Curl_checkheaders(दत्त, STRCONST("Referer"))) {
     b->referrer =
-      curl_maprintf("Referer: %s\r\n", Curl_bufref_ptr(&data->state.referer));
-    if(!b->referrer)
-      result = CURLE_OUT_OF_MEMORY;
+      curl_maprintf("Referer: %s\r\n", Curl_bufref_ptr(&दत्त->state.referer));
+    यदि(!b->referrer)
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   }
 
   /*
@@ -411,269 +411,269 @@ static CURLcode rtsp_setup_request(struct Curl_easy *data,
    *
    * Go ahead and use the Range stuff supplied for HTTP
    */
-  if(!result &&
-     data->state.use_range &&
+  यदि(!परिणाम &&
+     दत्त->state.use_range &&
      ((rtspreq == RTSPREQ_PLAY) ||
       (rtspreq == RTSPREQ_PAUSE) ||
-      (rtspreq == RTSPREQ_RECORD)) &&
+      (rtspreq == RTSPREQ_लेखः)) &&
      /* Check to see if there is a range set in the custom headers */
-     !Curl_checkheaders(data, STRCONST("Range")) && data->state.range) {
-    result = rtsp_header_alloc("Range",
-                               data->state.range,
-                               &data->state.rangeline);
-    if(!result)
-      b->range = data->state.rangeline;
+     !Curl_checkheaders(दत्त, STRCONST("Range")) && दत्त->state.range) {
+    परिणाम = rtsp_शीर्षकम्_alloc("Range",
+                               दत्त->state.range,
+                               &दत्त->state.rangeline);
+    यदि(!परिणाम)
+      b->range = दत्त->state.rangeline;
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#define HTTPVERSION 11 /* RTSP is close to HTTP/1.1, sort of... */
+#परिभाषय HTTPVERSION 11 /* RTSP is close to HTTP/1.1, sort of... */
 
-static CURLcode rtsp_do(struct Curl_easy *data, bool *done)
+स्थिर CURLcode rtsp_do(संरचना Curl_easy *दत्त, bool *समाप्तम्)
 {
-  CURLcode result = CURLE_OK;
-  const unsigned char rtspreq = data->set.rtspreq;
-  const char *str;
-  struct RTSP *rtsp = Curl_meta_get(data, CURL_META_RTSP_EASY);
-  struct dynbuf req_buffer;
-  struct rtsp_blocks block;
-  memset(&block, 0, sizeof(block));
+  CURLcode परिणाम = CURLE_OK;
+  ध्रुव अचिह्नित वर्ण rtspreq = दत्त->समुच्चयः.rtspreq;
+  ध्रुव वर्ण *str;
+  संरचना RTSP *rtsp = Curl_meta_get(दत्त, CURL_META_RTSP_EASY);
+  संरचना dynbuf req_बफर;
+  संरचना rtsp_खण्डानि खण्डम्;
+  स्मृतिं_पूरय(&खण्डम्, 0, परिमाण(खण्डम्));
 
-  *done = TRUE;
-  if(!rtsp)
-    return CURLE_FAILED_INIT;
+  *समाप्तम् = TRUE;
+  यदि(!rtsp)
+    प्रत्यागम CURLE_FAILED_INIT;
 
   /* Initialize a dynamic send buffer */
-  curlx_dyn_init(&req_buffer, DYN_RTSP_REQ_HEADER);
+  curlx_dyn_init(&req_बफर, DYN_RTSP_REQ_शीर्षकम्);
 
-  rtsp->CSeq_sent = data->state.rtsp_next_client_CSeq;
+  rtsp->CSeq_प्रेषितम् = दत्त->state.rtsp_अग्र_client_CSeq;
   rtsp->CSeq_recv = 0;
 
   /* Setup the 'p_request' pointer to the proper method. */
-  result = pick_method(data, rtspreq, &block.request);
-  if(result)
-    goto out;
+  परिणाम = pick_विधानम्(दत्त, rtspreq, &खण्डम्.request);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  if(rtspreq == RTSPREQ_RECEIVE) {
-    Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
-    goto out;
+  यदि(rtspreq == RTSPREQ_RECEIVE) {
+    Curl_xfer_सज्जता_recv(दत्त, FIRSTSOCKET, -1);
+    गच्छ बहिर्गमनम्;
   }
 
-  result = rtsp_setup_request(data, &block,  rtspreq);
-  if(result)
-    goto out;
+  परिणाम = rtsp_सज्जता_request(दत्त, &खण्डम्,  rtspreq);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  if(block.session_id && data->state.rtsp_session_origin &&
-     !data->set.allow_auth_to_other_hosts &&
-     !Curl_peer_equal(data->state.origin, data->state.rtsp_session_origin))
-    block.session_id = NULL;
+  यदि(खण्डम्.session_id && दत्त->state.rtsp_session_origin &&
+     !दत्त->समुच्चयः.allow_auth_गन्तव्यम्_other_hosts &&
+     !Curl_peer_equal(दत्त->state.origin, दत्त->state.rtsp_session_origin))
+    खण्डम्.session_id = रिक्त;
 
   /*
    * Sanity check the custom headers
    */
-  if(Curl_checkheaders(data, STRCONST("CSeq"))) {
-    failf(data, "CSeq cannot be set as a custom header.");
-    result = CURLE_RTSP_CSEQ_ERROR;
-    goto out;
+  यदि(Curl_checkheaders(दत्त, STRCONST("CSeq"))) {
+    failf(दत्त, "CSeq cannot be set as a custom header.");
+    परिणाम = CURLE_RTSP_CSEQ_ERROR;
+    गच्छ बहिर्गमनम्;
   }
-  if(Curl_checkheaders(data, STRCONST("Session"))) {
-    failf(data, "Session ID cannot be set as a custom header.");
-    result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+  यदि(Curl_checkheaders(दत्त, STRCONST("Session"))) {
+    failf(दत्त, "Session ID cannot be set as a custom header.");
+    परिणाम = CURLE_BAD_FUNCTION_तर्कः;
+    गच्छ बहिर्गमनम्;
   }
 
-  result =
-    curlx_dyn_addf(&req_buffer,
+  परिणाम =
+    curlx_dyn_addf(&req_बफर,
                    "%s %s RTSP/1.0\r\n" /* Request Stream-URI RTSP/1.0 */
                    "CSeq: %u\r\n", /* CSeq */
-                   block.request, block.stream_uri, rtsp->CSeq_sent);
-  if(result)
-    goto out;
+                   खण्डम्.request, खण्डम्.प्रवाहः_uri, rtsp->CSeq_प्रेषितम्);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
   /*
    * Rather than do a normal alloc line, keep the session_id unformatted
    * to make comparison easier
    */
-  if(block.session_id) {
-    result = curlx_dyn_addf(&req_buffer, "Session: %s\r\n", block.session_id);
-    if(result)
-      goto out;
+  यदि(खण्डम्.session_id) {
+    परिणाम = curlx_dyn_addf(&req_बफर, "Session: %s\r\n", खण्डम्.session_id);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
   /*
    * Shared HTTP-like options
    */
-  result = curlx_dyn_addf(&req_buffer,
+  परिणाम = curlx_dyn_addf(&req_बफर,
                           "%s" /* transport */
                           "%s" /* accept */
                           "%s" /* accept-encoding */
                           "%s" /* range */
                           "%s" /* referrer */
                           ,
-                          block.transport ? block.transport : "",
-                          block.accept ? block.accept : "",
-                          block.accept_encoding ? block.accept_encoding : "",
-                          block.range ? block.range : "",
-                          block.referrer ? block.referrer : "");
+                          खण्डम्.transport ? खण्डम्.transport : "",
+                          खण्डम्.accept ? खण्डम्.accept : "",
+                          खण्डम्.accept_encoding ? खण्डम्.accept_encoding : "",
+                          खण्डम्.range ? खण्डम्.range : "",
+                          खण्डम्.referrer ? खण्डम्.referrer : "");
 
-  str = CURL_EASY_STR(data, STRING_USERAGENT);
-  if(!result && str && *str &&
-     !Curl_checkheaders(data, STRCONST("User-Agent")))
-    result = curlx_dyn_addf(&req_buffer,
+  str = CURL_EASY_STR(दत्त, STRING_USERAGENT);
+  यदि(!परिणाम && str && *str &&
+     !Curl_checkheaders(दत्त, STRCONST("User-Agent")))
+    परिणाम = curlx_dyn_addf(&req_बफर,
                             "User-Agent: %s\r\n", str);
 
-  if(!result)
-    result = curlx_dyn_addf(&req_buffer,
+  यदि(!परिणाम)
+    परिणाम = curlx_dyn_addf(&req_बफर,
                             "%s" /* hd_proxy_auth */
                             "%s", /* hd_auth */
-                            block.hd_proxy_auth ? block.hd_proxy_auth : "",
-                            block.hd_auth ? block.hd_auth : "");
-  if(result)
-    goto out;
+                            खण्डम्.hd_proxy_auth ? खण्डम्.hd_proxy_auth : "",
+                            खण्डम्.hd_auth ? खण्डम्.hd_auth : "");
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  if((rtspreq == RTSPREQ_SETUP) || (rtspreq == RTSPREQ_DESCRIBE)) {
-    result = Curl_add_timecondition(data, &req_buffer);
-    if(result)
-      goto out;
+  यदि((rtspreq == RTSPREQ_सज्जता) || (rtspreq == RTSPREQ_DESCRIBE)) {
+    परिणाम = Curl_सङ्कलय_timecondition(दत्त, &req_बफर);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
-  result = Curl_add_custom_headers(data, FALSE, HTTPVERSION, &req_buffer);
-  if(result)
-    goto out;
+  परिणाम = Curl_सङ्कलय_custom_शीर्षकाणि(दत्त, FALSE, HTTPVERSION, &req_बफर);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  result = rtsp_setup_body(data, rtspreq, &req_buffer);
-  if(result)
-    goto out;
+  परिणाम = rtsp_सज्जता_body(दत्त, rtspreq, &req_बफर);
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
   /* Finish the request buffer */
-  result = curlx_dyn_addn(&req_buffer, STRCONST("\r\n"));
-  if(result)
-    goto out;
+  परिणाम = curlx_dyn_addn(&req_बफर, STRCONST("\r\n"));
+  यदि(परिणाम)
+    गच्छ बहिर्गमनम्;
 
-  Curl_xfer_setup_sendrecv(data, FIRSTSOCKET, -1);
+  Curl_xfer_सज्जता_sendrecv(दत्त, FIRSTSOCKET, -1);
 
   /* issue the request */
-  result = Curl_req_send(data, &req_buffer, HTTPVERSION);
-  if(result) {
-    failf(data, "Failed sending RTSP request");
-    goto out;
+  परिणाम = Curl_req_send(दत्त, &req_बफर, HTTPVERSION);
+  यदि(परिणाम) {
+    failf(दत्त, "Failed sending RTSP request");
+    गच्छ बहिर्गमनम्;
   }
 
   /* Increment the CSeq on success */
-  data->state.rtsp_next_client_CSeq++;
+  दत्त->state.rtsp_अग्र_client_CSeq++;
 
-  if(data->req.writebytecount) {
+  यदि(दत्त->req.writebytecount) {
     /* if a request-body has been sent off, we make sure this progress is
        noted properly */
-    Curl_pgrsSetUploadCounter(data, data->req.writebytecount);
-    result = Curl_pgrsUpdate(data);
+    Curl_pgrs_समुच्चयः_Upload_गणक(दत्त, दत्त->req.writebytecount);
+    परिणाम = Curl_pgrsUpdate(दत्त);
   }
-out:
-  if(block.transport_alloc)
-    curlx_free(block.transport);
-  curlx_free(block.accept_encoding);
-  curlx_free(block.referrer);
-  curlx_dyn_free(&req_buffer);
-  return result;
+बहिर्गमनम्:
+  यदि(खण्डम्.transport_alloc)
+    curlx_free(खण्डम्.transport);
+  curlx_free(खण्डम्.accept_encoding);
+  curlx_free(खण्डम्.referrer);
+  curlx_dyn_free(&req_बफर);
+  प्रत्यागम परिणाम;
 }
 
 /**
  * write any BODY bytes missing to the client, ignore the rest.
  */
-static CURLcode rtp_write_body_junk(struct Curl_easy *data,
-                                    struct rtsp_conn *rtspc,
-                                    const char *buf,
+स्थिर CURLcode rtp_write_body_junk(संरचना Curl_easy *दत्त,
+                                    संरचना rtsp_conn *rtspc,
+                                    ध्रुव वर्ण *buf,
                                     size_t blen)
 {
   curl_off_t body_remain;
-  bool in_body;
+  bool अन्तर्_body;
 
-  in_body = (data->req.headerline && !rtspc->in_header) &&
-            (data->req.size >= 0) &&
-            (data->req.bytecount < data->req.size);
-  body_remain = in_body ? (data->req.size - data->req.bytecount) : 0;
+  अन्तर्_body = (दत्त->req.headerline && !rtspc->अन्तर्_शीर्षकम्) &&
+            (दत्त->req.आकार >= 0) &&
+            (दत्त->req.bytecount < दत्त->req.आकार);
+  body_remain = अन्तर्_body ? (दत्त->req.आकार - दत्त->req.bytecount) : 0;
   DEBUGASSERT(body_remain >= 0);
-  if(body_remain) {
-    if((curl_off_t)blen > body_remain)
+  यदि(body_remain) {
+    यदि((curl_off_t)blen > body_remain)
       blen = (size_t)body_remain;
-    return Curl_client_write(data, CLIENTWRITE_BODY, buf, blen);
+    प्रत्यागम Curl_client_write(दत्त, CLIENTWRITE_BODY, buf, blen);
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode rtp_client_write(struct Curl_easy *data, const char *ptr,
+स्थिर CURLcode rtp_client_write(संरचना Curl_easy *दत्त, ध्रुव वर्ण *ptr,
                                  size_t len)
 {
-  struct Curl_mapi_guard guard;
+  संरचना Curl_mapi_guard guard;
   size_t wrote;
   curl_write_callback writeit;
-  void *user_ptr;
+  शून्य *user_ptr;
 
-  if(len == 0) {
-    failf(data, "Cannot write a 0 size RTP packet.");
-    return CURLE_WRITE_ERROR;
+  यदि(len == 0) {
+    failf(दत्त, "Cannot write a 0 size RTP packet.");
+    प्रत्यागम CURLE_WRITE_ERROR;
   }
 
   /* If the user has configured CURLOPT_INTERLEAVEFUNCTION then use that
      function and any configured CURLOPT_INTERLEAVEDATA to write out the RTP
      data. Otherwise, use the CURLOPT_WRITEFUNCTION with the CURLOPT_WRITEDATA
      pointer to write out the RTP data. */
-  if(data->set.fwrite_rtp) {
-    writeit = data->set.fwrite_rtp;
-    user_ptr = data->set.rtp_out;
+  यदि(दत्त->समुच्चयः.fwrite_rtp) {
+    writeit = दत्त->समुच्चयः.fwrite_rtp;
+    user_ptr = दत्त->समुच्चयः.rtp_बहिर्गमनम्;
   }
-  else {
-    writeit = data->set.fwrite_func;
-    user_ptr = data->set.out;
-  }
-
-  CURL_CBAPI_START(&guard, data, easy_fwrite_rtp);
-  wrote = writeit((char *)CURL_UNCONST(ptr), 1, len, user_ptr);
-  CURL_CBAPI_END(&guard);
-
-  if(wrote == CURL_WRITEFUNC_PAUSE) {
-    failf(data, "Cannot pause RTP");
-    return CURLE_WRITE_ERROR;
+  अन्यथा {
+    writeit = दत्त->समुच्चयः.fwrite_func;
+    user_ptr = दत्त->समुच्चयः.बहिर्गमनम्;
   }
 
-  if(wrote != len) {
-    failf(data, "Failed writing RTP data");
-    return CURLE_WRITE_ERROR;
+  CURL_CBAPI_START(&guard, दत्त, easy_fwrite_rtp);
+  wrote = writeit((वर्ण *)CURL_UNCONST(ptr), 1, len, user_ptr);
+  CURL_CBAPI_अन्तः(&guard);
+
+  यदि(wrote == CURL_WRITEFUNC_PAUSE) {
+    failf(दत्त, "Cannot pause RTP");
+    प्रत्यागम CURLE_WRITE_ERROR;
   }
 
-  return CURLE_OK;
+  यदि(wrote != len) {
+    failf(दत्त, "Failed writing RTP data");
+    प्रत्यागम CURLE_WRITE_ERROR;
+  }
+
+  प्रत्यागम CURLE_OK;
 }
 
-static CURLcode rtsp_filter_rtp(struct Curl_easy *data,
-                                struct rtsp_conn *rtspc,
-                                const char *buf,
+स्थिर CURLcode rtsp_filter_rtp(संरचना Curl_easy *दत्त,
+                                संरचना rtsp_conn *rtspc,
+                                ध्रुव वर्ण *buf,
                                 size_t blen,
                                 size_t *pconsumed)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   size_t skip_len = 0;
 
   *pconsumed = 0;
-  while(blen) {
-    bool in_body = (data->req.headerline && !rtspc->in_header) &&
-                   (data->req.size >= 0) &&
-                   (data->req.bytecount < data->req.size);
-    switch(rtspc->state) {
+  यावत्(blen) {
+    bool अन्तर्_body = (दत्त->req.headerline && !rtspc->अन्तर्_शीर्षकम्) &&
+                   (दत्त->req.आकार >= 0) &&
+                   (दत्त->req.bytecount < दत्त->req.आकार);
+    विकल्प(rtspc->state) {
 
-    case RTP_PARSE_SKIP: {
+    पक्ष RTP_PARSE_SKIP: {
       DEBUGASSERT(curlx_dyn_len(&rtspc->buf) == 0);
-      while(blen && buf[0] != '$') {
-        if(!in_body && buf[0] == 'R' &&
-           data->set.rtspreq != RTSPREQ_RECEIVE) {
-          if(!strncmp(buf, "RTSP/", (blen < 5) ? blen : 5)) {
+      यावत्(blen && buf[0] != '$') {
+        यदि(!अन्तर्_body && buf[0] == 'R' &&
+           दत्त->समुच्चयः.rtspreq != RTSPREQ_RECEIVE) {
+          यदि(!वाक्ये_तुलय(buf, "RTSP/", (blen < 5) ? blen : 5)) {
             /* This could be the next response, no consume and return */
-            if(*pconsumed) {
-              DEBUGF(infof(data, "RTP rtsp_filter_rtp[SKIP] RTSP/ prefix, "
+            यदि(*pconsumed) {
+              DEBUGF(infof(दत्त, "RTP rtsp_filter_rtp[SKIP] RTSP/ prefix, "
                            "skipping %zu bytes of junk", *pconsumed));
             }
             rtspc->state = RTP_PARSE_SKIP;
-            rtspc->in_header = TRUE;
-            goto out;
+            rtspc->अन्तर्_शीर्षकम् = TRUE;
+            गच्छ बहिर्गमनम्;
           }
         }
         /* junk/BODY, consume without buffering */
@@ -682,141 +682,141 @@ static CURLcode rtsp_filter_rtp(struct Curl_easy *data,
         --blen;
         ++skip_len;
       }
-      if(blen && buf[0] == '$') {
+      यदि(blen && buf[0] == '$') {
         /* possible start of an RTP message, buffer */
-        if(skip_len) {
+        यदि(skip_len) {
           /* end of junk/BODY bytes, flush */
-          result = rtp_write_body_junk(data, rtspc, buf - skip_len, skip_len);
+          परिणाम = rtp_write_body_junk(दत्त, rtspc, buf - skip_len, skip_len);
           skip_len = 0;
-          if(result)
-            goto out;
+          यदि(परिणाम)
+            गच्छ बहिर्गमनम्;
         }
-        if(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+        यदि(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
+          परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+          गच्छ बहिर्गमनम्;
         }
         *pconsumed += 1;
         ++buf;
         --blen;
         rtspc->state = RTP_PARSE_CHANNEL;
       }
-      break;
+      भङ्ग;
     }
 
-    case RTP_PARSE_CHANNEL: {
-      int idx = ((unsigned char)buf[0]) / 8;
-      int off = ((unsigned char)buf[0]) % 8;
+    पक्ष RTP_PARSE_CHANNEL: {
+      पूर्णाङ्क idx = ((अचिह्नित वर्ण)buf[0]) / 8;
+      पूर्णाङ्क off = ((अचिह्नित वर्ण)buf[0]) % 8;
       DEBUGASSERT(curlx_dyn_len(&rtspc->buf) == 1);
-      if(!(data->state.rtp_channel_mask[idx] & (1 << off))) {
+      यदि(!(दत्त->state.rtp_channel_आवरणम्[idx] & (1 << off))) {
         /* invalid channel number, junk or BODY data */
         rtspc->state = RTP_PARSE_SKIP;
         DEBUGASSERT(skip_len == 0);
         /* we do not consume this byte, it is BODY data */
-        DEBUGF(infof(data, "RTSP: invalid RTP channel %d, skipping", idx));
-        if(*pconsumed == 0) {
+        DEBUGF(infof(दत्त, "RTSP: invalid RTP channel %d, skipping", idx));
+        यदि(*pconsumed == 0) {
           /* We did not consume the initial '$' in our buffer, but had
            * it from an earlier call. We cannot un-consume it and have
            * to write it directly as BODY data */
-          result = rtp_write_body_junk(data, rtspc,
+          परिणाम = rtp_write_body_junk(दत्त, rtspc,
                                        curlx_dyn_ptr(&rtspc->buf), 1);
-          if(result)
-            goto out;
+          यदि(परिणाम)
+            गच्छ बहिर्गमनम्;
         }
-        else {
+        अन्यथा {
           /* count the '$' as skip and continue */
           skip_len = 1;
         }
         curlx_dyn_free(&rtspc->buf);
-        break;
+        भङ्ग;
       }
       /* a valid channel, so we expect this to be a real RTP message */
-      rtspc->rtp_channel = (unsigned char)buf[0];
-      if(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      rtspc->rtp_channel = (अचिह्नित वर्ण)buf[0];
+      यदि(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        गच्छ बहिर्गमनम्;
       }
       *pconsumed += 1;
       ++buf;
       --blen;
       rtspc->state = RTP_PARSE_LEN;
-      break;
+      भङ्ग;
     }
 
-    case RTP_PARSE_LEN: {
+    पक्ष RTP_PARSE_LEN: {
       size_t rtp_len = curlx_dyn_len(&rtspc->buf);
-      const char *rtp_buf;
+      ध्रुव वर्ण *rtp_buf;
       DEBUGASSERT(rtp_len >= 2 && rtp_len < 4);
-      if(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      यदि(curlx_dyn_addn(&rtspc->buf, buf, 1)) {
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        गच्छ बहिर्गमनम्;
       }
       *pconsumed += 1;
       ++buf;
       --blen;
-      if(rtp_len == 2)
-        break;
+      यदि(rtp_len == 2)
+        भङ्ग;
       rtp_buf = curlx_dyn_ptr(&rtspc->buf);
-      rtspc->rtp_len = RTP_PKT_LENGTH(rtp_buf) + 4;
-      if(rtspc->rtp_len == 4) {
+      rtspc->rtp_len = RTP_PKT_दीर्घता(rtp_buf) + 4;
+      यदि(rtspc->rtp_len == 4) {
         /* zero-length payload, the 4-byte header is the complete RTP
            message. Dispatch immediately without entering RTP_PARSE_DATA. */
-        DEBUGF(infof(data, "RTP write channel %d rtp_len %zu (no payload)",
+        DEBUGF(infof(दत्त, "RTP write channel %d rtp_len %zu (no payload)",
                      rtspc->rtp_channel, rtspc->rtp_len));
-        result = rtp_client_write(data, rtp_buf, rtspc->rtp_len);
+        परिणाम = rtp_client_write(दत्त, rtp_buf, rtspc->rtp_len);
         curlx_dyn_free(&rtspc->buf);
         rtspc->state = RTP_PARSE_SKIP;
-        if(result)
-          goto out;
-        break;
+        यदि(परिणाम)
+          गच्छ बहिर्गमनम्;
+        भङ्ग;
       }
-      rtspc->state = RTP_PARSE_DATA;
-      break;
+      rtspc->state = RTP_PARSE_दत्त;
+      भङ्ग;
     }
 
-    case RTP_PARSE_DATA: {
+    पक्ष RTP_PARSE_दत्त: {
       size_t rtp_len = curlx_dyn_len(&rtspc->buf);
       size_t needed;
       DEBUGASSERT(rtp_len < rtspc->rtp_len);
       needed = rtspc->rtp_len - rtp_len;
-      if(needed <= blen) {
-        if(curlx_dyn_addn(&rtspc->buf, buf, needed)) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+      यदि(needed <= blen) {
+        यदि(curlx_dyn_addn(&rtspc->buf, buf, needed)) {
+          परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+          गच्छ बहिर्गमनम्;
         }
         *pconsumed += needed;
         buf += needed;
         blen -= needed;
         /* complete RTP message in buffer */
-        DEBUGF(infof(data, "RTP write channel %d rtp_len %zu",
+        DEBUGF(infof(दत्त, "RTP write channel %d rtp_len %zu",
                      rtspc->rtp_channel, rtspc->rtp_len));
-        result = rtp_client_write(data, curlx_dyn_ptr(&rtspc->buf),
+        परिणाम = rtp_client_write(दत्त, curlx_dyn_ptr(&rtspc->buf),
                                   rtspc->rtp_len);
         curlx_dyn_free(&rtspc->buf);
         rtspc->state = RTP_PARSE_SKIP;
-        if(result)
-          goto out;
+        यदि(परिणाम)
+          गच्छ बहिर्गमनम्;
       }
-      else {
-        if(curlx_dyn_addn(&rtspc->buf, buf, blen)) {
-          result = CURLE_OUT_OF_MEMORY;
-          goto out;
+      अन्यथा {
+        यदि(curlx_dyn_addn(&rtspc->buf, buf, blen)) {
+          परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+          गच्छ बहिर्गमनम्;
         }
         *pconsumed += blen;
         buf += blen;
         blen = 0;
       }
-      break;
+      भङ्ग;
     }
 
-    default:
+    स्वभाव:
       DEBUGASSERT(0);
-      return CURLE_RECV_ERROR;
+      प्रत्यागम CURLE_RECV_ERROR;
     }
   }
-out:
-  if(!result && skip_len)
-    result = rtp_write_body_junk(data, rtspc, buf - skip_len, skip_len);
-  return result;
+बहिर्गमनम्:
+  यदि(!परिणाम && skip_len)
+    परिणाम = rtp_write_body_junk(दत्त, rtspc, buf - skip_len, skip_len);
+  प्रत्यागम परिणाम;
 }
 
 /*
@@ -829,170 +829,170 @@ out:
  * @param readmore out, TRUE iff complete buf was consumed and more data
  *                 is needed
  */
-static CURLcode rtsp_rtp_write_resp(struct Curl_easy *data,
-                                    const char *buf,
+स्थिर CURLcode rtsp_rtp_write_resp(संरचना Curl_easy *दत्त,
+                                    ध्रुव वर्ण *buf,
                                     size_t blen,
                                     bool is_eos)
 {
-  struct rtsp_conn *rtspc =
-    Curl_conn_meta_get(data->conn, CURL_META_RTSP_CONN);
-  CURLcode result = CURLE_OK;
+  संरचना rtsp_conn *rtspc =
+    Curl_conn_meta_get(दत्त->conn, CURL_META_RTSP_CONN);
+  CURLcode परिणाम = CURLE_OK;
   size_t consumed = 0;
 
-  if(!rtspc)
-    return CURLE_FAILED_INIT;
+  यदि(!rtspc)
+    प्रत्यागम CURLE_FAILED_INIT;
 
-  if(!data->req.header)
-    rtspc->in_header = FALSE;
-  if(!blen) {
-    goto out;
+  यदि(!दत्त->req.शीर्षकम्)
+    rtspc->अन्तर्_शीर्षकम् = FALSE;
+  यदि(!blen) {
+    गच्छ बहिर्गमनम्;
   }
 
-  DEBUGF(infof(data, "rtsp_rtp_write_resp(len=%zu, in_header=%d, eos=%d)",
-               blen, rtspc->in_header, is_eos));
+  DEBUGF(infof(दत्त, "rtsp_rtp_write_resp(len=%zu, in_header=%d, eos=%d)",
+               blen, rtspc->अन्तर्_शीर्षकम्, is_eos));
 
   /* If header parsing is not ongoing, extract RTP messages */
-  if(!rtspc->in_header) {
-    result = rtsp_filter_rtp(data, rtspc, buf, blen, &consumed);
-    if(result)
-      goto out;
+  यदि(!rtspc->अन्तर्_शीर्षकम्) {
+    परिणाम = rtsp_filter_rtp(दत्त, rtspc, buf, blen, &consumed);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
     buf += consumed;
     blen -= consumed;
     /* either we consumed all or are at the start of header parsing */
-    if(blen && !data->req.header)
-      DEBUGF(infof(data, "RTSP: %zu bytes, possibly excess in response body",
+    यदि(blen && !दत्त->req.शीर्षकम्)
+      DEBUGF(infof(दत्त, "RTSP: %zu bytes, possibly excess in response body",
                    blen));
   }
 
   /* we want to parse headers, do so */
-  if(data->req.header && blen) {
-    rtspc->in_header = TRUE;
-    result = Curl_http_write_resp_hds(data, buf, blen, &consumed);
-    if(result)
-      goto out;
+  यदि(दत्त->req.शीर्षकम् && blen) {
+    rtspc->अन्तर्_शीर्षकम् = TRUE;
+    परिणाम = Curl_http_write_resp_hds(दत्त, buf, blen, &consumed);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
 
     buf += consumed;
     blen -= consumed;
 
-    if(!data->req.header)
-      rtspc->in_header = FALSE;
+    यदि(!दत्त->req.शीर्षकम्)
+      rtspc->अन्तर्_शीर्षकम् = FALSE;
 
-    if(!rtspc->in_header) {
+    यदि(!rtspc->अन्तर्_शीर्षकम्) {
       /* If header parsing is done, extract interleaved RTP messages */
-      if(data->req.size <= -1) {
+      यदि(दत्त->req.आकार <= -1) {
         /* Respect section 4.4 of rfc2326: If the Content-Length header is
            absent, a length 0 must be assumed. */
-        data->req.size = 0;
-        data->req.download_done = TRUE;
+        दत्त->req.आकार = 0;
+        दत्त->req.download_समाप्तम् = TRUE;
       }
-      result = rtsp_filter_rtp(data, rtspc, buf, blen, &consumed);
-      if(result)
-        goto out;
+      परिणाम = rtsp_filter_rtp(दत्त, rtspc, buf, blen, &consumed);
+      यदि(परिणाम)
+        गच्छ बहिर्गमनम्;
       buf += consumed;
       blen -= consumed;
     }
   }
 
-  if(rtspc->state != RTP_PARSE_SKIP)
-    data->req.done = FALSE;
+  यदि(rtspc->state != RTP_PARSE_SKIP)
+    दत्त->req.समाप्तम् = FALSE;
   /* we SHOULD have consumed all bytes, unless the response is borked.
    * In which case we write out the left over bytes, letting the client
    * writer deal with it (it will report EXCESS and fail the transfer). */
-  DEBUGF(infof(data, "rtsp_rtp_write_resp(len=%zu, in_header=%d, done=%d, "
+  DEBUGF(infof(दत्त, "rtsp_rtp_write_resp(len=%zu, in_header=%d, done=%d, "
                "rtspc->state=%d, req.size=%" FMT_OFF_T ")",
-               blen, rtspc->in_header, data->req.done, (int)rtspc->state,
-               data->req.size));
-  if(!result && (is_eos || blen)) {
-    result = Curl_client_write(data, CLIENTWRITE_BODY |
+               blen, rtspc->अन्तर्_शीर्षकम्, दत्त->req.समाप्तम्, (पूर्णाङ्क)rtspc->state,
+               दत्त->req.आकार));
+  यदि(!परिणाम && (is_eos || blen)) {
+    परिणाम = Curl_client_write(दत्त, CLIENTWRITE_BODY |
                                (is_eos ? CLIENTWRITE_EOS : 0), buf, blen);
   }
 
-out:
-  if((data->set.rtspreq == RTSPREQ_RECEIVE) &&
+बहिर्गमनम्:
+  यदि((दत्त->समुच्चयः.rtspreq == RTSPREQ_RECEIVE) &&
      (rtspc->state == RTP_PARSE_SKIP)) {
     /* In special mode RECEIVE, we process one chunk of network
      * data, so we stop the transfer here, if we have no incomplete
      * RTP message pending. */
-    data->req.download_done = TRUE;
+    दत्त->req.download_समाप्तम् = TRUE;
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-static CURLcode rtsp_rtp_write_resp_hd(struct Curl_easy *data,
-                                       const char *buf,
+स्थिर CURLcode rtsp_rtp_write_resp_hd(संरचना Curl_easy *दत्त,
+                                       ध्रुव वर्ण *buf,
                                        size_t blen,
                                        bool is_eos)
 {
-  return rtsp_rtp_write_resp(data, buf, blen, is_eos);
+  प्रत्यागम rtsp_rtp_write_resp(दत्त, buf, blen, is_eos);
 }
 
-static CURLcode rtsp_parse_transport(struct Curl_easy *data,
-                                     const char *transport)
+स्थिर CURLcode rtsp_parse_transport(संरचना Curl_easy *दत्त,
+                                     ध्रुव वर्ण *transport)
 {
   /* If we receive multiple Transport response-headers, the interleaved
      channels of each response header is recorded and used together for
      subsequent data validity checks.*/
   /* e.g.: ' RTP/AVP/TCP;unicast;interleaved=5-6' */
-  const char *start, *end;
+  ध्रुव वर्ण *start, *अन्तः;
   start = transport;
-  while(start && *start) {
+  यावत्(start && *start) {
     curlx_str_passblanks(&start);
-    end = strchr(start, ';');
-    if(checkprefix("interleaved=", start)) {
+    अन्तः = strchr(start, ';');
+    यदि(checkprefix("interleaved=", start)) {
       curl_off_t chan1, chan2, chan;
-      const char *p = start + 12;
-      if(!curlx_str_number(&p, &chan1, 255)) {
-        unsigned char *rtp_channel_mask = data->state.rtp_channel_mask;
+      ध्रुव वर्ण *p = start + 12;
+      यदि(!curlx_str_सङ्ख्या(&p, &chan1, 255)) {
+        अचिह्नित वर्ण *rtp_channel_आवरणम् = दत्त->state.rtp_channel_आवरणम्;
         chan2 = chan1;
-        if(!curlx_str_single(&p, '-') && curlx_str_number(&p, &chan2, 255)) {
-          infof(data, "Unable to read the interleaved parameter from "
+        यदि(!curlx_str_single(&p, '-') && curlx_str_सङ्ख्या(&p, &chan2, 255)) {
+          infof(दत्त, "Unable to read the interleaved parameter from "
                 "Transport header: [%s]", transport);
           chan2 = chan1;
         }
-        for(chan = chan1; chan <= chan2; chan++) {
-          int idx = (int)chan / 8;
-          int off = (int)chan % 8;
-          rtp_channel_mask[idx] |= (unsigned char)(1 << off);
+        प्रति(chan = chan1; chan <= chan2; chan++) {
+          पूर्णाङ्क idx = (पूर्णाङ्क)chan / 8;
+          पूर्णाङ्क off = (पूर्णाङ्क)chan % 8;
+          rtp_channel_आवरणम्[idx] |= (अचिह्नित वर्ण)(1 << off);
         }
       }
-      else {
-        infof(data, "Unable to read the interleaved parameter from "
+      अन्यथा {
+        infof(दत्त, "Unable to read the interleaved parameter from "
               "Transport header: [%s]", transport);
       }
-      break;
+      भङ्ग;
     }
     /* skip to next parameter */
-    start = (!end) ? end : (end + 1);
+    start = (!अन्तः) ? अन्तः : (अन्तः + 1);
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header)
+CURLcode Curl_rtsp_parseheader(संरचना Curl_easy *दत्त, ध्रुव वर्ण *शीर्षकम्)
 {
-  if(checkprefix("CSeq:", header)) {
+  यदि(checkprefix("CSeq:", शीर्षकम्)) {
     curl_off_t CSeq = 0;
-    struct RTSP *rtsp = Curl_meta_get(data, CURL_META_RTSP_EASY);
-    const char *p = &header[5];
-    if(!rtsp)
-      return CURLE_FAILED_INIT;
+    संरचना RTSP *rtsp = Curl_meta_get(दत्त, CURL_META_RTSP_EASY);
+    ध्रुव वर्ण *p = &शीर्षकम्[5];
+    यदि(!rtsp)
+      प्रत्यागम CURLE_FAILED_INIT;
     curlx_str_passblanks(&p);
-    if(curlx_str_number(&p, &CSeq, UINT_MAX)) {
-      failf(data, "Unable to read the CSeq header: [%s]", header);
-      return CURLE_RTSP_CSEQ_ERROR;
+    यदि(curlx_str_सङ्ख्या(&p, &CSeq, UINT_MAX)) {
+      failf(दत्त, "Unable to read the CSeq header: [%s]", शीर्षकम्);
+      प्रत्यागम CURLE_RTSP_CSEQ_ERROR;
     }
-    data->state.rtsp_CSeq_recv = rtsp->CSeq_recv = (uint32_t)CSeq;
+    दत्त->state.rtsp_CSeq_recv = rtsp->CSeq_recv = (uint32_t)CSeq;
   }
-  else if(checkprefix("Session:", header)) {
-    const char *start, *end, *str;
+  अन्यथा यदि(checkprefix("Session:", शीर्षकम्)) {
+    ध्रुव वर्ण *start, *अन्तः, *str;
     size_t idlen;
 
     /* Find the first non-space letter */
-    start = header + 8;
+    start = शीर्षकम् + 8;
     curlx_str_passblanks(&start);
 
-    if(!*start) {
-      failf(data, "Got a blank Session ID");
-      return CURLE_RTSP_SESSION_ERROR;
+    यदि(!*start) {
+      failf(दत्त, "Got a blank Session ID");
+      प्रत्यागम CURLE_RTSP_SESSION_ERROR;
     }
 
     /* Find the end of Session ID
@@ -1001,49 +1001,49 @@ CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header)
      * line. RFC 2326 is not 100% clear on the session ID and for example
      * gstreamer does URL-encoded session ID's not covered by the standard.
      */
-    end = start;
-    while((*end > ' ') && (*end != ';'))
-      end++;
-    idlen = end - start;
+    अन्तः = start;
+    यावत्((*अन्तः > ' ') && (*अन्तः != ';'))
+      अन्तः++;
+    idlen = अन्तः - start;
 
-    str = CURL_EASY_STR(data, STRING_RTSP_SESSION_ID);
-    if(str) {
+    str = CURL_EASY_STR(दत्त, STRING_RTSP_SESSION_ID);
+    यदि(str) {
 
       /* If the Session ID is set, then compare */
-      if(strlen(str) != idlen ||
-         strncmp(start, str, idlen)) {
-        failf(data, "Got RTSP Session ID Line [%s], but wanted ID [%s]",
+      यदि(वाक्यदैर्घ्यम्(str) != idlen ||
+         वाक्ये_तुलय(start, str, idlen)) {
+        failf(दत्त, "Got RTSP Session ID Line [%s], but wanted ID [%s]",
               start, str);
-        return CURLE_RTSP_SESSION_ERROR;
+        प्रत्यागम CURLE_RTSP_SESSION_ERROR;
       }
     }
-    else {
+    अन्यथा {
       /* If the Session ID is not set, and we find it in a response, then set
        * it.
        * Copy the id substring into a new buffer */
-      void *mem = curlx_memdup0(start, idlen);
-      if(!mem ||
-         CURL_EASY_STR_SETN(data, STRING_RTSP_SESSION_ID, mem))
-        return CURLE_OUT_OF_MEMORY;
-      Curl_peer_link(&data->state.rtsp_session_origin, data->state.origin);
+      शून्य *mem = curlx_memdup0(start, idlen);
+      यदि(!mem ||
+         CURL_EASY_STR_SETN(दत्त, STRING_RTSP_SESSION_ID, mem))
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      Curl_peer_link(&दत्त->state.rtsp_session_origin, दत्त->state.origin);
     }
   }
-  else if(checkprefix("Transport:", header)) {
-    CURLcode result;
-    result = rtsp_parse_transport(data, header + 10);
-    if(result)
-      return result;
+  अन्यथा यदि(checkprefix("Transport:", शीर्षकम्)) {
+    CURLcode परिणाम;
+    परिणाम = rtsp_parse_transport(दत्त, शीर्षकम् + 10);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * RTSP handler interface.
  */
-const struct Curl_protocol Curl_protocol_rtsp = {
-  rtsp_setup_connection,                /* setup_connection */
+ध्रुव संरचना Curl_protocol Curl_protocol_rtsp = {
+  rtsp_सज्जता_connection,                /* setup_connection */
   rtsp_do,                              /* do_it */
-  rtsp_done,                            /* done */
+  rtsp_समाप्तम्,                            /* done */
   ZERO_NULL,                            /* do_more */
   rtsp_connect,                         /* connect_it */
   ZERO_NULL,                            /* connecting */
@@ -1060,4 +1060,4 @@ const struct Curl_protocol Curl_protocol_rtsp = {
   Curl_http_follow,                     /* follow */
 };
 
-#endif /* CURL_DISABLE_RTSP */
+#यदि_अन्तः /* CURL_DISABLE_RTSP */

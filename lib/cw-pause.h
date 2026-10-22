@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CW_PAUSE_H
-#define HEADER_CURL_CW_PAUSE_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_CW_PAUSE_H
+#परिभाषय शीर्षकम्_CURL_CW_PAUSE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,14 +23,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-struct Curl_easy;
+संरचना Curl_easy;
 
 /**
  * The client writer type "cw-pause" that buffers writes for
  * paused transfer writes.
  */
-extern const struct Curl_cwtype Curl_cwt_pause;
+बाह्य ध्रुव संरचना Curl_cwtype Curl_cwt_pause;
 
-#endif /* HEADER_CURL_CW_PAUSE_H */
+#यदि_अन्तः /* HEADER_CURL_CW_PAUSE_H */

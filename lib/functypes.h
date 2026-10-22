@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FUNCTYPES_H
-#define HEADER_CURL_FUNCTYPES_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_FUNCTYPES_H
+#परिभाषय शीर्षकम्_CURL_FUNCTYPES_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -35,74 +35,74 @@
    2. For systems with config-*.h files, define them there.
  */
 
-#ifdef USE_WINSOCK
+#यदि_परिभाषितम् USE_WINSOCK
 /* int recv(SOCKET, char *, int, int) */
-#define RECV_TYPE_ARG1 SOCKET
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 int
-#define RECV_TYPE_RETV int
+#परिभाषय RECV_TYPE_ARG1 SOCKET
+#परिभाषय RECV_TYPE_ARG2 वर्ण *
+#परिभाषय RECV_TYPE_ARG3 पूर्णाङ्क
+#परिभाषय RECV_TYPE_RETV पूर्णाङ्क
 
 /* int send(SOCKET, const char *, int, int); */
-#define SEND_TYPE_ARG1 SOCKET
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
+#परिभाषय SEND_TYPE_ARG1 SOCKET
+#परिभाषय SEND_TYPE_ARG2 वर्ण *
+#परिभाषय SEND_TYPE_ARG3 पूर्णाङ्क
+#परिभाषय SEND_TYPE_RETV पूर्णाङ्क
 
-#elif defined(__AMIGA__) /* Any AmigaOS flavor */
+#नोचेद्यदि defined(__AMIGA__) /* Any AmigaOS flavor */
 
 /* long recv(long, char *, long, long); */
-#define RECV_TYPE_ARG1 long
-#define RECV_TYPE_ARG2 char *
-#define RECV_TYPE_ARG3 long
-#define RECV_TYPE_ARG4 long
-#define RECV_TYPE_RETV long
+#परिभाषय RECV_TYPE_ARG1 दीर्घ
+#परिभाषय RECV_TYPE_ARG2 वर्ण *
+#परिभाषय RECV_TYPE_ARG3 दीर्घ
+#परिभाषय RECV_TYPE_ARG4 दीर्घ
+#परिभाषय RECV_TYPE_RETV दीर्घ
 
 /* int send(int, char *, int, int); */
-#define SEND_TYPE_ARG1 int
-#define SEND_NONCONST_ARG2
-#define SEND_TYPE_ARG2 char *
-#define SEND_TYPE_ARG3 int
-#define SEND_TYPE_RETV int
-#endif
+#परिभाषय SEND_TYPE_ARG1 पूर्णाङ्क
+#परिभाषय SEND_NONCONST_ARG2
+#परिभाषय SEND_TYPE_ARG2 वर्ण *
+#परिभाषय SEND_TYPE_ARG3 पूर्णाङ्क
+#परिभाषय SEND_TYPE_RETV पूर्णाङ्क
+#यदि_अन्तः
 
-#ifndef RECV_TYPE_ARG1
-#define RECV_TYPE_ARG1 int
-#endif
+#यदि_अपरिभाषितम् RECV_TYPE_ARG1
+#परिभाषय RECV_TYPE_ARG1 पूर्णाङ्क
+#यदि_अन्तः
 
-#ifndef RECV_TYPE_ARG2
-#define RECV_TYPE_ARG2 void *
-#endif
+#यदि_अपरिभाषितम् RECV_TYPE_ARG2
+#परिभाषय RECV_TYPE_ARG2 शून्य *
+#यदि_अन्तः
 
-#ifndef RECV_TYPE_ARG3
-#define RECV_TYPE_ARG3 size_t
-#endif
+#यदि_अपरिभाषितम् RECV_TYPE_ARG3
+#परिभाषय RECV_TYPE_ARG3 size_t
+#यदि_अन्तः
 
-#ifndef RECV_TYPE_ARG4
-#define RECV_TYPE_ARG4 int
-#endif
+#यदि_अपरिभाषितम् RECV_TYPE_ARG4
+#परिभाषय RECV_TYPE_ARG4 पूर्णाङ्क
+#यदि_अन्तः
 
-#ifndef RECV_TYPE_RETV
-#define RECV_TYPE_RETV ssize_t
-#endif
+#यदि_अपरिभाषितम् RECV_TYPE_RETV
+#परिभाषय RECV_TYPE_RETV ssize_t
+#यदि_अन्तः
 
-#ifndef SEND_TYPE_ARG1
-#define SEND_TYPE_ARG1 int
-#endif
+#यदि_अपरिभाषितम् SEND_TYPE_ARG1
+#परिभाषय SEND_TYPE_ARG1 पूर्णाङ्क
+#यदि_अन्तः
 
-#ifndef SEND_TYPE_ARG2
-#define SEND_TYPE_ARG2 void *
-#endif
+#यदि_अपरिभाषितम् SEND_TYPE_ARG2
+#परिभाषय SEND_TYPE_ARG2 शून्य *
+#यदि_अन्तः
 
-#ifndef SEND_TYPE_ARG3
-#define SEND_TYPE_ARG3 size_t
-#endif
+#यदि_अपरिभाषितम् SEND_TYPE_ARG3
+#परिभाषय SEND_TYPE_ARG3 size_t
+#यदि_अन्तः
 
-#ifndef SEND_TYPE_ARG4
-#define SEND_TYPE_ARG4 int
-#endif
+#यदि_अपरिभाषितम् SEND_TYPE_ARG4
+#परिभाषय SEND_TYPE_ARG4 पूर्णाङ्क
+#यदि_अन्तः
 
-#ifndef SEND_TYPE_RETV
-#define SEND_TYPE_RETV ssize_t
-#endif
+#यदि_अपरिभाषितम् SEND_TYPE_RETV
+#परिभाषय SEND_TYPE_RETV ssize_t
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_FUNCTYPES_H */
+#यदि_अन्तः /* HEADER_CURL_FUNCTYPES_H */

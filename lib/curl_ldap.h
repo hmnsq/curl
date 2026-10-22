@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_LDAP_H
-#define HEADER_CURL_LDAP_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_LDAP_H
+#परिभाषय शीर्षकम्_CURL_LDAP_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-extern const struct Curl_protocol Curl_protocol_ldap;
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_ldap;
 
-void Curl_ldap_version(char *buf, size_t bufsz);
+शून्य Curl_ldap_संस्करणम्(वर्ण *buf, size_t bufsz);
 
-#endif /* HEADER_CURL_LDAP_H */
+#यदि_अन्तः /* HEADER_CURL_LDAP_H */

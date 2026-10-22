@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GOPHER_H
-#define HEADER_CURL_GOPHER_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_GOPHER_H
+#परिभाषय शीर्षकम्_CURL_GOPHER_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#ifndef CURL_DISABLE_GOPHER
-extern const struct Curl_protocol Curl_protocol_gopher;
-extern const struct Curl_protocol Curl_protocol_gophers;
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_GOPHER
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_gopher;
+बाह्य ध्रुव संरचना Curl_protocol Curl_protocol_gophers;
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_GOPHER_H */
+#यदि_अन्तः /* HEADER_CURL_GOPHER_H */

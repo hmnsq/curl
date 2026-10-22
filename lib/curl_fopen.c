@@ -21,14 +21,14 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#यदि !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS)
 
-#include "urldata.h"
-#include "rand.h"
-#include "curl_fopen.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "rand.h"
+#अन्तर्भाव "curl_fopen.h"
 
 /* The dirslash() function breaks a null-terminated pathname string into
    directory and filename components then returns the directory component up
@@ -40,38 +40,38 @@
    The input path to this function is expected to have a filename part.
  */
 
-#ifdef _WIN32
-#define PATHSEP   "\\"
-#define IS_SEP(x) (((x) == '/') || ((x) == '\\'))
-#elif defined(MSDOS) || defined(OS2)
-#define PATHSEP   "\\"
-#define IS_SEP(x) ((x) == '\\')
-#else
-#define PATHSEP   "/"
-#define IS_SEP(x) ((x) == '/')
-#endif
+#यदि_परिभाषितम् _WIN32
+#परिभाषय PATHSEP   "\\"
+#परिभाषय IS_SEP(x) (((x) == '/') || ((x) == '\\'))
+#नोचेद्यदि defined(MSDOS) || defined(OS2)
+#परिभाषय PATHSEP   "\\"
+#परिभाषय IS_SEP(x) ((x) == '\\')
+#अन्यथा
+#परिभाषय PATHSEP   "/"
+#परिभाषय IS_SEP(x) ((x) == '/')
+#यदि_अन्तः
 
-static char *dirslash(const char *path)
+स्थिर वर्ण *dirslash(ध्रुव वर्ण *मार्गः)
 {
   size_t n;
-  struct dynbuf out;
-  DEBUGASSERT(path);
-  curlx_dyn_init(&out, CURL_MAX_INPUT_LENGTH);
-  n = strlen(path);
-  if(n) {
+  संरचना dynbuf बहिर्गमनम्;
+  DEBUGASSERT(मार्गः);
+  curlx_dyn_init(&बहिर्गमनम्, CURL_MAX_निवेशः_दीर्घता);
+  n = वाक्यदैर्घ्यम्(मार्गः);
+  यदि(n) {
     /* find the rightmost path separator, if any */
-    while(n && !IS_SEP(path[n - 1]))
+    यावत्(n && !IS_SEP(मार्गः[n - 1]))
       --n;
     /* skip over all the path separators, if any */
-    while(n && IS_SEP(path[n - 1]))
+    यावत्(n && IS_SEP(मार्गः[n - 1]))
       --n;
   }
-  if(curlx_dyn_addn(&out, path, n))
-    return NULL;
+  यदि(curlx_dyn_addn(&बहिर्गमनम्, मार्गः, n))
+    प्रत्यागम रिक्त;
   /* if there was a directory, append a single trailing slash */
-  if(n && curlx_dyn_addn(&out, PATHSEP, 1))
-    return NULL;
-  return curlx_dyn_ptr(&out);
+  यदि(n && curlx_dyn_addn(&बहिर्गमनम्, PATHSEP, 1))
+    प्रत्यागम रिक्त;
+  प्रत्यागम curlx_dyn_ptr(&बहिर्गमनम्);
 }
 
 /*
@@ -81,85 +81,85 @@ static char *dirslash(const char *path)
  * file. if 'tempname' is non-NULL, it needs a rename after the file is
  * written.
  */
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname)
+CURLcode Curl_fopen(संरचना Curl_easy *दत्त, ध्रुव वर्ण *filename,
+                    FILE **fh, वर्ण **tempname)
 {
-  CURLcode result = CURLE_WRITE_ERROR;
-  unsigned char randbuf[41];
-  char *tempstore = NULL;
-#ifndef _WIN32
+  CURLcode परिणाम = CURLE_WRITE_ERROR;
+  अचिह्नित वर्ण randbuf[41];
+  वर्ण *tempstore = रिक्त;
+#यदि_अपरिभाषितम् _WIN32
   curlx_struct_stat sb;
-#endif
-  int fd = -1;
-  char *dir = NULL;
-  *tempname = NULL;
+#यदि_अन्तः
+  पूर्णाङ्क fd = -1;
+  वर्ण *dir = रिक्त;
+  *tempname = रिक्त;
 
-#ifndef _WIN32
+#यदि_अपरिभाषितम् _WIN32
   *fh = curlx_fopen(filename, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
-  if(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_mode)) {
-    return CURLE_OK;
+  यदि(!*fh)
+    गच्छ fail;
+  यदि(curlx_fstat(fileno(*fh), &sb) == -1 || !S_ISREG(sb.st_बहुलकम्)) {
+    प्रत्यागम CURLE_OK;
   }
   curlx_fclose(*fh);
-#endif /* !_WIN32 */
-  *fh = NULL;
+#यदि_अन्तः /* !_WIN32 */
+  *fh = रिक्त;
 
-  result = Curl_rand_alnum(data, randbuf, sizeof(randbuf));
-  if(result)
-    goto fail;
+  परिणाम = Curl_rand_alnum(दत्त, randbuf, परिमाण(randbuf));
+  यदि(परिणाम)
+    गच्छ fail;
 
   dir = dirslash(filename);
-  if(dir) {
+  यदि(dir) {
     /* The temp filename should not end up too long for the target file
        system */
     tempstore = curl_maprintf("%s%s.tmp", dir, randbuf);
     curlx_free(dir);
   }
 
-  if(!tempstore) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto fail;
+  यदि(!tempstore) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ fail;
   }
 
-  result = CURLE_WRITE_ERROR;
-#ifdef _WIN32
+  परिणाम = CURLE_WRITE_ERROR;
+#यदि_परिभाषितम् _WIN32
   fd = curlx_open(tempstore, _O_WRONLY | _O_CREAT | _O_EXCL,
                   _S_IREAD | _S_IWRITE);
-#else
+#अन्यथा
   fd = curlx_open(tempstore, O_WRONLY | O_CREAT | O_EXCL,
                   (mode_t)(S_IRUSR | S_IWUSR | 0600));
-#endif
-  if(fd == -1)
-    goto fail;
+#यदि_अन्तः
+  यदि(fd == -1)
+    गच्छ fail;
 
-#ifdef HAVE_FCHMOD
+#यदि_परिभाषितम् HAVE_FCHMOD
   {
     curlx_struct_stat nsb;
-    if((curlx_fstat(fd, &nsb) != -1) &&
+    यदि((curlx_fstat(fd, &nsb) != -1) &&
        (nsb.st_uid == sb.st_uid) && (nsb.st_gid == sb.st_gid)) {
       /* if the user and group are the same, clone the original mode */
-      if(fchmod(fd, (mode_t)sb.st_mode) == -1)
-        goto fail;
+      यदि(fchmod(fd, (mode_t)sb.st_बहुलकम्) == -1)
+        गच्छ fail;
     }
   }
-#endif
+#यदि_अन्तः
 
   *fh = curlx_fdopen(fd, FOPEN_WRITETEXT);
-  if(!*fh)
-    goto fail;
+  यदि(!*fh)
+    गच्छ fail;
 
   *tempname = tempstore;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 
 fail:
-  if(fd != -1) {
+  यदि(fd != -1) {
     curlx_close(fd);
     unlink(tempstore);
   }
 
   curlx_free(tempstore);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#endif /* !disabled */
+#यदि_अन्तः /* !disabled */

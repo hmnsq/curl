@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HEADER_H
-#define HEADER_CURL_HEADER_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_शीर्षकम्_H
+#परिभाषय शीर्षकम्_CURL_शीर्षकम्_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,43 +23,43 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_शीर्षकाणि_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+संरचना Curl_शीर्षकम्_store {
+  संरचना Curl_llist_ग्रन्थिः ग्रन्थिः;
+  वर्ण *name; /* points into 'buffer' */
+  वर्ण *मानम्; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
-  size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  size_t nh_सूचकांक; /* cached index for curl_easy_nextheader() */
+  पूर्णाङ्क request; /* 0 is the first request, then 1.. 2.. */
+  अचिह्नित वर्ण type; /* CURLH_* defines */
+  वर्ण बफर[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_शीर्षकाणि_init(संरचना Curl_easy *दत्त);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_शीर्षकाणि_प्रक्षिप(संरचना Curl_easy *दत्त, ध्रुव वर्ण *शीर्षकम्,
+                           size_t hlen, अचिह्नित वर्ण type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_शीर्षकाणि_cleanup(संरचना Curl_easy *दत्त);
 
-#else
-#define Curl_headers_init(x)          CURLE_OK
-#define Curl_headers_push(x, y, z, a) \
-  ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
-#define Curl_headers_cleanup(x)       Curl_nop_stmt
-#endif
+#अन्यथा
+#परिभाषय Curl_शीर्षकाणि_init(x)          CURLE_OK
+#परिभाषय Curl_शीर्षकाणि_प्रक्षिप(x, y, z, a) \
+  ((शून्य)(x), (शून्य)(y), (शून्य)(z), (शून्य)(a), CURLE_OK)
+#परिभाषय Curl_शीर्षकाणि_cleanup(x)       Curl_nop_stmt
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_HEADER_H */
+#यदि_अन्तः /* HEADER_CURL_HEADER_H */

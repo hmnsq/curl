@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SENDF_H
-#define HEADER_CURL_SENDF_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_SENDF_H
+#परिभाषय शीर्षकम्_CURL_SENDF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,8 +23,8 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "cw-out.h"
+#अन्तर्भाव "curl_setup.h"
+#अन्तर्भाव "cw-out.h"
 
 /**
  * Type of data that is being written to the client (application)
@@ -40,46 +40,46 @@
  * BODY, INFO and HEADER should not be mixed, as this would lead to
  * confusion on how to interpret/format/convert the data.
  */
-#define CLIENTWRITE_BODY    (1 << 0) /* non-meta information, BODY */
-#define CLIENTWRITE_INFO    (1 << 1) /* meta information, not a HEADER */
-#define CLIENTWRITE_HEADER  (1 << 2) /* meta information, HEADER */
-#define CLIENTWRITE_STATUS  (1 << 3) /* a special status HEADER */
-#define CLIENTWRITE_CONNECT (1 << 4) /* a CONNECT related HEADER */
-#define CLIENTWRITE_1XX     (1 << 5) /* a 1xx response related HEADER */
-#define CLIENTWRITE_TRAILER (1 << 6) /* a trailer HEADER */
-#define CLIENTWRITE_EOS     (1 << 7) /* End Of transfer download Stream */
-#define CLIENTWRITE_0LEN    (1 << 8) /* write even 0-length buffers */
+#परिभाषय CLIENTWRITE_BODY    (1 << 0) /* non-meta information, BODY */
+#परिभाषय CLIENTWRITE_INFO    (1 << 1) /* meta information, not a HEADER */
+#परिभाषय CLIENTWRITE_शीर्षकम्  (1 << 2) /* meta information, HEADER */
+#परिभाषय CLIENTWRITE_स्थितिः  (1 << 3) /* a special status HEADER */
+#परिभाषय CLIENTWRITE_CONNECT (1 << 4) /* a CONNECT related HEADER */
+#परिभाषय CLIENTWRITE_1XX     (1 << 5) /* a 1xx response related HEADER */
+#परिभाषय CLIENTWRITE_TRAILER (1 << 6) /* a trailer HEADER */
+#परिभाषय CLIENTWRITE_EOS     (1 << 7) /* End Of transfer download Stream */
+#परिभाषय CLIENTWRITE_0LEN    (1 << 8) /* write even 0-length buffers */
 
 /* Forward declarations */
-struct Curl_creader;
-struct Curl_cwriter;
-struct Curl_easy;
+संरचना Curl_creader;
+संरचना Curl_cwriter;
+संरचना Curl_easy;
 
 /**
  * Write `len` bytes at `buf` to the client. `type` indicates what
  * kind of data is being written.
  */
-CURLcode Curl_client_write(struct Curl_easy *data, int type, const char *buf,
-                           size_t len) WARN_UNUSED_RESULT;
+CURLcode Curl_client_write(संरचना Curl_easy *दत्त, पूर्णाङ्क type, ध्रुव वर्ण *buf,
+                           size_t len) WARN_अप्रयुक्तम्_परिणाम;
 
-CURLcode Curl_client_flush(struct Curl_easy *data);
+CURLcode Curl_client_flush(संरचना Curl_easy *दत्त);
 
 /**
  * Free all resources related to client writing.
  */
-void Curl_client_cleanup(struct Curl_easy *data);
+शून्य Curl_client_cleanup(संरचना Curl_easy *दत्त);
 
 /**
  * Reset readers and writer chains, keep rewind information
  * when necessary.
  */
-void Curl_client_reset(struct Curl_easy *data);
+शून्य Curl_client_reset(संरचना Curl_easy *दत्त);
 
 /**
  * A new request is starting, perform any ops like rewinding
  * previous readers when needed.
  */
-CURLcode Curl_client_start(struct Curl_easy *data);
+CURLcode Curl_client_start(संरचना Curl_easy *दत्त);
 
 /**
  * Client Writers - a chain passing transfer BODY data to the client.
@@ -101,7 +101,7 @@ CURLcode Curl_client_start(struct Curl_easy *data);
  */
 
 /* Phase a writer operates at. */
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_CW_RAW,  /* raw data written, before any decoding */
   CURL_CW_TRANSFER_DECODE, /* remove transfer-encodings */
   CURL_CW_PROTOCOL, /* after transfer, but before content decoding */
@@ -111,23 +111,23 @@ typedef enum {
 } Curl_cwriter_phase;
 
 /* writer may blow up size of write data, e.g. zip bombs */
-#define CURL_CW_FLAG_BLOWUP     (1U << 0)
+#परिभाषय CURL_CW_FLAG_BLOWUP     (1U << 0)
 
 /* Client Writer Type, provides the implementation */
-struct Curl_cwtype {
-  const char *name;        /* writer name. */
-  const char *alias;       /* writer name alias, maybe NULL. */
+संरचना Curl_cwtype {
+  ध्रुव वर्ण *name;        /* writer name. */
+  ध्रुव वर्ण *alias;       /* writer name alias, maybe NULL. */
   uint8_t flags;           /* flags for writer behaviour */
-  CURLcode (*do_init)(struct Curl_easy *data,
-                      struct Curl_cwriter *writer);
-  CURLcode (*do_write)(struct Curl_easy *data,
-                       struct Curl_cwriter *writer, int type,
-                       const char *buf, size_t nbytes);
-  CURLcode (*do_flush)(struct Curl_easy *data,
-                       struct Curl_cwriter *writer);
-  void (*do_close)(struct Curl_easy *data,
-                   struct Curl_cwriter *writer);
-  size_t cwriter_size;  /* sizeof() allocated struct Curl_cwriter */
+  CURLcode (*do_init)(संरचना Curl_easy *दत्त,
+                      संरचना Curl_cwriter *writer);
+  CURLcode (*do_write)(संरचना Curl_easy *दत्त,
+                       संरचना Curl_cwriter *writer, पूर्णाङ्क type,
+                       ध्रुव वर्ण *buf, size_t nbytes);
+  CURLcode (*do_flush)(संरचना Curl_easy *दत्त,
+                       संरचना Curl_cwriter *writer);
+  शून्य (*do_close)(संरचना Curl_easy *दत्त,
+                   संरचना Curl_cwriter *writer);
+  size_t cwriter_आकार;  /* sizeof() allocated struct Curl_cwriter */
 };
 
 /* Client writer instance, allocated on creation.
@@ -136,10 +136,10 @@ struct Curl_cwtype {
  * by the writers implementation. See https://github.com/curl/curl/pull/13054
  * for the alignment problems that arise otherwise.
  */
-struct Curl_cwriter {
-  const struct Curl_cwtype *cwt;  /* type implementation */
-  struct Curl_cwriter *next;  /* Downstream writer. */
-  void *ctx;                  /* allocated instance pointer */
+संरचना Curl_cwriter {
+  ध्रुव संरचना Curl_cwtype *cwt;  /* type implementation */
+  संरचना Curl_cwriter *अग्र;  /* Downstream writer. */
+  शून्य *ctx;                  /* allocated instance pointer */
   Curl_cwriter_phase phase; /* phase at which it operates */
 };
 
@@ -148,98 +148,98 @@ struct Curl_cwriter {
  * inserted into the writer chain by this call.
  * Invokes `writer->do_init()`.
  */
-CURLcode Curl_cwriter_create(struct Curl_cwriter **pwriter,
-                             struct Curl_easy *data,
-                             const struct Curl_cwtype *cwt,
+CURLcode Curl_cwriter_create(संरचना Curl_cwriter **pwriter,
+                             संरचना Curl_easy *दत्त,
+                             ध्रुव संरचना Curl_cwtype *cwt,
                              Curl_cwriter_phase phase);
 
 /**
  * Free a cwriter instance.
  * Invokes `writer->do_close()`.
  */
-void Curl_cwriter_free(struct Curl_easy *data,
-                       struct Curl_cwriter *writer);
+शून्य Curl_cwriter_free(संरचना Curl_easy *दत्त,
+                       संरचना Curl_cwriter *writer);
 
 /**
  * Count the number of writers installed of the given phase.
  */
-size_t Curl_cwriter_count(struct Curl_easy *data, Curl_cwriter_phase phase);
+size_t Curl_cwriter_गणनम्(संरचना Curl_easy *दत्त, Curl_cwriter_phase phase);
 
 /**
  * Adds a writer to the transfer's writer chain.
  * The writers `phase` determines where in the chain it is inserted.
  */
-CURLcode Curl_cwriter_add(struct Curl_easy *data,
-                          struct Curl_cwriter *writer);
+CURLcode Curl_cwriter_सङ्कलय(संरचना Curl_easy *दत्त,
+                          संरचना Curl_cwriter *writer);
 
 /**
  * Look up an installed client writer on `data` by its type.
  * @return first writer with that type or NULL
  */
-struct Curl_cwriter *Curl_cwriter_get_by_type(struct Curl_easy *data,
-                                              const struct Curl_cwtype *cwt);
+संरचना Curl_cwriter *Curl_cwriter_get_by_type(संरचना Curl_easy *दत्त,
+                                              ध्रुव संरचना Curl_cwtype *cwt);
 
-struct Curl_cwriter *Curl_cwriter_get_by_name(struct Curl_easy *data,
-                                              const char *name);
+संरचना Curl_cwriter *Curl_cwriter_get_by_name(संरचना Curl_easy *दत्त,
+                                              ध्रुव वर्ण *name);
 
 /* Convenience method for calling `writer->do_write()` that
  * checks for NULL writer. */
-#define Curl_cwriter_write(d, w, t, b, n) \
+#परिभाषय Curl_cwriter_write(d, w, t, b, n) \
   ((w) ? (w)->cwt->do_write((d), (w), (t), (b), (n)) : CURLE_WRITE_ERROR)
 
-#define Curl_cwriter_flush(d, w) \
+#परिभाषय Curl_cwriter_flush(d, w) \
   ((w) ? (w)->cwt->do_flush((d), (w)) : CURLE_WRITE_ERROR)
 
 /* TRUE if client writer is paused. */
-#define Curl_cwriter_is_paused(d)     ((bool)(d)->req.writer.paused)
+#परिभाषय Curl_cwriter_is_paused(d)     ((bool)(d)->req.writer.paused)
 
 /**
  * Unpause client writer and flush any buffered date to the client.
  */
-CURLcode Curl_cwriter_unpause(struct Curl_easy *data);
+CURLcode Curl_cwriter_unpause(संरचना Curl_easy *दत्त);
 
 /**
  * Default implementations for do_init, do_write, do_close that
  * do nothing and pass the data through.
  */
-CURLcode Curl_cwriter_def_init(struct Curl_easy *data,
-                               struct Curl_cwriter *writer);
-CURLcode Curl_cwriter_def_write(struct Curl_easy *data,
-                                struct Curl_cwriter *writer, int type,
-                                const char *buf, size_t nbytes);
-CURLcode Curl_cwriter_def_flush(struct Curl_easy *data,
-                                struct Curl_cwriter *writer);
-void Curl_cwriter_def_close(struct Curl_easy *data,
-                            struct Curl_cwriter *writer);
+CURLcode Curl_cwriter_def_init(संरचना Curl_easy *दत्त,
+                               संरचना Curl_cwriter *writer);
+CURLcode Curl_cwriter_def_write(संरचना Curl_easy *दत्त,
+                                संरचना Curl_cwriter *writer, पूर्णाङ्क type,
+                                ध्रुव वर्ण *buf, size_t nbytes);
+CURLcode Curl_cwriter_def_flush(संरचना Curl_easy *दत्त,
+                                संरचना Curl_cwriter *writer);
+शून्य Curl_cwriter_def_close(संरचना Curl_easy *दत्त,
+                            संरचना Curl_cwriter *writer);
 
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_CRCNTRL_REWIND,
   CURL_CRCNTRL_UNPAUSE,
   CURL_CRCNTRL_CLEAR_EOS
 } Curl_creader_cntrl;
 
 /* Client Reader Type, provides the implementation */
-struct Curl_crtype {
-  const char *name;        /* writer name. */
-  CURLcode (*do_init)(struct Curl_easy *data, struct Curl_creader *reader);
-  CURLcode (*do_read)(struct Curl_easy *data, struct Curl_creader *reader,
-                      char *buf, size_t blen, size_t *nread, bool *eos);
-  void (*do_close)(struct Curl_easy *data, struct Curl_creader *reader);
-  bool (*needs_rewind)(struct Curl_easy *data, struct Curl_creader *reader);
-  curl_off_t (*total_length)(struct Curl_easy *data,
-                             struct Curl_creader *reader);
-  CURLcode (*resume_from)(struct Curl_easy *data,
-                          struct Curl_creader *reader, curl_off_t offset);
-  CURLcode (*cntrl)(struct Curl_easy *data, struct Curl_creader *reader,
+संरचना Curl_crtype {
+  ध्रुव वर्ण *name;        /* writer name. */
+  CURLcode (*do_init)(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader);
+  CURLcode (*do_read)(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader,
+                      वर्ण *buf, size_t blen, size_t *nread, bool *eos);
+  शून्य (*do_close)(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader);
+  bool (*needs_rewind)(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader);
+  curl_off_t (*योग_दीर्घता)(संरचना Curl_easy *दत्त,
+                             संरचना Curl_creader *reader);
+  CURLcode (*resume_from)(संरचना Curl_easy *दत्त,
+                          संरचना Curl_creader *reader, curl_off_t विस्थापनम्);
+  CURLcode (*cntrl)(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader,
                     Curl_creader_cntrl opcode);
-  bool (*is_paused)(struct Curl_easy *data, struct Curl_creader *reader);
-  void (*done)(struct Curl_easy *data,
-               struct Curl_creader *reader, int premature);
-  size_t creader_size;  /* sizeof() allocated struct Curl_creader */
+  bool (*is_paused)(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader);
+  शून्य (*समाप्तम्)(संरचना Curl_easy *दत्त,
+               संरचना Curl_creader *reader, पूर्णाङ्क premature);
+  size_t creader_आकार;  /* sizeof() allocated struct Curl_creader */
 };
 
 /* Phase a reader operates at. */
-typedef enum {
+प्रकारनिर्देश गणना {
   CURL_CR_NET,  /* data send to the network (connection filters) */
   CURL_CR_TRANSFER_ENCODE, /* add transfer-encodings */
   CURL_CR_PROTOCOL, /* before transfer, but after content decoding */
@@ -253,10 +253,10 @@ typedef enum {
  * by the writers implementation. See https://github.com/curl/curl/pull/13054
  * for the alignment problems that arise otherwise.
  */
-struct Curl_creader {
-  const struct Curl_crtype *crt;  /* type implementation */
-  struct Curl_creader *next;  /* Downstream reader. */
-  void *ctx;
+संरचना Curl_creader {
+  ध्रुव संरचना Curl_crtype *crt;  /* type implementation */
+  संरचना Curl_creader *अग्र;  /* Downstream reader. */
+  शून्य *ctx;
   Curl_creader_phase phase; /* phase at which it operates */
 };
 
@@ -264,63 +264,63 @@ struct Curl_creader {
  * Default implementations for do_init, do_write, do_close that
  * do nothing and pass the data through.
  */
-CURLcode Curl_creader_def_init(struct Curl_easy *data,
-                               struct Curl_creader *reader);
-void Curl_creader_def_close(struct Curl_easy *data,
-                            struct Curl_creader *reader);
-CURLcode Curl_creader_def_read(struct Curl_easy *data,
-                               struct Curl_creader *reader,
-                               char *buf, size_t blen,
+CURLcode Curl_creader_def_init(संरचना Curl_easy *दत्त,
+                               संरचना Curl_creader *reader);
+शून्य Curl_creader_def_close(संरचना Curl_easy *दत्त,
+                            संरचना Curl_creader *reader);
+CURLcode Curl_creader_def_read(संरचना Curl_easy *दत्त,
+                               संरचना Curl_creader *reader,
+                               वर्ण *buf, size_t blen,
                                size_t *nread, bool *eos);
-bool Curl_creader_def_needs_rewind(struct Curl_easy *data,
-                                   struct Curl_creader *reader);
-curl_off_t Curl_creader_def_total_length(struct Curl_easy *data,
-                                         struct Curl_creader *reader);
-CURLcode Curl_creader_def_resume_from(struct Curl_easy *data,
-                                      struct Curl_creader *reader,
-                                      curl_off_t offset);
-CURLcode Curl_creader_def_cntrl(struct Curl_easy *data,
-                                struct Curl_creader *reader,
+bool Curl_creader_def_needs_rewind(संरचना Curl_easy *दत्त,
+                                   संरचना Curl_creader *reader);
+curl_off_t Curl_creader_def_योग_दीर्घता(संरचना Curl_easy *दत्त,
+                                         संरचना Curl_creader *reader);
+CURLcode Curl_creader_def_resume_from(संरचना Curl_easy *दत्त,
+                                      संरचना Curl_creader *reader,
+                                      curl_off_t विस्थापनम्);
+CURLcode Curl_creader_def_cntrl(संरचना Curl_easy *दत्त,
+                                संरचना Curl_creader *reader,
                                 Curl_creader_cntrl opcode);
-bool Curl_creader_def_is_paused(struct Curl_easy *data,
-                                struct Curl_creader *reader);
-void Curl_creader_def_done(struct Curl_easy *data,
-                           struct Curl_creader *reader, int premature);
+bool Curl_creader_def_is_paused(संरचना Curl_easy *दत्त,
+                                संरचना Curl_creader *reader);
+शून्य Curl_creader_def_समाप्तम्(संरचना Curl_easy *दत्त,
+                           संरचना Curl_creader *reader, पूर्णाङ्क premature);
 
 /**
  * Convenience method for calling `reader->do_read()` that
  * checks for NULL reader.
  */
-CURLcode Curl_creader_read(struct Curl_easy *data,
-                           struct Curl_creader *reader,
-                           char *buf, size_t blen, size_t *nread, bool *eos);
+CURLcode Curl_creader_read(संरचना Curl_easy *दत्त,
+                           संरचना Curl_creader *reader,
+                           वर्ण *buf, size_t blen, size_t *nread, bool *eos);
 
 /* Tell the reader and all below that any EOS state is to be cleared */
-void Curl_creader_clear_eos(struct Curl_easy *data,
-                            struct Curl_creader *reader);
+शून्य Curl_creader_clear_eos(संरचना Curl_easy *दत्त,
+                            संरचना Curl_creader *reader);
 
 /**
  * Create a new creader instance with given type and phase. Is not
  * inserted into the writer chain by this call.
  * Invokes `reader->do_init()`.
  */
-CURLcode Curl_creader_create(struct Curl_creader **preader,
-                             struct Curl_easy *data,
-                             const struct Curl_crtype *crt,
+CURLcode Curl_creader_create(संरचना Curl_creader **preader,
+                             संरचना Curl_easy *दत्त,
+                             ध्रुव संरचना Curl_crtype *crt,
                              Curl_creader_phase phase);
 
 /**
  * Free a creader instance.
  * Invokes `reader->do_close()`.
  */
-void Curl_creader_free(struct Curl_easy *data, struct Curl_creader *reader);
+शून्य Curl_creader_free(संरचना Curl_easy *दत्त, संरचना Curl_creader *reader);
 
 /**
  * Adds a reader to the transfer's reader chain.
  * The readers `phase` determines where in the chain it is inserted.
  */
-CURLcode Curl_creader_add(struct Curl_easy *data,
-                          struct Curl_creader *reader);
+CURLcode Curl_creader_सङ्कलय(संरचना Curl_easy *दत्त,
+                          संरचना Curl_creader *reader);
 
 /**
  * Set the given reader, which needs to be of type CURL_CR_CLIENT,
@@ -328,7 +328,7 @@ CURLcode Curl_creader_add(struct Curl_easy *data,
  * the reader chain anew.
  * The function takes ownership of `r`.
  */
-CURLcode Curl_creader_set(struct Curl_easy *data, struct Curl_creader *r);
+CURLcode Curl_creader_समुच्चयः(संरचना Curl_easy *दत्त, संरचना Curl_creader *r);
 
 /**
  * Read at most `blen` bytes at `buf` from the client.
@@ -339,24 +339,24 @@ CURLcode Curl_creader_set(struct Curl_easy *data, struct Curl_creader *r);
  * @param eos     TRUE iff bytes are the end of data from client
  * @return CURLE_OK on successful read (even 0 length) or error
  */
-CURLcode Curl_client_read(struct Curl_easy *data, char *buf, size_t blen,
-                          size_t *nread, bool *eos) WARN_UNUSED_RESULT;
+CURLcode Curl_client_read(संरचना Curl_easy *दत्त, वर्ण *buf, size_t blen,
+                          size_t *nread, bool *eos) WARN_अप्रयुक्तम्_परिणाम;
 
 /**
  * TRUE iff client reader needs rewing before it can be used for
  * a retry request.
  */
-bool Curl_creader_needs_rewind(struct Curl_easy *data);
+bool Curl_creader_needs_rewind(संरचना Curl_easy *दत्त);
 
 /**
  * TRUE iff client reader will rewind at next start
  */
-bool Curl_creader_will_rewind(struct Curl_easy *data);
+bool Curl_creader_will_rewind(संरचना Curl_easy *दत्त);
 
 /**
  * En-/disable rewind of client reader at next start.
  */
-void Curl_creader_set_rewind(struct Curl_easy *data, bool enable);
+शून्य Curl_creader_समुच्चयः_rewind(संरचना Curl_easy *दत्त, bool enable);
 
 /**
  * Get the total length of bytes provided by the installed readers.
@@ -365,7 +365,7 @@ void Curl_creader_set_rewind(struct Curl_easy *data, bool enable);
  * "crlf conversion" is installed, the returned length will be -1.
  * @return -1 if length is indeterminate
  */
-curl_off_t Curl_creader_total_length(struct Curl_easy *data);
+curl_off_t Curl_creader_योग_दीर्घता(संरचना Curl_easy *दत्त);
 
 /**
  * Get the total length of bytes provided by the reader at phase
@@ -374,44 +374,44 @@ curl_off_t Curl_creader_total_length(struct Curl_easy *data);
  * However it allows for rough estimation of the overall length.
  * @return -1 if length is indeterminate
  */
-curl_off_t Curl_creader_client_length(struct Curl_easy *data);
+curl_off_t Curl_creader_client_दीर्घता(संरचना Curl_easy *दत्त);
 
 /**
  * Unpause all installed readers.
  */
-CURLcode Curl_creader_unpause(struct Curl_easy *data);
+CURLcode Curl_creader_unpause(संरचना Curl_easy *दत्त);
 
 /**
  * Return TRUE iff any of the installed readers is paused.
  */
-bool Curl_creader_is_paused(struct Curl_easy *data);
+bool Curl_creader_is_paused(संरचना Curl_easy *दत्त);
 
 /**
  * Tell all client readers that they are done.
  */
-void Curl_creader_done(struct Curl_easy *data, int premature);
+शून्य Curl_creader_समाप्तम्(संरचना Curl_easy *दत्त, पूर्णाङ्क premature);
 
 /**
  * Look up an installed client reader on `data` by its type.
  * @return first reader with that type or NULL
  */
-struct Curl_creader *Curl_creader_get_by_type(struct Curl_easy *data,
-                                              const struct Curl_crtype *crt);
+संरचना Curl_creader *Curl_creader_get_by_type(संरचना Curl_easy *दत्त,
+                                              ध्रुव संरचना Curl_crtype *crt);
 
 /**
  * Set the client reader to provide 0 bytes, immediate EOS.
  */
-CURLcode Curl_creader_set_null(struct Curl_easy *data);
+CURLcode Curl_creader_समुच्चयः_null(संरचना Curl_easy *दत्त);
 
 /**
  * Set the client reader the reads from fread callback.
  */
-CURLcode Curl_creader_set_fread(struct Curl_easy *data, curl_off_t len);
+CURLcode Curl_creader_समुच्चयः_fread(संरचना Curl_easy *दत्त, curl_off_t len);
 
 /**
  * Set the client reader the reads from the supplied buf (NOT COPIED).
  */
-CURLcode Curl_creader_set_buf(struct Curl_easy *data,
-                              const char *buf, size_t blen);
+CURLcode Curl_creader_समुच्चयः_buf(संरचना Curl_easy *दत्त,
+                              ध्रुव वर्ण *buf, size_t blen);
 
-#endif /* HEADER_CURL_SENDF_H */
+#यदि_अन्तः /* HEADER_CURL_SENDF_H */

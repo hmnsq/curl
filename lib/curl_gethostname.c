@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#अन्तर्भाव "curl_gethostname.h"
+#अन्तर्भाव "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,56 +41,56 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+पूर्णाङ्क Curl_gethostname(वर्ण * ध्रुव name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
-#ifndef HAVE_GETHOSTNAME
+#यदि_अपरिभाषितम् HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (शून्य)name;
+  (शून्य)namelen;
+  प्रत्यागम -1;
 
-#else
-  int err;
-  char *dot;
+#अन्यथा
+  पूर्णाङ्क err;
+  वर्ण *dot;
 
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
-      curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+  ध्रुव वर्ण *force_hostname = getenv("CURL_GETHOSTNAME");
+  यदि(force_hostname) {
+    यदि(वाक्यदैर्घ्यम्(force_hostname) < (size_t)namelen)
+      curlx_strcopy(name, namelen, force_hostname, वाक्यदैर्घ्यम्(force_hostname));
+    अन्यथा
+      प्रत्यागम 1; /* cannot do it */
     err = 0;
   }
-  else {
+  अन्यथा {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#अन्यथा /* DEBUGBUILD */
 
   name[0] = '\0';
-#ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+#यदि_परिभाषितम् __AMIGA__
+  err = gethostname((अचिह्नित वर्ण *)name, namelen);
+#अन्यथा
   err = gethostname(name, namelen);
-#endif
+#यदि_अन्तः
 
-#endif
+#यदि_अन्तः
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  यदि(err)
+    प्रत्यागम err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  यदि(dot)
     *dot = '\0';
 
-  return 0;
-#endif
+  प्रत्यागम 0;
+#यदि_अन्तः
 }

@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
+#यदि defined(USE_NTLM) && !defined(USE_WINDOWS_SSPI)
 
 /*
  * NTLM details:
@@ -32,212 +32,212 @@
  * https://www.innovation.ch/java/ntlm.html
  */
 
-#define DEBUG_ME 0
+#परिभाषय DEBUG_ME 0
 
-#include "vauth/vauth.h"
-#include "curl_trc.h"
-#include "curl_ntlm_core.h"
-#include "rand.h"
-#include "curlx/strdup.h"
-#include "curl_endian.h"
+#अन्तर्भाव "vauth/vauth.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "curl_ntlm_core.h"
+#अन्तर्भाव "rand.h"
+#अन्तर्भाव "curlx/strdup.h"
+#अन्तर्भाव "curl_endian.h"
 
 /* "NTLMSSP" signature is always in ASCII regardless of the platform */
-#define NTLMSSP_SIGNATURE "\x4e\x54\x4c\x4d\x53\x53\x50"
+#परिभाषय NTLMSSP_SIGNATURE "\x4e\x54\x4c\x4d\x53\x53\x50"
 
 /* NTLM buffer fixed size, large enough for long user + host + domain */
-#define NTLM_BUFSIZE 1024
+#परिभाषय NTLM_BUFSIZE 1024
 
 /* Flag bits definitions based on
    https://davenport.sourceforge.net/ntlm.html */
 
-#define NTLMFLAG_NEGOTIATE_UNICODE               (1 << 0)
+#परिभाषय NTLMFLAG_NEGOTIATE_UNICODE               (1 << 0)
 /* Indicates that Unicode strings are supported for use in security buffer
    data. */
 
-#define NTLMFLAG_NEGOTIATE_OEM                   (1 << 1)
+#परिभाषय NTLMFLAG_NEGOTIATE_OEM                   (1 << 1)
 /* Indicates that OEM strings are supported for use in security buffer data. */
 
-#define NTLMFLAG_REQUEST_TARGET                  (1 << 2)
+#परिभाषय NTLMFLAG_REQUEST_TARGET                  (1 << 2)
 /* Requests that the server's authentication realm be included in the Type 2
    message. */
 
-#if DEBUG_ME
+#यदि DEBUG_ME
 /* unknown (1 << 3) */
-#define NTLMFLAG_NEGOTIATE_SIGN                  (1 << 4)
+#परिभाषय NTLMFLAG_NEGOTIATE_SIGN                  (1 << 4)
 /* Specifies that authenticated communication between the client and server
    should carry a digital signature (message integrity). */
 
-#define NTLMFLAG_NEGOTIATE_SEAL                  (1 << 5)
+#परिभाषय NTLMFLAG_NEGOTIATE_SEAL                  (1 << 5)
 /* Specifies that authenticated communication between the client and server
    should be encrypted (message confidentiality). */
 
-#define NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE        (1 << 6)
+#परिभाषय NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE        (1 << 6)
 /* Indicates that datagram authentication is being used. */
 
-#define NTLMFLAG_NEGOTIATE_LM_KEY                (1 << 7)
+#परिभाषय NTLMFLAG_NEGOTIATE_LM_कुञ्चिका                (1 << 7)
 /* Indicates that the LAN Manager session key should be used for signing and
    sealing authenticated communications. */
-#endif
+#यदि_अन्तः
 
-#define NTLMFLAG_NEGOTIATE_NTLM_KEY              (1 << 9)
+#परिभाषय NTLMFLAG_NEGOTIATE_NTLM_कुञ्चिका              (1 << 9)
 /* Indicates that NTLM authentication is being used. */
 
-#if DEBUG_ME
+#यदि DEBUG_ME
 /* unknown (1 << 10) */
 
-#define NTLMFLAG_NEGOTIATE_ANONYMOUS             (1 << 11)
+#परिभाषय NTLMFLAG_NEGOTIATE_ANONYMOUS             (1 << 11)
 /* Sent by the client in the Type 3 message to indicate that an anonymous
    context has been established. This also affects the response fields. */
 
-#define NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED       (1 << 12)
+#परिभाषय NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED       (1 << 12)
 /* Sent by the client in the Type 1 message to indicate that a desired
    authentication realm is included in the message. */
 
-#define NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED  (1 << 13)
+#परिभाषय NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED  (1 << 13)
 /* Sent by the client in the Type 1 message to indicate that the client
    workstation's name is included in the message. */
 
-#define NTLMFLAG_NEGOTIATE_LOCAL_CALL            (1 << 14)
+#परिभाषय NTLMFLAG_NEGOTIATE_LOCAL_CALL            (1 << 14)
 /* Sent by the server to indicate that the server and client are on the same
    machine. Implies that the client may use a pre-established local security
    context rather than responding to the challenge. */
-#endif
+#यदि_अन्तः
 
-#define NTLMFLAG_NEGOTIATE_ALWAYS_SIGN           (1 << 15)
+#परिभाषय NTLMFLAG_NEGOTIATE_ALWAYS_SIGN           (1 << 15)
 /* Indicates that authenticated communication between the client and server
    should be signed with a "dummy" signature. */
 
-#if DEBUG_ME
-#define NTLMFLAG_TARGET_TYPE_DOMAIN              (1 << 16)
+#यदि DEBUG_ME
+#परिभाषय NTLMFLAG_TARGET_TYPE_DOMAIN              (1 << 16)
 /* Sent by the server in the Type 2 message to indicate that the target
    authentication realm is a domain. */
 
-#define NTLMFLAG_TARGET_TYPE_SERVER              (1 << 17)
+#परिभाषय NTLMFLAG_TARGET_TYPE_SERVER              (1 << 17)
 /* Sent by the server in the Type 2 message to indicate that the target
    authentication realm is a server. */
 
-#define NTLMFLAG_TARGET_TYPE_SHARE               (1 << 18)
+#परिभाषय NTLMFLAG_TARGET_TYPE_SHARE               (1 << 18)
 /* Sent by the server in the Type 2 message to indicate that the target
    authentication realm is a share. Presumably, this is for share-level
    authentication. Usage is unclear. */
-#endif
+#यदि_अन्तः
 
-#define NTLMFLAG_NEGOTIATE_NTLM2_KEY             (1 << 19)
+#परिभाषय NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका             (1 << 19)
 /* Indicates that the NTLM2 signing and sealing scheme should be used for
    protecting authenticated communications. */
 
-#if DEBUG_ME
-#define NTLMFLAG_REQUEST_INIT_RESPONSE           (1 << 20)
+#यदि DEBUG_ME
+#परिभाषय NTLMFLAG_REQUEST_INIT_RESPONSE           (1 << 20)
 /* unknown purpose */
 
-#define NTLMFLAG_REQUEST_ACCEPT_RESPONSE         (1 << 21)
+#परिभाषय NTLMFLAG_REQUEST_ACCEPT_RESPONSE         (1 << 21)
 /* unknown purpose */
 
-#define NTLMFLAG_REQUEST_NONNT_SESSION_KEY       (1 << 22)
+#परिभाषय NTLMFLAG_REQUEST_NONNT_SESSION_कुञ्चिका       (1 << 22)
 /* unknown purpose */
-#endif
+#यदि_अन्तः
 
-#define NTLMFLAG_NEGOTIATE_TARGET_INFO           (1 << 23)
+#परिभाषय NTLMFLAG_NEGOTIATE_TARGET_INFO           (1 << 23)
 /* Sent by the server in the Type 2 message to indicate that it is including a
    Target Information block in the message. */
 
-#if DEBUG_ME
+#यदि DEBUG_ME
 /* unknown (1<24) */
 /* unknown (1<25) */
 /* unknown (1<26) */
 /* unknown (1<27) */
 /* unknown (1<28) */
 
-#define NTLMFLAG_NEGOTIATE_128                   (1 << 29)
+#परिभाषय NTLMFLAG_NEGOTIATE_128                   (1 << 29)
 /* Indicates that 128-bit encryption is supported. */
 
-#define NTLMFLAG_NEGOTIATE_KEY_EXCHANGE          (1 << 30)
+#परिभाषय NTLMFLAG_NEGOTIATE_कुञ्चिका_EXCHANGE          (1 << 30)
 /* Indicates that the client provides an encrypted master key in
    the "Session Key" field of the Type 3 message. */
 
-#define NTLMFLAG_NEGOTIATE_56                    (1 << 31)
+#परिभाषय NTLMFLAG_NEGOTIATE_56                    (1 << 31)
 /* Indicates that 56-bit encryption is supported. */
 
-#define DEBUG_OUT(x) x
-static void ntlm_print_flags(FILE *handle, unsigned long flags)
+#परिभाषय DEBUG_बहिर्गमनम्(x) x
+स्थिर शून्य ntlm_print_flags(FILE *handle, अचिह्नित दीर्घ flags)
 {
-  if(flags & NTLMFLAG_NEGOTIATE_UNICODE)
+  यदि(flags & NTLMFLAG_NEGOTIATE_UNICODE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_UNICODE ");
-  if(flags & NTLMFLAG_NEGOTIATE_OEM)
+  यदि(flags & NTLMFLAG_NEGOTIATE_OEM)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_OEM ");
-  if(flags & NTLMFLAG_REQUEST_TARGET)
+  यदि(flags & NTLMFLAG_REQUEST_TARGET)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_TARGET ");
-  if(flags & (1 << 3))
+  यदि(flags & (1 << 3))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_3 ");
-  if(flags & NTLMFLAG_NEGOTIATE_SIGN)
+  यदि(flags & NTLMFLAG_NEGOTIATE_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SIGN ");
-  if(flags & NTLMFLAG_NEGOTIATE_SEAL)
+  यदि(flags & NTLMFLAG_NEGOTIATE_SEAL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_SEAL ");
-  if(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
+  यदि(flags & NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DATAGRAM_STYLE ");
-  if(flags & NTLMFLAG_NEGOTIATE_LM_KEY)
+  यदि(flags & NTLMFLAG_NEGOTIATE_LM_कुञ्चिका)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LM_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM_KEY)
+  यदि(flags & NTLMFLAG_NEGOTIATE_NTLM_कुञ्चिका)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM_KEY ");
-  if(flags & (1 << 10))
+  यदि(flags & (1 << 10))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_10 ");
-  if(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
+  यदि(flags & NTLMFLAG_NEGOTIATE_ANONYMOUS)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ANONYMOUS ");
-  if(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
+  यदि(flags & NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_DOMAIN_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
+  यदि(flags & NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_WORKSTATION_SUPPLIED ");
-  if(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
+  यदि(flags & NTLMFLAG_NEGOTIATE_LOCAL_CALL)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_LOCAL_CALL ");
-  if(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
+  यदि(flags & NTLMFLAG_NEGOTIATE_ALWAYS_SIGN)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_ALWAYS_SIGN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
+  यदि(flags & NTLMFLAG_TARGET_TYPE_DOMAIN)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_DOMAIN ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SERVER)
+  यदि(flags & NTLMFLAG_TARGET_TYPE_SERVER)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SERVER ");
-  if(flags & NTLMFLAG_TARGET_TYPE_SHARE)
+  यदि(flags & NTLMFLAG_TARGET_TYPE_SHARE)
     curl_mfprintf(handle, "NTLMFLAG_TARGET_TYPE_SHARE ");
-  if(flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY)
+  यदि(flags & NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_NTLM2_KEY ");
-  if(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
+  यदि(flags & NTLMFLAG_REQUEST_INIT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_INIT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
+  यदि(flags & NTLMFLAG_REQUEST_ACCEPT_RESPONSE)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_ACCEPT_RESPONSE ");
-  if(flags & NTLMFLAG_REQUEST_NONNT_SESSION_KEY)
+  यदि(flags & NTLMFLAG_REQUEST_NONNT_SESSION_कुञ्चिका)
     curl_mfprintf(handle, "NTLMFLAG_REQUEST_NONNT_SESSION_KEY ");
-  if(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
+  यदि(flags & NTLMFLAG_NEGOTIATE_TARGET_INFO)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_TARGET_INFO ");
-  if(flags & (1 << 24))
+  यदि(flags & (1 << 24))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_24 ");
-  if(flags & (1 << 25))
+  यदि(flags & (1 << 25))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_25 ");
-  if(flags & (1 << 26))
+  यदि(flags & (1 << 26))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_26 ");
-  if(flags & (1 << 27))
+  यदि(flags & (1 << 27))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_27 ");
-  if(flags & (1 << 28))
+  यदि(flags & (1 << 28))
     curl_mfprintf(handle, "NTLMFLAG_UNKNOWN_28 ");
-  if(flags & NTLMFLAG_NEGOTIATE_128)
+  यदि(flags & NTLMFLAG_NEGOTIATE_128)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_128 ");
-  if(flags & NTLMFLAG_NEGOTIATE_KEY_EXCHANGE)
+  यदि(flags & NTLMFLAG_NEGOTIATE_कुञ्चिका_EXCHANGE)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_KEY_EXCHANGE ");
-  if(flags & NTLMFLAG_NEGOTIATE_56)
+  यदि(flags & NTLMFLAG_NEGOTIATE_56)
     curl_mfprintf(handle, "NTLMFLAG_NEGOTIATE_56 ");
 }
 
-static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
+स्थिर शून्य ntlm_print_hex(FILE *handle, ध्रुव वर्ण *buf, size_t len)
 {
-  const char *p = buf;
+  ध्रुव वर्ण *p = buf;
 
-  (void)handle;
+  (शून्य)handle;
 
   curl_mfprintf(stderr, "0x");
-  while(len-- > 0)
-    curl_mfprintf(stderr, "%02.2x", (unsigned int)*p++);
+  यावत्(len-- > 0)
+    curl_mfprintf(stderr, "%02.2x", (अचिह्नित पूर्णाङ्क)*p++);
 }
-#else
-#define DEBUG_OUT(x) Curl_nop_stmt
-#endif
+#अन्यथा
+#परिभाषय DEBUG_बहिर्गमनम्(x) Curl_nop_stmt
+#यदि_अन्तः
 
 /*
  * ntlm_decode_type2_target()
@@ -253,38 +253,38 @@ static void ntlm_print_hex(FILE *handle, const char *buf, size_t len)
  *
  * Returns CURLE_OK on success.
  */
-static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
-                                         const struct bufref *type2ref,
-                                         struct ntlmdata *ntlm)
+स्थिर CURLcode ntlm_decode_type2_target(संरचना Curl_easy *दत्त,
+                                         ध्रुव संरचना bufref *type2ref,
+                                         संरचना ntlmdata *ntlm)
 {
-  unsigned short target_info_len = 0;
-  unsigned int target_info_offset = 0;
-  const unsigned char *type2 = Curl_bufref_uptr(type2ref);
+  अचिह्नित ह्रस्व target_info_len = 0;
+  अचिह्नित पूर्णाङ्क target_info_विस्थापनम् = 0;
+  ध्रुव अचिह्नित वर्ण *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
-  if(type2len >= 48) {
+  यदि(type2len >= 48) {
     target_info_len = Curl_read16_le(&type2[40]);
-    target_info_offset = Curl_read32_le(&type2[44]);
-    if(target_info_len > 0) {
-      if((target_info_offset > type2len) ||
-         (target_info_offset + target_info_len) > type2len ||
-         target_info_offset < 48) {
-        infof(data, "NTLM handshake failure (bad type-2 message). "
+    target_info_विस्थापनम् = Curl_read32_le(&type2[44]);
+    यदि(target_info_len > 0) {
+      यदि((target_info_विस्थापनम् > type2len) ||
+         (target_info_विस्थापनम् + target_info_len) > type2len ||
+         target_info_विस्थापनम् < 48) {
+        infof(दत्त, "NTLM handshake failure (bad type-2 message). "
               "Target Info Offset Len is set incorrect by the peer");
-        return CURLE_BAD_CONTENT_ENCODING;
+        प्रत्यागम CURLE_BAD_CONTENT_ENCODING;
       }
 
       curlx_free(ntlm->target_info); /* replace any previous data */
-      ntlm->target_info = curlx_memdup(&type2[target_info_offset],
+      ntlm->target_info = curlx_memdup(&type2[target_info_विस्थापनम्],
                                        target_info_len);
-      if(!ntlm->target_info)
-        return CURLE_OUT_OF_MEMORY;
+      यदि(!ntlm->target_info)
+        प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
     }
   }
 
   ntlm->target_info_len = target_info_len;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
@@ -312,9 +312,9 @@ static CURLcode ntlm_decode_type2_target(struct Curl_easy *data,
  *
  * Returns TRUE as NTLM as handled by libcurl.
  */
-bool Curl_auth_is_ntlm_supported(void)
+bool Curl_auth_is_ntlm_supported(शून्य)
 {
-  return TRUE;
+  प्रत्यागम TRUE;
 }
 
 /*
@@ -332,11 +332,11 @@ bool Curl_auth_is_ntlm_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
-                                             const struct bufref *type2ref,
-                                             struct ntlmdata *ntlm)
+CURLcode Curl_auth_decode_ntlm_type2_सन्देशः(संरचना Curl_easy *दत्त,
+                                             ध्रुव संरचना bufref *type2ref,
+                                             संरचना ntlmdata *ntlm)
 {
-  static const char type2_marker[] = { 0x02, 0x00, 0x00, 0x00 };
+  स्थिर ध्रुव वर्ण type2_marker[] = { 0x02, 0x00, 0x00, 0x00 };
 
   /* NTLM type-2 message structure:
 
@@ -354,50 +354,50 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy *data,
                                         (*) -> Optional
   */
 
-  CURLcode result = CURLE_OK;
-  const unsigned char *type2 = Curl_bufref_uptr(type2ref);
+  CURLcode परिणाम = CURLE_OK;
+  ध्रुव अचिह्नित वर्ण *type2 = Curl_bufref_uptr(type2ref);
   size_t type2len = Curl_bufref_len(type2ref);
 
   ntlm->flags = 0;
 
-  if((type2len < 32) ||
+  यदि((type2len < 32) ||
      memcmp(type2, NTLMSSP_SIGNATURE, 8) ||
-     memcmp(type2 + 8, type2_marker, sizeof(type2_marker))) {
+     memcmp(type2 + 8, type2_marker, परिमाण(type2_marker))) {
     /* This was not a good enough type-2 message */
-    infof(data, "NTLM handshake failure (bad type-2 message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    infof(दत्त, "NTLM handshake failure (bad type-2 message)");
+    प्रत्यागम CURLE_BAD_CONTENT_ENCODING;
   }
 
   ntlm->flags = Curl_read32_le(&type2[20]);
-  memcpy(ntlm->nonce, &type2[24], 8);
+  स्मृतिं_प्रतिलिख(ntlm->nonce, &type2[24], 8);
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
-    result = ntlm_decode_type2_target(data, type2ref, ntlm);
-    if(result) {
-      infof(data, "NTLM handshake failure (bad type-2 message)");
-      return result;
+  यदि(ntlm->flags & NTLMFLAG_NEGOTIATE_TARGET_INFO) {
+    परिणाम = ntlm_decode_type2_target(दत्त, type2ref, ntlm);
+    यदि(परिणाम) {
+      infof(दत्त, "NTLM handshake failure (bad type-2 message)");
+      प्रत्यागम परिणाम;
     }
   }
 
-  DEBUG_OUT({
+  DEBUG_बहिर्गमनम्({
     curl_mfprintf(stderr, "**** TYPE2 header flags=0x%08.8lx ", ntlm->flags);
     ntlm_print_flags(stderr, ntlm->flags);
     curl_mfprintf(stderr, "\n                  nonce=");
-    ntlm_print_hex(stderr, (char *)ntlm->nonce, 8);
+    ntlm_print_hex(stderr, (वर्ण *)ntlm->nonce, 8);
     curl_mfprintf(stderr, "\n****\n");
-    curl_mfprintf(stderr, "**** Header %s\n ", header);
+    curl_mfprintf(stderr, "**** Header %s\n ", शीर्षकम्);
   });
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /* copy the source to the destination and fill in zeroes in every
    other destination byte! */
-static void unicodecpy(unsigned char *dest, const char *src, size_t length)
+स्थिर शून्य unicodecpy(अचिह्नित वर्ण *dest, ध्रुव वर्ण *src, size_t दीर्घता)
 {
   size_t i;
-  for(i = 0; i < length; i++) {
-    dest[2 * i] = (unsigned char)src[i];
+  प्रति(i = 0; i < दीर्घता; i++) {
+    dest[2 * i] = (अचिह्नित वर्ण)src[i];
     dest[(2 * i) + 1] = '\0';
   }
 }
@@ -420,12 +420,12 @@ static void unicodecpy(unsigned char *dest, const char *src, size_t length)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             const char *host,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type1_सन्देशः(संरचना Curl_easy *दत्त,
+                                             संरचना Curl_creds *creds,
+                                             ध्रुव वर्ण *default_service,
+                                             ध्रुव वर्ण *host,
+                                             संरचना ntlmdata *ntlm,
+                                             संरचना bufref *बहिर्गमनम्)
 {
   /* NTLM type-1 message structure:
 
@@ -441,22 +441,22 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                                      (*) -> Optional
   */
 
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  ध्रुव वर्ण *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
-  size_t size;
+  size_t आकार;
 
-  char *ntlmbuf;
-  const char *hostname = "";          /* empty */
-  const char *domain = "";            /* empty */
+  वर्ण *ntlmbuf;
+  ध्रुव वर्ण *hostname = "";          /*रिक्तानि*/
+  ध्रुव वर्ण *domain = "";            /*रिक्तानि*/
   size_t hostlen = 0;
   size_t domlen = 0;
   size_t hostoff = 0;
   size_t domoff = hostoff + hostlen;  /* This is 0: remember that host and
                                          domain are empty */
-  (void)data;
-  (void)creds;
-  (void)service;
-  (void)host;
+  (शून्य)दत्त;
+  (शून्य)creds;
+  (शून्य)service;
+  (शून्य)host;
 
   /* Clean up any former leftovers and initialize to defaults */
   Curl_auth_cleanup_ntlm(ntlm);
@@ -479,8 +479,8 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
 
                           LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
                                       NTLMFLAG_REQUEST_TARGET |
-                                      NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                                      NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                                      NTLMFLAG_NEGOTIATE_NTLM_कुञ्चिका |
+                                      NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका |
                                       NTLMFLAG_NEGOTIATE_ALWAYS_SIGN),
                           SHORTPAIR(domlen),
                           SHORTPAIR(domlen),
@@ -493,36 +493,36 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
                           hostname, /* this is empty */
                           domain /* this is empty */);
 
-  if(!ntlmbuf)
-    return CURLE_OUT_OF_MEMORY;
+  यदि(!ntlmbuf)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
   /* Initial packet length */
-  size = 32 + hostlen + domlen;
+  आकार = 32 + hostlen + domlen;
 
-  DEBUG_OUT({
+  DEBUG_बहिर्गमनम्({
     curl_mfprintf(stderr, "* TYPE1 header flags=0x%02.2x%02.2x%02.2x%02.2x "
                   "0x%08.8x ",
                   LONGQUARTET(NTLMFLAG_NEGOTIATE_OEM |
                               NTLMFLAG_REQUEST_TARGET |
-                              NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                              NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                              NTLMFLAG_NEGOTIATE_NTLM_कुञ्चिका |
+                              NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका |
                               NTLMFLAG_NEGOTIATE_ALWAYS_SIGN),
                   NTLMFLAG_NEGOTIATE_OEM |
                   NTLMFLAG_REQUEST_TARGET |
-                  NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                  NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                  NTLMFLAG_NEGOTIATE_NTLM_कुञ्चिका |
+                  NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका |
                   NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
     ntlm_print_flags(stderr,
                      NTLMFLAG_NEGOTIATE_OEM |
                      NTLMFLAG_REQUEST_TARGET |
-                     NTLMFLAG_NEGOTIATE_NTLM_KEY |
-                     NTLMFLAG_NEGOTIATE_NTLM2_KEY |
+                     NTLMFLAG_NEGOTIATE_NTLM_कुञ्चिका |
+                     NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका |
                      NTLMFLAG_NEGOTIATE_ALWAYS_SIGN);
     curl_mfprintf(stderr, "\n****\n");
   });
 
-  Curl_bufref_set(out, ntlmbuf, size, curl_free);
-  return CURLE_OK;
+  Curl_bufref_समुच्चयः(बहिर्गमनम्, ntlmbuf, आकार, curl_free);
+  प्रत्यागम CURLE_OK;
 }
 
 /*
@@ -541,10 +541,10 @@ CURLcode Curl_auth_create_ntlm_type1_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
-                                             struct Curl_creds *creds,
-                                             struct ntlmdata *ntlm,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_ntlm_type3_सन्देशः(संरचना Curl_easy *दत्त,
+                                             संरचना Curl_creds *creds,
+                                             संरचना ntlmdata *ntlm,
+                                             संरचना bufref *बहिर्गमनम्)
 {
   /* NTLM type-3 message structure:
 
@@ -564,24 +564,24 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
                                           (*) -> Optional
   */
 
-  CURLcode result = CURLE_OK;
-  size_t size;
-  unsigned char ntlmbuf[NTLM_BUFSIZE];
-  unsigned int lmrespoff;
-  unsigned char lmresp[24]; /* fixed-size */
-  unsigned int ntrespoff;
-  unsigned int ntresplen = 24;
-  unsigned char ntresp[24]; /* fixed-size */
-  const unsigned char *ptr_ntresp = &ntresp[0];
-  unsigned char *ntlmv2resp = NULL;
+  CURLcode परिणाम = CURLE_OK;
+  size_t आकार;
+  अचिह्नित वर्ण ntlmbuf[NTLM_BUFSIZE];
+  अचिह्नित पूर्णाङ्क lmrespoff;
+  अचिह्नित वर्ण lmresp[24]; /* fixed-size */
+  अचिह्नित पूर्णाङ्क ntrespoff;
+  अचिह्नित पूर्णाङ्क ntresplen = 24;
+  अचिह्नित वर्ण ntresp[24]; /* fixed-size */
+  ध्रुव अचिह्नित वर्ण *ptr_ntresp = &ntresp[0];
+  अचिह्नित वर्ण *ntlmv2resp = रिक्त;
   bool unicode = (ntlm->flags & NTLMFLAG_NEGOTIATE_UNICODE);
   /* The fixed hostname we provide, in order to not leak our real local host
      name. Copy the name used by Firefox. */
-  static const char host[] = "WORKSTATION";
-  const char *userp = Curl_creds_user(creds);
-  const char *passwdp = Curl_creds_passwd(creds);
-  const char *user;
-  const char *domain = "";
+  स्थिर ध्रुव वर्ण host[] = "WORKSTATION";
+  ध्रुव वर्ण *userp = Curl_creds_user(creds);
+  ध्रुव वर्ण *passwdp = Curl_creds_passwd(creds);
+  ध्रुव वर्ण *user;
+  ध्रुव वर्ण *domain = "";
   size_t hostoff = 0;
   size_t useroff = 0;
   size_t domoff = 0;
@@ -589,85 +589,85 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   size_t userlen = 0;
   size_t domlen = 0;
 
-  memset(lmresp, 0, sizeof(lmresp));
-  memset(ntresp, 0, sizeof(ntresp));
+  स्मृतिं_पूरय(lmresp, 0, परिमाण(lmresp));
+  स्मृतिं_पूरय(ntresp, 0, परिमाण(ntresp));
   user = strchr(userp, '\\');
-  if(!user)
+  यदि(!user)
     user = strchr(userp, '/');
 
-  if(user) {
+  यदि(user) {
     domain = userp;
     domlen = (user - domain);
     user++;
   }
-  else
+  अन्यथा
     user = userp;
 
-  userlen = strlen(user);
-  hostlen = sizeof(host) - 1;
+  userlen = वाक्यदैर्घ्यम्(user);
+  hostlen = परिमाण(host) - 1;
 
-  if(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_KEY) {
-    unsigned char ntbuffer[0x18];
-    unsigned char entropy[8];
-    unsigned char ntlmv2hash[0x18];
+  यदि(ntlm->flags & NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका) {
+    अचिह्नित वर्ण ntbuffer[0x18];
+    अचिह्नित वर्ण entropy[8];
+    अचिह्नित वर्ण ntlmv2hash[0x18];
 
     /* Full NTLM version 2
        Although this cannot be negotiated, it is used here if available, as
        servers featuring extended security are likely supporting also
        NTLMv2. */
-    result = Curl_rand(data, entropy, 8);
-    if(result)
-      return result;
+    परिणाम = Curl_rand(दत्त, entropy, 8);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
-    result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    परिणाम = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
-    result = Curl_ntlm_core_mk_ntlmv2_hash(user, userlen, domain, domlen,
+    परिणाम = Curl_ntlm_core_mk_ntlmv2_hash(user, userlen, domain, domlen,
                                            ntbuffer, ntlmv2hash);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     /* LMv2 response */
-    result = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, entropy,
+    परिणाम = Curl_ntlm_core_mk_lmv2_resp(ntlmv2hash, entropy,
                                          &ntlm->nonce[0], lmresp);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     /* NTLMv2 response */
-    result = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, entropy,
+    परिणाम = Curl_ntlm_core_mk_ntlmv2_resp(ntlmv2hash, entropy,
                                            ntlm, &ntlmv2resp, &ntresplen);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     ptr_ntresp = ntlmv2resp;
   }
-  else {
+  अन्यथा {
 
-    unsigned char ntbuffer[0x18];
-    unsigned char lmbuffer[0x18];
+    अचिह्नित वर्ण ntbuffer[0x18];
+    अचिह्नित वर्ण lmbuffer[0x18];
 
     /* NTLM version 1 */
 
-    result = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
-    if(result)
-      return result;
+    परिणाम = Curl_ntlm_core_mk_nt_hash(passwdp, ntbuffer);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], ntresp);
 
-    result = Curl_ntlm_core_mk_lm_hash(passwdp, lmbuffer);
-    if(result)
-      return result;
+    परिणाम = Curl_ntlm_core_mk_lm_hash(passwdp, lmbuffer);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
     Curl_ntlm_core_lm_resp(lmbuffer, &ntlm->nonce[0], lmresp);
-    ntlm->flags &= ~(unsigned int)NTLMFLAG_NEGOTIATE_NTLM2_KEY;
+    ntlm->flags &= ~(अचिह्नित पूर्णाङ्क)NTLMFLAG_NEGOTIATE_NTLM2_कुञ्चिका;
 
     /* A safer but less compatible alternative is:
      *   Curl_ntlm_core_lm_resp(ntbuffer, &ntlm->nonce[0], lmresp);
      * See https://davenport.sourceforge.net/ntlm.html#ntlmVersion2 */
   }
 
-  if(unicode) {
+  यदि(unicode) {
     domlen = domlen * 2;
     userlen = userlen * 2;
     hostlen = hostlen * 2;
@@ -680,7 +680,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
   hostoff = useroff + userlen;
 
   /* Create the big type-3 message binary blob */
-  size = curl_msnprintf((char *)ntlmbuf, NTLM_BUFSIZE,
+  आकार = curl_msnprintf((वर्ण *)ntlmbuf, NTLM_BUFSIZE,
                          NTLMSSP_SIGNATURE "%c"
                          "\x03%c%c%c"  /* 32-bit type = 3 */
 
@@ -759,36 +759,36 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
                          LONGQUARTET(ntlm->flags));
 
-  DEBUGASSERT(size == 64);
-  DEBUGASSERT(size == (size_t)lmrespoff);
+  DEBUGASSERT(आकार == 64);
+  DEBUGASSERT(आकार == (size_t)lmrespoff);
 
   /* We append the binary hashes */
-  if(size < (NTLM_BUFSIZE - 0x18)) {
-    memcpy(&ntlmbuf[size], lmresp, 0x18);
-    size += 0x18;
+  यदि(आकार < (NTLM_BUFSIZE - 0x18)) {
+    स्मृतिं_प्रतिलिख(&ntlmbuf[आकार], lmresp, 0x18);
+    आकार += 0x18;
   }
 
-  DEBUG_OUT({
+  DEBUG_बहिर्गमनम्({
     curl_mfprintf(stderr, "**** TYPE3 header lmresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[lmrespoff], 0x18);
+    ntlm_print_hex(stderr, (वर्ण *)&ntlmbuf[lmrespoff], 0x18);
   });
 
   /* ntresplen + size should not be risking an integer overflow here */
-  if(ntresplen + size > sizeof(ntlmbuf)) {
-    failf(data, "incoming NTLM message too big");
-    result = CURLE_TOO_LARGE;
-    goto error;
+  यदि(ntresplen + आकार > परिमाण(ntlmbuf)) {
+    failf(दत्त, "incoming NTLM message too big");
+    परिणाम = CURLE_TOO_LARGE;
+    गच्छ error;
   }
-  DEBUGASSERT(size == (size_t)ntrespoff);
-  memcpy(&ntlmbuf[size], ptr_ntresp, ntresplen);
-  size += ntresplen;
+  DEBUGASSERT(आकार == (size_t)ntrespoff);
+  स्मृतिं_प्रतिलिख(&ntlmbuf[आकार], ptr_ntresp, ntresplen);
+  आकार += ntresplen;
 
-  DEBUG_OUT({
+  DEBUG_बहिर्गमनम्({
     curl_mfprintf(stderr, "\n   ntresp=");
-    ntlm_print_hex(stderr, (char *)&ntlmbuf[ntrespoff], ntresplen);
+    ntlm_print_hex(stderr, (वर्ण *)&ntlmbuf[ntrespoff], ntresplen);
   });
 
-  DEBUG_OUT({
+  DEBUG_बहिर्गमनम्({
     curl_mfprintf(stderr, "\n   flags=0x%02.2x%02.2x%02.2x%02.2x 0x%08.8x ",
                   LONGQUARTET(ntlm->flags), ntlm->flags);
     ntlm_print_flags(stderr, ntlm->flags);
@@ -797,45 +797,45 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy *data,
 
   /* Make sure that the domain, user and host strings fit in the
      buffer before we copy them there. */
-  if(size + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
-    failf(data, "user + domain + hostname too big for NTLM");
-    result = CURLE_TOO_LARGE;
-    goto error;
+  यदि(आकार + userlen + domlen + hostlen >= NTLM_BUFSIZE) {
+    failf(दत्त, "user + domain + hostname too big for NTLM");
+    परिणाम = CURLE_TOO_LARGE;
+    गच्छ error;
   }
 
-  DEBUGASSERT(size == domoff);
-  if(unicode)
-    unicodecpy(&ntlmbuf[size], domain, domlen / 2);
-  else
-    memcpy(&ntlmbuf[size], domain, domlen);
+  DEBUGASSERT(आकार == domoff);
+  यदि(unicode)
+    unicodecpy(&ntlmbuf[आकार], domain, domlen / 2);
+  अन्यथा
+    स्मृतिं_प्रतिलिख(&ntlmbuf[आकार], domain, domlen);
 
-  size += domlen;
+  आकार += domlen;
 
-  DEBUGASSERT(size == useroff);
-  if(unicode)
-    unicodecpy(&ntlmbuf[size], user, userlen / 2);
-  else
-    memcpy(&ntlmbuf[size], user, userlen);
+  DEBUGASSERT(आकार == useroff);
+  यदि(unicode)
+    unicodecpy(&ntlmbuf[आकार], user, userlen / 2);
+  अन्यथा
+    स्मृतिं_प्रतिलिख(&ntlmbuf[आकार], user, userlen);
 
-  size += userlen;
+  आकार += userlen;
 
-  DEBUGASSERT(size == hostoff);
-  if(unicode)
-    unicodecpy(&ntlmbuf[size], host, hostlen / 2);
-  else
-    memcpy(&ntlmbuf[size], host, hostlen);
+  DEBUGASSERT(आकार == hostoff);
+  यदि(unicode)
+    unicodecpy(&ntlmbuf[आकार], host, hostlen / 2);
+  अन्यथा
+    स्मृतिं_प्रतिलिख(&ntlmbuf[आकार], host, hostlen);
 
-  size += hostlen;
+  आकार += hostlen;
 
   /* Return the binary blob. */
-  result = Curl_bufref_memdup0(out, ntlmbuf, size);
+  परिणाम = Curl_bufref_memdup0(बहिर्गमनम्, ntlmbuf, आकार);
 
 error:
   curlx_free(ntlmv2resp);  /* Free the dynamic buffer allocated for NTLMv2 */
 
   Curl_auth_cleanup_ntlm(ntlm);
 
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
@@ -848,7 +848,7 @@ error:
  * ntlm    [in/out] - The NTLM data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
+शून्य Curl_auth_cleanup_ntlm(संरचना ntlmdata *ntlm)
 {
   /* Free the target info */
   curlx_safefree(ntlm->target_info);
@@ -857,4 +857,4 @@ void Curl_auth_cleanup_ntlm(struct ntlmdata *ntlm)
   ntlm->target_info_len = 0;
 }
 
-#endif /* USE_NTLM && !USE_WINDOWS_SSPI */
+#यदि_अन्तः /* USE_NTLM && !USE_WINDOWS_SSPI */

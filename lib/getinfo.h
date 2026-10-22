@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_GETINFO_H
-#define HEADER_CURL_GETINFO_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_GETINFO_H
+#परिभाषय शीर्षकम्_CURL_GETINFO_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...);
-void Curl_initinfo(struct Curl_easy *data);
+CURLcode Curl_getinfo(संरचना Curl_easy *दत्त, CURLINFO info, ...);
+शून्य Curl_initinfo(संरचना Curl_easy *दत्त);
 
-#endif /* HEADER_CURL_GETINFO_H */
+#यदि_अन्तः /* HEADER_CURL_GETINFO_H */

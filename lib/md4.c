@@ -21,85 +21,85 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef USE_CURL_NTLM_CORE
+#यदि_परिभाषितम् USE_CURL_NTLM_CORE
 
-#include "curl_md4.h"
+#अन्तर्भाव "curl_md4.h"
 
-#ifdef USE_OPENSSL
-#include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#यदि_परिभाषितम् USE_OPENSSL
+#अन्तर्भाव <openssl/opensslv.h>
+#यदि OPENSSL_संस्करणम्_सङ्ख्या >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
-#define OPENSSL_NO_MD4
-#else
+#परिभाषय OPENSSL_NO_MD4
+#अन्यथा
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
-#include <openssl/opensslconf.h>
-#endif
-#endif /* USE_OPENSSL */
+#अन्तर्भाव <openssl/opensslconf.h>
+#यदि_अन्तः
+#यदि_अन्तः /* USE_OPENSSL */
 
-#ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#endif
+#यदि_परिभाषितम् USE_WOLFSSL
+#अन्तर्भाव <wolfssl/options.h>
+#यदि_अन्तः
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-#include <openssl/evp.h>
+#यदि defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#अन्तर्भाव <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md4_ctx;
+प्रकारनिर्देश EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+स्थिर पूर्णाङ्क my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  यदि(!*ctx)
+    प्रत्यागम 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  यदि(!EVP_DigestInit_ex(*ctx, EVP_md4(), रिक्त)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    प्रत्यागम 0;
   }
-  return 1;
+  प्रत्यागम 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+स्थिर शून्य my_md4_update(my_md4_ctx *ctx,
+                          ध्रुव अचिह्नित वर्ण *निवेशः, अचिह्नित पूर्णाङ्क len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (शून्य)EVP_DigestUpdate(*ctx, निवेशः, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+स्थिर शून्य my_md4_final(अचिह्नित वर्ण *digest, my_md4_ctx *ctx)
 {
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (शून्य)EVP_DigestFinal_ex(*ctx, digest, रिक्त);
   EVP_MD_CTX_free(*ctx);
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD4)
-#include <wolfssl/wolfcrypt/md4.h>
-#include <wolfssl/version.h>
+#नोचेद्यदि defined(USE_WOLFSSL) && !defined(NO_MD4)
+#अन्तर्भाव <wolfssl/wolfcrypt/md4.h>
+#अन्तर्भाव <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
-typedef wc_Md4 my_md4_ctx;
-#else
-typedef Md4 my_md4_ctx;
-#endif
+#यदि LIBWOLFSSL_संस्करणम्_HEX >= 0x05007006
+प्रकारनिर्देश wc_Md4 my_md4_ctx;
+#अन्यथा
+प्रकारनिर्देश Md4 my_md4_ctx;
+#यदि_अन्तः
 
-static int my_md4_init(my_md4_ctx *ctx)
+स्थिर पूर्णाङ्क my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  प्रत्यागम 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+स्थिर शून्य my_md4_update(my_md4_ctx *ctx,
+                          ध्रुव शून्य *निवेशः, अचिह्नित दीर्घ len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, निवेशः, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+स्थिर शून्य my_md4_final(अचिह्नित वर्ण *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#नोचेद्यदि (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -107,102 +107,102 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#अन्तर्भाव <CommonCrypto/CommonDigest.h>
 
-typedef CC_MD4_CTX my_md4_ctx;
+प्रकारनिर्देश CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+स्थिर पूर्णाङ्क my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  प्रत्यागम CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+स्थिर शून्य my_md4_update(my_md4_ctx *ctx,
+                          ध्रुव शून्य *निवेशः, अचिह्नित दीर्घ len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (शून्य)CC_MD4_Update(ctx, निवेशः, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+स्थिर शून्य my_md4_final(अचिह्नित वर्ण *digest, my_md4_ctx *ctx)
 {
-  (void)CC_MD4_Final(digest, ctx);
+  (शून्य)CC_MD4_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#नोचेद्यदि defined(USE_WIN32_CRYPTO)
+#अन्तर्भाव <wincrypt.h>
 
-struct md4_ctx {
+संरचना md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+प्रकारनिर्देश संरचना md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+स्थिर पूर्णाङ्क my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  यदि(!CryptAcquireContext(&ctx->hCryptProv, रिक्त, रिक्त, PROV_RSA_पूर्णम्,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    प्रत्यागम 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  यदि(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    प्रत्यागम 0;
   }
 
-  return 1;
+  प्रत्यागम 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+स्थिर शून्य my_md4_update(my_md4_ctx *ctx,
+                          ध्रुव शून्य *निवेशः, अचिह्नित दीर्घ len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  Crypt_Hash_दत्त(ctx->hHash, (ध्रुव BYTE *)निवेशः, (अचिह्नित पूर्णाङ्क)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+स्थिर शून्य my_md4_final(अचिह्नित वर्ण *digest, my_md4_ctx *ctx)
 {
-  unsigned long length = 0;
+  अचिह्नित दीर्घ दीर्घता = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
-    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, रिक्त, &दीर्घता, 0);
+  यदि(दीर्घता == MD4_DIGEST_दीर्घता)
+    CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &दीर्घता, 0);
 
-  if(ctx->hHash)
+  यदि(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  यदि(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/md4.h>
-#include <nettle/version.h>
+#नोचेद्यदि defined(USE_GNUTLS)
+#अन्तर्भाव <nettle/md4.h>
+#अन्तर्भाव <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+प्रकारनिर्देश संरचना md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+स्थिर पूर्णाङ्क my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  प्रत्यागम 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+स्थिर शून्य my_md4_update(my_md4_ctx *ctx,
+                          ध्रुव शून्य *निवेशः, अचिह्नित दीर्घ len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, निवेशः);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+स्थिर शून्य my_md4_final(अचिह्नित वर्ण *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#यदि NETTLE_संस्करणम्_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
-  md4_digest(ctx, MD4_DIGEST_SIZE, digest);
-#endif
+#अन्यथा
+  md4_digest(ctx, MD4_DIGEST_आकार, digest);
+#यदि_अन्तः
 }
 
-#else
+#अन्यथा
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+संरचना md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
-  uint32_t block[16];
+  अचिह्नित वर्ण बफर[64];
+  uint32_t खण्डम्[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+प्रकारनिर्देश संरचना md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -244,14 +244,14 @@ typedef struct md4_ctx my_md4_ctx;
  * F and G are optimized compared to their RFC 1320 definitions, with the
  * optimization for F borrowed from Colin Plumb's MD5 implementation.
  */
-#define MD4_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
-#define MD4_G(x, y, z)                  (((x) & ((y) | (z))) | ((y) & (z)))
-#define MD4_H(x, y, z)                  ((x) ^ (y) ^ (z))
+#परिभाषय MD4_F(x, y, z)                  ((z) ^ ((x) & ((y) ^ (z))))
+#परिभाषय MD4_G(x, y, z)                  (((x) & ((y) | (z))) | ((y) & (z)))
+#परिभाषय MD4_H(x, y, z)                  ((x) ^ (y) ^ (z))
 
 /*
  * The MD4 transformation for all three rounds.
  */
-#define MD4_STEP(f, a, b, c, d, x, s) \
+#परिभाषय MD4_चरणः(f, a, b, c, d, x, s) \
   (a) += f(b, c, d) + (x); \
   (a) = (((a) << (s)) | (((a) & 0xffffffff) >> (32 - (s))));
 
@@ -262,36 +262,36 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
-#define MD4_GET(n) MD4_SET(n)
-#else
-#define MD4_SET(n) (ctx->block[n] =      \
+#यदि defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#परिभाषय MD4_समुच्चयः(n) (*(ध्रुव uint32_t *)(ध्रुव शून्य *)&ptr[(n) * 4])
+#परिभाषय MD4_GET(n) MD4_समुच्चयः(n)
+#अन्यथा
+#परिभाषय MD4_समुच्चयः(n) (ctx->खण्डम्[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
   ((uint32_t)ptr[((n) * 4) + 2] << 16) | \
   ((uint32_t)ptr[((n) * 4) + 3] << 24))
-#define MD4_GET(n) ctx->block[n]
-#endif
+#परिभाषय MD4_GET(n) ctx->खण्डम्[n]
+#यदि_अन्तः
 
 /*
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+स्थिर ध्रुव शून्य *my_md4_body(my_md4_ctx *ctx,
+                               ध्रुव शून्य *निवेशः, अचिह्नित दीर्घ आकार)
 {
-  const unsigned char *ptr;
+  ध्रुव अचिह्नित वर्ण *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (ध्रुव अचिह्नित वर्ण *)निवेशः;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  कुरु {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -300,58 +300,58 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     saved_d = d;
 
     /* Round 1 */
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(0), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(1), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(2), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(3), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(4), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(5), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(6), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(7), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(8), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(9), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(10), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(11), 19)
-    MD4_STEP(MD4_F, a, b, c, d, MD4_SET(12), 3)
-    MD4_STEP(MD4_F, d, a, b, c, MD4_SET(13), 7)
-    MD4_STEP(MD4_F, c, d, a, b, MD4_SET(14), 11)
-    MD4_STEP(MD4_F, b, c, d, a, MD4_SET(15), 19)
+    MD4_चरणः(MD4_F, a, b, c, d, MD4_समुच्चयः(0), 3)
+    MD4_चरणः(MD4_F, d, a, b, c, MD4_समुच्चयः(1), 7)
+    MD4_चरणः(MD4_F, c, d, a, b, MD4_समुच्चयः(2), 11)
+    MD4_चरणः(MD4_F, b, c, d, a, MD4_समुच्चयः(3), 19)
+    MD4_चरणः(MD4_F, a, b, c, d, MD4_समुच्चयः(4), 3)
+    MD4_चरणः(MD4_F, d, a, b, c, MD4_समुच्चयः(5), 7)
+    MD4_चरणः(MD4_F, c, d, a, b, MD4_समुच्चयः(6), 11)
+    MD4_चरणः(MD4_F, b, c, d, a, MD4_समुच्चयः(7), 19)
+    MD4_चरणः(MD4_F, a, b, c, d, MD4_समुच्चयः(8), 3)
+    MD4_चरणः(MD4_F, d, a, b, c, MD4_समुच्चयः(9), 7)
+    MD4_चरणः(MD4_F, c, d, a, b, MD4_समुच्चयः(10), 11)
+    MD4_चरणः(MD4_F, b, c, d, a, MD4_समुच्चयः(11), 19)
+    MD4_चरणः(MD4_F, a, b, c, d, MD4_समुच्चयः(12), 3)
+    MD4_चरणः(MD4_F, d, a, b, c, MD4_समुच्चयः(13), 7)
+    MD4_चरणः(MD4_F, c, d, a, b, MD4_समुच्चयः(14), 11)
+    MD4_चरणः(MD4_F, b, c, d, a, MD4_समुच्चयः(15), 19)
 
     /* Round 2 */
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(0) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(4) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(8) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(12) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(1) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(5) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(9) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(13) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(2) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(6) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(10) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(14) + 0x5a827999, 13)
-    MD4_STEP(MD4_G, a, b, c, d, MD4_GET(3) + 0x5a827999, 3)
-    MD4_STEP(MD4_G, d, a, b, c, MD4_GET(7) + 0x5a827999, 5)
-    MD4_STEP(MD4_G, c, d, a, b, MD4_GET(11) + 0x5a827999, 9)
-    MD4_STEP(MD4_G, b, c, d, a, MD4_GET(15) + 0x5a827999, 13)
+    MD4_चरणः(MD4_G, a, b, c, d, MD4_GET(0) + 0x5a827999, 3)
+    MD4_चरणः(MD4_G, d, a, b, c, MD4_GET(4) + 0x5a827999, 5)
+    MD4_चरणः(MD4_G, c, d, a, b, MD4_GET(8) + 0x5a827999, 9)
+    MD4_चरणः(MD4_G, b, c, d, a, MD4_GET(12) + 0x5a827999, 13)
+    MD4_चरणः(MD4_G, a, b, c, d, MD4_GET(1) + 0x5a827999, 3)
+    MD4_चरणः(MD4_G, d, a, b, c, MD4_GET(5) + 0x5a827999, 5)
+    MD4_चरणः(MD4_G, c, d, a, b, MD4_GET(9) + 0x5a827999, 9)
+    MD4_चरणः(MD4_G, b, c, d, a, MD4_GET(13) + 0x5a827999, 13)
+    MD4_चरणः(MD4_G, a, b, c, d, MD4_GET(2) + 0x5a827999, 3)
+    MD4_चरणः(MD4_G, d, a, b, c, MD4_GET(6) + 0x5a827999, 5)
+    MD4_चरणः(MD4_G, c, d, a, b, MD4_GET(10) + 0x5a827999, 9)
+    MD4_चरणः(MD4_G, b, c, d, a, MD4_GET(14) + 0x5a827999, 13)
+    MD4_चरणः(MD4_G, a, b, c, d, MD4_GET(3) + 0x5a827999, 3)
+    MD4_चरणः(MD4_G, d, a, b, c, MD4_GET(7) + 0x5a827999, 5)
+    MD4_चरणः(MD4_G, c, d, a, b, MD4_GET(11) + 0x5a827999, 9)
+    MD4_चरणः(MD4_G, b, c, d, a, MD4_GET(15) + 0x5a827999, 13)
 
     /* Round 3 */
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(0) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(8) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(4) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(12) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(2) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(10) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(6) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(14) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(1) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(9) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(5) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(13) + 0x6ed9eba1, 15)
-    MD4_STEP(MD4_H, a, b, c, d, MD4_GET(3) + 0x6ed9eba1, 3)
-    MD4_STEP(MD4_H, d, a, b, c, MD4_GET(11) + 0x6ed9eba1, 9)
-    MD4_STEP(MD4_H, c, d, a, b, MD4_GET(7) + 0x6ed9eba1, 11)
-    MD4_STEP(MD4_H, b, c, d, a, MD4_GET(15) + 0x6ed9eba1, 15)
+    MD4_चरणः(MD4_H, a, b, c, d, MD4_GET(0) + 0x6ed9eba1, 3)
+    MD4_चरणः(MD4_H, d, a, b, c, MD4_GET(8) + 0x6ed9eba1, 9)
+    MD4_चरणः(MD4_H, c, d, a, b, MD4_GET(4) + 0x6ed9eba1, 11)
+    MD4_चरणः(MD4_H, b, c, d, a, MD4_GET(12) + 0x6ed9eba1, 15)
+    MD4_चरणः(MD4_H, a, b, c, d, MD4_GET(2) + 0x6ed9eba1, 3)
+    MD4_चरणः(MD4_H, d, a, b, c, MD4_GET(10) + 0x6ed9eba1, 9)
+    MD4_चरणः(MD4_H, c, d, a, b, MD4_GET(6) + 0x6ed9eba1, 11)
+    MD4_चरणः(MD4_H, b, c, d, a, MD4_GET(14) + 0x6ed9eba1, 15)
+    MD4_चरणः(MD4_H, a, b, c, d, MD4_GET(1) + 0x6ed9eba1, 3)
+    MD4_चरणः(MD4_H, d, a, b, c, MD4_GET(9) + 0x6ed9eba1, 9)
+    MD4_चरणः(MD4_H, c, d, a, b, MD4_GET(5) + 0x6ed9eba1, 11)
+    MD4_चरणः(MD4_H, b, c, d, a, MD4_GET(13) + 0x6ed9eba1, 15)
+    MD4_चरणः(MD4_H, a, b, c, d, MD4_GET(3) + 0x6ed9eba1, 3)
+    MD4_चरणः(MD4_H, d, a, b, c, MD4_GET(11) + 0x6ed9eba1, 9)
+    MD4_चरणः(MD4_H, c, d, a, b, MD4_GET(7) + 0x6ed9eba1, 11)
+    MD4_चरणः(MD4_H, b, c, d, a, MD4_GET(15) + 0x6ed9eba1, 15)
 
     a += saved_a;
     b += saved_b;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } यावत्(आकार -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  प्रत्यागम ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+स्थिर पूर्णाङ्क my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,75 +379,75 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  प्रत्यागम 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+स्थिर शून्य my_md4_update(my_md4_ctx *ctx,
+                          ध्रुव शून्य *निवेशः, अचिह्नित दीर्घ len)
 {
   uint32_t saved_lo;
-  unsigned long used;
+  अचिह्नित दीर्घ प्रयुक्तम्;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  यदि(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
-  used = saved_lo & 0x3f;
+  प्रयुक्तम् = saved_lo & 0x3f;
 
-  if(used) {
-    unsigned long available = 64 - used;
+  यदि(प्रयुक्तम्) {
+    अचिह्नित दीर्घ उपलब्धम् = 64 - प्रयुक्तम्;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    यदि(len < उपलब्धम्) {
+      स्मृतिं_प्रतिलिख(&ctx->बफर[प्रयुक्तम्], निवेशः, len);
+      प्रत्यागम;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
-    len -= available;
-    my_md4_body(ctx, ctx->buffer, 64);
+    स्मृतिं_प्रतिलिख(&ctx->बफर[प्रयुक्तम्], निवेशः, उपलब्धम्);
+    निवेशः = (ध्रुव अचिह्नित वर्ण *)निवेशः + उपलब्धम्;
+    len -= उपलब्धम्;
+    my_md4_body(ctx, ctx->बफर, 64);
   }
 
-  if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+  यदि(len >= 64) {
+    निवेशः = my_md4_body(ctx, निवेशः, len & ~(अचिह्नित दीर्घ)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  स्मृतिं_प्रतिलिख(ctx->बफर, निवेशः, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+स्थिर शून्य my_md4_final(अचिह्नित वर्ण *digest, my_md4_ctx *ctx)
 {
-  unsigned long used, available;
+  अचिह्नित दीर्घ प्रयुक्तम्, उपलब्धम्;
 
-  used = ctx->lo & 0x3f;
+  प्रयुक्तम् = ctx->lo & 0x3f;
 
-  ctx->buffer[used++] = 0x80;
+  ctx->बफर[प्रयुक्तम्++] = 0x80;
 
-  available = 64 - used;
+  उपलब्धम् = 64 - प्रयुक्तम्;
 
-  if(available < 8) {
-    memset(&ctx->buffer[used], 0, available);
-    my_md4_body(ctx, ctx->buffer, 64);
-    used = 0;
-    available = 64;
+  यदि(उपलब्धम् < 8) {
+    स्मृतिं_पूरय(&ctx->बफर[प्रयुक्तम्], 0, उपलब्धम्);
+    my_md4_body(ctx, ctx->बफर, 64);
+    प्रयुक्तम् = 0;
+    उपलब्धम् = 64;
   }
 
-  memset(&ctx->buffer[used], 0, available - 8);
+  स्मृतिं_पूरय(&ctx->बफर[प्रयुक्तम्], 0, उपलब्धम् - 8);
 
   ctx->lo <<= 3;
-  ctx->buffer[56] = curlx_ultouc((ctx->lo) & 0xff);
-  ctx->buffer[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
-  ctx->buffer[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
-  ctx->buffer[59] = curlx_ultouc((ctx->lo >> 24) & 0xff);
-  ctx->buffer[60] = curlx_ultouc((ctx->hi) & 0xff);
-  ctx->buffer[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
-  ctx->buffer[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
-  ctx->buffer[63] = curlx_ultouc(ctx->hi >> 24);
+  ctx->बफर[56] = curlx_ultouc((ctx->lo) & 0xff);
+  ctx->बफर[57] = curlx_ultouc((ctx->lo >> 8) & 0xff);
+  ctx->बफर[58] = curlx_ultouc((ctx->lo >> 16) & 0xff);
+  ctx->बफर[59] = curlx_ultouc((ctx->lo >> 24) & 0xff);
+  ctx->बफर[60] = curlx_ultouc((ctx->hi) & 0xff);
+  ctx->बफर[61] = curlx_ultouc((ctx->hi >> 8) & 0xff);
+  ctx->बफर[62] = curlx_ultouc((ctx->hi >> 16) & 0xff);
+  ctx->बफर[63] = curlx_ultouc(ctx->hi >> 24);
 
-  my_md4_body(ctx, ctx->buffer, 64);
+  my_md4_body(ctx, ctx->बफर, 64);
 
   digest[0] = curlx_ultouc((ctx->a) & 0xff);
   digest[1] = curlx_ultouc((ctx->a >> 8) & 0xff);
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  स्मृतिं_पूरय(ctx, 0, परिमाण(*ctx));
 }
 
-#endif /* CRYPTO LIBS */
+#यदि_अन्तः /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(अचिह्नित वर्ण *output,
+                    ध्रुव अचिह्नित वर्ण *निवेशः, ध्रुव size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  यदि(!my_md4_init(&ctx))
+    प्रत्यागम CURLE_FAILED_INIT;
+  my_md4_update(&ctx, निवेशः, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
-#endif /* USE_CURL_NTLM_CORE */
+#यदि_अन्तः /* USE_CURL_NTLM_CORE */

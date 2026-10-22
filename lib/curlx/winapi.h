@@ -1,5 +1,5 @@
-#ifndef HEADER_CURLX_WINAPI_H
-#define HEADER_CURLX_WINAPI_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURLX_WINAPI_H
+#परिभाषय शीर्षकम्_CURLX_WINAPI_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,11 +24,11 @@
  *
  ***************************************************************************/
 
-#ifdef _WIN32
-#define WINAPI_ERROR_LEN 100
-const char *curlx_get_winapi_error(DWORD err, char *buf, size_t buflen);
-const char *curlx_winapi_strerror(DWORD err, char *buf, size_t buflen);
-CURLcode curlx_win32_random(unsigned char *entropy, size_t length);
-#endif
+#यदि_परिभाषितम् _WIN32
+#परिभाषय WINAPI_ERROR_LEN 100
+ध्रुव वर्ण *curlx_get_winapi_error(DWORD err, वर्ण *buf, size_t buflen);
+ध्रुव वर्ण *curlx_winapi_strerror(DWORD err, वर्ण *buf, size_t buflen);
+CURLcode curlx_win32_random(अचिह्नित वर्ण *entropy, size_t दीर्घता);
+#यदि_अन्तः
 
-#endif /* HEADER_CURLX_WINAPI_H */
+#यदि_अन्तः /* HEADER_CURLX_WINAPI_H */

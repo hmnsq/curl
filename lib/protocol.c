@@ -21,594 +21,594 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "protocol.h"
-#include "strcase.h"
+#अन्तर्भाव "protocol.h"
+#अन्तर्भाव "strcase.h"
 
-#include "dict.h"
-#include "file.h"
-#include "ftp.h"
-#include "gopher.h"
-#include "http.h"
-#include "imap.h"
-#include "curl_ldap.h"
-#include "mqtt.h"
-#include "pop3.h"
-#include "rtsp.h"
-#include "smtp.h"
-#include "telnet.h"
-#include "tftp.h"
-#include "ws.h"
-#include "vssh/ssh.h"
+#अन्तर्भाव "dict.h"
+#अन्तर्भाव "file.h"
+#अन्तर्भाव "ftp.h"
+#अन्तर्भाव "gopher.h"
+#अन्तर्भाव "http.h"
+#अन्तर्भाव "imap.h"
+#अन्तर्भाव "curl_ldap.h"
+#अन्तर्भाव "mqtt.h"
+#अन्तर्भाव "pop3.h"
+#अन्तर्भाव "rtsp.h"
+#अन्तर्भाव "smtp.h"
+#अन्तर्भाव "telnet.h"
+#अन्तर्भाव "tftp.h"
+#अन्तर्भाव "ws.h"
+#अन्तर्भाव "vssh/ssh.h"
 
 
 /* All URI schemes known to libcurl, but not necessarily implemented
  * by protocol handlers. */
-const struct Curl_scheme Curl_scheme_dict = {
+ध्रुव संरचना Curl_scheme Curl_scheme_dict = {
   "dict",                               /* scheme */
-#ifdef CURL_DISABLE_DICT
+#यदि_परिभाषितम् CURL_DISABLE_DICT
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_dict,
-#endif
+#यदि_अन्तः
   CURLPROTO_DICT,                       /* protocol */
   CURLPROTO_DICT,                       /* family */
   PROTOPT_NONE | PROTOPT_NOURLQUERY,    /* flags */
-  PORT_DICT,                            /* defport */
+  पत्तनम्_DICT,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_file = {
+ध्रुव संरचना Curl_scheme Curl_scheme_file = {
   "file",                               /* scheme */
-#ifdef CURL_DISABLE_FILE
+#यदि_परिभाषितम् CURL_DISABLE_FILE
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_file,
-#endif
+#यदि_अन्तः
   CURLPROTO_FILE,                       /* protocol */
   CURLPROTO_FILE,                       /* family */
   PROTOPT_NONETWORK | PROTOPT_NOURLQUERY, /* flags */
   0                                     /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ftp = {
+ध्रुव संरचना Curl_scheme Curl_scheme_ftp = {
   "ftp",                           /* scheme */
-#ifdef CURL_DISABLE_FTP
+#यदि_परिभाषितम् CURL_DISABLE_FTP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_ftp,
-#endif
+#यदि_अन्तः
   CURLPROTO_FTP,                   /* protocol */
   CURLPROTO_FTP,                   /* family */
   PROTOPT_DUAL | PROTOPT_CLOSEACTION | PROTOPT_NEEDSPWD |
   PROTOPT_NOURLQUERY | PROTOPT_PROXY_AS_HTTP |
   PROTOPT_WILDCARD | PROTOPT_SSL_REUSE |
   PROTOPT_CONN_REUSE, /* flags */
-  PORT_FTP,                        /* defport */
+  पत्तनम्_FTP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ftps = {
+ध्रुव संरचना Curl_scheme Curl_scheme_ftps = {
   "ftps",                          /* scheme */
-#if defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_FTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_ftp,
-#endif
+#यदि_अन्तः
   CURLPROTO_FTPS,                  /* protocol */
   CURLPROTO_FTP,                   /* family */
   PROTOPT_SSL | PROTOPT_DUAL | PROTOPT_CLOSEACTION |
   PROTOPT_NEEDSPWD | PROTOPT_NOURLQUERY | PROTOPT_WILDCARD |
   PROTOPT_CONN_REUSE, /* flags */
-  PORT_FTPS,                       /* defport */
+  पत्तनम्_FTPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_gopher = {
+ध्रुव संरचना Curl_scheme Curl_scheme_gopher = {
   "gopher",                             /* scheme */
-#ifdef CURL_DISABLE_GOPHER
+#यदि_परिभाषितम् CURL_DISABLE_GOPHER
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_gopher,
-#endif
+#यदि_अन्तः
   CURLPROTO_GOPHER,                     /* protocol */
   CURLPROTO_GOPHER,                     /* family */
   PROTOPT_NONE,                         /* flags */
-  PORT_GOPHER,                          /* defport */
+  पत्तनम्_GOPHER,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_gophers = {
+ध्रुव संरचना Curl_scheme Curl_scheme_gophers = {
   "gophers",                            /* scheme */
-#if defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_GOPHER) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_gophers,
-#endif
+#यदि_अन्तः
   CURLPROTO_GOPHERS,                    /* protocol */
   CURLPROTO_GOPHER,                     /* family */
   PROTOPT_SSL,                          /* flags */
-  PORT_GOPHER,                          /* defport */
+  पत्तनम्_GOPHER,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_http = {
+ध्रुव संरचना Curl_scheme Curl_scheme_http = {
   "http",                               /* scheme */
-#ifdef CURL_DISABLE_HTTP
+#यदि_परिभाषितम् CURL_DISABLE_HTTP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_http,
-#endif
+#यदि_अन्तः
   CURLPROTO_HTTP,                       /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_CREDSPERREQUEST |             /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_CONN_REUSE,
-  PORT_HTTP,                            /* defport */
+  पत्तनम्_HTTP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_https = {
+ध्रुव संरचना Curl_scheme Curl_scheme_https = {
   "https",                              /* scheme */
-#if defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_HTTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_http,
-#endif
+#यदि_अन्तः
   CURLPROTO_HTTPS,                      /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_SSL | PROTOPT_CREDSPERREQUEST | PROTOPT_ALPN | /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_CONN_REUSE |
   PROTOPT_HTTP_PROXY_TUNNEL,
-  PORT_HTTPS,                           /* defport */
+  पत्तनम्_HTTPS,                           /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_imap = {
+ध्रुव संरचना Curl_scheme Curl_scheme_imap = {
   "imap",                           /* scheme */
-#ifdef CURL_DISABLE_IMAP
+#यदि_परिभाषितम् CURL_DISABLE_IMAP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_imap,
-#endif
+#यदि_अन्तः
   CURLPROTO_IMAP,                   /* protocol */
   CURLPROTO_IMAP,                   /* family */
   PROTOPT_CLOSEACTION |             /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_SSL_REUSE |
   PROTOPT_CONN_REUSE,
-  PORT_IMAP,                        /* defport */
+  पत्तनम्_IMAP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_imaps = {
+ध्रुव संरचना Curl_scheme Curl_scheme_imaps = {
   "imaps",                          /* scheme */
-#if defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_IMAP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_imap,
-#endif
+#यदि_अन्तः
   CURLPROTO_IMAPS,                  /* protocol */
   CURLPROTO_IMAP,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_SSL | /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_CONN_REUSE,
-  PORT_IMAPS,                       /* defport */
+  पत्तनम्_IMAPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ldap = {
+ध्रुव संरचना Curl_scheme Curl_scheme_ldap = {
   "ldap",                               /* scheme */
-#ifdef CURL_DISABLE_LDAP
+#यदि_परिभाषितम् CURL_DISABLE_LDAP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_ldap,
-#endif
+#यदि_अन्तः
   CURLPROTO_LDAP,                       /* protocol */
   CURLPROTO_LDAP,                       /* family */
   PROTOPT_SSL_REUSE,                    /* flags */
-  PORT_LDAP,                            /* defport */
+  पत्तनम्_LDAP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ldaps = {
+ध्रुव संरचना Curl_scheme Curl_scheme_ldaps = {
   "ldaps",                              /* scheme */
-#if defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
+#यदि defined(CURL_DISABLE_LDAP) || !defined(HAVE_LDAP_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_ldap,
-#endif
+#यदि_अन्तः
   CURLPROTO_LDAPS,                      /* protocol */
   CURLPROTO_LDAP,                       /* family */
   PROTOPT_SSL,                          /* flags */
-  PORT_LDAPS,                           /* defport */
+  पत्तनम्_LDAPS,                           /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_mqtt = {
+ध्रुव संरचना Curl_scheme Curl_scheme_mqtt = {
   "mqtt",                             /* scheme */
-#ifdef CURL_DISABLE_MQTT
+#यदि_परिभाषितम् CURL_DISABLE_MQTT
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_mqtt,
-#endif
+#यदि_अन्तः
   CURLPROTO_MQTT,                     /* protocol */
   CURLPROTO_MQTT,                     /* family */
   PROTOPT_NONE,                       /* flags */
-  PORT_MQTT,                          /* defport */
+  पत्तनम्_MQTT,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_mqtts = {
+ध्रुव संरचना Curl_scheme Curl_scheme_mqtts = {
   "mqtts",                            /* scheme */
-#if defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_MQTT) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_mqtts,
-#endif
+#यदि_अन्तः
   CURLPROTO_MQTTS,                    /* protocol */
   CURLPROTO_MQTT,                     /* family */
   PROTOPT_SSL,                        /* flags */
-  PORT_MQTTS,                         /* defport */
+  पत्तनम्_MQTTS,                         /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_pop3 = {
+ध्रुव संरचना Curl_scheme Curl_scheme_pop3 = {
   "pop3",                           /* scheme */
-#ifdef CURL_DISABLE_POP3
+#यदि_परिभाषितम् CURL_DISABLE_POP3
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_pop3,
-#endif
+#यदि_अन्तः
   CURLPROTO_POP3,                   /* protocol */
   CURLPROTO_POP3,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY | /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_SSL_REUSE | PROTOPT_CONN_REUSE,
-  PORT_POP3,                        /* defport */
+  पत्तनम्_POP3,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_pop3s = {
+ध्रुव संरचना Curl_scheme Curl_scheme_pop3s = {
   "pop3s",                          /* scheme */
-#if defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_POP3) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_pop3,
-#endif
+#यदि_अन्तः
   CURLPROTO_POP3S,                  /* protocol */
   CURLPROTO_POP3,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_SSL | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_URLOPTIONS | PROTOPT_CONN_REUSE,
-  PORT_POP3S,                       /* defport */
+  पत्तनम्_POP3_S,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_rtsp = {
+ध्रुव संरचना Curl_scheme Curl_scheme_rtsp = {
   "rtsp",                               /* scheme */
-#ifdef CURL_DISABLE_RTSP
+#यदि_परिभाषितम् CURL_DISABLE_RTSP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_rtsp,
-#endif
+#यदि_अन्तः
   CURLPROTO_RTSP,                       /* protocol */
   CURLPROTO_RTSP,                       /* family */
   PROTOPT_CONN_REUSE,                   /* flags */
-  PORT_RTSP,                            /* defport */
+  पत्तनम्_RTSP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_sftp = {
+ध्रुव संरचना Curl_scheme Curl_scheme_sftp = {
   "sftp",                               /* scheme */
-#ifndef USE_SSH
-  NULL,
-#else
+#यदि_अपरिभाषितम् USE_SSH
+  रिक्त,
+#अन्यथा
   &Curl_protocol_sftp,
-#endif
+#यदि_अन्तः
   CURLPROTO_SFTP,                       /* protocol */
   CURLPROTO_SFTP,                       /* family */
   PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_CONN_REUSE,
-  PORT_SSH                              /* defport */
+  पत्तनम्_SSH                              /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_scp = {
+ध्रुव संरचना Curl_scheme Curl_scheme_scp = {
   "scp",                                /* scheme */
-#ifndef USE_SSH
-  NULL,
-#else
+#यदि_अपरिभाषितम् USE_SSH
+  रिक्त,
+#अन्यथा
   &Curl_protocol_scp,
-#endif
+#यदि_अन्तः
   CURLPROTO_SCP,                        /* protocol */
   CURLPROTO_SCP,                        /* family */
   PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_CONN_REUSE,
-  PORT_SSH,                             /* defport */
+  पत्तनम्_SSH,                             /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_smtp = {
+ध्रुव संरचना Curl_scheme Curl_scheme_smtp = {
   "smtp",                           /* scheme */
-#ifdef CURL_DISABLE_SMTP
+#यदि_परिभाषितम् CURL_DISABLE_SMTP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_smtp,
-#endif
+#यदि_अन्तः
   CURLPROTO_SMTP,                   /* protocol */
   CURLPROTO_SMTP,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY | /* flags */
   PROTOPT_URLOPTIONS | PROTOPT_SSL_REUSE | PROTOPT_CONN_REUSE,
-  PORT_SMTP,                        /* defport */
+  पत्तनम्_SMTP,                        /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_smtps = {
+ध्रुव संरचना Curl_scheme Curl_scheme_smtps = {
   "smtps",                          /* scheme */
-#if defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
+#यदि defined(CURL_DISABLE_SMTP) || !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_smtp,
-#endif
+#यदि_अन्तः
   CURLPROTO_SMTPS,                  /* protocol */
   CURLPROTO_SMTP,                   /* family */
   PROTOPT_CLOSEACTION | PROTOPT_SSL | /* flags */
   PROTOPT_NOURLQUERY | PROTOPT_URLOPTIONS | PROTOPT_CONN_REUSE,
-  PORT_SMTPS,                       /* defport */
+  पत्तनम्_SMTPS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks = {
+ध्रुव संरचना Curl_scheme Curl_scheme_socks = {
   "socks",                          /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  पत्तनम्_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks4 = {
+ध्रुव संरचना Curl_scheme Curl_scheme_socks4 = {
   "socks4",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  पत्तनम्_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks4a = {
+ध्रुव संरचना Curl_scheme Curl_scheme_socks4a = {
   "socks4a",                        /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  पत्तनम्_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks5 = {
+ध्रुव संरचना Curl_scheme Curl_scheme_socks5 = {
   "socks5",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  पत्तनम्_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_socks5h = {
+ध्रुव संरचना Curl_scheme Curl_scheme_socks5h = {
   "socks5h",                         /* scheme */
   ZERO_NULL,
   CURLPROTO_SOCKS,                  /* protocol */
   CURLPROTO_SOCKS,                  /* family */
   PROTOPT_NO_TRANSFER,              /* flags */
-  PORT_SOCKS,                       /* defport */
+  पत्तनम्_SOCKS,                       /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_telnet = {
+ध्रुव संरचना Curl_scheme Curl_scheme_telnet = {
   "telnet",                             /* scheme */
-#ifdef CURL_DISABLE_TELNET
+#यदि_परिभाषितम् CURL_DISABLE_TELNET
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_telnet,
-#endif
+#यदि_अन्तः
   CURLPROTO_TELNET,                     /* protocol */
   CURLPROTO_TELNET,                     /* family */
   PROTOPT_NONE | PROTOPT_NOURLQUERY,    /* flags */
-  PORT_TELNET,                          /* defport */
+  पत्तनम्_TELNET,                          /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_tftp = {
+ध्रुव संरचना Curl_scheme Curl_scheme_tftp = {
   "tftp",                               /* scheme */
-#ifdef CURL_DISABLE_TFTP
+#यदि_परिभाषितम् CURL_DISABLE_TFTP
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_tftp,
-#endif
+#यदि_अन्तः
   CURLPROTO_TFTP,                       /* protocol */
   CURLPROTO_TFTP,                       /* family */
   PROTOPT_NOTCPPROXY | PROTOPT_NOURLQUERY, /* flags */
-  PORT_TFTP,                            /* defport */
+  पत्तनम्_TFTP,                            /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_ws = {
+ध्रुव संरचना Curl_scheme Curl_scheme_ws = {
   "ws",                                 /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
+#यदि defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_ws,
-#endif
+#यदि_अन्तः
   CURLPROTO_WS,                         /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_CREDSPERREQUEST |             /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_HTTP_PROXY_TUNNEL,
-  PORT_HTTP                             /* defport */
+  पत्तनम्_HTTP                             /* defport */
 };
 
-const struct Curl_scheme Curl_scheme_wss = {
+ध्रुव संरचना Curl_scheme Curl_scheme_wss = {
   "wss",                                /* scheme */
-#if defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
+#यदि defined(CURL_DISABLE_WEBSOCKETS) || defined(CURL_DISABLE_HTTP) || \
   !defined(USE_SSL)
   ZERO_NULL,
-#else
+#अन्यथा
   &Curl_protocol_ws,
-#endif
+#यदि_अन्तः
   CURLPROTO_WSS,                        /* protocol */
   CURLPROTO_HTTP,                       /* family */
   PROTOPT_SSL | PROTOPT_CREDSPERREQUEST | /* flags */
   PROTOPT_USERPWDCTRL | PROTOPT_HTTP_PROXY_TUNNEL,
-  PORT_HTTPS                            /* defport */
+  पत्तनम्_HTTPS                            /* defport */
 };
 
-static const struct Curl_scheme *two_letter_scheme(const char *scheme)
+स्थिर ध्रुव संरचना Curl_scheme *two_letter_scheme(ध्रुव वर्ण *scheme)
 {
-  if((Curl_raw_tolower(scheme[0]) == 'w') &&
+  यदि((Curl_raw_tolower(scheme[0]) == 'w') &&
      (Curl_raw_tolower(scheme[1]) == 's'))
-    return &Curl_scheme_ws;
-  return NULL;
+    प्रत्यागम &Curl_scheme_ws;
+  प्रत्यागम रिक्त;
 }
 
-static const struct Curl_scheme *three_letter_scheme(const char *scheme)
+स्थिर ध्रुव संरचना Curl_scheme *three_letter_scheme(ध्रुव वर्ण *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  char s1 = Curl_raw_tolower(scheme[1]);
-  char s2 = Curl_raw_tolower(scheme[2]);
-  if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p')
-      return &Curl_scheme_ftp;
+  वर्ण s0 = Curl_raw_tolower(scheme[0]);
+  वर्ण s1 = Curl_raw_tolower(scheme[1]);
+  वर्ण s2 = Curl_raw_tolower(scheme[2]);
+  यदि(s0 == 'f') {
+    यदि(s1 == 't' && s2 == 'p')
+      प्रत्यागम &Curl_scheme_ftp;
   }
-  else if(s0 == 'w') {
-    if(s1 == 's' && s2 == 's')
-      return &Curl_scheme_wss;
+  अन्यथा यदि(s0 == 'w') {
+    यदि(s1 == 's' && s2 == 's')
+      प्रत्यागम &Curl_scheme_wss;
   }
-  else if(s0 == 's') {
-    if(s1 == 'c' && s2 == 'p')
-      return &Curl_scheme_scp;
+  अन्यथा यदि(s0 == 's') {
+    यदि(s1 == 'c' && s2 == 'p')
+      प्रत्यागम &Curl_scheme_scp;
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-static const struct Curl_scheme *four_letter_scheme(const char *scheme)
+स्थिर ध्रुव संरचना Curl_scheme *four_letter_scheme(ध्रुव वर्ण *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  char s1 = Curl_raw_tolower(scheme[1]);
-  char s2 = Curl_raw_tolower(scheme[2]);
-  char s3 = Curl_raw_tolower(scheme[3]);
-  if(s3 == 'p') {
-    if(s0 == 'h') {
-      if(s1 == 't' && s2 == 't')
-        return &Curl_scheme_http;
+  वर्ण s0 = Curl_raw_tolower(scheme[0]);
+  वर्ण s1 = Curl_raw_tolower(scheme[1]);
+  वर्ण s2 = Curl_raw_tolower(scheme[2]);
+  वर्ण s3 = Curl_raw_tolower(scheme[3]);
+  यदि(s3 == 'p') {
+    यदि(s0 == 'h') {
+      यदि(s1 == 't' && s2 == 't')
+        प्रत्यागम &Curl_scheme_http;
     }
-    else if(s0 == 'i') {
-      if(s1 == 'm' && s2 == 'a')
-        return &Curl_scheme_imap;
+    अन्यथा यदि(s0 == 'i') {
+      यदि(s1 == 'm' && s2 == 'a')
+        प्रत्यागम &Curl_scheme_imap;
     }
-    else if(s0 == 'l') {
-      if(s1 == 'd' && s2 == 'a')
-        return &Curl_scheme_ldap;
+    अन्यथा यदि(s0 == 'l') {
+      यदि(s1 == 'd' && s2 == 'a')
+        प्रत्यागम &Curl_scheme_ldap;
     }
-    else if(s0 == 'r') {
-      if(s1 == 't' && s2 == 's')
-        return &Curl_scheme_rtsp;
+    अन्यथा यदि(s0 == 'r') {
+      यदि(s1 == 't' && s2 == 's')
+        प्रत्यागम &Curl_scheme_rtsp;
     }
-    else if(s0 == 't') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_tftp;
+    अन्यथा यदि(s0 == 't') {
+      यदि(s1 == 'f' && s2 == 't')
+        प्रत्यागम &Curl_scheme_tftp;
     }
-    else if(s0 == 's') {
-      if(s1 == 'f' && s2 == 't')
-        return &Curl_scheme_sftp;
-      if(s1 == 'm' && s2 == 't')
-        return &Curl_scheme_smtp;
+    अन्यथा यदि(s0 == 's') {
+      यदि(s1 == 'f' && s2 == 't')
+        प्रत्यागम &Curl_scheme_sftp;
+      यदि(s1 == 'm' && s2 == 't')
+        प्रत्यागम &Curl_scheme_smtp;
     }
   }
-  else if(s0 == 'f') {
-    if(s1 == 't' && s2 == 'p' && s3 == 's')
-      return &Curl_scheme_ftps;
-    if(s1 == 'i' && s2 == 'l' && s3 == 'e')
-      return &Curl_scheme_file;
+  अन्यथा यदि(s0 == 'f') {
+    यदि(s1 == 't' && s2 == 'p' && s3 == 's')
+      प्रत्यागम &Curl_scheme_ftps;
+    यदि(s1 == 'i' && s2 == 'l' && s3 == 'e')
+      प्रत्यागम &Curl_scheme_file;
   }
-  else if(s0 == 'm') {
-    if(s1 == 'q' && s2 == 't' && s3 == 't')
-      return &Curl_scheme_mqtt;
+  अन्यथा यदि(s0 == 'm') {
+    यदि(s1 == 'q' && s2 == 't' && s3 == 't')
+      प्रत्यागम &Curl_scheme_mqtt;
   }
-  else if(s0 == 'p') {
-    if(s1 == 'o' && s2 == 'p' && s3 == '3')
-      return &Curl_scheme_pop3;
+  अन्यथा यदि(s0 == 'p') {
+    यदि(s1 == 'o' && s2 == 'p' && s3 == '3')
+      प्रत्यागम &Curl_scheme_pop3;
   }
-  else if(s0 == 'd') {
-    if(s1 == 'i' && s2 == 'c' && s3 == 't')
-      return &Curl_scheme_dict;
+  अन्यथा यदि(s0 == 'd') {
+    यदि(s1 == 'i' && s2 == 'c' && s3 == 't')
+      प्रत्यागम &Curl_scheme_dict;
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-static const struct Curl_scheme *five_letter_scheme(const char *scheme)
+स्थिर ध्रुव संरचना Curl_scheme *five_letter_scheme(ध्रुव वर्ण *scheme)
 {
-  char s4 = Curl_raw_tolower(scheme[4]);
-  if(s4 == 's') {
-    char s0 = Curl_raw_tolower(scheme[0]);
-    char s1 = Curl_raw_tolower(scheme[1]);
-    char s2 = Curl_raw_tolower(scheme[2]);
-    char s3 = Curl_raw_tolower(scheme[3]);
-    if(s3 == 'p') {
-      switch(s0) {
-      case 'h':
-        if(s1 == 't' && s2 == 't')
-          return &Curl_scheme_https;
-        break;
-      case 'l':
-        if(s1 == 'd' && s2 == 'a')
-          return &Curl_scheme_ldaps;
-        break;
-      case 'i':
-        if(s1 == 'm' && s2 == 'a')
-          return &Curl_scheme_imaps;
-        break;
-      case 's':
-        if(s1 == 'm' && s2 == 't')
-          return &Curl_scheme_smtps;
-        break;
-      default:
-        break;
+  वर्ण s4 = Curl_raw_tolower(scheme[4]);
+  यदि(s4 == 's') {
+    वर्ण s0 = Curl_raw_tolower(scheme[0]);
+    वर्ण s1 = Curl_raw_tolower(scheme[1]);
+    वर्ण s2 = Curl_raw_tolower(scheme[2]);
+    वर्ण s3 = Curl_raw_tolower(scheme[3]);
+    यदि(s3 == 'p') {
+      विकल्प(s0) {
+      पक्ष 'h':
+        यदि(s1 == 't' && s2 == 't')
+          प्रत्यागम &Curl_scheme_https;
+        भङ्ग;
+      पक्ष 'l':
+        यदि(s1 == 'd' && s2 == 'a')
+          प्रत्यागम &Curl_scheme_ldaps;
+        भङ्ग;
+      पक्ष 'i':
+        यदि(s1 == 'm' && s2 == 'a')
+          प्रत्यागम &Curl_scheme_imaps;
+        भङ्ग;
+      पक्ष 's':
+        यदि(s1 == 'm' && s2 == 't')
+          प्रत्यागम &Curl_scheme_smtps;
+        भङ्ग;
+      स्वभाव:
+        भङ्ग;
       }
     }
-    else if(s0 == 'p') {
-      if(s1 == 'o' && s2 == 'p' && s3 == '3')
-        return &Curl_scheme_pop3s;
+    अन्यथा यदि(s0 == 'p') {
+      यदि(s1 == 'o' && s2 == 'p' && s3 == '3')
+        प्रत्यागम &Curl_scheme_pop3s;
     }
-    else if(s0 == 'm') {
-      if(s1 == 'q' && s2 == 't' && s3 == 't')
-        return &Curl_scheme_mqtts;
+    अन्यथा यदि(s0 == 'm') {
+      यदि(s1 == 'q' && s2 == 't' && s3 == 't')
+        प्रत्यागम &Curl_scheme_mqtts;
     }
-    else if(s0 == 's') {
-      if(s1 == 'o' && s2 == 'c' && s3 == 'k')
-        return &Curl_scheme_socks;
+    अन्यथा यदि(s0 == 's') {
+      यदि(s1 == 'o' && s2 == 'c' && s3 == 'k')
+        प्रत्यागम &Curl_scheme_socks;
     }
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-static const struct Curl_scheme *six_letter_scheme(const char *scheme)
+स्थिर ध्रुव संरचना Curl_scheme *six_letter_scheme(ध्रुव वर्ण *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  switch(s0) {
-  case 's':
-    if(curl_strnequal("ocks4", &scheme[1], 5))
-      return &Curl_scheme_socks4;
-    if(curl_strnequal("ocks5", &scheme[1], 5))
-      return &Curl_scheme_socks5;
-    break;
-  case 'g':
-    if(curl_strnequal("opher", &scheme[1], 5))
-      return &Curl_scheme_gopher;
-    break;
-  case 't':
-    if(curl_strnequal("elnet", &scheme[1], 5))
-      return &Curl_scheme_telnet;
-    break;
+  वर्ण s0 = Curl_raw_tolower(scheme[0]);
+  विकल्प(s0) {
+  पक्ष 's':
+    यदि(curl_strnequal("ocks4", &scheme[1], 5))
+      प्रत्यागम &Curl_scheme_socks4;
+    यदि(curl_strnequal("ocks5", &scheme[1], 5))
+      प्रत्यागम &Curl_scheme_socks5;
+    भङ्ग;
+  पक्ष 'g':
+    यदि(curl_strnequal("opher", &scheme[1], 5))
+      प्रत्यागम &Curl_scheme_gopher;
+    भङ्ग;
+  पक्ष 't':
+    यदि(curl_strnequal("elnet", &scheme[1], 5))
+      प्रत्यागम &Curl_scheme_telnet;
+    भङ्ग;
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-static const struct Curl_scheme *seven_letter_scheme(const char *scheme)
+स्थिर ध्रुव संरचना Curl_scheme *seven_letter_scheme(ध्रुव वर्ण *scheme)
 {
-  char s0 = Curl_raw_tolower(scheme[0]);
-  if(s0 == 's') {
-    if(curl_strnequal("ocks4a", &scheme[1], 6))
-      return &Curl_scheme_socks4a;
-    if(curl_strnequal("ocks5h", &scheme[1], 6))
-      return &Curl_scheme_socks5h;
+  वर्ण s0 = Curl_raw_tolower(scheme[0]);
+  यदि(s0 == 's') {
+    यदि(curl_strnequal("ocks4a", &scheme[1], 6))
+      प्रत्यागम &Curl_scheme_socks4a;
+    यदि(curl_strnequal("ocks5h", &scheme[1], 6))
+      प्रत्यागम &Curl_scheme_socks5h;
   }
-  else if(s0 == 'g') {
-    if(curl_strnequal("ophers", &scheme[1], 6))
-      return &Curl_scheme_gophers;
+  अन्यथा यदि(s0 == 'g') {
+    यदि(curl_strnequal("ophers", &scheme[1], 6))
+      प्रत्यागम &Curl_scheme_gophers;
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
 /* Returns a struct scheme pointer if the name is a known scheme. Check the
    ->run struct field for non-NULL to figure out if an implementation is
    present. */
-const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
+ध्रुव संरचना Curl_scheme *Curl_getn_scheme(ध्रुव वर्ण *scheme, size_t len)
 {
-  typedef const struct Curl_scheme *(*letterfunc)(const char *ptr);
-  static const letterfunc parse[] = {
+  प्रकारनिर्देश ध्रुव संरचना Curl_scheme *(*letterfunc)(ध्रुव वर्ण *ptr);
+  स्थिर ध्रुव letterfunc parse[] = {
     two_letter_scheme,
     three_letter_scheme,
     four_letter_scheme,
@@ -617,13 +617,13 @@ const struct Curl_scheme *Curl_getn_scheme(const char *scheme, size_t len)
     seven_letter_scheme
   };
 
-  if(len < 2 || len > 7)
-    return NULL;
+  यदि(len < 2 || len > 7)
+    प्रत्यागम रिक्त;
 
-  return parse[len - 2](scheme);
+  प्रत्यागम parse[len - 2](scheme);
 }
 
-const struct Curl_scheme *Curl_get_scheme(const char *scheme)
+ध्रुव संरचना Curl_scheme *Curl_get_scheme(ध्रुव वर्ण *scheme)
 {
-  return Curl_getn_scheme(scheme, strlen(scheme));
+  प्रत्यागम Curl_getn_scheme(scheme, वाक्यदैर्घ्यम्(scheme));
 }

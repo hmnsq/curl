@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_HTTP2_H
-#define HEADER_CURL_HTTP2_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_HTTP2_H
+#परिभाषय शीर्षकम्_CURL_HTTP2_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef USE_NGHTTP2
+#यदि_परिभाषितम् USE_NGHTTP2
 
 /* value for MAX_CONCURRENT_STREAMS we use until we get an updated setting
    from the peer */
-#define DEFAULT_MAX_CONCURRENT_STREAMS 100
+#परिभाषय DEFAULT_MAX_CONCURRENT_STREAMS 100
 
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len);
+शून्य Curl_http2_ver(वर्ण *p, size_t len);
 
-#ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+#यदि_परिभाषितम् CURLVERBOSE
+पूर्णाङ्क Curl_nghttp2_fr_print(ध्रुव nghttp2_frame *frame, वर्ण *बफर,
                           size_t blen);
-#endif
+#यदि_अन्तः
 
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data);
+CURLcode Curl_http2_request_upgrade(संरचना dynbuf *req,
+                                    संरचना Curl_easy *दत्त);
 
 /* returns true if the HTTP/2 stream error was HTTP_1_1_REQUIRED */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data);
+bool Curl_h2_http_1_1_error(संरचना Curl_easy *दत्त);
 
-bool Curl_http2_may_switch(struct Curl_easy *data);
+bool Curl_http2_may_switch(संरचना Curl_easy *दत्त);
 
-CURLcode Curl_http2_switch(struct Curl_easy *data);
+CURLcode Curl_http2_switch(संरचना Curl_easy *दत्त);
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_http2_switch_at(संरचना Curl_cfilter *cf, संरचना Curl_easy *दत्त);
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread);
+CURLcode Curl_http2_upgrade(संरचना Curl_easy *दत्त,
+                            संरचना connectdata *conn, int8_t sockindex,
+                            ध्रुव वर्ण *mem, size_t nread);
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data);
-void Curl_nghttp2_free(void *ptr, void *user_data);
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data);
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data);
+शून्य *Curl_nghttp2_malloc(size_t आकार, शून्य *user_दत्त);
+शून्य Curl_nghttp2_free(शून्य *ptr, शून्य *user_दत्त);
+शून्य *Curl_nghttp2_calloc(size_t nmemb, size_t आकार, शून्य *user_दत्त);
+शून्य *Curl_nghttp2_realloc(शून्य *ptr, size_t आकार, शून्य *user_दत्त);
 
-extern struct Curl_cftype Curl_cft_nghttp2;
+बाह्य संरचना Curl_cftype Curl_cft_nghttp2;
 
-#else /* USE_NGHTTP2 */
+#अन्यथा /* USE_NGHTTP2 */
 
-#define Curl_http2_may_switch(a) FALSE
+#परिभाषय Curl_http2_may_switch(a) FALSE
 
-#define Curl_http2_request_upgrade(x, y)  CURLE_UNSUPPORTED_PROTOCOL
-#define Curl_http2_switch(a)              CURLE_UNSUPPORTED_PROTOCOL
-#define Curl_h2_http_1_1_error(x)         0
-#endif
+#परिभाषय Curl_http2_request_upgrade(x, y)  CURLE_UNSUPPORTED_PROTOCOL
+#परिभाषय Curl_http2_switch(a)              CURLE_UNSUPPORTED_PROTOCOL
+#परिभाषय Curl_h2_http_1_1_error(x)         0
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_HTTP2_H */
+#यदि_अन्तः /* HEADER_CURL_HTTP2_H */

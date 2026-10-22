@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CAPSULE_H
-#define HEADER_CURL_CAPSULE_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_CAPSULE_H
+#परिभाषय शीर्षकम्_CURL_CAPSULE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,15 +24,15 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#यदि !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "curlx/dynbuf.h"
-#include "bufq.h"
+#अन्तर्भाव "curlx/dynbuf.h"
+#अन्तर्भाव "bufq.h"
 
 /* HTTP Capsule constants */
-#define HTTP_CAPSULE_HEADER_MAX_SIZE    10
+#परिभाषय HTTP_CAPSULE_शीर्षकम्_MAX_आकार    10
 
 /* HTTP Capsule function prototypes */
 
@@ -43,11 +43,11 @@
  * @param blen  Payload buffer length
  * @return CURLE_OK on success, error code on failure
  */
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen);
+CURLcode Curl_capsule_encap_udp_datagram(संरचना bufq *q,
+                                         ध्रुव शून्य *buf, size_t blen);
 
-struct Curl_easy;
-struct Curl_cfilter;
+संरचना Curl_easy;
+संरचना Curl_cfilter;
 
 /**
  * Process one UDP capsule from buffer into raw datagram payload bytes.
@@ -59,12 +59,12 @@ struct Curl_cfilter;
  * @param err       Error code output
  * @return Number of payload bytes written. Check `err` for status.
  */
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(संरचना Curl_cfilter *cf,
+                                    संरचना Curl_easy *दत्त,
+                                    संरचना bufq *recvbufq,
+                                    अचिह्नित वर्ण *buf, size_t len,
                                     CURLcode *err);
 
-#endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
+#यदि_अन्तः /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */
 
-#endif /* HEADER_CURL_CAPSULE_H */
+#यदि_अन्तः /* HEADER_CURL_CAPSULE_H */

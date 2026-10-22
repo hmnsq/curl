@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_CF_SETUP_H
-#define HEADER_CURL_CF_SETUP_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_CF_सज्जता_H
+#परिभाषय शीर्षकम्_CURL_CF_सज्जता_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,24 +23,24 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-struct Curl_dns_entry;
-struct ip_quadruple;
-struct Curl_peer;
-struct Curl_str;
+संरचना Curl_dns_प्रविष्टिः;
+संरचना ip_quadruple;
+संरचना Curl_peer;
+संरचना Curl_str;
 
-CURLcode Curl_cf_setup_add(struct Curl_easy *data,
-                           struct connectdata *conn,
+CURLcode Curl_cf_सज्जता_सङ्कलय(संरचना Curl_easy *दत्त,
+                           संरचना connectdata *conn,
                            int8_t sockindex,
                            uint8_t transport,
-                           int ssl_mode);
+                           पूर्णाङ्क ssl_बहुलकम्);
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter *cf_at,
-                                    struct Curl_easy *data,
+CURLcode Curl_cf_सज्जता_निवेशय_after(संरचना Curl_cfilter *cf_at,
+                                    संरचना Curl_easy *दत्त,
                                     uint8_t transport,
-                                    int ssl_mode);
+                                    पूर्णाङ्क ssl_बहुलकम्);
 
-extern struct Curl_cftype Curl_cft_setup;
+बाह्य संरचना Curl_cftype Curl_cft_सज्जता;
 
-#endif /* HEADER_CURL_CF_SETUP_H */
+#यदि_अन्तः /* HEADER_CURL_CF_SETUP_H */

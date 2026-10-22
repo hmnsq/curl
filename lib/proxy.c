@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "protocol.h"
-#include "proxy.h"
-#include "http_proxy.h"
-#include "strcase.h"
-#include "url.h"
-#include "vauth/vauth.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "protocol.h"
+#अन्तर्भाव "proxy.h"
+#अन्तर्भाव "http_proxy.h"
+#अन्तर्भाव "strcase.h"
+#अन्तर्भाव "url.h"
+#अन्तर्भाव "vauth/vauth.h"
+#अन्तर्भाव "curlx/inet_pton.h"
+#अन्तर्भाव "curlx/strparse.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
+#यदि_परिभाषितम् HAVE_NETINET_अन्तर्_H
+#अन्तर्भाव <netinet/in.h>
+#यदि_अन्तः
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+#यदि_परिभाषितम् HAVE_ARPA_INET_H
+#अन्तर्भाव <arpa/inet.h>
+#यदि_अन्तः
 
 /*
  * cidr4_match() returns TRUE if the given IPv4 address is within the
@@ -52,44 +52,44 @@
  *
  * @unittest 1614
  */
-UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
-                          const char *network, /* 1.2.3.4 address */
-                          int bits);
-UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
-                          const char *network, /* 1.2.3.4 address */
-                          int bits)
+UNITTEST bool cidr4_मेलनम्(ध्रुव वर्ण *ipv4,    /* 1.2.3.4 address */
+                          ध्रुव वर्ण *जालम्, /* 1.2.3.4 address */
+                          पूर्णाङ्क द्वयङ्काः);
+UNITTEST bool cidr4_मेलनम्(ध्रुव वर्ण *ipv4,    /* 1.2.3.4 address */
+                          ध्रुव वर्ण *जालम्, /* 1.2.3.4 address */
+                          पूर्णाङ्क द्वयङ्काः)
 {
-  unsigned int address = 0;
-  unsigned int check = 0;
+  अचिह्नित पूर्णाङ्क स्थानाङ्कः = 0;
+  अचिह्नित पूर्णाङ्क check = 0;
 
-  if(bits > 32)
+  यदि(द्वयङ्काः > 32)
     /* strange input */
-    return FALSE;
+    प्रत्यागम FALSE;
 
-  if(curlx_inet_pton(AF_INET, ipv4, &address) != 1)
-    return FALSE;
-  if(curlx_inet_pton(AF_INET, network, &check) != 1)
-    return FALSE;
+  यदि(curlx_inet_pton(AF_INET, ipv4, &स्थानाङ्कः) != 1)
+    प्रत्यागम FALSE;
+  यदि(curlx_inet_pton(AF_INET, जालम्, &check) != 1)
+    प्रत्यागम FALSE;
 
-  if((bits > 0) && (bits != 32)) {
-    unsigned int mask = 0xffffffff << (32 - bits);
-    unsigned int haddr = htonl(address);
-    unsigned int hcheck = htonl(check);
-#if 0
+  यदि((द्वयङ्काः > 0) && (द्वयङ्काः != 32)) {
+    अचिह्नित पूर्णाङ्क आवरणम् = 0xffffffff << (32 - द्वयङ्काः);
+    अचिह्नित पूर्णाङ्क haddr = htonl(स्थानाङ्कः);
+    अचिह्नित पूर्णाङ्क hcheck = htonl(check);
+#यदि 0
     curl_mfprintf(stderr, "Host %s (%x) network %s (%x) "
                   "bits %u mask %x => %x\n",
-                  ipv4, haddr, network, hcheck, bits, mask,
-                  (haddr ^ hcheck) & mask);
-#endif
-    if((haddr ^ hcheck) & mask)
-      return FALSE;
-    return TRUE;
+                  ipv4, haddr, जालम्, hcheck, द्वयङ्काः, आवरणम्,
+                  (haddr ^ hcheck) & आवरणम्);
+#यदि_अन्तः
+    यदि((haddr ^ hcheck) & आवरणम्)
+      प्रत्यागम FALSE;
+    प्रत्यागम TRUE;
   }
-  else if(!bits && !check)
+  अन्यथा यदि(!द्वयङ्काः && !check)
     /* 0.0.0.0/0 matches everything */
-    return TRUE;
+    प्रत्यागम TRUE;
 
-  return address == check;
+  प्रत्यागम स्थानाङ्कः == check;
 }
 
 /*
@@ -100,62 +100,62 @@ UNITTEST bool cidr4_match(const char *ipv4,    /* 1.2.3.4 address */
  *
  * @unittest 1614
  */
-UNITTEST bool cidr6_match(const char *ipv6, const char *network,
-                          int bits);
-UNITTEST bool cidr6_match(const char *ipv6, const char *network,
-                          int bits)
+UNITTEST bool cidr6_मेलनम्(ध्रुव वर्ण *ipv6, ध्रुव वर्ण *जालम्,
+                          पूर्णाङ्क द्वयङ्काः);
+UNITTEST bool cidr6_मेलनम्(ध्रुव वर्ण *ipv6, ध्रुव वर्ण *जालम्,
+                          पूर्णाङ्क द्वयङ्काः)
 {
-#ifdef USE_IPV6
-  static const char null6[16]= { 0 };
-  unsigned int bytes;
-  unsigned int rest;
-  unsigned char address[16];
-  unsigned char check[16];
+#यदि_परिभाषितम् USE_IPV6
+  स्थिर ध्रुव वर्ण null6[16]= { 0 };
+  अचिह्नित पूर्णाङ्क अष्टकानि;
+  अचिह्नित पूर्णाङ्क rest;
+  अचिह्नित वर्ण स्थानाङ्कः[16];
+  अचिह्नित वर्ण check[16];
 
-  if(bits == -1)
-    bits = 128;
+  यदि(द्वयङ्काः == -1)
+    द्वयङ्काः = 128;
 
-  bytes = bits / 8;
-  rest = bits & 0x07;
-  if((bytes > 16) || ((bytes == 16) && rest))
-    return FALSE;
-  if(curlx_inet_pton(AF_INET6, ipv6, address) != 1)
-    return FALSE;
-  if(curlx_inet_pton(AF_INET6, network, check) != 1)
-    return FALSE;
-  if((bytes == 16) && !bits && !memcmp(null6, check, 16))
+  अष्टकानि = द्वयङ्काः / 8;
+  rest = द्वयङ्काः & 0x07;
+  यदि((अष्टकानि > 16) || ((अष्टकानि == 16) && rest))
+    प्रत्यागम FALSE;
+  यदि(curlx_inet_pton(AF_INET6, ipv6, स्थानाङ्कः) != 1)
+    प्रत्यागम FALSE;
+  यदि(curlx_inet_pton(AF_INET6, जालम्, check) != 1)
+    प्रत्यागम FALSE;
+  यदि((अष्टकानि == 16) && !द्वयङ्काः && !memcmp(null6, check, 16))
     /* ::/0 matches everything */
-    return TRUE;
-  if(bytes && memcmp(address, check, bytes))
-    return FALSE;
-  if(rest && ((address[bytes] ^ check[bytes]) & (0xff << (8 - rest))))
-    return FALSE;
+    प्रत्यागम TRUE;
+  यदि(अष्टकानि && memcmp(स्थानाङ्कः, check, अष्टकानि))
+    प्रत्यागम FALSE;
+  यदि(rest && ((स्थानाङ्कः[अष्टकानि] ^ check[अष्टकानि]) & (0xff << (8 - rest))))
+    प्रत्यागम FALSE;
 
-  return TRUE;
-#else
-  (void)ipv6;
-  (void)network;
-  (void)bits;
-  return FALSE;
-#endif
+  प्रत्यागम TRUE;
+#अन्यथा
+  (शून्य)ipv6;
+  (शून्य)जालम्;
+  (शून्य)द्वयङ्काः;
+  प्रत्यागम FALSE;
+#यदि_अन्तः
 }
 
-enum nametype {
+गणना nametype {
   TYPE_HOST,
   TYPE_IPV4,
   TYPE_IPV6
 };
 
-static bool match_host(const char *token, size_t tokenlen,
-                       const char *name, size_t namelen)
+स्थिर bool मेलनम्_host(ध्रुव वर्ण *token, size_t tokenlen,
+                       ध्रुव वर्ण *name, size_t namelen)
 {
-  bool match = FALSE;
+  bool मेलनम् = FALSE;
 
   /* ignore trailing dots in the token to check */
-  if(token[tokenlen - 1] == '.')
+  यदि(token[tokenlen - 1] == '.')
     tokenlen--;
 
-  if(tokenlen && (*token == '.')) {
+  यदि(tokenlen && (*token == '.')) {
     /* ignore leading token dot as well */
     token++;
     tokenlen--;
@@ -164,46 +164,46 @@ static bool match_host(const char *token, size_t tokenlen,
      B: www.example.com matches 'example.com'
      C: nonexample.com DOES NOT match 'example.com'
    */
-  if(tokenlen == namelen)
+  यदि(tokenlen == namelen)
     /* case A, exact match */
-    match = curl_strnequal(token, name, namelen);
-  else if(tokenlen < namelen) {
+    मेलनम् = curl_strnequal(token, name, namelen);
+  अन्यथा यदि(tokenlen < namelen) {
     /* case B, tailmatch domain */
-    match = (name[namelen - tokenlen - 1] == '.') &&
+    मेलनम् = (name[namelen - tokenlen - 1] == '.') &&
             curl_strnequal(token, name + (namelen - tokenlen), tokenlen);
   }
   /* case C passes through, not a match */
-  return match;
+  प्रत्यागम मेलनम्;
 }
 
-static bool match_ip(int type, const char *token, size_t tokenlen,
-                     const char *name)
+स्थिर bool मेलनम्_ip(पूर्णाङ्क type, ध्रुव वर्ण *token, size_t tokenlen,
+                     ध्रुव वर्ण *name)
 {
-  char *slash;
-  int bits = -1; /* negative means not provided */
-  char checkip[128];
-  if(tokenlen >= sizeof(checkip))
+  वर्ण *slash;
+  पूर्णाङ्क द्वयङ्काः = -1; /* negative means not provided */
+  वर्ण checkip[128];
+  यदि(tokenlen >= परिमाण(checkip))
     /* this cannot match */
-    return FALSE;
+    प्रत्यागम FALSE;
   /* copy the check name to a temp buffer */
-  memcpy(checkip, token, tokenlen);
+  स्मृतिं_प्रतिलिख(checkip, token, tokenlen);
   checkip[tokenlen] = 0;
 
   slash = strchr(checkip, '/');
   /* if the slash is part of this token, use it */
-  if(slash) {
-    curl_off_t value;
-    const char *p = &slash[1];
-    if(curlx_str_number(&p, &value, 128) || *p)
-      return FALSE;
+  यदि(slash) {
+    curl_off_t मानम्;
+    ध्रुव वर्ण *p = &slash[1];
+    यदि(curlx_str_सङ्ख्या(&p, &मानम्, 128) || *p)
+      प्रत्यागम FALSE;
     /* a too large value is rejected in the cidr function below */
-    bits = (int)value;
+    द्वयङ्काः = (पूर्णाङ्क)मानम्;
     *slash = 0; /* null-terminate there */
   }
-  if(type == TYPE_IPV6)
-    return cidr6_match(name, checkip, bits);
-  else
-    return cidr4_match(name, checkip, bits);
+  यदि(type == TYPE_IPV6)
+    प्रत्यागम cidr6_मेलनम्(name, checkip, द्वयङ्काः);
+  अन्यथा
+    प्रत्यागम cidr4_मेलनम्(name, checkip, द्वयङ्काः);
 }
 
 /****************************************************************
@@ -211,47 +211,47 @@ static bool match_ip(int type, const char *token, size_t tokenlen,
  * therefore the proxy should NOT be used.
  ****************************************************************/
 /* @unittest 1614 */
-UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy);
-UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy)
+UNITTEST bool proxy_check_noproxy(ध्रुव वर्ण *name, ध्रुव वर्ण *no_proxy);
+UNITTEST bool proxy_check_noproxy(ध्रुव वर्ण *name, ध्रुव वर्ण *no_proxy)
 {
   /*
    * If we do not have a hostname at all, like for example with a FILE
    * transfer, we have nothing to interrogate the noproxy list with.
    */
-  if(!name || name[0] == '\0')
-    return FALSE;
+  यदि(!name || name[0] == '\0')
+    प्रत्यागम FALSE;
 
   /* no_proxy=domain1.dom,host.domain2.dom
    *   (a comma-separated list of hosts which should
    *   not be proxied, or an asterisk to override
    *   all proxy variables)
    */
-  if(no_proxy && no_proxy[0]) {
-    const char *p = no_proxy;
+  यदि(no_proxy && no_proxy[0]) {
+    ध्रुव वर्ण *p = no_proxy;
     size_t namelen;
-    char address[16];
-    enum nametype type = TYPE_HOST;
-    if(!strcmp("*", no_proxy))
-      return TRUE;
+    वर्ण स्थानाङ्कः[16];
+    गणना nametype type = TYPE_HOST;
+    यदि(!वाक्यं_तुलय("*", no_proxy))
+      प्रत्यागम TRUE;
 
     /* NO_PROXY was specified and it was not only an asterisk */
 
     /* Check if name is an IP address; if not, assume it being a hostname. */
-    namelen = strlen(name);
-    if(curlx_inet_pton(AF_INET, name, &address) == 1)
+    namelen = वाक्यदैर्घ्यम्(name);
+    यदि(curlx_inet_pton(AF_INET, name, &स्थानाङ्कः) == 1)
       type = TYPE_IPV4;
-#ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, name, &address) == 1)
+#यदि_परिभाषितम् USE_IPV6
+    अन्यथा यदि(curlx_inet_pton(AF_INET6, name, &स्थानाङ्कः) == 1)
       type = TYPE_IPV6;
-#endif
-    else {
+#यदि_अन्तः
+    अन्यथा {
       /* ignore trailing dots in the hostname */
-      if(name[namelen - 1] == '.')
+      यदि(name[namelen - 1] == '.')
         namelen--;
     }
 
-    while(*p) {
-      const char *token;
+    यावत्(*p) {
+      ध्रुव वर्ण *token;
       size_t tokenlen = 0;
 
       /* pass blanks */
@@ -259,45 +259,45 @@ UNITTEST bool proxy_check_noproxy(const char *name, const char *no_proxy)
 
       token = p;
       /* pass over the pattern */
-      while(*p && !ISBLANK(*p) && (*p != ',')) {
+      यावत्(*p && !ISBLANK(*p) && (*p != ',')) {
         p++;
         tokenlen++;
       }
 
-      if(tokenlen) {
-        bool match = FALSE;
-        if(type == TYPE_HOST)
-          match = match_host(token, tokenlen, name, namelen);
-        else
-          match = match_ip(type, token, tokenlen, name);
+      यदि(tokenlen) {
+        bool मेलनम् = FALSE;
+        यदि(type == TYPE_HOST)
+          मेलनम् = मेलनम्_host(token, tokenlen, name, namelen);
+        अन्यथा
+          मेलनम् = मेलनम्_ip(type, token, tokenlen, name);
 
-        if(match)
-          return TRUE;
+        यदि(मेलनम्)
+          प्रत्यागम TRUE;
       }
 
       /* pass blanks after pattern */
       curlx_str_passblanks(&p);
       /* if not a comma, this ends the loop */
-      if(*p != ',')
-        break;
+      यदि(*p != ',')
+        भङ्ग;
       /* pass any number of commas */
-      while(*p == ',')
+      यावत्(*p == ',')
         p++;
     } /* while(*p) */
   } /* NO_PROXY was specified and it was not only an asterisk */
 
-  return FALSE;
+  प्रत्यागम FALSE;
 }
 
-#ifndef CURL_DISABLE_HTTP
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTP
 
 /****************************************************************
  * Detect what (if any) proxy to use. Remember that this selects a host
  * name and is not limited to HTTP proxies only.
  * The returned pointer must be freed by the caller.
  ****************************************************************/
-static char *proxy_detect_proxy(struct Curl_easy *data,
-                                const struct Curl_scheme *scheme)
+स्थिर वर्ण *proxy_detect_proxy(संरचना Curl_easy *दत्त,
+                                ध्रुव संरचना Curl_scheme *scheme)
 {
   /* If proxy was not specified, we check for default proxy environment
    * variables, to enable i.e Lynx compliance:
@@ -316,34 +316,34 @@ static char *proxy_detect_proxy(struct Curl_easy *data,
    * For compatibility, the all-uppercase versions of these variables are
    * checked if the lowercase versions do not exist.
    */
-  const char *env_name = NULL;
-  char *proxy = NULL;
-  char name_buf[20];
+  ध्रुव वर्ण *env_name = रिक्त;
+  वर्ण *proxy = रिक्त;
+  वर्ण name_buf[20];
 
   /* Try scheme specific env var first, unless http(s).
    * lowercase first, then uppercase. */
-  if((scheme != &Curl_scheme_https) && (scheme != &Curl_scheme_http)) {
-    curl_msnprintf(name_buf, sizeof(name_buf), "%s_proxy", scheme->name);
+  यदि((scheme != &Curl_scheme_https) && (scheme != &Curl_scheme_http)) {
+    curl_msnprintf(name_buf, परिमाण(name_buf), "%s_proxy", scheme->name);
     env_name = name_buf;
     proxy = curl_getenv(env_name);
-    if(!proxy) {
-      Curl_strntoupper(name_buf, name_buf, sizeof(name_buf));
+    यदि(!proxy) {
+      Curl_strntoupper(name_buf, name_buf, परिमाण(name_buf));
       proxy = curl_getenv(env_name);
     }
   }
 
-  if(!proxy &&
+  यदि(!proxy &&
      ((scheme == &Curl_scheme_https) || (scheme == &Curl_scheme_wss))) {
     /* Not found, check 'https' env vars, also for 'wss'.
      * Again, first lowercase then uppercase. */
     env_name = "https_proxy";
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    यदि(!proxy) {
       env_name = "HTTPS_PROXY";
       proxy = curl_getenv(env_name);
     }
   }
-  else if(!proxy &&
+  अन्यथा यदि(!proxy &&
           ((scheme == &Curl_scheme_http) || (scheme == &Curl_scheme_ws))) {
     /* Not found, check 'http' env vars, also for 'ws'.
      * We do NOT try the uppercase version 'HTTP_PROXY' because of
@@ -361,131 +361,131 @@ static char *proxy_detect_proxy(struct Curl_easy *data,
     proxy = curl_getenv(env_name);
   }
 
-  if(!proxy) {
+  यदि(!proxy) {
     /* still not found, last resort checks. */
     env_name = "all_proxy";
     proxy = curl_getenv(env_name);
-    if(!proxy) {
+    यदि(!proxy) {
       env_name = "ALL_PROXY";
       proxy = curl_getenv(env_name);
     }
   }
 
-  if(proxy)
-    infof(data, "Uses proxy env variable %s == '%s'", env_name, proxy);
+  यदि(proxy)
+    infof(दत्त, "Uses proxy env variable %s == '%s'", env_name, proxy);
 
-  return proxy;
+  प्रत्यागम proxy;
 }
-#endif /* CURL_DISABLE_HTTP */
+#यदि_अन्तः /* CURL_DISABLE_HTTP */
 
 /*
  * If this is supposed to use a proxy, we need to figure out the proxy
  * hostname, so that we can reuse an existing connection
  * that may exist registered to the same proxy host.
  */
-static CURLcode parse_proxy(struct Curl_easy *data,
-                            const char *proxy,
+स्थिर CURLcode parse_proxy(संरचना Curl_easy *दत्त,
+                            ध्रुव वर्ण *proxy,
                             bool for_pre_proxy,
-                            struct proxy_info *proxyinfo)
+                            संरचना proxy_info *proxyinfo)
 {
-  char *proxyuser = NULL;
-  char *proxypasswd = NULL;
-  char *scheme = NULL;
-  CURLcode result = CURLE_OK;
+  वर्ण *proxyuser = रिक्त;
+  वर्ण *proxypasswd = रिक्त;
+  वर्ण *scheme = रिक्त;
+  CURLcode परिणाम = CURLE_OK;
   /* Set the start proxy type for URL scheme guessing */
-  uint8_t proxytype = for_pre_proxy ? CURLPROXY_SOCKS4 : data->set.proxytype;
+  uint8_t proxytype = for_pre_proxy ? CURLPROXY_SOCKS4 : दत्त->समुच्चयः.proxytype;
   CURLU *uhp = curl_url();
   CURLUcode uc;
 
-  if(!uhp) {
-    result = CURLE_OUT_OF_MEMORY;
-    goto error;
+  यदि(!uhp) {
+    परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+    गच्छ error;
   }
   /* When parsing the proxy, allowing non-supported schemes since we have
      these made up ones for proxies. Guess scheme for URLs without it. */
-  uc = curl_url_set(uhp, CURLUPART_URL, proxy,
+  uc = curl_url_समुच्चयः(uhp, CURLUPART_URL, proxy,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_GUESS_SCHEME);
-  if(!uc) {
+  यदि(!uc) {
     /* parsed okay as a URL - only update proxytype when scheme was explicit */
     uc = curl_url_get(uhp, CURLUPART_SCHEME, &scheme, CURLU_NO_GUESS_SCHEME);
-    if(!uc) {
-      result = Curl_scheme_to_proxytype(data, scheme, &proxytype, proxy);
-      if(result)
-        goto error;
+    यदि(!uc) {
+      परिणाम = Curl_scheme_गन्तव्यम्_proxytype(दत्त, scheme, &proxytype, proxy);
+      यदि(परिणाम)
+        गच्छ error;
     }
-    else if(uc != CURLUE_NO_SCHEME) {
-      result = CURLE_OUT_OF_MEMORY;
-      goto error;
+    अन्यथा यदि(uc != CURLUE_NO_SCHEME) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      गच्छ error;
     }
     /* else: no explicit scheme, keep the configured proxytype */
   }
-  else {
-    failf(data, "Unsupported proxy syntax in \'%s\': %s", proxy,
+  अन्यथा {
+    failf(दत्त, "Unsupported proxy syntax in \'%s\': %s", proxy,
           curl_url_strerror(uc));
-    result = CURLE_COULDNT_RESOLVE_PROXY;
-    goto error;
+    परिणाम = CURLE_COULDNT_RESOLVE_PROXY;
+    गच्छ error;
   }
 
-  result = Curl_peer_from_proxy_url(uhp, data, proxy, proxytype,
+  परिणाम = Curl_peer_from_proxy_url(uhp, दत्त, proxy, proxytype,
                                     &proxyinfo->peer, &proxytype);
-  if(result)
-    goto error;
+  यदि(परिणाम)
+    गच्छ error;
 
-  switch(proxytype) {
-    case CURLPROXY_HTTP:
-    case CURLPROXY_HTTP_1_0:
-    case CURLPROXY_HTTPS:
-    case CURLPROXY_HTTPS2:
-    case CURLPROXY_HTTPS3:
-      if(for_pre_proxy) {
-        failf(data, "Unsupported pre-proxy type for \'%s\'", proxy);
-        result = CURLE_COULDNT_RESOLVE_PROXY;
-        goto error;
+  विकल्प(proxytype) {
+    पक्ष CURLPROXY_HTTP:
+    पक्ष CURLPROXY_HTTP_1_0:
+    पक्ष CURLPROXY_HTTPS:
+    पक्ष CURLPROXY_HTTPS2:
+    पक्ष CURLPROXY_HTTPS3:
+      यदि(for_pre_proxy) {
+        failf(दत्त, "Unsupported pre-proxy type for \'%s\'", proxy);
+        परिणाम = CURLE_COULDNT_RESOLVE_PROXY;
+        गच्छ error;
       }
-      break;
-    case CURLPROXY_SOCKS4:
-    case CURLPROXY_SOCKS4A:
-    case CURLPROXY_SOCKS5:
-    case CURLPROXY_SOCKS5_HOSTNAME:
-      break;
-    default:
-      failf(data, "Unsupported proxy type %u for \'%s\'", proxytype, proxy);
-      result = CURLE_COULDNT_RESOLVE_PROXY;
-      goto error;
+      भङ्ग;
+    पक्ष CURLPROXY_SOCKS4:
+    पक्ष CURLPROXY_SOCKS4A:
+    पक्ष CURLPROXY_SOCKS5:
+    पक्ष CURLPROXY_SOCKS5_HOSTNAME:
+      भङ्ग;
+    स्वभाव:
+      failf(दत्त, "Unsupported proxy type %u for \'%s\'", proxytype, proxy);
+      परिणाम = CURLE_COULDNT_RESOLVE_PROXY;
+      गच्छ error;
   }
 
   /* Is there a username and password given in this proxy URL? */
   uc = curl_url_get(uhp, CURLUPART_USER, &proxyuser, CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_USER)) {
-    result = Curl_uc_to_curlcode(uc);
-    goto error;
+  यदि(uc && (uc != CURLUE_NO_USER)) {
+    परिणाम = Curl_uc_गन्तव्यम्_curlcode(uc);
+    गच्छ error;
   }
   uc = curl_url_get(uhp, CURLUPART_PASSWORD, &proxypasswd, CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_PASSWORD)) {
-    result = Curl_uc_to_curlcode(uc);
-    goto error;
+  यदि(uc && (uc != CURLUE_NO_PASSWORD)) {
+    परिणाम = Curl_uc_गन्तव्यम्_curlcode(uc);
+    गच्छ error;
   }
 
-  if(proxyuser || proxypasswd) {
-    result = Curl_creds_create(proxyuser, proxypasswd, NULL, NULL,
-                               CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME),
+  यदि(proxyuser || proxypasswd) {
+    परिणाम = Curl_creds_create(proxyuser, proxypasswd, रिक्त, रिक्त,
+                               CURL_EASY_STR(दत्त, STRING_PROXY_SERVICE_NAME),
                                CREDS_URL, &proxyinfo->creds);
-    if(result)
-      goto error;
+    यदि(परिणाम)
+      गच्छ error;
   }
-  else if(!for_pre_proxy &&
-          (CURL_EASY_STR(data, STRING_PROXYUSERNAME) ||
-           CURL_EASY_STR(data, STRING_PROXYPASSWORD) ||
-           CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME))) {
+  अन्यथा यदि(!for_pre_proxy &&
+          (CURL_EASY_STR(दत्त, STRING_PROXYUSERNAME) ||
+           CURL_EASY_STR(दत्त, STRING_PROXYPASSWORD) ||
+           CURL_EASY_STR(दत्त, STRING_PROXY_SERVICE_NAME))) {
     /* No user/passwd in URL, if this is not a pre-proxy, the
      * CURLOPT_PROXY* settings apply. */
-    result = Curl_creds_create(CURL_EASY_STR(data, STRING_PROXYUSERNAME),
-                               CURL_EASY_STR(data, STRING_PROXYPASSWORD),
-                               NULL, NULL,
-                               CURL_EASY_STR(data, STRING_PROXY_SERVICE_NAME),
+    परिणाम = Curl_creds_create(CURL_EASY_STR(दत्त, STRING_PROXYUSERNAME),
+                               CURL_EASY_STR(दत्त, STRING_PROXYPASSWORD),
+                               रिक्त, रिक्त,
+                               CURL_EASY_STR(दत्त, STRING_PROXY_SERVICE_NAME),
                                CREDS_OPTION, &proxyinfo->creds);
   }
-  else
+  अन्यथा
     Curl_creds_unlink(&proxyinfo->creds);
 
   proxyinfo->proxytype = proxytype;
@@ -495,202 +495,202 @@ error:
   curlx_free(proxyuser);
   curlx_free(proxypasswd);
   curl_url_cleanup(uhp);
-#ifdef DEBUGBUILD
-  if(!result) {
+#यदि_परिभाषितम् DEBUGBUILD
+  यदि(!परिणाम) {
     DEBUGASSERT(proxyinfo);
     DEBUGASSERT(proxyinfo->peer);
   }
-#endif
-  return result;
+#यदि_अन्तः
+  प्रत्यागम परिणाम;
 }
 
 /* Is transfer's origin exempted from proxy use? */
-static bool proxy_do_not_proxy(struct Curl_easy *data)
+स्थिर bool proxy_do_not_proxy(संरचना Curl_easy *दत्त)
 {
-  const char *no_proxy;
-  char *env_no_proxy = NULL;
+  ध्रुव वर्ण *no_proxy;
+  वर्ण *env_no_proxy = रिक्त;
   bool do_not_proxy;
 
   /* no proxying if the transfer does not use the network */
-  if(data->state.origin->scheme->flags & PROTOPT_NONETWORK)
-    return TRUE;
+  यदि(दत्त->state.origin->scheme->flags & PROTOPT_NONETWORK)
+    प्रत्यागम TRUE;
 
-  no_proxy = CURL_EASY_STR(data, STRING_NOPROXY);
-  if(!no_proxy) {
-    const char *p = "no_proxy";
+  no_proxy = CURL_EASY_STR(दत्त, STRING_NOPROXY);
+  यदि(!no_proxy) {
+    ध्रुव वर्ण *p = "no_proxy";
     env_no_proxy = curl_getenv(p);
-    if(!env_no_proxy) {
+    यदि(!env_no_proxy) {
       p = "NO_PROXY";
       env_no_proxy = curl_getenv(p);
     }
-    if(env_no_proxy)
-      infof(data, "Uses proxy env variable %s == '%s'", p, env_no_proxy);
+    यदि(env_no_proxy)
+      infof(दत्त, "Uses proxy env variable %s == '%s'", p, env_no_proxy);
     no_proxy = env_no_proxy;
   }
 
-  do_not_proxy = proxy_check_noproxy(data->state.origin->hostname, no_proxy);
+  do_not_proxy = proxy_check_noproxy(दत्त->state.origin->hostname, no_proxy);
   curlx_safefree(env_no_proxy);
-  return do_not_proxy;
+  प्रत्यागम do_not_proxy;
 }
 
-CURLcode Curl_proxy_init_conn(struct Curl_easy *data,
-                              struct connectdata *conn)
+CURLcode Curl_proxy_init_conn(संरचना Curl_easy *दत्त,
+                              संरचना connectdata *conn)
 {
-  char *proxy = NULL;
-  char *pre_proxy = NULL;
-  const char *str = NULL;
+  वर्ण *proxy = रिक्त;
+  वर्ण *pre_proxy = रिक्त;
+  ध्रुव वर्ण *str = रिक्त;
   bool do_env_detect = TRUE;
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
 
   /* Enforce no proxy use unless we decide to use one */
-  conn->bits.origin_is_proxy = FALSE;
+  conn->द्वयङ्काः.origin_is_proxy = FALSE;
   DEBUGASSERT(!conn->socks_proxy.peer);
   DEBUGASSERT(!conn->http_proxy.peer);
 
-  if(proxy_do_not_proxy(data))
-    goto out;
+  यदि(proxy_do_not_proxy(दत्त))
+    गच्छ बहिर्गमनम्;
 
   /*************************************************************
    * Detect what (if any) proxy to use
    *************************************************************/
   /* the empty config strings disable proxy use and env detects */
-  str = CURL_EASY_STR(data, STRING_PROXY);
-  if(str) {
-    if(*str) {
+  str = CURL_EASY_STR(दत्त, STRING_PROXY);
+  यदि(str) {
+    यदि(*str) {
       proxy = curlx_strdup(str);
       /* if global proxy is set, this is it */
-      if(!proxy) {
-        failf(data, "memory shortage");
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      यदि(!proxy) {
+        failf(दत्त, "memory shortage");
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        गच्छ बहिर्गमनम्;
       }
     }
-    else
+    अन्यथा
       do_env_detect = FALSE;
   }
 
-  str = CURL_EASY_STR(data, STRING_PRE_PROXY);
-  if(str) {
-    if(*str) {
+  str = CURL_EASY_STR(दत्त, STRING_PRE_PROXY);
+  यदि(str) {
+    यदि(*str) {
       pre_proxy = curlx_strdup(str);
       /* if global socks proxy is set, this is it */
-      if(!pre_proxy) {
-        failf(data, "memory shortage");
-        result = CURLE_OUT_OF_MEMORY;
-        goto out;
+      यदि(!pre_proxy) {
+        failf(दत्त, "memory shortage");
+        परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+        गच्छ बहिर्गमनम्;
       }
     }
-    else
+    अन्यथा
       do_env_detect = FALSE;
   }
 
-#ifndef CURL_DISABLE_HTTP
+#यदि_अपरिभाषितम् CURL_DISABLE_HTTP
   /* None configured, detect possible proxy from environment. */
-  if(!proxy && !pre_proxy && do_env_detect)
-    proxy = proxy_detect_proxy(data, conn->scheme);
-#else
-  (void)do_env_detect;
-#endif /* CURL_DISABLE_HTTP */
+  यदि(!proxy && !pre_proxy && do_env_detect)
+    proxy = proxy_detect_proxy(दत्त, conn->scheme);
+#अन्यथा
+  (शून्य)do_env_detect;
+#यदि_अन्तः /* CURL_DISABLE_HTTP */
 
-  if(!proxy && !pre_proxy)
-    goto out;
+  यदि(!proxy && !pre_proxy)
+    गच्छ बहिर्गमनम्;
 
-  if(pre_proxy) {
-    result = parse_proxy(data, pre_proxy, TRUE, &conn->socks_proxy);
-    if(result)
-      goto out;
+  यदि(pre_proxy) {
+    परिणाम = parse_proxy(दत्त, pre_proxy, TRUE, &conn->socks_proxy);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
   }
 
-  if(proxy) {
-    result = parse_proxy(data, proxy, FALSE, &conn->http_proxy);
-    if(result)
-      goto out;
+  यदि(proxy) {
+    परिणाम = parse_proxy(दत्त, proxy, FALSE, &conn->http_proxy);
+    यदि(परिणाम)
+      गच्छ बहिर्गमनम्;
 
-    switch(conn->http_proxy.proxytype) {
-    case CURLPROXY_SOCKS4:
-    case CURLPROXY_SOCKS4A:
-    case CURLPROXY_SOCKS5:
-    case CURLPROXY_SOCKS5_HOSTNAME:
+    विकल्प(conn->http_proxy.proxytype) {
+    पक्ष CURLPROXY_SOCKS4:
+    पक्ष CURLPROXY_SOCKS4A:
+    पक्ष CURLPROXY_SOCKS5:
+    पक्ष CURLPROXY_SOCKS5_HOSTNAME:
       /* Whoops, it is not an HTTP proxy */
-      if(pre_proxy) {
+      यदि(pre_proxy) {
         /* and we already have a SOCKS pre-proxy. Cannot have both */
-        failf(data, "Having a SOCKS pre-proxy and proxy is not "
+        failf(दत्त, "Having a SOCKS pre-proxy and proxy is not "
               "supported with \'%s\'", proxy);
-        result = CURLE_COULDNT_RESOLVE_PROXY;
-        goto out;
+        परिणाम = CURLE_COULDNT_RESOLVE_PROXY;
+        गच्छ बहिर्गमनम्;
       }
       /* switch */
       conn->socks_proxy = conn->http_proxy;
-      memset(&conn->http_proxy, 0, sizeof(conn->http_proxy));
-      break;
-    default:
+      स्मृतिं_पूरय(&conn->http_proxy, 0, परिमाण(conn->http_proxy));
+      भङ्ग;
+    स्वभाव:
       /* all other types are HTTP */
-      break;
+      भङ्ग;
     }
   }
 
-  if(conn->socks_proxy.peer) {
+  यदि(conn->socks_proxy.peer) {
     DEBUGASSERT(!CURL_PROXY_IS_ANY_HTTP(conn->socks_proxy.proxytype));
   }
 
-#ifdef CURL_DISABLE_HTTP
-  if(conn->http_proxy.peer) {
+#यदि_परिभाषितम् CURL_DISABLE_HTTP
+  यदि(conn->http_proxy.peer) {
     /* asking for an HTTP proxy is a bit funny when HTTP is disabled... */
-    result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+    परिणाम = CURLE_UNSUPPORTED_PROTOCOL;
+    गच्छ बहिर्गमनम्;
   }
 
-#else /* CURL_DISABLE_HTTP */
-  if(conn->http_proxy.peer) {
-    const struct Curl_scheme *scheme = data->state.origin->scheme;
-    bool tunnel_proxy = (bool)data->set.tunnel_thru_httpproxy;
+#अन्यथा /* CURL_DISABLE_HTTP */
+  यदि(conn->http_proxy.peer) {
+    ध्रुव संरचना Curl_scheme *scheme = दत्त->state.origin->scheme;
+    bool tunnel_proxy = (bool)दत्त->समुच्चयः.tunnel_thru_httpproxy;
     DEBUGASSERT(CURL_PROXY_IS_ANY_HTTP(conn->http_proxy.proxytype));
 
-    if(!tunnel_proxy) {
+    यदि(!tunnel_proxy) {
       /* Decide if we tunnel through proxy automatically */
-      if(conn->via_peer) {
+      यदि(conn->द्वारा_peer) {
         /* With connect-to, we always tunnel */
         tunnel_proxy = TRUE;
       }
-      else if(scheme->flags & PROTOPT_SSL) {
+      अन्यथा यदि(scheme->flags & PROTOPT_SSL) {
         /* If the transfer is supposed to be secure, we tunnel */
         tunnel_proxy = TRUE;
       }
-      else if(scheme->flags & PROTOPT_HTTP_PROXY_TUNNEL) {
+      अन्यथा यदि(scheme->flags & PROTOPT_HTTP_PROXY_TUNNEL) {
         /* transfer scheme required tunneling */
         tunnel_proxy = TRUE;
       }
-      else if(!(scheme->protocol & PROTO_FAMILY_HTTP) &&
+      अन्यथा यदि(!(scheme->protocol & PROTO_FAMILY_HTTP) &&
               !(scheme->flags & PROTOPT_PROXY_AS_HTTP)) {
         /* Cannot delegate transfer URL to HTTP proxy */
         tunnel_proxy = TRUE;
       }
     }
 
-    if(!tunnel_proxy) {
+    यदि(!tunnel_proxy) {
       /* HTTP proxy used in forwarding mode. This means the connection
        * is really to the proxy and NOT the origin of the transfer. */
-      DEBUGASSERT(!conn->via_peer);
+      DEBUGASSERT(!conn->द्वारा_peer);
       Curl_peer_link(&conn->origin, conn->http_proxy.peer);
       conn->scheme = conn->http_proxy.peer->scheme;
-      conn->bits.origin_is_proxy = TRUE;
+      conn->द्वयङ्काः.origin_is_proxy = TRUE;
     }
 
-#ifndef CURL_DISABLE_DIGEST_AUTH
-    if(!Curl_safecmp(data->state.envproxy, proxy)) {
+#यदि_अपरिभाषितम् CURL_DISABLE_DIGEST_AUTH
+    यदि(!Curl_safecmp(दत्त->state.envproxy, proxy)) {
       /* proxy changed */
-      Curl_auth_digest_cleanup(&data->state.proxydigest);
-      curlx_free(data->state.envproxy);
-      data->state.envproxy = curlx_strdup(proxy);
+      Curl_auth_digest_cleanup(&दत्त->state.proxydigest);
+      curlx_free(दत्त->state.envproxy);
+      दत्त->state.envproxy = curlx_strdup(proxy);
     }
-#endif
+#यदि_अन्तः
   }
-#endif /* !CURL_DISABLE_HTTP */
+#यदि_अन्तः /* !CURL_DISABLE_HTTP */
 
-out:
+बहिर्गमनम्:
   curlx_free(pre_proxy);
   curlx_free(proxy);
-  return result;
+  प्रत्यागम परिणाम;
 }
 
-#endif /* CURL_DISABLE_PROXY */
+#यदि_अन्तः /* CURL_DISABLE_PROXY */

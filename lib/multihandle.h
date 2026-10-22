@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTIHANDLE_H
-#define HEADER_CURL_MULTIHANDLE_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_MULTIHANDLE_H
+#परिभाषय शीर्षकम्_CURL_MULTIHANDLE_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,68 +23,68 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "api.h"
-#include "llist.h"
-#include "hash.h"
-#include "conncache.h"
-#include "cshutdn.h"
-#include "multi_ev.h"
-#include "multi_ntfy.h"
-#include "psl.h"
-#include "socketpair.h"
-#include "splay.h"
-#include "uint-bset.h"
-#include "uint-spbset.h"
-#include "uint-table.h"
-#include "vdns/dnscache.h"
+#अन्तर्भाव "api.h"
+#अन्तर्भाव "llist.h"
+#अन्तर्भाव "hash.h"
+#अन्तर्भाव "conncache.h"
+#अन्तर्भाव "cshutdn.h"
+#अन्तर्भाव "multi_ev.h"
+#अन्तर्भाव "multi_ntfy.h"
+#अन्तर्भाव "psl.h"
+#अन्तर्भाव "socketpair.h"
+#अन्तर्भाव "splay.h"
+#अन्तर्भाव "uint-bset.h"
+#अन्तर्भाव "uint-spbset.h"
+#अन्तर्भाव "uint-table.h"
+#अन्तर्भाव "vdns/dnscache.h"
 
-struct connectdata;
-struct Curl_easy;
+संरचना connectdata;
+संरचना Curl_easy;
 
 /* NOTE: if you add a state here, add the name to the statenames[] array
  * in curl_trc.c as well!
  */
-typedef enum {
+प्रकारनिर्देश गणना {
   MSTATE_INIT,         /* 0 - start in this state */
   MSTATE_PENDING,      /* no connections, waiting for one */
-  MSTATE_SETUP,        /* start a new transfer */
+  MSTATE_सज्जता,        /* start a new transfer */
   MSTATE_CONNECT,      /* resolve/connect has been sent off */
   MSTATE_CONNECTING,   /* awaiting the TCP connect to finalize */
   MSTATE_PROTOCONNECT, /* initiate protocol connect procedure */
   MSTATE_PROTOCONNECTING, /* completing the protocol-specific connect phase */
   MSTATE_DO,           /* start send off the request (part 1) */
   MSTATE_DOING,        /* sending off the request (part 1) */
-  MSTATE_DOING_MORE,   /* send off the request (part 2) */
+  MSTATE_DOING_अधिकम्,   /* send off the request (part 2) */
   MSTATE_DID,          /* done sending off request */
   MSTATE_PERFORMING,   /* transfer data */
   MSTATE_RATELIMITING, /* wait because limit-rate exceeded */
-  MSTATE_DONE,         /* post data transfer operation */
+  MSTATE_समाप्तम्,         /* post data transfer operation */
   MSTATE_COMPLETED,    /* operation complete */
   MSTATE_MSGSENT,      /* the operation complete message is sent */
-  MSTATE_LAST          /* not a true state, never use this */
+  MSTATE_चरमः          /* not a true state, never use this */
 } CURLMstate;
 
-#define CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
+#परिभाषय CURLPIPE_ANY (CURLPIPE_MULTIPLEX)
 
-#if !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
-#define ENABLE_WAKEUP
-#endif
-#if !defined(CURL_DISABLE_SOCKETPAIR) && \
+#यदि !defined(CURL_DISABLE_SOCKETPAIR) && !defined(USE_WINSOCK)
+#परिभाषय ENABLE_WAKEUP
+#यदि_अन्तः
+#यदि !defined(CURL_DISABLE_SOCKETPAIR) && \
     defined(USE_RESOLV_THREADED) && \
     !defined(USE_WINSOCK)
-#define ENABLE_INTERNAL_WAKEUP
-#endif
+#परिभाषय ENABLE_आन्तरिकम्_WAKEUP
+#यदि_अन्तः
 
 /* value for MAXIMUM CONCURRENT STREAMS upper limit */
-#define INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
+#परिभाषय INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
 
-struct Curl_fixed_buf {
+संरचना Curl_fixed_buf {
   size_t len;      /* the allocated data length */
-  char data[1];   /* the actual buffer */
+  वर्ण दत्त[1];   /* the actual buffer */
 };
 
 /* This is the struct known as CURLM on the outside */
-struct Curl_multi {
+संरचना Curl_multi {
   /* First a simple identifier to more easily detect if a user mixes up
      this multi handle with an easy handle.
      Set this to CURLMULTI_MAGIC_NUMBER. */
@@ -94,51 +94,51 @@ struct Curl_multi {
   uint32_t xfers_really_alive; /* amount of added transfers that have
                                   passed INIT state but are not COMPLETE yet */
   uint32_t max_concurrent_streams;
-  curl_off_t xfers_total_ever; /* total of added transfers, ever. */
+  curl_off_t xfers_योग_ever; /* total of added transfers, ever. */
 
-  struct uint32_tbl xfers; /* transfers added to this multi */
+  संरचना uint32_tbl xfers; /* transfers added to this multi */
   /* A transfer's mid may be present in at most one of
    * process/pending/msgsent. The dirty set may overlap with process. */
-  struct uint32_bset process; /* transfer being processed */
-  struct uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
-  struct uint32_bset pending; /* transfers in waiting (conn limit etc.) */
-  struct uint32_bset msgsent; /* transfers with unread application messages */
+  संरचना uint32_bset process; /* transfer being processed */
+  संरचना uint32_bset dirty; /* transfer to be run NOW, e.g. ASAP. */
+  संरचना uint32_bset pending; /* transfers in waiting (conn limit etc.) */
+  संरचना uint32_bset msgsent; /* transfers with unread application messages */
 
-  struct Curl_mapi_stack callstack; /* multi api calls ongoing */
+  संरचना Curl_mapi_राशिः callstack; /* multi api calls ongoing */
 
   /* expiration times for all attached easy handles */
-  struct Curl_timeouts timeouts;
+  संरचना Curl_timeouts timeouts;
 
-  struct Curl_easy *admin; /* internal easy handle for admin operations.
+  संरचना Curl_easy *admin; /* internal easy handle for admin operations.
                               gets assigned `mid` 0 on multi init */
 
   /* callback function and user data pointer for the *socket() API */
   curl_socket_callback socket_cb;
-  void *socket_userp;
+  शून्य *socket_userp;
 
   /* callback function and user data pointer for server push */
-  curl_push_callback push_cb;
-  void *push_userp;
+  curl_प्रक्षिप_callback प्रक्षिप_cb;
+  शून्य *प्रक्षिप_userp;
 
-  struct Curl_dnscache dnscache; /* DNS cache */
-  struct Curl_ssl_scache *ssl_scache; /* TLS session pool */
-#ifdef USE_RESOLV_THREADED
-  struct curl_thrdq *resolv_thrdq;
-#endif
+  संरचना Curl_dnscache dnscache; /* DNS cache */
+  संरचना Curl_ssl_scache *ssl_scache; /* TLS session pool */
+#यदि_परिभाषितम् USE_RESOLV_THREADED
+  संरचना curl_thrdq *resolv_thrdq;
+#यदि_अन्तः
 
-#ifdef USE_LIBPSL
+#यदि_परिभाषितम् USE_LIBPSL
   /* PSL cache. */
-  struct PslCache psl;
-#endif
+  संरचना PslCache psl;
+#यदि_अन्तः
 
-  struct Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
-  struct Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
-  struct Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
+  संरचना Curl_fixed_buf *xfer_buf; /* transfer downloads, lazy */
+  संरचना Curl_fixed_buf *xfer_ulbuf; /* transfer uploads, lazy */
+  संरचना Curl_fixed_buf *xfer_sockbuf; /* transfer socket I/O, lazy */
 
   /* multi event related things */
-  struct curl_multi_ev ev;
+  संरचना curl_multi_ev ev;
   /* multi notification related things */
-  struct curl_multi_ntfy ntfy;
+  संरचना curl_multi_ntfy ntfy;
 
   /* `proto_hash` is a general key-value store for protocol implementations
    * with the lifetime of the multi handle. The number of elements kept here
@@ -146,56 +146,56 @@ struct Curl_multi {
    * TLS), *not* in the order of connections or current transfers!
    * Elements need to be added with their own destructor to be invoked when
    * the multi handle is cleaned up (see Curl_hash_add2()).*/
-  struct Curl_hash proto_hash;
+  संरचना Curl_hash proto_hash;
 
-  struct cshutdn cshutdn; /* connection shutdown handling */
-  struct cpool cpool;     /* connection pool (bundles) */
+  संरचना cshutdn cshutdn; /* connection shutdown handling */
+  संरचना cpool cpool;     /* connection pool (bundles) */
 
-  timediff_t last_expire_offset_us; /* times offset of last expiry */
+  timediff_t चरमः_expire_विस्थापनम्_us; /* times offset of last expiry */
 
   /* timer callback and user data pointer for the *socket() API */
   curl_multi_timer_callback timer_cb;
-  void *timer_userp;
+  शून्य *timer_userp;
 
-#ifdef USE_WINSOCK
+#यदि_परिभाषितम् USE_WINSOCK
   WSAEVENT wsa_event; /* Winsock event used for waits */
-#endif
-#ifdef ENABLE_WAKEUP
+#यदि_अन्तः
+#यदि_परिभाषितम् ENABLE_WAKEUP
   curl_socket_t wakeup_pair[2]; /* eventfd()/pipe()/socketpair() used for
                                    wakeup 0 is used for read, 1 is used
                                    for write. Used by curl_multi_wakeup() */
-#endif
-#ifdef ENABLE_INTERNAL_WAKEUP
-  curl_socket_t wakeup_internal[2]; /* eventfd()/pipe()/socketpair() used for
+#यदि_अन्तः
+#यदि_परिभाषितम् ENABLE_आन्तरिकम्_WAKEUP
+  curl_socket_t wakeup_आन्तरिकम्[2]; /* eventfd()/pipe()/socketpair() used for
                                    wakeup 0 is used for read, 1 is used
                                    for write. Used for internal wakeups,
                                    e.g. threaded resolver. */
-#endif
+#यदि_अन्तः
   uint32_t max_host_connections; /* if >0, a fixed limit of the maximum number
                                   of connections per host */
-  uint32_t max_total_connections; /* if >0, a fixed limit of the maximum number
+  uint32_t max_योग_connections; /* if >0, a fixed limit of the maximum number
                                    of connections in total */
   uint32_t maxconnects; /* if >0, a fixed limit of the maximum number of
                                entries we are allowed to grow the connection
                                cache to */
-  uint32_t last_pending_mid; /* mid of last pending transfer rescheduled */
-  uint32_t last_resolv_id; /* id of the last DNS resolve operation */
-  BIT(ipv6_works);
+  uint32_t चरमः_pending_mid; /* mid of last pending transfer rescheduled */
+  uint32_t चरमः_resolv_id; /* id of the last DNS resolve operation */
+  BIT(ipv6_कार्यं_करोति);
   BIT(multiplexing);           /* multiplexing wanted */
   BIT(recheckstate);           /* see Curl_multi_connchanged */
-#ifdef USE_OPENSSL
+#यदि_परिभाषितम् USE_OPENSSL
   BIT(ssl_seeded);
-#endif
+#यदि_अन्तः
   BIT(dead); /* a callback returned error, everything needs to crash and
                 burn */
-  BIT(last_timeout_set);      /* last timer callback value was nonnegative */
+  BIT(चरमः_timeout_समुच्चयः);      /* last timer callback value was nonnegative */
   BIT(xfer_buf_borrowed);      /* xfer_buf is currently being borrowed */
   BIT(xfer_ulbuf_borrowed);    /* xfer_ulbuf is currently being borrowed */
   BIT(xfer_sockbuf_borrowed);  /* xfer_sockbuf is currently being borrowed */
   BIT(quick_exit);             /* do not join threads on cleanup */
-#ifdef DEBUGBUILD
+#यदि_परिभाषितम् DEBUGBUILD
   BIT(warned);                 /* true after user warned of DEBUGBUILD */
-#endif
+#यदि_अन्तः
 };
 
-#endif /* HEADER_CURL_MULTIHANDLE_H */
+#यदि_अन्तः /* HEADER_CURL_MULTIHANDLE_H */

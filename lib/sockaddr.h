@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKADDR_H
-#define HEADER_CURL_SOCKADDR_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_SOCKADDR_H
+#परिभाषय शीर्षकम्_CURL_SOCKADDR_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,21 +23,21 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-struct Curl_sockaddr_storage {
-  union {
-    struct sockaddr sa;
-    struct sockaddr_in sa_in;
-#ifdef USE_IPV6
-    struct sockaddr_in6 sa_in6;
-#endif
-#ifdef HAVE_STRUCT_SOCKADDR_STORAGE
-    struct sockaddr_storage sa_stor;
-#else
-    char cbuf[256];   /* this should be big enough to fit a lot */
-#endif
-  } buffer;
+संरचना Curl_sockaddr_storage {
+  सङ्घ {
+    संरचना sockaddr sa;
+    संरचना sockaddr_in sa_अन्तर्;
+#यदि_परिभाषितम् USE_IPV6
+    संरचना sockaddr_in6 sa_in6;
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_STRUCT_SOCKADDR_STORAGE
+    संरचना sockaddr_storage sa_stor;
+#अन्यथा
+    वर्ण cbuf[256];   /* this should be big enough to fit a lot */
+#यदि_अन्तः
+  } बफर;
 };
 
 /*
@@ -47,15 +47,15 @@ struct Curl_sockaddr_storage {
  * used to pass / receive data to/from the fopensocket callback if this has
  * been set, before that, it is initialized from parameters.
  */
-struct Curl_sockaddr_ex {
-  int family;
-  int socktype;
-  int protocol;
-  unsigned int addrlen;
-  union {
-    struct sockaddr sa;
-    struct Curl_sockaddr_storage buf;
+संरचना Curl_sockaddr_ex {
+  पूर्णाङ्क family;
+  पूर्णाङ्क socktype;
+  पूर्णाङ्क protocol;
+  अचिह्नित पूर्णाङ्क addrlen;
+  सङ्घ {
+    संरचना sockaddr sa;
+    संरचना Curl_sockaddr_storage buf;
   } addr;
 };
 
-#endif /* HEADER_CURL_SOCKADDR_H */
+#यदि_अन्तः /* HEADER_CURL_SOCKADDR_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MIME_H
-#define HEADER_CURL_MIME_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_MIME_H
+#परिभाषय शीर्षकम्_CURL_MIME_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,34 +23,34 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#define MIME_BOUNDARY_DASHES            24  /* leading boundary dashes */
-#define MIME_RAND_BOUNDARY_CHARS        22  /* Nb. of random boundary chars. */
-#define MAX_ENCODED_LINE_LENGTH         76  /* Maximum encoded line length. */
-#define ENCODING_BUFFER_SIZE            256 /* Encoding temp buffers size. */
+#परिभाषय MIME_BOUNDARY_DASHES            24  /* leading boundary dashes */
+#परिभाषय MIME_RAND_BOUNDARY_CHARS        22  /* Nb. of random boundary chars. */
+#परिभाषय MAX_ENCODED_पङ्क्तिः_दीर्घता         76  /* Maximum encoded line length. */
+#परिभाषय ENCODING_बफर_आकार            256 /* Encoding temp buffers size. */
 
 /* Part flags. */
-#define MIME_USERHEADERS_OWNER  (1 << 0)
-#define MIME_BODY_ONLY          (1 << 1)
-#define MIME_FAST_READ          (1 << 2)
+#परिभाषय MIME_USERHEADERS_OWNER  (1 << 0)
+#परिभाषय MIME_BODY_ONLY          (1 << 1)
+#परिभाषय MIME_FAST_READ          (1 << 2)
 
-#define FILE_CONTENTTYPE_DEFAULT        "application/octet-stream"
-#define MULTIPART_CONTENTTYPE_DEFAULT   "multipart/mixed"
-#define DISPOSITION_DEFAULT             "attachment"
+#परिभाषय FILE_CONTENTTYPE_DEFAULT        "application/octet-stream"
+#परिभाषय MULTIPART_CONTENTTYPE_DEFAULT   "multipart/mixed"
+#परिभाषय DISPOSITION_DEFAULT             "attachment"
 
 /* Part source kinds. */
-enum mimekind {
+गणना mimekind {
   MIMEKIND_NONE = 0,            /* Part not set. */
-  MIMEKIND_DATA,                /* Allocated mime data. */
+  MIMEKIND_दत्त,                /* Allocated mime data. */
   MIMEKIND_FILE,                /* Data from file. */
   MIMEKIND_CALLBACK,            /* Data from `read' callback. */
   MIMEKIND_MULTIPART,           /* Data is a mime subpart. */
-  MIMEKIND_LAST
+  MIMEKIND_चरमः
 };
 
 /* Readback state tokens. */
-enum mimestate {
+गणना mimestate {
   MIMESTATE_BEGIN,              /* Readback has not yet started. */
   MIMESTATE_CURLHEADERS,        /* In curl-generated headers. */
   MIMESTATE_USERHEADERS,        /* In caller's supplied headers. */
@@ -59,115 +59,115 @@ enum mimestate {
   MIMESTATE_BOUNDARY1,          /* In boundary prefix. */
   MIMESTATE_BOUNDARY2,          /* In boundary. */
   MIMESTATE_CONTENT,            /* In content. */
-  MIMESTATE_END,                /* End of part reached. */
-  MIMESTATE_LAST
+  MIMESTATE_अन्तः,                /* End of part reached. */
+  MIMESTATE_चरमः
 };
 
 /* Mime headers strategies. */
-enum mimestrategy {
+गणना mimestrategy {
   MIMESTRATEGY_MAIL,            /* Mime mail. */
   MIMESTRATEGY_FORM,            /* HTTP post form. */
-  MIMESTRATEGY_LAST
+  MIMESTRATEGY_चरमः
 };
 
 /* Content transfer encoder. */
-struct mime_encoder {
-  const char *   name;          /* Encoding name. */
-  size_t         (*encodefunc)(char *buffer, size_t size, bool ateof,
+संरचना mime_encoder {
+  ध्रुव वर्ण *   name;          /* Encoding name. */
+  size_t         (*encodefunc)(वर्ण *बफर, size_t आकार, bool ateof,
                                curl_mimepart *part);  /* Encoded read. */
   curl_off_t     (*sizefunc)(curl_mimepart *part);  /* Encoded size. */
 };
 
 /* Content transfer encoder state. */
-struct mime_encoder_state {
+संरचना mime_encoder_state {
   size_t         pos;           /* Position on output line. */
   size_t         bufbeg;        /* Next data index in input buffer. */
   size_t         bufend;        /* First unused byte index in input buffer. */
-  char           buf[ENCODING_BUFFER_SIZE]; /* Input buffer. */
+  वर्ण           buf[ENCODING_बफर_आकार]; /* Input buffer. */
 };
 
 /* Mime readback state. */
-struct mime_state {
-  enum mimestate state;       /* Current state token. */
-  void *ptr;                  /* State-dependent pointer. */
-  curl_off_t offset;          /* State-dependent offset. */
+संरचना mime_state {
+  गणना mimestate state;       /* Current state token. */
+  शून्य *ptr;                  /* State-dependent pointer. */
+  curl_off_t विस्थापनम्;          /* State-dependent offset. */
 };
 
 /* Boundary string length. */
-#define MIME_BOUNDARY_LEN (MIME_BOUNDARY_DASHES + MIME_RAND_BOUNDARY_CHARS)
+#परिभाषय MIME_BOUNDARY_LEN (MIME_BOUNDARY_DASHES + MIME_RAND_BOUNDARY_CHARS)
 
 /* A mime multipart. */
-struct curl_mime {
+संरचना curl_mime {
   curl_mimepart *parent;           /* Parent part. */
   curl_mimepart *firstpart;        /* First part. */
   curl_mimepart *lastpart;         /* Last part. */
-  char boundary[MIME_BOUNDARY_LEN + 1]; /* The part boundary. */
-  struct mime_state state;         /* Current readback state. */
+  वर्ण boundary[MIME_BOUNDARY_LEN + 1]; /* The part boundary. */
+  संरचना mime_state state;         /* Current readback state. */
 };
 
 /* A mime part. */
-struct curl_mimepart {
+संरचना curl_mimepart {
   curl_mime *parent;               /* Parent mime structure. */
   curl_mimepart *nextpart;         /* Forward linked list. */
-  enum mimekind kind;              /* The part kind. */
-  unsigned int flags;              /* Flags. */
-  char *data;                      /* Memory data or filename. */
+  गणना mimekind विधा;              /* The part kind. */
+  अचिह्नित पूर्णाङ्क flags;              /* Flags. */
+  वर्ण *दत्त;                      /* Memory data or filename. */
   curl_read_callback readfunc;     /* Read function. */
   curl_seek_callback seekfunc;     /* Seek function. */
   curl_free_callback freefunc;     /* Argument free function. */
-  void *arg;                       /* Argument to callback functions. */
+  शून्य *arg;                       /* Argument to callback functions. */
   FILE *fp;                        /* File pointer. */
-  struct curl_slist *curlheaders;  /* Part headers. */
-  struct curl_slist *userheaders;  /* Part headers. */
-  char *mimetype;                  /* Part mime type. */
-  char *filename;                  /* Remote filename. */
-  char *name;                      /* Data name. */
+  संरचना curl_slist *curlheaders;  /* Part headers. */
+  संरचना curl_slist *userheaders;  /* Part headers. */
+  वर्ण *mimetype;                  /* Part mime type. */
+  वर्ण *filename;                  /* Remote filename. */
+  वर्ण *name;                      /* Data name. */
   curl_off_t datasize;             /* Expected data size. */
-  struct mime_state state;         /* Current readback state. */
-  const struct mime_encoder *encoder; /* Content data encoder. */
-  struct mime_encoder_state encstate; /* Data encoder state. */
+  संरचना mime_state state;         /* Current readback state. */
+  ध्रुव संरचना mime_encoder *encoder; /* Content data encoder. */
+  संरचना mime_encoder_state encstate; /* Data encoder state. */
   size_t lastreadstatus;           /* Last read callback returned status. */
 };
 
-CURLcode Curl_mime_add_header(struct curl_slist **slp, const char *fmt, ...)
+CURLcode Curl_mime_सङ्कलय_शीर्षकम्(संरचना curl_slist **slp, ध्रुव वर्ण *fmt, ...)
   CURL_PRINTF(2, 3);
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
+#यदि !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
                                     !defined(CURL_DISABLE_SMTP) ||      \
                                     !defined(CURL_DISABLE_IMAP))
 
 /* Prototypes. */
-void Curl_mime_initpart(struct curl_mimepart *part);
-void Curl_mime_cleanpart(struct curl_mimepart *part);
-CURLcode Curl_mime_duppart(struct Curl_easy *data,
-                           struct curl_mimepart *dst,
-                           const curl_mimepart *src);
-CURLcode Curl_mime_set_subparts(struct curl_mimepart *part,
-                                struct curl_mime *subparts,
-                                int take_ownership);
-CURLcode Curl_mime_prepare_headers(struct Curl_easy *data,
-                                   struct curl_mimepart *part,
-                                   const char *contenttype,
-                                   const char *disposition,
-                                   enum mimestrategy strategy);
-size_t Curl_mime_read(char *buffer, size_t size, size_t nitems,
-                      void *instream);
-const char *Curl_mime_contenttype(const char *filename);
+शून्य Curl_mime_initpart(संरचना curl_mimepart *part);
+शून्य Curl_mime_cleanpart(संरचना curl_mimepart *part);
+CURLcode Curl_mime_duppart(संरचना Curl_easy *दत्त,
+                           संरचना curl_mimepart *dst,
+                           ध्रुव curl_mimepart *src);
+CURLcode Curl_mime_समुच्चयः_subparts(संरचना curl_mimepart *part,
+                                संरचना curl_mime *subparts,
+                                पूर्णाङ्क take_ownership);
+CURLcode Curl_mime_prepare_शीर्षकाणि(संरचना Curl_easy *दत्त,
+                                   संरचना curl_mimepart *part,
+                                   ध्रुव वर्ण *contenttype,
+                                   ध्रुव वर्ण *disposition,
+                                   गणना mimestrategy strategy);
+size_t Curl_mime_read(वर्ण *बफर, size_t आकार, size_t nitems,
+                      शून्य *instream);
+ध्रुव वर्ण *Curl_mime_contenttype(ध्रुव वर्ण *filename);
 
 /**
  * Install a client reader as upload source that reads the given
  * mime part.
  */
-CURLcode Curl_creader_set_mime(struct Curl_easy *data, curl_mimepart *part);
+CURLcode Curl_creader_समुच्चयः_mime(संरचना Curl_easy *दत्त, curl_mimepart *part);
 
-#else /* if disabled */
-#define Curl_mime_initpart(x)
-#define Curl_mime_cleanpart(x)
-#define Curl_mime_duppart(x, y, z) CURLE_OK /* Nothing to duplicate. Succeed */
-#define Curl_mime_set_subparts(a, b, c)          CURLE_NOT_BUILT_IN
-#define Curl_mime_prepare_headers(a, b, c, d, e) CURLE_NOT_BUILT_IN
-#define Curl_mime_read                           NULL
-#define Curl_creader_set_mime(x, y) ((void)(x), CURLE_NOT_BUILT_IN)
-#endif
+#अन्यथा /* if disabled */
+#परिभाषय Curl_mime_initpart(x)
+#परिभाषय Curl_mime_cleanpart(x)
+#परिभाषय Curl_mime_duppart(x, y, z) CURLE_OK /* Nothing to duplicate. Succeed */
+#परिभाषय Curl_mime_समुच्चयः_subparts(a, b, c)          CURLE_NOT_BUILT_अन्तर्
+#परिभाषय Curl_mime_prepare_शीर्षकाणि(a, b, c, d, e) CURLE_NOT_BUILT_अन्तर्
+#परिभाषय Curl_mime_read                           रिक्त
+#परिभाषय Curl_creader_समुच्चयः_mime(x, y) ((शून्य)(x), CURLE_NOT_BUILT_अन्तर्)
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_MIME_H */
+#यदि_अन्तः /* HEADER_CURL_MIME_H */

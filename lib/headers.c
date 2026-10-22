@@ -21,78 +21,78 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "urldata.h"
-#include "sendf.h"
-#include "curl_trc.h"
-#include "headers.h"
-#include "strcase.h"
+#अन्तर्भाव "urldata.h"
+#अन्तर्भाव "sendf.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "headers.h"
+#अन्तर्भाव "strcase.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#यदि !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_शीर्षकाणि_API)
 
 /* Generate the curl_header struct for the user. This function MUST assign all
    struct fields in the output struct. */
-static void copy_header_external(struct Curl_header_store *hs,
-                                 size_t index,
+स्थिर शून्य copy_शीर्षकम्_external(संरचना Curl_शीर्षकम्_store *hs,
+                                 size_t सूचकांक,
                                  size_t amount,
-                                 struct Curl_llist_node *e,
-                                 struct curl_header *hout)
+                                 संरचना Curl_llist_ग्रन्थिः *e,
+                                 संरचना curl_शीर्षकम् *hout)
 {
-  struct curl_header *h = hout;
+  संरचना curl_शीर्षकम् *h = hout;
   h->name = hs->name;
-  h->value = hs->value;
+  h->मानम् = hs->मानम्;
   h->amount = amount;
-  h->index = index;
+  h->सूचकांक = सूचकांक;
   /* this will randomly OR a reserved bit for the sole purpose of making it
      impossible for applications to do == comparisons, as that would otherwise
      be tempting and then lead to the reserved bits not being reserved
      anymore. */
-  h->origin = (unsigned int)(hs->type | (1 << 27));
+  h->origin = (अचिह्नित पूर्णाङ्क)(hs->type | (1 << 27));
   h->anchor = e;
 }
 
 /* public API */
-CURLHcode curl_easy_header(CURL *curl,
-                           const char *name,
+CURLHcode curl_easy_शीर्षकम्(CURL *curl,
+                           ध्रुव वर्ण *name,
                            size_t nameindex,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+                           अचिह्नित पूर्णाङ्क origin,
+                           पूर्णाङ्क request,
+                           संरचना curl_शीर्षकम् **hout)
 {
-  struct Curl_eapi_guard guard;
+  संरचना Curl_eapi_guard guard;
   CURLHcode hresult = CURLHE_OK;
-  CURLcode result;
+  CURLcode परिणाम;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_header, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *e;
-    struct Curl_llist_node *e_pick = NULL;
-    size_t match = 0;
+  यदि(CURL_EAPI_ENTER(&guard, curl, easy_शीर्षकम्, &परिणाम)) {
+    संरचना Curl_easy *दत्त = curl;
+    संरचना Curl_llist_ग्रन्थिः *e;
+    संरचना Curl_llist_ग्रन्थिः *e_pick = रिक्त;
+    size_t मेलनम् = 0;
     size_t amount = 0;
-    struct Curl_header_store *hs = NULL;
-    struct Curl_header_store *pick = NULL;
-    if(!name || !hout || !data ||
-       (origin > (CURLH_HEADER | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
+    संरचना Curl_शीर्षकम्_store *hs = रिक्त;
+    संरचना Curl_शीर्षकम्_store *pick = रिक्त;
+    यदि(!name || !hout || !दत्त ||
+       (origin > (CURLH_शीर्षकम् | CURLH_TRAILER | CURLH_CONNECT | CURLH_1XX |
                   CURLH_PSEUDO)) || !origin || (request < -1)) {
-      hresult = CURLHE_BAD_ARGUMENT;
-      goto out;
+      hresult = CURLHE_BAD_तर्कः;
+      गच्छ बहिर्गमनम्;
     }
-    if(!Curl_llist_count(&data->state.httphdrs)) {
+    यदि(!Curl_llist_गणनम्(&दत्त->state.httphdrs)) {
       hresult = CURLHE_NOHEADERS; /* no headers available */
-      goto out;
+      गच्छ बहिर्गमनम्;
     }
-    if(request > data->state.requests) {
+    यदि(request > दत्त->state.अनुरोधाः) {
       hresult = CURLHE_NOREQUEST;
-      goto out;
+      गच्छ बहिर्गमनम्;
     }
-    if(request == -1)
-      request = data->state.requests;
+    यदि(request == -1)
+      request = दत्त->state.अनुरोधाः;
 
     /* we need a first round to count amount of this header */
-    for(e = Curl_llist_head(&data->state.httphdrs); e; e = Curl_node_next(e)) {
-      hs = Curl_node_elem(e);
-      if(curl_strequal(hs->name, name) &&
+    प्रति(e = Curl_llist_शीर्ष(&दत्त->state.httphdrs); e; e = Curl_ग्रन्थिः_अग्र(e)) {
+      hs = Curl_ग्रन्थिः_elem(e);
+      यदि(curl_strequal(hs->name, name) &&
          (hs->type & origin) &&
          (hs->request == request)) {
         amount++;
@@ -100,234 +100,234 @@ CURLHcode curl_easy_header(CURL *curl,
         e_pick = e;
       }
     }
-    if(!amount)
+    यदि(!amount)
       hresult = CURLHE_MISSING;
-    else if(nameindex >= amount)
+    अन्यथा यदि(nameindex >= amount)
       hresult = CURLHE_BADINDEX;
-    if(hresult)
-      goto out;
+    यदि(hresult)
+      गच्छ बहिर्गमनम्;
 
-    if(nameindex == amount - 1)
+    यदि(nameindex == amount - 1)
       /* if the last or only occurrence is what's asked for, then we know it */
       hs = pick;
-    else {
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        hs = Curl_node_elem(e);
-        if(curl_strequal(hs->name, name) &&
+    अन्यथा {
+      प्रति(e = Curl_llist_शीर्ष(&दत्त->state.httphdrs); e;
+          e = Curl_ग्रन्थिः_अग्र(e)) {
+        hs = Curl_ग्रन्थिः_elem(e);
+        यदि(curl_strequal(hs->name, name) &&
            (hs->type & origin) &&
            (hs->request == request) &&
-           (match++ == nameindex)) {
+           (मेलनम्++ == nameindex)) {
           e_pick = e;
-          break;
+          भङ्ग;
         }
       }
-      if(!e) { /* this should not happen */
+      यदि(!e) { /* this should not happen */
         hresult = CURLHE_MISSING;
-        goto out;
+        गच्छ बहिर्गमनम्;
       }
     }
     /* this is the name we want */
-    copy_header_external(hs, nameindex, amount, e_pick,
-                         &data->state.headerout[0]);
-    *hout = &data->state.headerout[0];
+    copy_शीर्षकम्_external(hs, nameindex, amount, e_pick,
+                         &दत्त->state.headerout[0]);
+    *hout = &दत्त->state.headerout[0];
     hresult = CURLHE_OK;
   }
-out:
+बहिर्गमनम्:
   CURL_EAPI_LEAVE(&guard);
-  if(result)
-    hresult = Curl_eapi_hcode(result);
-  return hresult;
+  यदि(परिणाम)
+    hresult = Curl_eapi_hcode(परिणाम);
+  प्रत्यागम hresult;
 }
 
-struct nextheader_cache_entry {
-  struct Curl_header_store *header;
-  size_t order;
+संरचना nextheader_cache_प्रविष्टिः {
+  संरचना Curl_शीर्षकम्_store *शीर्षकम्;
+  size_t क्रमः;
 };
 
-static int nextheader_compare(const void *p1, const void *p2)
+स्थिर पूर्णाङ्क nextheader_compare(ध्रुव शून्य *p1, ध्रुव शून्य *p2)
 {
-  const struct nextheader_cache_entry *e1 = p1;
-  const struct nextheader_cache_entry *e2 = p2;
-  const struct Curl_header_store *h1 = e1->header;
-  const struct Curl_header_store *h2 = e2->header;
-  const char *n1 = h1->name;
-  const char *n2 = h2->name;
+  ध्रुव संरचना nextheader_cache_प्रविष्टिः *e1 = p1;
+  ध्रुव संरचना nextheader_cache_प्रविष्टिः *e2 = p2;
+  ध्रुव संरचना Curl_शीर्षकम्_store *h1 = e1->शीर्षकम्;
+  ध्रुव संरचना Curl_शीर्षकम्_store *h2 = e2->शीर्षकम्;
+  ध्रुव वर्ण *n1 = h1->name;
+  ध्रुव वर्ण *n2 = h2->name;
 
-  while(*n1 && *n2) {
-    unsigned char c1 = (unsigned char)Curl_raw_toupper(*n1++);
-    unsigned char c2 = (unsigned char)Curl_raw_toupper(*n2++);
-    if(c1 != c2)
-      return c1 > c2 ? 1 : -1;
+  यावत्(*n1 && *n2) {
+    अचिह्नित वर्ण c1 = (अचिह्नित वर्ण)Curl_raw_toupper(*n1++);
+    अचिह्नित वर्ण c2 = (अचिह्नित वर्ण)Curl_raw_toupper(*n2++);
+    यदि(c1 != c2)
+      प्रत्यागम c1 > c2 ? 1 : -1;
   }
-  if(*n1)
-    return 1;
-  if(*n2)
-    return -1;
-  if(e1->order != e2->order)
-    return e1->order > e2->order ? 1 : -1;
-  return 0;
+  यदि(*n1)
+    प्रत्यागम 1;
+  यदि(*n2)
+    प्रत्यागम -1;
+  यदि(e1->क्रमः != e2->क्रमः)
+    प्रत्यागम e1->क्रमः > e2->क्रमः ? 1 : -1;
+  प्रत्यागम 0;
 }
 
-static bool nextheader_cache_build(struct Curl_easy *data,
-                                   unsigned int origin,
-                                   int request, size_t count)
+स्थिर bool nextheader_cache_build(संरचना Curl_easy *दत्त,
+                                   अचिह्नित पूर्णाङ्क origin,
+                                   पूर्णाङ्क request, size_t गणनम्)
 {
-  struct nextheader_cache_entry *headers;
-  struct Curl_llist_node *e;
+  संरचना nextheader_cache_प्रविष्टिः *शीर्षकाणि;
+  संरचना Curl_llist_ग्रन्थिः *e;
   size_t i = 0;
   size_t first;
 
-  headers = curlx_malloc(sizeof(*headers) * count);
-  if(!headers)
-    return FALSE;
+  शीर्षकाणि = curlx_malloc(परिमाण(*शीर्षकाणि) * गणनम्);
+  यदि(!शीर्षकाणि)
+    प्रत्यागम FALSE;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e;
-      e = Curl_node_next(e)) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    if((hs->type & origin) && (hs->request == request)) {
-      headers[i].header = hs;
-      headers[i].order = i;
+  प्रति(e = Curl_llist_शीर्ष(&दत्त->state.httphdrs); e;
+      e = Curl_ग्रन्थिः_अग्र(e)) {
+    संरचना Curl_शीर्षकम्_store *hs = Curl_ग्रन्थिः_elem(e);
+    यदि((hs->type & origin) && (hs->request == request)) {
+      शीर्षकाणि[i].शीर्षकम् = hs;
+      शीर्षकाणि[i].क्रमः = i;
       i++;
     }
   }
 
-  qsort(headers, i, sizeof(*headers), nextheader_compare);
-  for(first = 0; first < i;) {
-    size_t last = first + 1;
-    size_t index;
-    while((last < i) &&
-          curl_strequal(headers[first].header->name,
-                        headers[last].header->name))
-      last++;
-    for(index = first; index < last; index++) {
-      headers[index].header->nh_amount = last - first;
-      headers[index].header->nh_index = index - first;
+  शीघ्रं_क्रमय(शीर्षकाणि, i, परिमाण(*शीर्षकाणि), nextheader_compare);
+  प्रति(first = 0; first < i;) {
+    size_t चरमः = first + 1;
+    size_t सूचकांक;
+    यावत्((चरमः < i) &&
+          curl_strequal(शीर्षकाणि[first].शीर्षकम्->name,
+                        शीर्षकाणि[चरमः].शीर्षकम्->name))
+      चरमः++;
+    प्रति(सूचकांक = first; सूचकांक < चरमः; सूचकांक++) {
+      शीर्षकाणि[सूचकांक].शीर्षकम्->nh_amount = चरमः - first;
+      शीर्षकाणि[सूचकांक].शीर्षकम्->nh_सूचकांक = सूचकांक - first;
     }
-    first = last;
+    first = चरमः;
   }
-  curlx_free(headers);
+  curlx_free(शीर्षकाणि);
 
-  data->state.nh_origin = origin;
-  data->state.nh_request = request;
-  data->state.nh_count = count;
-  return TRUE;
+  दत्त->state.nh_origin = origin;
+  दत्त->state.nh_request = request;
+  दत्त->state.nh_गणनम् = गणनम्;
+  प्रत्यागम TRUE;
 }
 
 /* public API */
-struct curl_header *curl_easy_nextheader(CURL *curl,
-                                         unsigned int origin,
-                                         int request,
-                                         struct curl_header *prev)
+संरचना curl_शीर्षकम् *curl_easy_nextheader(CURL *curl,
+                                         अचिह्नित पूर्णाङ्क origin,
+                                         पूर्णाङ्क request,
+                                         संरचना curl_शीर्षकम् *पूर्व)
 {
-  struct Curl_eapi_guard guard;
-  struct curl_header *hd = NULL;
-  CURLcode result;
+  संरचना Curl_eapi_guard guard;
+  संरचना curl_शीर्षकम् *hd = रिक्त;
+  CURLcode परिणाम;
 
-  if(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &result)) {
-    struct Curl_easy *data = curl;
-    struct Curl_llist_node *pick;
-    struct Curl_llist_node *e;
-    struct Curl_header_store *hs;
+  यदि(CURL_EAPI_ENTER(&guard, curl, easy_nextheader, &परिणाम)) {
+    संरचना Curl_easy *दत्त = curl;
+    संरचना Curl_llist_ग्रन्थिः *pick;
+    संरचना Curl_llist_ग्रन्थिः *e;
+    संरचना Curl_शीर्षकम्_store *hs;
     size_t amount = 0;
-    size_t index = 0;
-    size_t count;
+    size_t सूचकांक = 0;
+    size_t गणनम्;
 
-    if(request > data->state.requests)
-      goto out;
-    if(request == -1)
-      request = data->state.requests;
+    यदि(request > दत्त->state.अनुरोधाः)
+      गच्छ बहिर्गमनम्;
+    यदि(request == -1)
+      request = दत्त->state.अनुरोधाः;
 
-    if(prev) {
-      pick = prev->anchor;
-      if(!pick)
+    यदि(पूर्व) {
+      pick = पूर्व->anchor;
+      यदि(!pick)
         /* something is wrong */
-        goto out;
-      pick = Curl_node_next(pick);
+        गच्छ बहिर्गमनम्;
+      pick = Curl_ग्रन्थिः_अग्र(pick);
     }
-    else
-      pick = Curl_llist_head(&data->state.httphdrs);
+    अन्यथा
+      pick = Curl_llist_शीर्ष(&दत्त->state.httphdrs);
 
-    if(pick) {
+    यदि(pick) {
       /* make sure it is the next header of the desired type */
-      do {
-        hs = Curl_node_elem(pick);
-        if((hs->type & origin) && (hs->request == request))
-          break;
-        pick = Curl_node_next(pick);
-      } while(pick);
+      कुरु {
+        hs = Curl_ग्रन्थिः_elem(pick);
+        यदि((hs->type & origin) && (hs->request == request))
+          भङ्ग;
+        pick = Curl_ग्रन्थिः_अग्र(pick);
+      } यावत्(pick);
     }
 
-    if(!pick)
+    यदि(!pick)
       /* no more headers available */
-      goto out;
+      गच्छ बहिर्गमनम्;
 
-    hs = Curl_node_elem(pick);
-    count = Curl_llist_count(&data->state.httphdrs);
+    hs = Curl_ग्रन्थिः_elem(pick);
+    गणनम् = Curl_llist_गणनम्(&दत्त->state.httphdrs);
 
-    if(((data->state.nh_count == count) &&
-        (data->state.nh_origin == origin) &&
-        (data->state.nh_request == request)) ||
-       nextheader_cache_build(data, origin, request, count)) {
+    यदि(((दत्त->state.nh_गणनम् == गणनम्) &&
+        (दत्त->state.nh_origin == origin) &&
+        (दत्त->state.nh_request == request)) ||
+       nextheader_cache_build(दत्त, origin, request, गणनम्)) {
       amount = hs->nh_amount;
-      index = hs->nh_index;
+      सूचकांक = hs->nh_सूचकांक;
     }
-    else {
+    अन्यथा {
       /* count number of occurrences of this name within the mask and figure
          out the index for the currently selected entry */
-      for(e = Curl_llist_head(&data->state.httphdrs); e;
-          e = Curl_node_next(e)) {
-        struct Curl_header_store *check = Curl_node_elem(e);
-        if(curl_strequal(hs->name, check->name) &&
+      प्रति(e = Curl_llist_शीर्ष(&दत्त->state.httphdrs); e;
+          e = Curl_ग्रन्थिः_अग्र(e)) {
+        संरचना Curl_शीर्षकम्_store *check = Curl_ग्रन्थिः_elem(e);
+        यदि(curl_strequal(hs->name, check->name) &&
            (check->request == request) &&
            (check->type & origin))
           amount++;
-        if(e == pick)
-          index = amount - 1;
+        यदि(e == pick)
+          सूचकांक = amount - 1;
       }
     }
-    copy_header_external(hs, index, amount, pick,
-                         &data->state.headerout[1]);
-    hd = &data->state.headerout[1];
+    copy_शीर्षकम्_external(hs, सूचकांक, amount, pick,
+                         &दत्त->state.headerout[1]);
+    hd = &दत्त->state.headerout[1];
   }
-out:
+बहिर्गमनम्:
   CURL_EAPI_LEAVE(&guard);
-  return hd;
+  प्रत्यागम hd;
 }
 
-static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
-                          char **name, char **value)
+स्थिर CURLcode namevalue(वर्ण *शीर्षकम्, size_t hlen, अचिह्नित पूर्णाङ्क type,
+                          वर्ण **name, वर्ण **मानम्)
 {
-  char *end = header + hlen - 1; /* point to the last byte */
+  वर्ण *अन्तः = शीर्षकम् + hlen - 1; /* point to the last byte */
   DEBUGASSERT(hlen);
-  *name = header;
+  *name = शीर्षकम्;
 
-  if(type == CURLH_PSEUDO) {
-    if(*header != ':')
-      return CURLE_BAD_FUNCTION_ARGUMENT;
-    header++;
+  यदि(type == CURLH_PSEUDO) {
+    यदि(*शीर्षकम् != ':')
+      प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
+    शीर्षकम्++;
   }
 
   /* Find the end of the header name */
-  while(*header && (*header != ':'))
-    ++header;
+  यावत्(*शीर्षकम् && (*शीर्षकम् != ':'))
+    ++शीर्षकम्;
 
-  if(*header)
+  यदि(*शीर्षकम्)
     /* Skip over colon, null it */
-    *header++ = 0;
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    *शीर्षकम्++ = 0;
+  अन्यथा
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   /* skip all leading blank letters */
-  while(ISBLANK(*header))
-    header++;
+  यावत्(ISBLANK(*शीर्षकम्))
+    शीर्षकम्++;
 
-  *value = header;
+  *मानम् = शीर्षकम्;
 
   /* skip all trailing space letters */
-  while((end > header) && ISBLANK(*end))
-    *end-- = 0; /* null-terminate */
-  return CURLE_OK;
+  यावत्((अन्तः > शीर्षकम्) && ISBLANK(*अन्तः))
+    *अन्तः-- = 0; /* null-terminate */
+  प्रत्यागम CURLE_OK;
 }
 
 /*
@@ -335,178 +335,178 @@ static CURLcode namevalue(char *header, size_t hlen, unsigned int type,
  * immediately before the header callback. The header is CRLF, CR or LF
  * terminated.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
+CURLcode Curl_शीर्षकाणि_प्रक्षिप(संरचना Curl_easy *दत्त, ध्रुव वर्ण *शीर्षकम्,
                            size_t hlen, /* length of header */
-                           unsigned char type)
+                           अचिह्नित वर्ण type)
 {
-  char *value = NULL;
-  char *name = NULL;
-  struct Curl_header_store *hs;
-  CURLcode result = CURLE_OUT_OF_MEMORY;
-  const size_t ilen = hlen;
+  वर्ण *मानम् = रिक्त;
+  वर्ण *name = रिक्त;
+  संरचना Curl_शीर्षकम्_store *hs;
+  CURLcode परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+  ध्रुव size_t ilen = hlen;
 
-  if((header[0] == '\r') || (header[0] == '\n'))
+  यदि((शीर्षकम्[0] == '\r') || (शीर्षकम्[0] == '\n'))
     /* ignore the body separator */
-    return CURLE_OK;
+    प्रत्यागम CURLE_OK;
 
   /* trim off newline characters */
-  if(hlen && (header[hlen - 1] == '\n'))
+  यदि(hlen && (शीर्षकम्[hlen - 1] == '\n'))
     hlen--;
-  if(hlen && (header[hlen - 1] == '\r'))
+  यदि(hlen && (शीर्षकम्[hlen - 1] == '\r'))
     hlen--;
-  if(hlen == ilen)
+  यदि(hlen == ilen)
     /* neither CR nor LF as terminator is not a valid header */
-    return CURLE_WEIRD_SERVER_REPLY;
+    प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
 
-  if(ISBLANK(header[0])) {
+  यदि(ISBLANK(शीर्षकम्[0])) {
     /* pass leading blanks */
-    while(hlen && ISBLANK(*header)) {
-      header++;
+    यावत्(hlen && ISBLANK(*शीर्षकम्)) {
+      शीर्षकम्++;
       hlen--;
     }
-    if(!hlen)
-      return CURLE_WEIRD_SERVER_REPLY;
+    यदि(!hlen)
+      प्रत्यागम CURLE_WEIRD_SERVER_प्रत्युत्तरम्;
   }
-  if(Curl_llist_count(&data->state.httphdrs) >= MAX_HTTP_RESP_HEADER_COUNT) {
-    failf(data, "Too many response headers, %d is max",
-          MAX_HTTP_RESP_HEADER_COUNT);
-    return CURLE_TOO_LARGE;
+  यदि(Curl_llist_गणनम्(&दत्त->state.httphdrs) >= MAX_HTTP_RESP_शीर्षकम्_गणनम्) {
+    failf(दत्त, "Too many response headers, %d is max",
+          MAX_HTTP_RESP_शीर्षकम्_गणनम्);
+    प्रत्यागम CURLE_TOO_LARGE;
   }
 
-  hs = curlx_calloc(1, sizeof(*hs) + hlen);
-  if(!hs)
-    return CURLE_OUT_OF_MEMORY;
-  memcpy(hs->buffer, header, hlen);
-  hs->buffer[hlen] = 0; /* null-terminate */
+  hs = curlx_calloc(1, परिमाण(*hs) + hlen);
+  यदि(!hs)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+  स्मृतिं_प्रतिलिख(hs->बफर, शीर्षकम्, hlen);
+  hs->बफर[hlen] = 0; /* null-terminate */
 
-  result = namevalue(hs->buffer, hlen, type, &name, &value);
-  if(!result) {
+  परिणाम = namevalue(hs->बफर, hlen, type, &name, &मानम्);
+  यदि(!परिणाम) {
     hs->name = name;
-    hs->value = value;
+    hs->मानम् = मानम्;
     hs->type = type;
-    hs->request = data->state.requests;
+    hs->request = दत्त->state.अनुरोधाः;
 
     /* insert this node into the list of headers */
-    Curl_llist_append(&data->state.httphdrs, hs, &hs->node);
+    Curl_llist_append(&दत्त->state.httphdrs, hs, &hs->ग्रन्थिः);
   }
-  else {
-    failf(data, "Invalid response header");
+  अन्यथा {
+    failf(दत्त, "Invalid response header");
     curlx_free(hs);
   }
-  return result;
+  प्रत्यागम परिणाम;
 }
 
 /*
  * Curl_headers_reset(). Reset the headers subsystem.
  */
-static void headers_reset(struct Curl_easy *data)
+स्थिर शून्य शीर्षकाणि_reset(संरचना Curl_easy *दत्त)
 {
-  Curl_llist_init(&data->state.httphdrs, NULL);
-  data->state.nh_count = 0;
+  Curl_llist_init(&दत्त->state.httphdrs, रिक्त);
+  दत्त->state.nh_गणनम् = 0;
 }
 
-struct hds_cw_collect_ctx {
-  struct Curl_cwriter super;
+संरचना hds_cw_collect_ctx {
+  संरचना Curl_cwriter super;
 };
 
-static CURLcode hds_cw_collect_write(struct Curl_easy *data,
-                                     struct Curl_cwriter *writer, int type,
-                                     const char *buf, size_t blen)
+स्थिर CURLcode hds_cw_collect_write(संरचना Curl_easy *दत्त,
+                                     संरचना Curl_cwriter *writer, पूर्णाङ्क type,
+                                     ध्रुव वर्ण *buf, size_t blen)
 {
-  if((type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS)) {
-    unsigned char htype = (unsigned char)
+  यदि((type & CLIENTWRITE_शीर्षकम्) && !(type & CLIENTWRITE_स्थितिः)) {
+    अचिह्नित वर्ण htype = (अचिह्नित वर्ण)
       (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
        (type & CLIENTWRITE_1XX ? CURLH_1XX :
         (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :
-         CURLH_HEADER)));
-    CURLcode result = Curl_headers_push(data, buf, blen, htype);
-    CURL_TRC_WRITE(data, "header_collect pushed(type=%x, len=%zu) -> %d",
-                   htype, blen, (int)result);
-    if(result)
-      return result;
+         CURLH_शीर्षकम्)));
+    CURLcode परिणाम = Curl_शीर्षकाणि_प्रक्षिप(दत्त, buf, blen, htype);
+    CURL_TRC_WRITE(दत्त, "header_collect pushed(type=%x, len=%zu) -> %d",
+                   htype, blen, (पूर्णाङ्क)परिणाम);
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
   }
-  return Curl_cwriter_write(data, writer->next, type, buf, blen);
+  प्रत्यागम Curl_cwriter_write(दत्त, writer->अग्र, type, buf, blen);
 }
 
-static const struct Curl_cwtype hds_cw_collect = {
+स्थिर ध्रुव संरचना Curl_cwtype hds_cw_collect = {
   "hds-collect",
-  NULL,
+  रिक्त,
   0,
   Curl_cwriter_def_init,
   hds_cw_collect_write,
   Curl_cwriter_def_flush,
   Curl_cwriter_def_close,
-  sizeof(struct hds_cw_collect_ctx)
+  परिमाण(संरचना hds_cw_collect_ctx)
 };
 
-CURLcode Curl_headers_init(struct Curl_easy *data)
+CURLcode Curl_शीर्षकाणि_init(संरचना Curl_easy *दत्त)
 {
-  struct Curl_cwriter *writer;
-  CURLcode result;
+  संरचना Curl_cwriter *writer;
+  CURLcode परिणाम;
 
-  if(data->conn && (data->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
+  यदि(दत्त->conn && (दत्त->conn->scheme->protocol & PROTO_FAMILY_HTTP)) {
     /* avoid installing it twice */
-    if(Curl_cwriter_get_by_name(data, hds_cw_collect.name))
-      return CURLE_OK;
+    यदि(Curl_cwriter_get_by_name(दत्त, hds_cw_collect.name))
+      प्रत्यागम CURLE_OK;
 
-    result = Curl_cwriter_create(&writer, data, &hds_cw_collect,
+    परिणाम = Curl_cwriter_create(&writer, दत्त, &hds_cw_collect,
                                  CURL_CW_PROTOCOL);
-    if(result)
-      return result;
+    यदि(परिणाम)
+      प्रत्यागम परिणाम;
 
-    result = Curl_cwriter_add(data, writer);
-    if(result) {
-      Curl_cwriter_free(data, writer);
-      return result;
+    परिणाम = Curl_cwriter_सङ्कलय(दत्त, writer);
+    यदि(परिणाम) {
+      Curl_cwriter_free(दत्त, writer);
+      प्रत्यागम परिणाम;
     }
   }
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data)
+CURLcode Curl_शीर्षकाणि_cleanup(संरचना Curl_easy *दत्त)
 {
-  struct Curl_llist_node *e;
-  struct Curl_llist_node *n;
+  संरचना Curl_llist_ग्रन्थिः *e;
+  संरचना Curl_llist_ग्रन्थिः *n;
 
-  for(e = Curl_llist_head(&data->state.httphdrs); e; e = n) {
-    struct Curl_header_store *hs = Curl_node_elem(e);
-    n = Curl_node_next(e);
+  प्रति(e = Curl_llist_शीर्ष(&दत्त->state.httphdrs); e; e = n) {
+    संरचना Curl_शीर्षकम्_store *hs = Curl_ग्रन्थिः_elem(e);
+    n = Curl_ग्रन्थिः_अग्र(e);
     curlx_free(hs);
   }
-  headers_reset(data);
-  return CURLE_OK;
+  शीर्षकाणि_reset(दत्त);
+  प्रत्यागम CURLE_OK;
 }
 
-#else /* HTTP-disabled builds below */
+#अन्यथा /* HTTP-disabled builds below */
 
-CURLHcode curl_easy_header(CURL *easy,
-                           const char *name,
-                           size_t index,
-                           unsigned int origin,
-                           int request,
-                           struct curl_header **hout)
+CURLHcode curl_easy_शीर्षकम्(CURL *easy,
+                           ध्रुव वर्ण *name,
+                           size_t सूचकांक,
+                           अचिह्नित पूर्णाङ्क origin,
+                           पूर्णाङ्क request,
+                           संरचना curl_शीर्षकम् **hout)
 {
-  (void)easy;
-  (void)name;
-  (void)index;
-  (void)origin;
-  (void)request;
-  (void)hout;
-  return CURLHE_NOT_BUILT_IN;
+  (शून्य)easy;
+  (शून्य)name;
+  (शून्य)सूचकांक;
+  (शून्य)origin;
+  (शून्य)request;
+  (शून्य)hout;
+  प्रत्यागम CURLHE_NOT_BUILT_अन्तर्;
 }
 
-struct curl_header *curl_easy_nextheader(CURL *easy,
-                                         unsigned int type,
-                                         int request,
-                                         struct curl_header *prev)
+संरचना curl_शीर्षकम् *curl_easy_nextheader(CURL *easy,
+                                         अचिह्नित पूर्णाङ्क type,
+                                         पूर्णाङ्क request,
+                                         संरचना curl_शीर्षकम् *पूर्व)
 {
-  (void)easy;
-  (void)type;
-  (void)request;
-  (void)prev;
-  return NULL;
+  (शून्य)easy;
+  (शून्य)type;
+  (शून्य)request;
+  (शून्य)पूर्व;
+  प्रत्यागम रिक्त;
 }
-#endif
+#यदि_अन्तः

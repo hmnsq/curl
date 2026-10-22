@@ -21,71 +21,71 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#include "curl_range.h"
-#include "curl_trc.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "curl_range.h"
+#अन्तर्भाव "curl_trc.h"
+#अन्तर्भाव "curlx/strparse.h"
 
 /* Only include this function if one or more of FTP, FILE are enabled. */
-#if !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
+#यदि !defined(CURL_DISABLE_FTP) || !defined(CURL_DISABLE_FILE)
 
 /* Check if this is a range download, and if so, set the internal variables
    properly. */
-CURLcode Curl_range(struct Curl_easy *data)
+CURLcode Curl_range(संरचना Curl_easy *दत्त)
 {
-  if(data->state.use_range && data->state.range) {
-    curl_off_t from, to;
-    bool first_num = TRUE;
-    const char *p = data->state.range;
-    if(curlx_str_number(&p, &from, CURL_OFF_T_MAX))
-      first_num = FALSE;
+  यदि(दत्त->state.use_range && दत्त->state.range) {
+    curl_off_t from, गन्तव्यम्;
+    bool first_अङ्कः = TRUE;
+    ध्रुव वर्ण *p = दत्त->state.range;
+    यदि(curlx_str_सङ्ख्या(&p, &from, CURL_OFF_T_MAX))
+      first_अङ्कः = FALSE;
 
-    if(curlx_str_single(&p, '-'))
+    यदि(curlx_str_single(&p, '-'))
       /* no leading dash or after the first number is an error */
-      return CURLE_RANGE_ERROR;
+      प्रत्यागम CURLE_RANGE_ERROR;
 
-    if(curlx_str_number(&p, &to, CURL_OFF_T_MAX)) {
+    यदि(curlx_str_सङ्ख्या(&p, &गन्तव्यम्, CURL_OFF_T_MAX)) {
       /* no second number */
       /* X - */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE %" FMT_OFF_T " to end of file", from));
+      दत्त->state.resume_from = from;
+      DEBUGF(infof(दत्त, "RANGE %" FMT_OFF_T " to end of file", from));
     }
-    else if(!first_num) {
+    अन्यथा यदि(!first_अङ्कः) {
       /* -Y */
-      if(!to)
+      यदि(!गन्तव्यम्)
         /* "-0" is wrong */
-        return CURLE_RANGE_ERROR;
+        प्रत्यागम CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = to;
-      data->state.resume_from = -to;
-      DEBUGF(infof(data, "RANGE the last %" FMT_OFF_T " bytes", to));
+      दत्त->req.maxdownload = गन्तव्यम्;
+      दत्त->state.resume_from = -गन्तव्यम्;
+      DEBUGF(infof(दत्त, "RANGE the last %" FMT_OFF_T " bytes", गन्तव्यम्));
     }
-    else {
+    अन्यथा {
       /* X-Y */
       curl_off_t totalsize;
 
       /* Ensure the range is sensible - to should follow from. */
-      if(from > to)
-        return CURLE_RANGE_ERROR;
+      यदि(from > गन्तव्यम्)
+        प्रत्यागम CURLE_RANGE_ERROR;
 
-      totalsize = to - from;
-      if(totalsize == CURL_OFF_T_MAX)
-        return CURLE_RANGE_ERROR;
+      totalsize = गन्तव्यम् - from;
+      यदि(totalsize == CURL_OFF_T_MAX)
+        प्रत्यागम CURLE_RANGE_ERROR;
 
-      data->req.maxdownload = totalsize + 1; /* include last byte */
-      data->state.resume_from = from;
-      DEBUGF(infof(data, "RANGE from %" FMT_OFF_T
+      दत्त->req.maxdownload = totalsize + 1; /* include last byte */
+      दत्त->state.resume_from = from;
+      DEBUGF(infof(दत्त, "RANGE from %" FMT_OFF_T
                    " getting %" FMT_OFF_T " bytes",
-                   from, data->req.maxdownload));
+                   from, दत्त->req.maxdownload));
     }
-    DEBUGF(infof(data, "range-download from %" FMT_OFF_T
+    DEBUGF(infof(दत्त, "range-download from %" FMT_OFF_T
                  " to %" FMT_OFF_T ", totally %" FMT_OFF_T " bytes",
-                 from, to, data->req.maxdownload));
+                 from, गन्तव्यम्, दत्त->req.maxdownload));
   }
-  else
-    data->req.maxdownload = -1;
-  return CURLE_OK;
+  अन्यथा
+    दत्त->req.maxdownload = -1;
+  प्रत्यागम CURLE_OK;
 }
 
-#endif
+#यदि_अन्तः

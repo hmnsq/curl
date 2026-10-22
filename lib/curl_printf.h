@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_PRINTF_H
-#define HEADER_CURL_PRINTF_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_PRINTF_H
+#परिभाषय शीर्षकम्_CURL_PRINTF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,14 +24,14 @@
  *
  ***************************************************************************/
 
-#define MERR_OK        0
-#define MERR_MEM       1
-#define MERR_TOO_LARGE 2
+#परिभाषय MERR_OK        0
+#परिभाषय MERR_MEM       1
+#परिभाषय MERR_TOO_LARGE 2
 
 /* Lower-case digits. */
-extern const unsigned char Curl_ldigits[];
+बाह्य ध्रुव अचिह्नित वर्ण Curl_ldigits[];
 
 /* Upper-case digits. */
-extern const unsigned char Curl_udigits[];
+बाह्य ध्रुव अचिह्नित वर्ण Curl_udigits[];
 
-#endif /* HEADER_CURL_PRINTF_H */
+#यदि_अन्तः /* HEADER_CURL_PRINTF_H */

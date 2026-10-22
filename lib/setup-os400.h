@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SETUP_OS400_H
-#define HEADER_CURL_SETUP_OS400_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_सज्जता_OS400_H
+#परिभाषय शीर्षकम्_CURL_सज्जता_OS400_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -25,62 +25,62 @@
  ***************************************************************************/
 
 /* OS/400 netdb.h does not define NI_MAXHOST. */
-#define NI_MAXHOST      1025
+#परिभाषय NI_MAXHOST      1025
 
 /* OS/400 netdb.h does not define NI_MAXSERV. */
-#define NI_MAXSERV      32
+#परिभाषय NI_MAXSERV      32
 
 /* OS/400 has no idea of a tty! */
-#define isatty(fd)      0
+#परिभाषय isatty(fd)      0
 
 /* Workaround bug in IBM QADRT runtime library:
  * function puts() does not output the implicit trailing newline.
  */
 
-#include <stdio.h>      /* Be sure it is loaded. */
-#undef puts
-#define puts(s) (fputs(s, stdout) == EOF ? EOF : putchar('\n'))
+#अन्तर्भाव <stdio.h>      /* Be sure it is loaded. */
+#अपरिभाषय पङ्क्तिं_लिख
+#परिभाषय पङ्क्तिं_लिख(s) (fputs(s, stdout) == EOF ? EOF : अक्षरं_लिख('\n'))
 
 /* System API wrapper prototypes & definitions to support ASCII parameters. */
 
-#include <sys/socket.h>
-#include <netdb.h>
-#include <gskssl.h>
-#include <qsoasync.h>
-#include <gssapi.h>
+#अन्तर्भाव <sys/socket.h>
+#अन्तर्भाव <netdb.h>
+#अन्तर्भाव <gskssl.h>
+#अन्तर्भाव <qsoasync.h>
+#अन्तर्भाव <gssapi.h>
 
-#ifdef BUILDING_LIBCURL
+#यदि_परिभाषितम् BUILDING_LIBCURL
 
-extern int Curl_getaddrinfo_a(const char *nodename,
-                              const char *servname,
-                              const struct addrinfo *hints,
-                              struct addrinfo **res);
-#define getaddrinfo             Curl_getaddrinfo_a
+बाह्य पूर्णाङ्क Curl_getaddrinfo_a(ध्रुव वर्ण *nodename,
+                              ध्रुव वर्ण *servname,
+                              ध्रुव संरचना addrinfo *hints,
+                              संरचना addrinfo **res);
+#परिभाषय getaddrinfo             Curl_getaddrinfo_a
 
 /* Note socklen_t must be used as this is declared before curl_socklen_t */
-extern int Curl_getnameinfo_a(const struct sockaddr *sa,
+बाह्य पूर्णाङ्क Curl_getnameinfo_a(ध्रुव संरचना sockaddr *sa,
                               socklen_t salen,
-                              char *nodename, socklen_t nodenamelen,
-                              char *servname, socklen_t servnamelen,
-                              int flags);
-#define getnameinfo             Curl_getnameinfo_a
+                              वर्ण *nodename, socklen_t nodenamelen,
+                              वर्ण *servname, socklen_t servnamelen,
+                              पूर्णाङ्क flags);
+#परिभाषय getnameinfo             Curl_getnameinfo_a
 
 /* GSSAPI wrappers. */
 
-extern OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_status,
-                                        gss_buffer_t in_name,
-                                        gss_OID in_name_type,
-                                        gss_name_t *out_name);
-#define gss_import_name         Curl_gss_import_name_a
+बाह्य OM_uint32 Curl_gss_import_name_a(OM_uint32 *minor_स्थितिः,
+                                        gss_बफर_t अन्तर्_name,
+                                        gss_OID अन्तर्_name_type,
+                                        gss_name_t *बहिर्गमनम्_name);
+#परिभाषय gss_import_name         Curl_gss_import_name_a
 
-extern OM_uint32 Curl_gss_display_status_a(OM_uint32 *minor_status,
-                                           OM_uint32 status_value,
-                                           int status_type, gss_OID mech_type,
-                                           gss_msg_ctx_t *message_context,
-                                           gss_buffer_t status_string);
-#define gss_display_status      Curl_gss_display_status_a
+बाह्य OM_uint32 Curl_gss_display_स्थितिः_a(OM_uint32 *minor_स्थितिः,
+                                           OM_uint32 स्थितिः_मानम्,
+                                           पूर्णाङ्क स्थितिः_type, gss_OID mech_type,
+                                           gss_सन्देशः_ctx_t *सन्देशः_context,
+                                           gss_बफर_t स्थितिः_string);
+#परिभाषय gss_display_स्थितिः      Curl_gss_display_स्थितिः_a
 
-extern OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_status,
+बाह्य OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_स्थितिः,
                                              gss_cred_id_t cred_handle,
                                              gss_ctx_id_t *context_handle,
                                              gss_name_t target_name,
@@ -88,60 +88,60 @@ extern OM_uint32 Curl_gss_init_sec_context_a(OM_uint32 *minor_status,
                                              gss_flags_t req_flags,
                                              OM_uint32 time_req,
                                              gss_channel_bindings_t
-                                             input_chan_bindings,
-                                             gss_buffer_t input_token,
+                                             निवेशः_chan_bindings,
+                                             gss_बफर_t निवेशः_token,
                                              gss_OID *actual_mech_type,
-                                             gss_buffer_t output_token,
+                                             gss_बफर_t output_token,
                                              gss_flags_t *ret_flags,
                                              OM_uint32 *time_rec);
-#define gss_init_sec_context    Curl_gss_init_sec_context_a
+#परिभाषय gss_init_sec_context    Curl_gss_init_sec_context_a
 
-extern OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_status,
+बाह्य OM_uint32 Curl_gss_delete_sec_context_a(OM_uint32 *minor_स्थितिः,
                                                gss_ctx_id_t *context_handle,
-                                               gss_buffer_t output_token);
-#define gss_delete_sec_context  Curl_gss_delete_sec_context_a
+                                               gss_बफर_t output_token);
+#परिभाषय gss_delete_sec_context  Curl_gss_delete_sec_context_a
 
 /* LDAP wrappers. */
 
-#define BerValue                struct berval
+#परिभाषय Ber_मानम्                संरचना berval
 
-#define ldap_url_parse          ldap_url_parse_utf8
-#define ldap_init               Curl_ldap_init_a
-#define ldap_simple_bind_s      Curl_ldap_simple_bind_s_a
-#define ldap_search_s           Curl_ldap_search_s_a
-#define ldap_get_values_len     Curl_ldap_get_values_len_a
-#define ldap_err2string         Curl_ldap_err2string_a
-#define ldap_get_dn             Curl_ldap_get_dn_a
-#define ldap_first_attribute    Curl_ldap_first_attribute_a
-#define ldap_next_attribute     Curl_ldap_next_attribute_a
+#परिभाषय ldap_url_parse          ldap_url_parse_utf8
+#परिभाषय ldap_init               Curl_ldap_init_a
+#परिभाषय ldap_simple_bind_s      Curl_ldap_simple_bind_s_a
+#परिभाषय ldap_अन्वेषणम्_s           Curl_ldap_अन्वेषणम्_s_a
+#परिभाषय ldap_get_मानानि_len     Curl_ldap_get_मानानि_len_a
+#परिभाषय ldap_err2string         Curl_ldap_err2string_a
+#परिभाषय ldap_get_dn             Curl_ldap_get_dn_a
+#परिभाषय ldap_first_attribute    Curl_ldap_first_attribute_a
+#परिभाषय ldap_अग्र_attribute     Curl_ldap_अग्र_attribute_a
 
 /* Some socket functions must be wrapped to process textual addresses
    like AF_UNIX. */
 
-extern int Curl_os400_connect(int sd, struct sockaddr *destaddr, int addrlen);
-extern int Curl_os400_bind(int sd, struct sockaddr *localaddr, int addrlen);
-extern int Curl_os400_sendto(int sd, char *buffer, int buflen, int flags,
-                             const struct sockaddr *dstaddr, int addrlen);
-extern int Curl_os400_recvfrom(int sd, char *buffer, int buflen, int flags,
-                               struct sockaddr *fromaddr, int *addrlen);
-extern int Curl_os400_getpeername(int sd, struct sockaddr *addr, int *addrlen);
-extern int Curl_os400_getsockname(int sd, struct sockaddr *addr, int *addrlen);
+बाह्य पूर्णाङ्क Curl_os400_connect(पूर्णाङ्क sd, संरचना sockaddr *destaddr, पूर्णाङ्क addrlen);
+बाह्य पूर्णाङ्क Curl_os400_bind(पूर्णाङ्क sd, संरचना sockaddr *localaddr, पूर्णाङ्क addrlen);
+बाह्य पूर्णाङ्क Curl_os400_sendto(पूर्णाङ्क sd, वर्ण *बफर, पूर्णाङ्क buflen, पूर्णाङ्क flags,
+                             ध्रुव संरचना sockaddr *dstaddr, पूर्णाङ्क addrlen);
+बाह्य पूर्णाङ्क Curl_os400_recvfrom(पूर्णाङ्क sd, वर्ण *बफर, पूर्णाङ्क buflen, पूर्णाङ्क flags,
+                               संरचना sockaddr *fromaddr, पूर्णाङ्क *addrlen);
+बाह्य पूर्णाङ्क Curl_os400_getpeername(पूर्णाङ्क sd, संरचना sockaddr *addr, पूर्णाङ्क *addrlen);
+बाह्य पूर्णाङ्क Curl_os400_getsockname(पूर्णाङ्क sd, संरचना sockaddr *addr, पूर्णाङ्क *addrlen);
 
-#define connect                 Curl_os400_connect
-#define bind                    Curl_os400_bind
-#define sendto                  Curl_os400_sendto
-#define recvfrom                Curl_os400_recvfrom
-#define getpeername             Curl_os400_getpeername
-#define getsockname             Curl_os400_getsockname
+#परिभाषय connect                 Curl_os400_connect
+#परिभाषय bind                    Curl_os400_bind
+#परिभाषय sendto                  Curl_os400_sendto
+#परिभाषय recvfrom                Curl_os400_recvfrom
+#परिभाषय getpeername             Curl_os400_getpeername
+#परिभाषय getsockname             Curl_os400_getsockname
 
-#ifdef HAVE_LIBZ
-#define zlibVersion             Curl_os400_zlibVersion
-#define inflateInit_            Curl_os400_inflateInit_
-#define inflateInit2_           Curl_os400_inflateInit2_
-#define inflate                 Curl_os400_inflate
-#define inflateEnd              Curl_os400_inflateEnd
-#endif
+#यदि_परिभाषितम् HAVE_LIBZ
+#परिभाषय zlib_संस्करणम्             Curl_os400_zlib_संस्करणम्
+#परिभाषय inflateInit_            Curl_os400_inflateInit_
+#परिभाषय inflateInit2_           Curl_os400_inflateInit2_
+#परिभाषय inflate                 Curl_os400_inflate
+#परिभाषय inflate_अन्तः              Curl_os400_inflate_अन्तः
+#यदि_अन्तः
 
-#endif /* BUILDING_LIBCURL */
+#यदि_अन्तः /* BUILDING_LIBCURL */
 
-#endif /* HEADER_CURL_SETUP_OS400_H */
+#यदि_अन्तः /* HEADER_CURL_SETUP_OS400_H */

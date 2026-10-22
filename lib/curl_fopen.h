@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_FOPEN_H
-#define HEADER_CURL_FOPEN_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_FOPEN_H
+#परिभाषय शीर्षकम्_CURL_FOPEN_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,9 +23,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/win32-fopen.h"
+#अन्तर्भाव "curlx/win32-fopen.h"
 
-CURLcode Curl_fopen(struct Curl_easy *data, const char *filename,
-                    FILE **fh, char **tempname);
+CURLcode Curl_fopen(संरचना Curl_easy *दत्त, ध्रुव वर्ण *filename,
+                    FILE **fh, वर्ण **tempname);
 
-#endif
+#यदि_अन्तः

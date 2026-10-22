@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASY_LOCK_H
-#define HEADER_CURL_EASY_LOCK_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_EASY_तालकम्_H
+#परिभाषय शीर्षकम्_CURL_EASY_तालकम्_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,79 +23,79 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#define GLOBAL_INIT_IS_THREADSAFE
+#परिभाषय GLOBAL_INIT_IS_THREADSAFE
 
-#ifdef _WIN32
+#यदि_परिभाषितम् _WIN32
 
-#define curl_simple_lock      SRWLOCK
-#define CURL_SIMPLE_LOCK_INIT SRWLOCK_INIT
+#परिभाषय curl_simple_तालकम्      SRWLOCK
+#परिभाषय CURL_SIMPLE_तालकम्_INIT SRWLOCK_INIT
 
-#define curl_simple_lock_lock(m)   AcquireSRWLockExclusive(m)
-#define curl_simple_lock_unlock(m) ReleaseSRWLockExclusive(m)
+#परिभाषय curl_simple_तालकम्_तालकम्(m)   AcquireSRWLockExclusive(m)
+#परिभाषय curl_simple_तालकम्_unlock(m) ReleaseSRWLockExclusive(m)
 
-#elif defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
-#include <stdatomic.h>
-#ifdef HAVE_SCHED_YIELD
-#include <sched.h>
-#endif
+#नोचेद्यदि defined(HAVE_ATOMIC) && defined(HAVE_STDATOMIC_H)
+#अन्तर्भाव <stdatomic.h>
+#यदि_परिभाषितम् HAVE_SCHED_YIELD
+#अन्तर्भाव <sched.h>
+#यदि_अन्तः
 
-#define curl_simple_lock      atomic_int
-#define CURL_SIMPLE_LOCK_INIT 0
+#परिभाषय curl_simple_तालकम्      atomic_int
+#परिभाषय CURL_SIMPLE_तालकम्_INIT 0
 
-#ifndef __INTEL_COMPILER
+#यदि_अपरिभाषितम् __INTEL_COMPILER
 /* The Intel compiler tries to look like GCC *and* clang *and* lies in its
    __has_builtin() function, so override it. */
 
 /* if GCC on i386/x86_64 or if the built-in is present */
-#if (defined(__GNUC__) && !defined(__clang__)) && \
+#यदि (defined(__GNUC__) && !defined(__clang__)) && \
   (defined(__i386__) || defined(__x86_64__))
-#define HAVE_BUILTIN_IA32_PAUSE
-#elif defined(__has_builtin)  /* Keep this PP check separate from others */
-#if __has_builtin(__builtin_ia32_pause)
-#define HAVE_BUILTIN_IA32_PAUSE
-#endif
-#endif
+#परिभाषय HAVE_BUILTIN_IA32_PAUSE
+#नोचेद्यदि defined(__has_builtin)  /* Keep this PP check separate from others */
+#यदि __has_builtin(__builtin_ia32_pause)
+#परिभाषय HAVE_BUILTIN_IA32_PAUSE
+#यदि_अन्तः
+#यदि_अन्तः
 
-#endif /* !__INTEL_COMPILER */
+#यदि_अन्तः /* !__INTEL_COMPILER */
 
-static CURL_INLINE void curl_simple_lock_lock(curl_simple_lock *lock)
+स्थिर CURL_INLINE शून्य curl_simple_तालकम्_तालकम्(curl_simple_तालकम् *तालकम्)
 {
-  for(;;) {
-    if(!atomic_exchange_explicit(lock, true, memory_order_acquire))
-      break;
+  प्रति(;;) {
+    यदि(!atomic_exchange_explicit(तालकम्, true, स्मृतिः_क्रमः_acquire))
+      भङ्ग;
     /* Reduce cache coherency traffic */
-    while(atomic_load_explicit(lock, memory_order_relaxed)) {
+    यावत्(atomic_load_explicit(तालकम्, स्मृतिः_क्रमः_relaxed)) {
       /* Reduce load (not mandatory) */
-#ifdef HAVE_BUILTIN_IA32_PAUSE
+#यदि_परिभाषितम् HAVE_BUILTIN_IA32_PAUSE
       __builtin_ia32_pause();
-#elif defined(__aarch64__)
+#नोचेद्यदि defined(__aarch64__)
       /* NOLINTNEXTLINE(portability-no-assembler) */
-      __asm__ volatile("yield" ::: "memory");
-#elif defined(HAVE_SCHED_YIELD)
+      __asm__ चञ्चल("yield" ::: "memory");
+#नोचेद्यदि defined(HAVE_SCHED_YIELD)
       sched_yield();
-#endif
+#यदि_अन्तः
     }
   }
 }
 
-static CURL_INLINE void curl_simple_lock_unlock(curl_simple_lock *lock)
+स्थिर CURL_INLINE शून्य curl_simple_तालकम्_unlock(curl_simple_तालकम् *तालकम्)
 {
-  atomic_store_explicit(lock, false, memory_order_release);
+  atomic_store_explicit(तालकम्, false, स्मृतिः_क्रमः_release);
 }
 
-#elif defined(HAVE_THREADS_POSIX)
+#नोचेद्यदि defined(HAVE_तन्तवः_POSIX)
 
-#define curl_simple_lock           pthread_mutex_t
-#define CURL_SIMPLE_LOCK_INIT      PTHREAD_MUTEX_INITIALIZER
-#define curl_simple_lock_lock(m)   pthread_mutex_lock(m)
-#define curl_simple_lock_unlock(m) pthread_mutex_unlock(m)
+#परिभाषय curl_simple_तालकम्           pthread_mutex_t
+#परिभाषय CURL_SIMPLE_तालकम्_INIT      PTHREAD_MUTEX_INITIALIZER
+#परिभाषय curl_simple_तालकम्_तालकम्(m)   pthread_mutex_तालकम्(m)
+#परिभाषय curl_simple_तालकम्_unlock(m) pthread_mutex_unlock(m)
 
-#else
+#अन्यथा
 
-#undef GLOBAL_INIT_IS_THREADSAFE
+#अपरिभाषय GLOBAL_INIT_IS_THREADSAFE
 
-#endif
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_EASY_LOCK_H */
+#यदि_अन्तः /* HEADER_CURL_EASY_LOCK_H */

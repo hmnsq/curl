@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_MULTI_NTFY_H
-#define HEADER_CURL_MULTI_NTFY_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_MULTI_NTFY_H
+#परिभाषय शीर्षकम्_CURL_MULTI_NTFY_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,39 +23,39 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#define CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
+#परिभाषय CURL_MNTFY_FLAG_HAS_ENTRIES  ((uint32_t)1 << 31)
 
-struct Curl_easy;
-struct Curl_multi;
+संरचना Curl_easy;
+संरचना Curl_multi;
 
-struct curl_multi_ntfy {
+संरचना curl_multi_ntfy {
   curl_notify_callback ntfy_cb;
-  void *ntfy_cb_data;
-  struct mntfy_chunk *head;
-  struct mntfy_chunk *tail;
+  शून्य *ntfy_cb_दत्त;
+  संरचना mntfy_chunk *शीर्ष;
+  संरचना mntfy_chunk *पुच्छ;
   uint32_t flags;
   CURLMcode failure;
 };
 
-void Curl_mntfy_init(struct Curl_multi *multi);
-void Curl_mntfy_cleanup(struct Curl_multi *multi);
+शून्य Curl_mntfy_init(संरचना Curl_multi *multi);
+शून्य Curl_mntfy_cleanup(संरचना Curl_multi *multi);
 
-CURLMcode Curl_mntfy_enable(struct Curl_multi *multi, unsigned int type);
-CURLMcode Curl_mntfy_disable(struct Curl_multi *multi, unsigned int type);
+CURLMcode Curl_mntfy_enable(संरचना Curl_multi *multi, अचिह्नित पूर्णाङ्क type);
+CURLMcode Curl_mntfy_disable(संरचना Curl_multi *multi, अचिह्नित पूर्णाङ्क type);
 
-void Curl_mntfy_add(struct Curl_easy *data, unsigned int type);
+शून्य Curl_mntfy_सङ्कलय(संरचना Curl_easy *दत्त, अचिह्नित पूर्णाङ्क type);
 
-#define CURLM_NTFY(d, t)                              \
-  do {                                                \
-    if((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
-      Curl_mntfy_add((d), (t));                       \
-  } while(0)
+#परिभाषय CURLM_NTFY(d, t)                              \
+  कुरु {                                                \
+    यदि((d) && (d)->multi && (d)->multi->ntfy.ntfy_cb) \
+      Curl_mntfy_सङ्कलय((d), (t));                       \
+  } यावत्(0)
 
-#define CURL_MNTFY_HAS_ENTRIES(m) \
+#परिभाषय CURL_MNTFY_HAS_ENTRIES(m) \
   ((m)->ntfy.flags & CURL_MNTFY_FLAG_HAS_ENTRIES)
 
-CURLMcode Curl_mntfy_dispatch_all(struct Curl_multi *multi);
+CURLMcode Curl_mntfy_dispatch_all(संरचना Curl_multi *multi);
 
-#endif /* HEADER_CURL_MULTI_NTFY_H */
+#यदि_अन्तः /* HEADER_CURL_MULTI_NTFY_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_EASYIF_H
-#define HEADER_CURL_EASYIF_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_EASYIF_H
+#परिभाषय शीर्षकम्_CURL_EASYIF_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -26,15 +26,15 @@
 /*
  * Prototypes for library-wide functions provided by easy.c
  */
-CURLcode Curl_senddata(struct Curl_easy *data, const void *buffer,
+CURLcode Curl_senddata(संरचना Curl_easy *दत्त, ध्रुव शून्य *बफर,
                        size_t buflen, size_t *n);
 
-#ifndef CURL_DISABLE_WEBSOCKETS
-CURLcode Curl_connect_only_attach(struct Curl_easy *data);
-#endif
+#यदि_अपरिभाषितम् CURL_DISABLE_WEBSOCKETS
+CURLcode Curl_connect_only_attach(संरचना Curl_easy *दत्त);
+#यदि_अन्तः
 
-#ifdef DEBUGBUILD
-CURL_EXTERN CURLcode curl_easy_perform_ev(struct Curl_easy *easy);
-#endif
+#यदि_परिभाषितम् DEBUGBUILD
+CURL_EXTERN CURLcode curl_easy_perform_ev(संरचना Curl_easy *easy);
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_EASYIF_H */
+#यदि_अन्तः /* HEADER_CURL_EASYIF_H */

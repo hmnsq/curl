@@ -23,19 +23,19 @@
  * RFC4178 Simple and Protected GSS-API Negotiation Mechanism
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if defined(HAVE_GSSAPI) && defined(USE_SPNEGO)
+#यदि defined(HAVE_GSSAPI) && defined(USE_SPNEGO)
 
-#include "vauth/vauth.h"
-#include "curlx/base64.h"
-#include "curl_gssapi.h"
-#include "curl_trc.h"
+#अन्तर्भाव "vauth/vauth.h"
+#अन्तर्भाव "curlx/base64.h"
+#अन्तर्भाव "curl_gssapi.h"
+#अन्तर्भाव "curl_trc.h"
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#यदि defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#निर्देशः GCC diagnostic प्रक्षिप
+#निर्देशः GCC diagnostic ignored "-Wdeprecated-declarations"
+#यदि_अन्तः
 
 /*
  * Curl_auth_is_spnego_supported()
@@ -46,9 +46,9 @@
  *
  * Returns TRUE if Negotiate supported by the GSS-API library.
  */
-bool Curl_auth_is_spnego_supported(void)
+bool Curl_auth_is_spnego_supported(शून्य)
 {
-  return TRUE;
+  प्रत्यागम TRUE;
 }
 
 /*
@@ -69,184 +69,184 @@ bool Curl_auth_is_spnego_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
-                                         struct Curl_creds *creds,
-                                         const char *default_service,
-                                         const char *host,
-                                         const char *chlg64,
-                                         struct negotiatedata *nego)
+CURLcode Curl_auth_decode_spnego_सन्देशः(संरचना Curl_easy *दत्त,
+                                         संरचना Curl_creds *creds,
+                                         ध्रुव वर्ण *default_service,
+                                         ध्रुव वर्ण *host,
+                                         ध्रुव वर्ण *chlg64,
+                                         संरचना negotiatedata *nego)
 {
-  CURLcode result = CURLE_OK;
+  CURLcode परिणाम = CURLE_OK;
   size_t chlglen = 0;
-  unsigned char *chlg = NULL;
-  OM_uint32 major_status;
-  OM_uint32 minor_status;
-  OM_uint32 unused_status;
-  gss_buffer_desc input_token = GSS_C_EMPTY_BUFFER;
-  gss_buffer_desc output_token = GSS_C_EMPTY_BUFFER;
+  अचिह्नित वर्ण *chlg = रिक्त;
+  OM_uint32 major_स्थितिः;
+  OM_uint32 minor_स्थितिः;
+  OM_uint32 अप्रयुक्तम्_स्थितिः;
+  gss_बफर_desc निवेशः_token = GSS_C_रिक्तानि_बफर;
+  gss_बफर_desc output_token = GSS_C_रिक्तानि_बफर;
   gss_channel_bindings_t chan_bindings = GSS_C_NO_CHANNEL_BINDINGS;
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  struct gss_channel_bindings_struct chan;
-#endif
+#यदि_परिभाषितम् GSS_C_CHANNEL_BOUND_FLAG
+  संरचना gss_channel_bindings_struct chan;
+#यदि_अन्तः
 
-  (void)creds;
+  (शून्य)creds;
 
-  if(nego->context && nego->status == GSS_S_COMPLETE) {
+  यदि(nego->context && nego->स्थितिः == GSS_S_COMPLETE) {
     /* We finished successfully our part of authentication, but server
      * rejected it (since we are again here). Exit with an error since we
      * cannot invent anything better */
     Curl_auth_cleanup_spnego(nego);
-    return CURLE_LOGIN_DENIED;
+    प्रत्यागम CURLE_LOGIN_DENIED;
   }
 
-  if(!nego->spn) {
-    gss_buffer_desc spn_token = GSS_C_EMPTY_BUFFER;
+  यदि(!nego->spn) {
+    gss_बफर_desc spn_token = GSS_C_रिक्तानि_बफर;
 
     /* Generate our SPN */
-    const char *service = Curl_creds_has_sasl_service(creds) ?
+    ध्रुव वर्ण *service = Curl_creds_has_sasl_service(creds) ?
       Curl_creds_sasl_service(creds) : default_service;
-    char *spn = Curl_auth_build_spn(service, NULL, host);
-    if(!spn)
-      return CURLE_OUT_OF_MEMORY;
+    वर्ण *spn = Curl_auth_build_spn(service, रिक्त, host);
+    यदि(!spn)
+      प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
     /* Populate the SPN structure */
-    spn_token.value = spn;
-    spn_token.length = strlen(spn);
+    spn_token.मानम् = spn;
+    spn_token.दीर्घता = वाक्यदैर्घ्यम्(spn);
 
     /* Import the SPN */
-    major_status = gss_import_name(&minor_status, &spn_token,
+    major_स्थितिः = gss_import_name(&minor_स्थितिः, &spn_token,
                                    GSS_C_NT_HOSTBASED_SERVICE,
                                    &nego->spn);
-    if(GSS_ERROR(major_status)) {
-      Curl_gss_log_error(data, "gss_import_name() failed: ",
-                         major_status, minor_status);
+    यदि(GSS_ERROR(major_स्थितिः)) {
+      Curl_gss_log_error(दत्त, "gss_import_name() failed: ",
+                         major_स्थितिः, minor_स्थितिः);
 
       curlx_free(spn);
 
-      return CURLE_AUTH_ERROR;
+      प्रत्यागम CURLE_AUTH_ERROR;
     }
 
     curlx_free(spn);
   }
 
-  if(chlg64 && *chlg64) {
+  यदि(chlg64 && *chlg64) {
     /* Decode the base-64 encoded challenge message */
-    if(*chlg64 != '=') {
-      result = curlx_base64_decode(chlg64, &chlg, &chlglen);
-      if(result)
-        return result;
+    यदि(*chlg64 != '=') {
+      परिणाम = curlx_base64_decode(chlg64, &chlg, &chlglen);
+      यदि(परिणाम)
+        प्रत्यागम परिणाम;
     }
 
     /* Ensure we have a valid challenge message */
-    if(!chlg) {
-      infof(data, "SPNEGO handshake failure (empty challenge message)");
-      return CURLE_BAD_CONTENT_ENCODING;
+    यदि(!chlg) {
+      infof(दत्त, "SPNEGO handshake failure (empty challenge message)");
+      प्रत्यागम CURLE_BAD_CONTENT_ENCODING;
     }
 
     /* Setup the challenge "input" security buffer */
-    input_token.value = chlg;
-    input_token.length = chlglen;
+    निवेशः_token.मानम् = chlg;
+    निवेशः_token.दीर्घता = chlglen;
   }
 
   /* Set channel binding data if available */
-#ifdef GSS_C_CHANNEL_BOUND_FLAG
-  if(curlx_dyn_len(&nego->channel_binding_data)) {
-    memset(&chan, 0, sizeof(struct gss_channel_bindings_struct));
-    chan.application_data.length = curlx_dyn_len(&nego->channel_binding_data);
-    chan.application_data.value = curlx_dyn_ptr(&nego->channel_binding_data);
+#यदि_परिभाषितम् GSS_C_CHANNEL_BOUND_FLAG
+  यदि(curlx_dyn_len(&nego->channel_binding_दत्त)) {
+    स्मृतिं_पूरय(&chan, 0, परिमाण(संरचना gss_channel_bindings_struct));
+    chan.application_दत्त.दीर्घता = curlx_dyn_len(&nego->channel_binding_दत्त);
+    chan.application_दत्त.मानम् = curlx_dyn_ptr(&nego->channel_binding_दत्त);
     chan_bindings = &chan;
   }
-#endif
+#यदि_अन्तः
 
-#ifdef HAVE_GSS_SET_NEG_MECHS
+#यदि_परिभाषितम् HAVE_GSS_समुच्चयः_NEG_MECHS
   /* Acquire explicit credentials and restrict SPNEGO sub-mechanisms to
    * exclude NTLM. We enumerate all available mechanisms and filter out
    * the NTLMSSP OID, matching SSPI's "!ntlm". */
-  if(nego->cred == GSS_C_NO_CREDENTIAL) {
+  यदि(nego->cred == GSS_C_NO_CREDENTIAL) {
     /* OID 1.3.6.1.4.1.311.2.2.10 (NTLMSSP) */
-    static const gss_OID_desc ntlmssp_oid = {
+    स्थिर ध्रुव gss_OID_desc ntlmssp_oid = {
       10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
     };
-    gss_OID_set available_mechs = GSS_C_NO_OID_SET;
-    gss_OID_set filtered_mechs = GSS_C_NO_OID_SET;
+    gss_OID_समुच्चयः उपलब्धम्_mechs = GSS_C_NO_OID_समुच्चयः;
+    gss_OID_समुच्चयः filtered_mechs = GSS_C_NO_OID_समुच्चयः;
 
     /* Acquire default credentials for SPNEGO */
-    major_status = Curl_gss_acquire_cred(&minor_status, GSS_C_NO_NAME,
-                                    GSS_C_INDEFINITE, GSS_C_NO_OID_SET,
-                                    GSS_C_INITIATE, &nego->cred, NULL, NULL);
-    if(GSS_ERROR(major_status)) {
-      Curl_gss_log_error(data, "gss_acquire_cred() failed: ",
-                         major_status, minor_status);
-      curlx_safefree(input_token.value);
-      return CURLE_AUTH_ERROR;
+    major_स्थितिः = Curl_gss_acquire_cred(&minor_स्थितिः, GSS_C_NO_NAME,
+                                    GSS_C_INDEFINITE, GSS_C_NO_OID_समुच्चयः,
+                                    GSS_C_INITIATE, &nego->cred, रिक्त, रिक्त);
+    यदि(GSS_ERROR(major_स्थितिः)) {
+      Curl_gss_log_error(दत्त, "gss_acquire_cred() failed: ",
+                         major_स्थितिः, minor_स्थितिः);
+      curlx_safefree(निवेशः_token.मानम्);
+      प्रत्यागम CURLE_AUTH_ERROR;
     }
 
     /* Get all available mechanisms */
-    major_status = Curl_gss_indicate_mechs(&minor_status, &available_mechs);
-    if(!GSS_ERROR(major_status)) {
+    major_स्थितिः = Curl_gss_indicate_mechs(&minor_स्थितिः, &उपलब्धम्_mechs);
+    यदि(!GSS_ERROR(major_स्थितिः)) {
       /* Build a set excluding NTLMSSP */
-      major_status = gss_create_empty_oid_set(&minor_status, &filtered_mechs);
-      if(!GSS_ERROR(major_status)) {
+      major_स्थितिः = gss_create_रिक्तानि_oid_समुच्चयः(&minor_स्थितिः, &filtered_mechs);
+      यदि(!GSS_ERROR(major_स्थितिः)) {
         size_t i;
-        for(i = 0; i < available_mechs->count; i++) {
-          gss_OID oid = &available_mechs->elements[i];
-          if(oid->length != ntlmssp_oid.length ||
-             memcmp(oid->elements, ntlmssp_oid.elements, oid->length)) {
-            gss_add_oid_set_member(&minor_status, oid, &filtered_mechs);
+        प्रति(i = 0; i < उपलब्धम्_mechs->गणनम्; i++) {
+          gss_OID oid = &उपलब्धम्_mechs->elements[i];
+          यदि(oid->दीर्घता != ntlmssp_oid.दीर्घता ||
+             memcmp(oid->elements, ntlmssp_oid.elements, oid->दीर्घता)) {
+            gss_सङ्कलय_oid_समुच्चयः_member(&minor_स्थितिः, oid, &filtered_mechs);
           }
         }
         /* Restrict SPNEGO to only use non-NTLM mechanisms */
-        major_status = Curl_gss_set_neg_mechs(&minor_status, nego->cred,
+        major_स्थितिः = Curl_gss_समुच्चयः_neg_mechs(&minor_स्थितिः, nego->cred,
                                               filtered_mechs);
-        if(GSS_ERROR(major_status)) {
-          Curl_gss_log_error(data, "gss_set_neg_mechs() failed: ",
-                             major_status, minor_status);
+        यदि(GSS_ERROR(major_स्थितिः)) {
+          Curl_gss_log_error(दत्त, "gss_set_neg_mechs() failed: ",
+                             major_स्थितिः, minor_स्थितिः);
         }
-        gss_release_oid_set(&minor_status, &filtered_mechs);
+        gss_release_oid_समुच्चयः(&minor_स्थितिः, &filtered_mechs);
       }
-      gss_release_oid_set(&minor_status, &available_mechs);
+      gss_release_oid_समुच्चयः(&minor_स्थितिः, &उपलब्धम्_mechs);
     }
   }
-#endif /* HAVE_GSS_SET_NEG_MECHS */
+#यदि_अन्तः /* HAVE_GSS_SET_NEG_MECHS */
 
   /* Generate our challenge-response message */
-  major_status = Curl_gss_init_sec_context(data,
-                                           &minor_status,
+  major_स्थितिः = Curl_gss_init_sec_context(दत्त,
+                                           &minor_स्थितिः,
                                            &nego->context,
                                            nego->spn,
                                            &Curl_spnego_mech_oid,
                                            chan_bindings,
-                                           &input_token,
+                                           &निवेशः_token,
                                            &output_token,
                                            TRUE,
-                                           NULL,
+                                           रिक्त,
                                            nego->cred);
 
   /* Free the decoded challenge as it is not required anymore */
-  curlx_safefree(input_token.value);
+  curlx_safefree(निवेशः_token.मानम्);
 
-  nego->status = major_status;
-  if(GSS_ERROR(major_status)) {
-    if(output_token.value)
-      gss_release_buffer(&unused_status, &output_token);
+  nego->स्थितिः = major_स्थितिः;
+  यदि(GSS_ERROR(major_स्थितिः)) {
+    यदि(output_token.मानम्)
+      gss_release_बफर(&अप्रयुक्तम्_स्थितिः, &output_token);
 
-    Curl_gss_log_error(data, "gss_init_sec_context() failed: ",
-                       major_status, minor_status);
+    Curl_gss_log_error(दत्त, "gss_init_sec_context() failed: ",
+                       major_स्थितिः, minor_स्थितिः);
 
-    return CURLE_AUTH_ERROR;
+    प्रत्यागम CURLE_AUTH_ERROR;
   }
 
-  if(!output_token.value || !output_token.length) {
-    if(output_token.value)
-      gss_release_buffer(&unused_status, &output_token);
+  यदि(!output_token.मानम् || !output_token.दीर्घता) {
+    यदि(output_token.मानम्)
+      gss_release_बफर(&अप्रयुक्तम्_स्थितिः, &output_token);
 
-    return CURLE_AUTH_ERROR;
+    प्रत्यागम CURLE_AUTH_ERROR;
   }
 
   /* Check if NTLM was selected and is disallowed */
-  if(nego->context != GSS_C_NO_CONTEXT) {
+  यदि(nego->context != GSS_C_NO_CONTEXT) {
     /* OID 1.3.6.1.4.1.311.2.2.10 (NTLMSSP) */
-    static const gss_OID_desc ntlmssp_oid = {
+    स्थिर ध्रुव gss_OID_desc ntlmssp_oid = {
       10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
     };
     OM_uint32 inquire_major, inquire_minor;
@@ -255,24 +255,24 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
     inquire_major = Curl_gss_inquire_context(&inquire_minor,
                                              nego->context,
                                              &mech_type);
-    if(!GSS_ERROR(inquire_major) && mech_type &&
-       mech_type->length == ntlmssp_oid.length &&
+    यदि(!GSS_ERROR(inquire_major) && mech_type &&
+       mech_type->दीर्घता == ntlmssp_oid.दीर्घता &&
        !memcmp(mech_type->elements, ntlmssp_oid.elements,
-               ntlmssp_oid.length)) {
-      infof(data, "SPNEGO chose NTLM, but NTLM is not allowed");
-      gss_release_buffer(&unused_status, &output_token);
+               ntlmssp_oid.दीर्घता)) {
+      infof(दत्त, "SPNEGO chose NTLM, but NTLM is not allowed");
+      gss_release_बफर(&अप्रयुक्तम्_स्थितिः, &output_token);
       Curl_auth_cleanup_spnego(nego);
-      return CURLE_AUTH_ERROR;
+      प्रत्यागम CURLE_AUTH_ERROR;
     }
   }
 
   /* Free previous token */
-  if(nego->output_token.length && nego->output_token.value)
-    gss_release_buffer(&unused_status, &nego->output_token);
+  यदि(nego->output_token.दीर्घता && nego->output_token.मानम्)
+    gss_release_बफर(&अप्रयुक्तम्_स्थितिः, &nego->output_token);
 
   nego->output_token = output_token;
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
@@ -291,34 +291,34 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
-                                         char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_spnego_सन्देशः(संरचना negotiatedata *nego,
+                                         वर्ण **outptr, size_t *outlen)
 {
-  CURLcode result;
-  OM_uint32 minor_status;
+  CURLcode परिणाम;
+  OM_uint32 minor_स्थितिः;
 
   /* Base64 encode the already generated response */
-  result = curlx_base64_encode(nego->output_token.value,
-                               nego->output_token.length,
+  परिणाम = curlx_base64_encode(nego->output_token.मानम्,
+                               nego->output_token.दीर्घता,
                                outptr, outlen);
 
-  if(result) {
-    gss_release_buffer(&minor_status, &nego->output_token);
-    nego->output_token.value = NULL;
-    nego->output_token.length = 0;
+  यदि(परिणाम) {
+    gss_release_बफर(&minor_स्थितिः, &nego->output_token);
+    nego->output_token.मानम् = रिक्त;
+    nego->output_token.दीर्घता = 0;
 
-    return result;
+    प्रत्यागम परिणाम;
   }
 
-  if(!*outptr || !*outlen) {
-    gss_release_buffer(&minor_status, &nego->output_token);
-    nego->output_token.value = NULL;
-    nego->output_token.length = 0;
+  यदि(!*outptr || !*outlen) {
+    gss_release_बफर(&minor_स्थितिः, &nego->output_token);
+    nego->output_token.मानम् = रिक्त;
+    nego->output_token.दीर्घता = 0;
 
-    return CURLE_REMOTE_ACCESS_DENIED;
+    प्रत्यागम CURLE_REMOTE_ACCESS_DENIED;
   }
 
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
@@ -331,46 +331,46 @@ CURLcode Curl_auth_create_spnego_message(struct negotiatedata *nego,
  * nego     [in/out] - The Negotiate data struct being cleaned up.
  *
  */
-void Curl_auth_cleanup_spnego(struct negotiatedata *nego)
+शून्य Curl_auth_cleanup_spnego(संरचना negotiatedata *nego)
 {
-  OM_uint32 minor_status;
+  OM_uint32 minor_स्थितिः;
 
   /* Free our security context */
-  if(nego->context != GSS_C_NO_CONTEXT) {
-    Curl_gss_delete_sec_context(&minor_status, &nego->context,
-                                GSS_C_NO_BUFFER);
+  यदि(nego->context != GSS_C_NO_CONTEXT) {
+    Curl_gss_delete_sec_context(&minor_स्थितिः, &nego->context,
+                                GSS_C_NO_बफर);
     nego->context = GSS_C_NO_CONTEXT;
   }
 
   /* Free the output token */
-  if(nego->output_token.value) {
-    gss_release_buffer(&minor_status, &nego->output_token);
-    nego->output_token.value = NULL;
-    nego->output_token.length = 0;
+  यदि(nego->output_token.मानम्) {
+    gss_release_बफर(&minor_स्थितिः, &nego->output_token);
+    nego->output_token.मानम् = रिक्त;
+    nego->output_token.दीर्घता = 0;
   }
 
   /* Free the SPN */
-  if(nego->spn != GSS_C_NO_NAME) {
-    gss_release_name(&minor_status, &nego->spn);
+  यदि(nego->spn != GSS_C_NO_NAME) {
+    gss_release_name(&minor_स्थितिः, &nego->spn);
     nego->spn = GSS_C_NO_NAME;
   }
 
   /* Free our credentials */
-  if(nego->cred != GSS_C_NO_CREDENTIAL) {
-    Curl_gss_release_cred(&minor_status, &nego->cred);
+  यदि(nego->cred != GSS_C_NO_CREDENTIAL) {
+    Curl_gss_release_cred(&minor_स्थितिः, &nego->cred);
     nego->cred = GSS_C_NO_CREDENTIAL;
   }
 
   /* Reset any variables */
-  nego->status = 0;
+  nego->स्थितिः = 0;
   nego->noauthpersist = FALSE;
   nego->havenoauthpersist = FALSE;
   nego->havenegdata = FALSE;
   nego->havemultiplerequests = FALSE;
 }
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
-#endif
+#यदि defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#निर्देशः GCC diagnostic निष्कासय
+#यदि_अन्तः
 
-#endif /* HAVE_GSSAPI && USE_SPNEGO */
+#यदि_अन्तः /* HAVE_GSSAPI && USE_SPNEGO */

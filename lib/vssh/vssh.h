@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_VSSH_VSSH_H
-#define HEADER_CURL_VSSH_VSSH_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_VSSH_VSSH_H
+#परिभाषय शीर्षकम्_CURL_VSSH_VSSH_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,26 +23,26 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef USE_SSH
+#यदि_परिभाषितम् USE_SSH
 
-#include "urldata.h"
+#अन्तर्भाव "urldata.h"
 
-struct ssh_conn;
+संरचना ssh_conn;
 
-CURLcode Curl_getworkingpath(struct Curl_easy *data,
-                             const char *homedir,
-                             char **path);
+CURLcode Curl_getworkingpath(संरचना Curl_easy *दत्त,
+                             ध्रुव वर्ण *homedir,
+                             वर्ण **मार्गः);
 
-CURLcode Curl_get_pathname(const char **cpp, char **path, const char *homedir);
+CURLcode Curl_get_pathname(ध्रुव वर्ण **cpp, वर्ण **मार्गः, ध्रुव वर्ण *homedir);
 
-CURLcode Curl_ssh_range(struct Curl_easy *data,
-                        const char *range, curl_off_t filesize,
+CURLcode Curl_ssh_range(संरचना Curl_easy *दत्त,
+                        ध्रुव वर्ण *range, curl_off_t filesize,
                         curl_off_t *startp, curl_off_t *sizep);
 
-CURLcode Curl_ssh_pollset(struct Curl_easy *data, struct easy_pollset *ps);
-CURLcode Curl_ssh_setup_pkey(struct Curl_easy *data, struct ssh_conn *sshc);
+CURLcode Curl_ssh_pollset(संरचना Curl_easy *दत्त, संरचना easy_pollset *ps);
+CURLcode Curl_ssh_सज्जता_pkey(संरचना Curl_easy *दत्त, संरचना ssh_conn *sshc);
 
-#endif /* USE_SSH */
-#endif /* HEADER_CURL_VSSH_VSSH_H */
+#यदि_अन्तः /* USE_SSH */
+#यदि_अन्तः /* HEADER_CURL_VSSH_VSSH_H */

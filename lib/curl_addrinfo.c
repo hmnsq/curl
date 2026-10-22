@@ -21,35 +21,35 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#endif
+#यदि_परिभाषितम् HAVE_NETINET_अन्तर्_H
+#अन्तर्भाव <netinet/in.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_NETINET_IN6_H
+#अन्तर्भाव <netinet/in6.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_NETDB_H
+#अन्तर्भाव <netdb.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_ARPA_INET_H
+#अन्तर्भाव <arpa/inet.h>
+#यदि_अन्तः
+#यदि_परिभाषितम् HAVE_SYS_UN_H
+#अन्तर्भाव <sys/un.h>
+#यदि_अन्तः
 
-#ifdef __VMS
-#include <in.h>
-#include <inet.h>
-#endif
+#यदि_परिभाषितम् __VMS
+#अन्तर्भाव <in.h>
+#अन्तर्भाव <inet.h>
+#यदि_अन्तः
 
-#include <stddef.h>  /* for offsetof() */
+#अन्तर्भाव <stddef.h>  /* for offsetof() */
 
-#include "curl_addrinfo.h"
-#include "fake_addrinfo.h"
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#अन्तर्भाव "curl_addrinfo.h"
+#अन्तर्भाव "fake_addrinfo.h"
+#अन्तर्भाव "curlx/inet_pton.h"
+#अन्तर्भाव "curlx/strparse.h"
 
 /*
  * Curl_freeaddrinfo()
@@ -60,41 +60,41 @@
  * any function call which actually allocates a Curl_addrinfo struct.
  */
 
-#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER == 910) &&     \
+#यदि defined(__INTEL_COMPILER) && (__INTEL_COMPILER == 910) &&     \
   defined(__OPTIMIZE__) && defined(__unix__) && defined(__i386__)
   /* workaround icc 9.1 optimizer issue */
-#  define vqualifier volatile
-#else
+#  define vqualifier चञ्चल
+#अन्यथा
 #  define vqualifier
-#endif
+#यदि_अन्तः
 
-void Curl_freeaddrinfo(struct Curl_addrinfo *cahead)
+शून्य Curl_freeaddrinfo(संरचना Curl_addrinfo *cahead)
 {
-  struct Curl_addrinfo *vqualifier canext;
-  struct Curl_addrinfo *ca;
+  संरचना Curl_addrinfo *vqualifier canext;
+  संरचना Curl_addrinfo *ca;
 
-  for(ca = cahead; ca; ca = canext) {
-    canext = ca->ai_next;
+  प्रति(ca = cahead; ca; ca = canext) {
+    canext = ca->ai_अग्र;
     curlx_free(ca);
   }
 }
 
-struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
-                                        int ai_family,
-                                        unsigned int n)
+संरचना Curl_addrinfo *Curl_addrinfo_get(संरचना Curl_addrinfo *ai,
+                                        पूर्णाङ्क ai_family,
+                                        अचिह्नित पूर्णाङ्क n)
 {
-  unsigned int i;
-  for(i = 0; ai; ai = ai->ai_next) {
-    if(ai->ai_family == ai_family) {
-      if(i == n)
-        return ai;
+  अचिह्नित पूर्णाङ्क i;
+  प्रति(i = 0; ai; ai = ai->ai_अग्र) {
+    यदि(ai->ai_family == ai_family) {
+      यदि(i == n)
+        प्रत्यागम ai;
       ++i;
     }
   }
-  return NULL;
+  प्रत्यागम रिक्त;
 }
 
-#ifdef HAVE_GETADDRINFO
+#यदि_परिभाषितम् HAVE_GETADDRINFO
 /*
  * Curl_getaddrinfo_ex()
  *
@@ -108,52 +108,52 @@ struct Curl_addrinfo *Curl_addrinfo_get(struct Curl_addrinfo *ai,
  * There should be no single call to system's getaddrinfo() in the
  * whole library, any such call should be 'routed' through this one.
  */
-int Curl_getaddrinfo_ex(const char *nodename,
-                        const char *servname,
-                        const struct addrinfo *hints,
-                        struct Curl_addrinfo **result)
+पूर्णाङ्क Curl_getaddrinfo_ex(ध्रुव वर्ण *nodename,
+                        ध्रुव वर्ण *servname,
+                        ध्रुव संरचना addrinfo *hints,
+                        संरचना Curl_addrinfo **परिणाम)
 {
-  const struct addrinfo *ai;
-  struct addrinfo *aihead;
-  struct Curl_addrinfo *cafirst = NULL;
-  struct Curl_addrinfo *calast = NULL;
-  struct Curl_addrinfo *ca;
-  size_t ss_size;
-  int error;
+  ध्रुव संरचना addrinfo *ai;
+  संरचना addrinfo *aihead;
+  संरचना Curl_addrinfo *cafirst = रिक्त;
+  संरचना Curl_addrinfo *calast = रिक्त;
+  संरचना Curl_addrinfo *ca;
+  size_t ss_आकार;
+  पूर्णाङ्क error;
 
-  *result = NULL; /* assume failure */
+  *परिणाम = रिक्त; /* assume failure */
 
   error = CURL_GETADDRINFO(nodename, servname, hints, &aihead);
-  if(error)
-    return error;
+  यदि(error)
+    प्रत्यागम error;
 
   /* traverse the addrinfo list */
 
-  for(ai = aihead; ai; ai = ai->ai_next) {
-    size_t namelen = ai->ai_canonname ? strlen(ai->ai_canonname) + 1 : 0;
+  प्रति(ai = aihead; ai; ai = ai->ai_अग्र) {
+    size_t namelen = ai->ai_canonname ? वाक्यदैर्घ्यम्(ai->ai_canonname) + 1 : 0;
     /* ignore elements with unsupported address family,
        settle family-specific sockaddr structure size. */
-    if(ai->ai_family == AF_INET)
-      ss_size = sizeof(struct sockaddr_in);
-#ifdef USE_IPV6
-    else if(ai->ai_family == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-#endif
-    else
-      continue;
+    यदि(ai->ai_family == AF_INET)
+      ss_आकार = परिमाण(संरचना sockaddr_in);
+#यदि_परिभाषितम् USE_IPV6
+    अन्यथा यदि(ai->ai_family == AF_INET6)
+      ss_आकार = परिमाण(संरचना sockaddr_in6);
+#यदि_अन्तः
+    अन्यथा
+      अनुवर्त;
 
     /* ignore elements without required address info */
-    if(!ai->ai_addr || !(ai->ai_addrlen > 0))
-      continue;
+    यदि(!ai->ai_addr || !(ai->ai_addrlen > 0))
+      अनुवर्त;
 
     /* ignore elements with bogus address size */
-    if((size_t)ai->ai_addrlen < ss_size)
-      continue;
+    यदि((size_t)ai->ai_addrlen < ss_आकार)
+      अनुवर्त;
 
-    ca = curlx_malloc(sizeof(struct Curl_addrinfo) + ss_size + namelen);
-    if(!ca) {
+    ca = curlx_malloc(परिमाण(संरचना Curl_addrinfo) + ss_आकार + namelen);
+    यदि(!ca) {
       error = EAI_MEMORY;
-      break;
+      भङ्ग;
     }
 
     /* copy each structure member individually, member ordering,
@@ -163,57 +163,57 @@ int Curl_getaddrinfo_ex(const char *nodename,
     ca->ai_family    = ai->ai_family;
     ca->ai_socktype  = ai->ai_socktype;
     ca->ai_protocol  = ai->ai_protocol;
-    ca->ai_addrlen   = (curl_socklen_t)ss_size;
-    ca->ai_addr      = NULL;
-    ca->ai_canonname = NULL;
-    ca->ai_next      = NULL;
+    ca->ai_addrlen   = (curl_socklen_t)ss_आकार;
+    ca->ai_addr      = रिक्त;
+    ca->ai_canonname = रिक्त;
+    ca->ai_अग्र      = रिक्त;
 
-    ca->ai_addr = (void *)((char *)ca + sizeof(struct Curl_addrinfo));
-    memcpy(ca->ai_addr, ai->ai_addr, ss_size);
+    ca->ai_addr = (शून्य *)((वर्ण *)ca + परिमाण(संरचना Curl_addrinfo));
+    स्मृतिं_प्रतिलिख(ca->ai_addr, ai->ai_addr, ss_आकार);
 
-    if(namelen) {
-      ca->ai_canonname = (void *)((char *)ca->ai_addr + ss_size);
-      memcpy(ca->ai_canonname, ai->ai_canonname, namelen);
+    यदि(namelen) {
+      ca->ai_canonname = (शून्य *)((वर्ण *)ca->ai_addr + ss_आकार);
+      स्मृतिं_प्रतिलिख(ca->ai_canonname, ai->ai_canonname, namelen);
     }
 
     /* if the return list is empty, this becomes the first element */
-    if(!cafirst)
+    यदि(!cafirst)
       cafirst = ca;
 
     /* add this element last in the return list */
-    if(calast)
-      calast->ai_next = ca;
+    यदि(calast)
+      calast->ai_अग्र = ca;
     calast = ca;
   }
 
   /* destroy the addrinfo list */
-  if(aihead)
+  यदि(aihead)
     CURL_FREEADDRINFO(aihead);
 
   /* if we failed, also destroy the Curl_addrinfo list */
-  if(error) {
+  यदि(error) {
     Curl_freeaddrinfo(cafirst);
-    cafirst = NULL;
+    cafirst = रिक्त;
   }
-  else if(!cafirst) {
-#ifdef EAI_NONAME
+  अन्यथा यदि(!cafirst) {
+#यदि_परिभाषितम् EAI_NONAME
     /* rfc3493 conformant */
     error = EAI_NONAME;
-#else
+#अन्यथा
     /* rfc3493 obsoleted */
     error = EAI_NODATA;
-#endif
-#ifdef USE_WINSOCK
-    SET_SOCKERRNO(error);
-#endif
+#यदि_अन्तः
+#यदि_परिभाषितम् USE_WINSOCK
+    समुच्चयः_SOCKERRNO(error);
+#यदि_अन्तः
   }
 
-  *result = cafirst;
+  *परिणाम = cafirst;
 
   /* This is not a CURLcode */
-  return error;
+  प्रत्यागम error;
 }
-#endif /* HAVE_GETADDRINFO */
+#यदि_अन्तः /* HAVE_GETADDRINFO */
 
 /*
  * Curl_he2ai()
@@ -254,55 +254,55 @@ int Curl_getaddrinfo_ex(const char *nodename,
  *
  *     #define h_addr  h_addr_list[0]
  */
-#if !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
-struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
+#यदि !(defined(HAVE_GETADDRINFO) && defined(HAVE_GETADDRINFO_THREADSAFE))
+संरचना Curl_addrinfo *Curl_he2ai(ध्रुव संरचना hostent *he, पूर्णाङ्क पत्तनम्)
 {
-  struct Curl_addrinfo *ai;
-  struct Curl_addrinfo *prevai = NULL;
-  struct Curl_addrinfo *firstai = NULL;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
-  CURLcode result = CURLE_OK;
-  int i;
-  char *curr;
+  संरचना Curl_addrinfo *ai;
+  संरचना Curl_addrinfo *prevai = रिक्त;
+  संरचना Curl_addrinfo *firstai = रिक्त;
+  संरचना sockaddr_in *addr;
+#यदि_परिभाषितम् USE_IPV6
+  संरचना sockaddr_in6 *addr6;
+#यदि_अन्तः
+  CURLcode परिणाम = CURLE_OK;
+  पूर्णाङ्क i;
+  वर्ण *curr;
 
-  if(!he)
+  यदि(!he)
     /* no input == no output! */
-    return NULL;
+    प्रत्यागम रिक्त;
 
   DEBUGASSERT(he->h_name && he->h_addr_list);
 
-  for(i = 0; (curr = he->h_addr_list[i]) != NULL; i++) {
-    size_t ss_size;
-    size_t namelen = strlen(he->h_name) + 1; /* include null-terminator */
-#ifdef USE_IPV6
-    if(he->h_addrtype == AF_INET6)
-      ss_size = sizeof(struct sockaddr_in6);
-    else
-#endif
-      ss_size = sizeof(struct sockaddr_in);
+  प्रति(i = 0; (curr = he->h_addr_list[i]) != रिक्त; i++) {
+    size_t ss_आकार;
+    size_t namelen = वाक्यदैर्घ्यम्(he->h_name) + 1; /* include null-terminator */
+#यदि_परिभाषितम् USE_IPV6
+    यदि(he->h_addrtype == AF_INET6)
+      ss_आकार = परिमाण(संरचना sockaddr_in6);
+    अन्यथा
+#यदि_अन्तः
+      ss_आकार = परिमाण(संरचना sockaddr_in);
 
     /* allocate memory to hold the struct, the address and the name */
-    ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + ss_size + namelen);
-    if(!ai) {
-      result = CURLE_OUT_OF_MEMORY;
-      break;
+    ai = curlx_calloc(1, परिमाण(संरचना Curl_addrinfo) + ss_आकार + namelen);
+    यदि(!ai) {
+      परिणाम = CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
+      भङ्ग;
     }
     /* put the address after the struct */
-    ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
+    ai->ai_addr = (शून्य *)((वर्ण *)ai + परिमाण(संरचना Curl_addrinfo));
     /* then put the name after the address */
-    ai->ai_canonname = (char *)ai->ai_addr + ss_size;
-    memcpy(ai->ai_canonname, he->h_name, namelen);
+    ai->ai_canonname = (वर्ण *)ai->ai_addr + ss_आकार;
+    स्मृतिं_प्रतिलिख(ai->ai_canonname, he->h_name, namelen);
 
-    if(!firstai)
+    यदि(!firstai)
       /* store the pointer we want to return from this function */
       firstai = ai;
 
-    if(prevai)
+    यदि(prevai)
       /* make the previous entry point to this */
-      prevai->ai_next = ai;
+      prevai->ai_अग्र = ai;
 
     ai->ai_family = he->h_addrtype;
 
@@ -310,41 +310,41 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
        the type must be ignored and conn->socktype be used instead! */
     ai->ai_socktype = SOCK_STREAM;
 
-    ai->ai_addrlen = (curl_socklen_t)ss_size;
+    ai->ai_addrlen = (curl_socklen_t)ss_आकार;
 
     /* leave the rest of the struct filled with zero */
 
-    switch(ai->ai_family) {
-    case AF_INET:
-      addr = (void *)ai->ai_addr; /* storage area for this info */
+    विकल्प(ai->ai_family) {
+    पक्ष AF_INET:
+      addr = (शून्य *)ai->ai_addr; /* storage area for this info */
 
-      memcpy(&addr->sin_addr, curr, sizeof(struct in_addr));
+      स्मृतिं_प्रतिलिख(&addr->sin_addr, curr, परिमाण(संरचना in_addr));
       addr->sin_family = (CURL_SA_FAMILY_T)he->h_addrtype;
-      addr->sin_port = htons((unsigned short)port);
-      break;
+      addr->sin_port = htons((अचिह्नित ह्रस्व)पत्तनम्);
+      भङ्ग;
 
-#ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ai->ai_addr; /* storage area for this info */
+#यदि_परिभाषितम् USE_IPV6
+    पक्ष AF_INET6:
+      addr6 = (शून्य *)ai->ai_addr; /* storage area for this info */
 
-      memcpy(&addr6->sin6_addr, curr, sizeof(struct in6_addr));
+      स्मृतिं_प्रतिलिख(&addr6->sin6_addr, curr, परिमाण(संरचना in6_addr));
       addr6->sin6_family = (CURL_SA_FAMILY_T)he->h_addrtype;
-      addr6->sin6_port = htons((unsigned short)port);
-      break;
-#endif
+      addr6->sin6_port = htons((अचिह्नित ह्रस्व)पत्तनम्);
+      भङ्ग;
+#यदि_अन्तः
     }
 
     prevai = ai;
   }
 
-  if(result) {
+  यदि(परिणाम) {
     Curl_freeaddrinfo(firstai);
-    firstai = NULL;
+    firstai = रिक्त;
   }
 
-  return firstai;
+  प्रत्यागम firstai;
 }
-#endif
+#यदि_अन्तः
 
 /*
  * ip2addr()
@@ -354,199 +354,199 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent *he, int port)
  * returns a Curl_addrinfo chain filled in correctly with information for the
  * given address/host
  */
-static CURLcode ip2addr(struct Curl_addrinfo **addrp, int af,
-                        const void *inaddr, const char *hostname, int port)
+स्थिर CURLcode ip2addr(संरचना Curl_addrinfo **addrp, पूर्णाङ्क af,
+                        ध्रुव शून्य *inaddr, ध्रुव वर्ण *hostname, पूर्णाङ्क पत्तनम्)
 {
-  struct Curl_addrinfo *ai;
+  संरचना Curl_addrinfo *ai;
   size_t addrsize;
   size_t namelen;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
+  संरचना sockaddr_in *addr;
+#यदि_परिभाषितम् USE_IPV6
+  संरचना sockaddr_in6 *addr6;
+#यदि_अन्तः
 
   DEBUGASSERT(inaddr && hostname);
 
-  namelen = strlen(hostname) + 1;
-  *addrp = NULL;
+  namelen = वाक्यदैर्घ्यम्(hostname) + 1;
+  *addrp = रिक्त;
 
-  if(af == AF_INET)
-    addrsize = sizeof(struct sockaddr_in);
-#ifdef USE_IPV6
-  else if(af == AF_INET6)
-    addrsize = sizeof(struct sockaddr_in6);
-#endif
-  else
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  यदि(af == AF_INET)
+    addrsize = परिमाण(संरचना sockaddr_in);
+#यदि_परिभाषितम् USE_IPV6
+  अन्यथा यदि(af == AF_INET6)
+    addrsize = परिमाण(संरचना sockaddr_in6);
+#यदि_अन्तः
+  अन्यथा
+    प्रत्यागम CURLE_BAD_FUNCTION_तर्कः;
 
   /* allocate memory to hold the struct, the address and the name */
-  ai = curlx_calloc(1, sizeof(struct Curl_addrinfo) + addrsize + namelen);
-  if(!ai)
-    return CURLE_OUT_OF_MEMORY;
+  ai = curlx_calloc(1, परिमाण(संरचना Curl_addrinfo) + addrsize + namelen);
+  यदि(!ai)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
   /* put the address after the struct */
-  ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
+  ai->ai_addr = (शून्य *)((वर्ण *)ai + परिमाण(संरचना Curl_addrinfo));
   /* then put the name after the address */
-  ai->ai_canonname = (char *)ai->ai_addr + addrsize;
-  memcpy(ai->ai_canonname, hostname, namelen);
+  ai->ai_canonname = (वर्ण *)ai->ai_addr + addrsize;
+  स्मृतिं_प्रतिलिख(ai->ai_canonname, hostname, namelen);
   ai->ai_family = af;
   ai->ai_socktype = SOCK_STREAM;
   ai->ai_addrlen = (curl_socklen_t)addrsize;
   /* leave the rest of the struct filled with zero */
 
-  switch(af) {
-  case AF_INET:
-    addr = (void *)ai->ai_addr; /* storage area for this info */
+  विकल्प(af) {
+  पक्ष AF_INET:
+    addr = (शून्य *)ai->ai_addr; /* storage area for this info */
 
-    memcpy(&addr->sin_addr, inaddr, sizeof(struct in_addr));
+    स्मृतिं_प्रतिलिख(&addr->sin_addr, inaddr, परिमाण(संरचना in_addr));
     addr->sin_family = (CURL_SA_FAMILY_T)af;
-    addr->sin_port = htons((unsigned short)port);
-    break;
+    addr->sin_port = htons((अचिह्नित ह्रस्व)पत्तनम्);
+    भङ्ग;
 
-#ifdef USE_IPV6
-  case AF_INET6:
-    addr6 = (void *)ai->ai_addr; /* storage area for this info */
+#यदि_परिभाषितम् USE_IPV6
+  पक्ष AF_INET6:
+    addr6 = (शून्य *)ai->ai_addr; /* storage area for this info */
 
-    memcpy(&addr6->sin6_addr, inaddr, sizeof(struct in6_addr));
+    स्मृतिं_प्रतिलिख(&addr6->sin6_addr, inaddr, परिमाण(संरचना in6_addr));
     addr6->sin6_family = (CURL_SA_FAMILY_T)af;
-    addr6->sin6_port = htons((unsigned short)port);
-    break;
-#endif
+    addr6->sin6_port = htons((अचिह्नित ह्रस्व)पत्तनम्);
+    भङ्ग;
+#यदि_अन्तः
   }
   *addrp = ai;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
 
 /*
  * Given an IPv4 or IPv6 dotted string address, this converts it to a proper
  * allocated Curl_addrinfo struct and returns it.
  */
-CURLcode Curl_str2addr(const char *dotted, uint16_t port,
-                       struct Curl_addrinfo **addrp)
+CURLcode Curl_str2addr(ध्रुव वर्ण *dotted, uint16_t पत्तनम्,
+                       संरचना Curl_addrinfo **addrp)
 {
-  struct in_addr in;
-  if(curlx_inet_pton(AF_INET, dotted, &in) > 0)
+  संरचना in_addr अन्तर्;
+  यदि(curlx_inet_pton(AF_INET, dotted, &अन्तर्) > 0)
     /* This is a dotted IP address 123.123.123.123-style */
-    return ip2addr(addrp, AF_INET, &in, dotted, port);
-#ifdef USE_IPV6
+    प्रत्यागम ip2addr(addrp, AF_INET, &अन्तर्, dotted, पत्तनम्);
+#यदि_परिभाषितम् USE_IPV6
   {
-    struct in6_addr in6;
-    if(curlx_inet_pton(AF_INET6, dotted, &in6) > 0)
+    संरचना in6_addr in6;
+    यदि(curlx_inet_pton(AF_INET6, dotted, &in6) > 0)
       /* This is a dotted IPv6 address ::1-style */
-      return ip2addr(addrp, AF_INET6, &in6, dotted, port);
+      प्रत्यागम ip2addr(addrp, AF_INET6, &in6, dotted, पत्तनम्);
   }
-#endif
-  return CURLE_BAD_FUNCTION_ARGUMENT; /* bad input format */
+#यदि_अन्तः
+  प्रत्यागम CURLE_BAD_FUNCTION_तर्कः; /* bad input format */
 }
 
-bool Curl_is_ipv4addr(const char *address)
+bool Curl_is_ipv4addr(ध्रुव वर्ण *स्थानाङ्कः)
 {
-  struct in_addr in;
-  return (curlx_inet_pton(AF_INET, address, &in) > 0);
+  संरचना in_addr अन्तर्;
+  प्रत्यागम (curlx_inet_pton(AF_INET, स्थानाङ्कः, &अन्तर्) > 0);
 }
 
-bool Curl_is_ipaddr(const char *address)
+bool Curl_is_ipaddr(ध्रुव वर्ण *स्थानाङ्कः)
 {
-  if(Curl_is_ipv4addr(address))
-    return TRUE;
-#ifdef USE_IPV6
+  यदि(Curl_is_ipv4addr(स्थानाङ्कः))
+    प्रत्यागम TRUE;
+#यदि_परिभाषितम् USE_IPV6
   {
-    struct in6_addr in6;
-    if(curlx_inet_pton(AF_INET6, address, &in6) > 0)
+    संरचना in6_addr in6;
+    यदि(curlx_inet_pton(AF_INET6, स्थानाङ्कः, &in6) > 0)
       /* This is a dotted IPv6 address ::1-style */
-      return TRUE;
+      प्रत्यागम TRUE;
   }
-#endif
-  return FALSE;
+#यदि_अन्तः
+  प्रत्यागम FALSE;
 }
 
-bool Curl_looks_like_ipv6(const char *s, size_t len, bool maybe_url_encoded,
-                          struct Curl_str *host, struct Curl_str *zone)
+bool Curl_looks_like_ipv6(ध्रुव वर्ण *s, size_t len, bool maybe_url_encoded,
+                          संरचना Curl_str *host, संरचना Curl_str *zone)
 {
-  const char *zonep = NULL;
+  ध्रुव वर्ण *zonep = रिक्त;
   size_t i = 0, hlen = 0, zlen = 0;
 
-  if(host)
-    memset(host, 0, sizeof(*host));
-  if(zone)
-    memset(zone, 0, sizeof(*zone));
+  यदि(host)
+    स्मृतिं_पूरय(host, 0, परिमाण(*host));
+  यदि(zone)
+    स्मृतिं_पूरय(zone, 0, परिमाण(*zone));
 
-  for(i = 0; i < len; ++i, ++hlen) {
-    if(!s[i] || !(ISXDIGIT(s[i]) || (s[i] == ':') || (s[i] == '.')))
-      break;
+  प्रति(i = 0; i < len; ++i, ++hlen) {
+    यदि(!s[i] || !(ISXDIGIT(s[i]) || (s[i] == ':') || (s[i] == '.')))
+      भङ्ग;
   }
 
-  if((i < len) && (s[i] == '%')) { /* address followed by a zone? */
+  यदि((i < len) && (s[i] == '%')) { /* address followed by a zone? */
     i += 1;
-    if(maybe_url_encoded && !strncmp("25", s + i, 2))
+    यदि(maybe_url_encoded && !वाक्ये_तुलय("25", s + i, 2))
       i += 2;
     zonep = s + i;
-    for(; i < len; ++i, ++zlen) {
+    प्रति(; i < len; ++i, ++zlen) {
       /* Allow unreserved characters as defined in RFC 3986 */
-      if(!s[i] || !(ISALPHA(s[i]) || ISXDIGIT(s[i]) || (s[i] == '-') ||
+      यदि(!s[i] || !(ISALPHA(s[i]) || ISXDIGIT(s[i]) || (s[i] == '-') ||
                     (s[i] == '.') || (s[i] == '_') || (s[i] == '~')))
-        break;
+        भङ्ग;
     }
   }
 
-  if(i != len)
-    return FALSE; /* invalid chars in zone */
-  if(host && hlen) {
+  यदि(i != len)
+    प्रत्यागम FALSE; /* invalid chars in zone */
+  यदि(host && hlen) {
     host->str = s;
     host->len = hlen;
   }
-  if(zone && zlen) {
+  यदि(zone && zlen) {
     zone->str = zonep;
     zone->len = zlen;
   }
-  return TRUE;
+  प्रत्यागम TRUE;
 }
 
-#ifdef USE_UNIX_SOCKETS
+#यदि_परिभाषितम् USE_UNIX_SOCKETS
 /**
  * Given a path to a Unix domain socket, return a newly allocated Curl_addrinfo
  * struct initialized with this path.
  * Returns CURLE_TOO_LARGE when path is too long.
  */
-CURLcode Curl_unix2addr(const char *path, bool abstract,
-                        struct Curl_addrinfo **paddr)
+CURLcode Curl_unix2addr(ध्रुव वर्ण *मार्गः, bool abstract,
+                        संरचना Curl_addrinfo **paddr)
 {
-  struct Curl_addrinfo *ai;
-  struct sockaddr_un *sa_un;
-  size_t path_len;
+  संरचना Curl_addrinfo *ai;
+  संरचना sockaddr_un *sa_un;
+  size_t मार्गः_len;
 
-  *paddr = NULL;
+  *paddr = रिक्त;
 
   /* sun_path must be able to store the null-terminated path */
-  path_len = strlen(path) + 1;
-  if(path_len > sizeof(sa_un->sun_path))
-    return CURLE_TOO_LARGE;
+  मार्गः_len = वाक्यदैर्घ्यम्(मार्गः) + 1;
+  यदि(मार्गः_len > परिमाण(sa_un->sun_मार्गः))
+    प्रत्यागम CURLE_TOO_LARGE;
 
   ai = curlx_calloc(1,
-                    sizeof(struct Curl_addrinfo) + sizeof(struct sockaddr_un));
-  if(!ai)
-    return CURLE_OUT_OF_MEMORY;
+                    परिमाण(संरचना Curl_addrinfo) + परिमाण(संरचना sockaddr_un));
+  यदि(!ai)
+    प्रत्यागम CURLE_बहिर्गमनम्_सम्बन्धि_स्मृतिः;
 
-  ai->ai_addr = (void *)((char *)ai + sizeof(struct Curl_addrinfo));
-  sa_un = (void *)ai->ai_addr;
+  ai->ai_addr = (शून्य *)((वर्ण *)ai + परिमाण(संरचना Curl_addrinfo));
+  sa_un = (शून्य *)ai->ai_addr;
   sa_un->sun_family = AF_UNIX;
 
   ai->ai_family = AF_UNIX;
   ai->ai_socktype = SOCK_STREAM; /* assume reliable transport for HTTP */
   ai->ai_addrlen = (curl_socklen_t)
-    ((offsetof(struct sockaddr_un, sun_path) + path_len) & 0x7FFFFFFF);
+    ((offsetof(संरचना sockaddr_un, sun_मार्गः) + मार्गः_len) & 0x7FFFFFFF);
 
   /* Abstract Unix domain socket have NULL prefix instead of suffix */
-  if(abstract)
-    memcpy(sa_un->sun_path + 1, path, path_len - 1);
-  else
-    memcpy(sa_un->sun_path, path, path_len); /* copy NUL byte */
+  यदि(abstract)
+    स्मृतिं_प्रतिलिख(sa_un->sun_मार्गः + 1, मार्गः, मार्गः_len - 1);
+  अन्यथा
+    स्मृतिं_प्रतिलिख(sa_un->sun_मार्गः, मार्गः, मार्गः_len); /* copy NUL byte */
 
   *paddr = ai;
-  return CURLE_OK;
+  प्रत्यागम CURLE_OK;
 }
-#endif
+#यदि_अन्तः
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
+#यदि defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO) && \
   defined(HAVE_FREEADDRINFO)
 /*
  * curl_dbg_freeaddrinfo()
@@ -555,30 +555,30 @@ CURLcode Curl_unix2addr(const char *path, bool abstract,
  * family otherwise present in memdebug.c. I put these ones here since they
  * require a bunch of structs I did not want to include in memdebug.c
  */
-void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
-                           int line, const char *source)
+शून्य curl_dbg_freeaddrinfo(संरचना addrinfo *freethis,
+                           पूर्णाङ्क पङ्क्तिः, ध्रुव वर्ण *source)
 {
   curl_dbg_log("ADDR %s:%d freeaddrinfo(%p)\n",
-               source, line, (void *)freethis);
-#ifdef USE_LWIPSOCK
+               source, पङ्क्तिः, (शून्य *)freethis);
+#यदि_परिभाषितम् USE_LWIPSOCK
   lwip_freeaddrinfo(freethis);
-#elif defined(USE_FAKE_GETADDRINFO)
+#नोचेद्यदि defined(USE_FAKE_GETADDRINFO)
   {
-    const char *env = getenv("CURL_DNS_SERVER");
-    if(env)
+    ध्रुव वर्ण *env = getenv("CURL_DNS_SERVER");
+    यदि(env)
       r_freeaddrinfo(freethis);
-    else
+    अन्यथा
       /* !checksrc! disable BANNEDFUNC 1 */
       freeaddrinfo(freethis);
   }
-#else
+#अन्यथा
   /* !checksrc! disable BANNEDFUNC 1 */
   freeaddrinfo(freethis);
-#endif
+#यदि_अन्तः
 }
-#endif /* CURL_MEMDEBUG && HAVE_FREEADDRINFO */
+#यदि_अन्तः /* CURL_MEMDEBUG && HAVE_FREEADDRINFO */
 
-#if defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
+#यदि defined(CURL_MEMDEBUG) && defined(HAVE_GETADDRINFO)
 /*
  * curl_dbg_getaddrinfo()
  *
@@ -586,62 +586,62 @@ void curl_dbg_freeaddrinfo(struct addrinfo *freethis,
  * family otherwise present in memdebug.c. I put these ones here since they
  * require a bunch of structs I did not want to include in memdebug.c
  */
-int curl_dbg_getaddrinfo(const char *hostname,
-                         const char *service,
-                         const struct addrinfo *hints,
-                         struct addrinfo **result,
-                         int line, const char *source)
+पूर्णाङ्क curl_dbg_getaddrinfo(ध्रुव वर्ण *hostname,
+                         ध्रुव वर्ण *service,
+                         ध्रुव संरचना addrinfo *hints,
+                         संरचना addrinfo **परिणाम,
+                         पूर्णाङ्क पङ्क्तिः, ध्रुव वर्ण *source)
 {
-#ifdef USE_LWIPSOCK
-  int res = lwip_getaddrinfo(hostname, service, hints, result);
-#elif defined(USE_FAKE_GETADDRINFO)
-  int res;
-  const char *env = getenv("CURL_DNS_SERVER");
-  if(env)
-    res = r_getaddrinfo(hostname, service, hints, result);
-  else
+#यदि_परिभाषितम् USE_LWIPSOCK
+  पूर्णाङ्क res = lwip_getaddrinfo(hostname, service, hints, परिणाम);
+#नोचेद्यदि defined(USE_FAKE_GETADDRINFO)
+  पूर्णाङ्क res;
+  ध्रुव वर्ण *env = getenv("CURL_DNS_SERVER");
+  यदि(env)
+    res = r_getaddrinfo(hostname, service, hints, परिणाम);
+  अन्यथा
     /* !checksrc! disable BANNEDFUNC 1 */
-    res = getaddrinfo(hostname, service, hints, result);
-#else
+    res = getaddrinfo(hostname, service, hints, परिणाम);
+#अन्यथा
   /* !checksrc! disable BANNEDFUNC 1 */
-  int res = getaddrinfo(hostname, service, hints, result);
-#endif
-  if(res == 0)
+  पूर्णाङ्क res = getaddrinfo(hostname, service, hints, परिणाम);
+#यदि_अन्तः
+  यदि(res == 0)
     /* success */
-    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, line,
-                 (void *)*result);
-  else
-    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, line);
-  return res;
+    curl_dbg_log("ADDR %s:%d getaddrinfo() = %p\n", source, पङ्क्तिः,
+                 (शून्य *)*परिणाम);
+  अन्यथा
+    curl_dbg_log("ADDR %s:%d getaddrinfo() failed\n", source, पङ्क्तिः);
+  प्रत्यागम res;
 }
-#endif /* CURL_MEMDEBUG && HAVE_GETADDRINFO */
+#यदि_अन्तः /* CURL_MEMDEBUG && HAVE_GETADDRINFO */
 
-#if defined(HAVE_GETADDRINFO) && defined(USE_RESOLVE_ON_IPS)
+#यदि defined(HAVE_GETADDRINFO) && defined(USE_RESOLVE_ON_IPS)
 /*
  * Works around the sin6_port is always zero bug on iOS 9.3.2 and macOS
  * 10.11.5.
  */
-void Curl_addrinfo_set_port(struct Curl_addrinfo *addrinfo, int port)
+शून्य Curl_addrinfo_समुच्चयः_पत्तनम्(संरचना Curl_addrinfo *addrinfo, पूर्णाङ्क पत्तनम्)
 {
-  struct Curl_addrinfo *ca;
-  struct sockaddr_in *addr;
-#ifdef USE_IPV6
-  struct sockaddr_in6 *addr6;
-#endif
-  for(ca = addrinfo; ca; ca = ca->ai_next) {
-    switch(ca->ai_family) {
-    case AF_INET:
-      addr = (void *)ca->ai_addr; /* storage area for this info */
-      addr->sin_port = htons((unsigned short)port);
-      break;
+  संरचना Curl_addrinfo *ca;
+  संरचना sockaddr_in *addr;
+#यदि_परिभाषितम् USE_IPV6
+  संरचना sockaddr_in6 *addr6;
+#यदि_अन्तः
+  प्रति(ca = addrinfo; ca; ca = ca->ai_अग्र) {
+    विकल्प(ca->ai_family) {
+    पक्ष AF_INET:
+      addr = (शून्य *)ca->ai_addr; /* storage area for this info */
+      addr->sin_port = htons((अचिह्नित ह्रस्व)पत्तनम्);
+      भङ्ग;
 
-#ifdef USE_IPV6
-    case AF_INET6:
-      addr6 = (void *)ca->ai_addr; /* storage area for this info */
-      addr6->sin6_port = htons((unsigned short)port);
-      break;
-#endif
+#यदि_परिभाषितम् USE_IPV6
+    पक्ष AF_INET6:
+      addr6 = (शून्य *)ca->ai_addr; /* storage area for this info */
+      addr6->sin6_port = htons((अचिह्नित ह्रस्व)पत्तनम्);
+      भङ्ग;
+#यदि_अन्तः
     }
   }
 }
-#endif
+#यदि_अन्तः

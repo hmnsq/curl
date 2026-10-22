@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SOCKS_H
-#define HEADER_CURL_SOCKS_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_SOCKS_H
+#परिभाषय शीर्षकम्_CURL_SOCKS_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -23,12 +23,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#ifndef CURL_DISABLE_PROXY
+#यदि_अपरिभाषितम् CURL_DISABLE_PROXY
 
-struct Curl_peer;
-struct Curl_creds;
+संरचना Curl_peer;
+संरचना Curl_creds;
 
 /*
  * Helper read-from-socket functions. Does the same as Curl_read() but it
@@ -36,34 +36,34 @@ struct Curl_creds;
  *
  * This is STUPID BLOCKING behavior
  */
-CURLcode Curl_blockread_all(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            char *buf,
+CURLcode Curl_blockread_all(संरचना Curl_cfilter *cf,
+                            संरचना Curl_easy *दत्त,
+                            वर्ण *buf,
                             size_t blen,
                             size_t *pnread);
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#यदि defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
 /*
  * This function handles the SOCKS5 GSS-API negotiation and initialization
  */
-CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_creds *creds);
-#endif
+CURLcode Curl_SOCKS5_gssapi_negotiate(संरचना Curl_cfilter *cf,
+                                      संरचना Curl_easy *दत्त,
+                                      संरचना Curl_creds *creds);
+#यदि_अन्तः
 
 /* Insert a SOCKS filter after `cf_at` for connecting to `dest`.
  * Credentials are optional and NOT duplicated and are
  * expected to exist during connect phase.
  */
-CURLcode Curl_cf_socks_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                          struct Curl_easy *data,
-                                          struct Curl_peer *dest,
-                                          uint8_t ip_version,
+CURLcode Curl_cf_socks_proxy_निवेशय_after(संरचना Curl_cfilter *cf_at,
+                                          संरचना Curl_easy *दत्त,
+                                          संरचना Curl_peer *dest,
+                                          uint8_t ip_संस्करणम्,
                                           uint8_t proxy_type,
-                                          struct Curl_creds *creds);
+                                          संरचना Curl_creds *creds);
 
-extern struct Curl_cftype Curl_cft_socks_proxy;
+बाह्य संरचना Curl_cftype Curl_cft_socks_proxy;
 
-#endif /* !CURL_DISABLE_PROXY */
+#यदि_अन्तः /* !CURL_DISABLE_PROXY */
 
-#endif /* HEADER_CURL_SOCKS_H */
+#यदि_अन्तः /* HEADER_CURL_SOCKS_H */

@@ -1,5 +1,5 @@
-#ifndef HEADER_CURL_SHA256_H
-#define HEADER_CURL_SHA256_H
+#यदि_अपरिभाषितम् शीर्षकम्_CURL_SHA256_H
+#परिभाषय शीर्षकम्_CURL_SHA256_H
 /***************************************************************************
  *                                  _   _ ____  _
  *  Project                     ___| | | |  _ \| |
@@ -24,23 +24,23 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#अन्तर्भाव "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
+#यदि !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_HTTPSIG) ||     \
   !defined(CURL_DISABLE_DIGEST_AUTH) ||                                 \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_hmac.h"
+#अन्तर्भाव "curl_hmac.h"
 
-extern const struct HMAC_params Curl_HMAC_SHA256;
+बाह्य ध्रुव संरचना HMAC_params Curl_HMAC_SHA256;
 
-#ifndef CURL_SHA256_DIGEST_LENGTH
-#define CURL_SHA256_DIGEST_LENGTH 32 /* fixed size */
-#endif
+#यदि_अपरिभाषितम् CURL_SHA256_DIGEST_दीर्घता
+#परिभाषय CURL_SHA256_DIGEST_दीर्घता 32 /* fixed size */
+#यदि_अन्तः
 
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(अचिह्नित वर्ण *output, ध्रुव अचिह्नित वर्ण *निवेशः,
                        size_t len);
 
-#endif
+#यदि_अन्तः
 
-#endif /* HEADER_CURL_SHA256_H */
+#यदि_अन्तः /* HEADER_CURL_SHA256_H */
