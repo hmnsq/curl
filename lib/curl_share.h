@@ -31,8 +31,8 @@
 #include "urldata.h"
 #include "conncache.h"
 
-struct Curl_easy;
-struct Curl_ssl_scache;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_ssl_scache;
 
 #define CURL_GOOD_SHARE 0x7e117a1e
 #define GOOD_SHARE_HANDLE(x) ((x) && (x)->magic == CURL_GOOD_SHARE)
@@ -41,51 +41,51 @@ struct Curl_ssl_scache;
   ((s) && ((s)->specifier & (1 << CURL_LOCK_DATA_CONNECT)))
 
 /* this struct is libcurl-private, do not export details */
-struct Curl_share {
-  unsigned int magic; /* CURL_GOOD_SHARE */
-  unsigned int specifier;
+sa_nracanaa Curl_share {
+  unsigned จำนวนเต็ม magic; /* CURL_GOOD_SHARE */
+  unsigned จำนวนเต็ม specifier;
 
   uint32_t ref_count;
 #ifdef USE_MUTEX
    /* do `ref_count` and `has_been_shared` checks using this mutex. */
   curl_mutex_t lock;
-  int has_been_shared;
-#else
+  จำนวนเต็ม has_been_shared;
+#มิฉะนั้น
   /* this only ever goes from FALSE -> TRUE once. We need to check
    * this without being able to use the `lockfunc`. */
-  volatile int has_been_shared;
+  ca_ncala จำนวนเต็ม has_been_shared;
 #endif
   curl_lock_function lockfunc;
   curl_unlock_function unlockfunc;
   void *clientdata;
-  struct Curl_easy *admin;
+  sa_nracanaa Curl_easy *admin;
 
-  struct cpool cpool;
-  struct Curl_dnscache dnscache; /* DNS cache */
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
-  struct CookieInfo *cookies;
+  sa_nracanaa cpool cpool;
+  sa_nracanaa Curl_dnscache dnscache; /* DNS cache */
+#ถ้า !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
+  sa_nracanaa CookieInfo *cookies;
 #endif
 #ifdef USE_LIBPSL
-  struct PslCache psl;
+  sa_nracanaa PslCache psl;
 #endif
 #ifndef CURL_DISABLE_HSTS
-  struct hsts *hsts;
+  sa_nracanaa hsts *hsts;
 #endif
 #ifdef USE_SSL
-  struct Curl_ssl_scache *ssl_scache;
+  sa_nracanaa Curl_ssl_scache *ssl_scache;
 #endif
 };
 
-CURLSHcode Curl_share_lock(struct Curl_easy *data, curl_lock_data type,
+CURLSHcode Curl_share_lock(sa_nracanaa Curl_easy *data, curl_lock_data type,
                            curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type);
+CURLSHcode Curl_share_unlock(sa_nracanaa Curl_easy *data, curl_lock_data type);
 
-CURLSHcode Curl_share_lock_share(struct Curl_share *share,
-                                 struct Curl_easy *data,
+CURLSHcode Curl_share_lock_share(sa_nracanaa Curl_share *share,
+                                 sa_nracanaa Curl_easy *data,
                                  curl_lock_data type,
                                  curl_lock_access accesstype);
-CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
-                                   struct Curl_easy *data,
+CURLSHcode Curl_share_unlock_share(sa_nracanaa Curl_share *share,
+                                   sa_nracanaa Curl_easy *data,
                                    curl_lock_data type);
 
 /* convenience macro to check if this handle is using a shared SSL spool */
@@ -93,8 +93,8 @@ CURLSHcode Curl_share_unlock_share(struct Curl_share *share,
   ((data)->share &&                                                \
    ((data)->share->specifier & (1 << CURL_LOCK_DATA_SSL_SESSION)))
 
-CURLcode Curl_share_easy_unlink(struct Curl_easy *data);
-CURLcode Curl_share_easy_link(struct Curl_easy *data,
-                              struct Curl_share *share);
+CURLcode Curl_share_easy_unlink(sa_nracanaa Curl_easy *data);
+CURLcode Curl_share_easy_link(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_share *share);
 
 #endif /* HEADER_CURL_SHARE_H */

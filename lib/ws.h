@@ -25,18 +25,18 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
+#ถ้า !defined(CURL_DISABLE_WEBSOCKETS) && !defined(CURL_DISABLE_HTTP)
 
-extern const struct Curl_protocol Curl_protocol_ws;
+extern const sa_nracanaa Curl_protocol Curl_protocol_ws;
 
 /* meta key for storing protocol meta at connection */
 #define CURL_META_PROTO_WS_CONN   "meta:proto:ws:conn"
 
-CURLcode Curl_ws_request(struct Curl_easy *data, struct dynbuf *req);
-CURLcode Curl_ws_accept(struct Curl_easy *data,
-                        const char *mem, size_t nread);
+CURLcode Curl_ws_request(sa_nracanaa Curl_easy *data, sa_nracanaa dynbuf *req);
+CURLcode Curl_ws_accept(sa_nracanaa Curl_easy *data,
+                        const var_na *mem, size_t nread);
 
-#else
+#มิฉะนั้น
 #define Curl_ws_request(x, y) CURLE_OK
 #define Curl_ws_free(x)       Curl_nop_stmt
 #endif

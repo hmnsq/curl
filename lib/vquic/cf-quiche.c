@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
+#ถ้า !defined(CURL_DISABLE_HTTP) && defined(USE_QUICHE)
 #include <quiche.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -70,25 +70,25 @@
 /*
  * Store quiche version info in this buffer.
  */
-void Curl_quiche_ver(char *p, size_t len)
+void Curl_quiche_ver(var_na *p, size_t len)
 {
   (void)curl_msnprintf(p, len, "quiche/%s", quiche_version());
 }
 
-struct cf_quiche_ctx {
-  struct cf_quic_ctx q;
-  struct ssl_peer ssl_peer;
-  struct curl_tls_ctx tls;
+sa_nracanaa cf_quiche_ctx {
+  sa_nracanaa cf_quic_ctx q;
+  sa_nracanaa ssl_peer ssl_peer;
+  sa_nracanaa curl_tls_ctx tls;
   quiche_conn *qconn;
   quiche_config *cfg;
   quiche_h3_conn *h3c;
   quiche_h3_config *h3config;
   uint8_t scid[QUICHE_MAX_CONN_ID_LEN];
-  struct curltime started_at;        /* time the current attempt started */
-  struct curltime handshake_at;      /* time connect handshake finished */
-  struct u32_ptrset streams;         /* set of `data->mid` + `stream_ctx` */
-  struct dynbuf h1hdr;               /* temp buffer for header construction */
-  struct bufq writebuf;              /* temp buffer for writing bodies */
+  sa_nracanaa curltime started_at;        /* time the current attempt started */
+  sa_nracanaa curltime handshake_at;      /* time connect handshake finished */
+  sa_nracanaa u32_ptrset streams;         /* set of `data->mid` + `stream_ctx` */
+  sa_nracanaa dynbuf h1hdr;               /* temp buffer for header construction */
+  sa_nracanaa bufq writebuf;              /* temp buffer for writing bodies */
   curl_off_t data_recvd;
   BIT(initialized);
   BIT(goaway);                       /* got GOAWAY from server */
@@ -99,8 +99,8 @@ struct cf_quiche_ctx {
 
 #ifdef DEBUG_QUICHE
 /* initialize debug log callback only once */
-static int debug_log_init = 0;
-static void quiche_debug_log(const char *line, void *argp)
+static จำนวนเต็ม debug_log_init = 0;
+static void quiche_debug_log(const var_na *line, void *argp)
 {
   (void)argp;
   curl_mfprintf(stderr, "%s\n", line);
@@ -109,14 +109,14 @@ static void quiche_debug_log(const char *line, void *argp)
 
 static void h3_stream_set_free(uint32_t id, void *stream);
 
-static CURLcode cf_quiche_ctx_init(struct cf_quiche_ctx *ctx,
-                                   struct Curl_peer *origin,
-                                   struct Curl_peer *peer,
-                                   struct ssl_filter_config *sslc)
+static CURLcode cf_quiche_ctx_init(sa_nracanaa cf_quiche_ctx *ctx,
+                                   sa_nracanaa Curl_peer *origin,
+                                   sa_nracanaa Curl_peer *peer,
+                                   sa_nracanaa ssl_filter_config *sslc)
 {
   DEBUGASSERT(!ctx->initialized);
 #ifdef DEBUG_QUICHE
-  if(!debug_log_init) {
+  ถ้า(!debug_log_init) {
     quiche_enable_debug_logging(quiche_debug_log, NULL);
     debug_log_init = 1;
   }
@@ -127,12 +127,12 @@ static CURLcode cf_quiche_ctx_init(struct cf_quiche_ctx *ctx,
                   BUFQ_OPT_SOFT_LIMIT);
   ctx->data_recvd = 0;
   ctx->initialized = TRUE;
-  return Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
+  คืน Curl_vquic_tls_peer_init(origin, peer, sslc, &ctx->ssl_peer);
 }
 
-static void cf_quiche_ctx_free(struct cf_quiche_ctx *ctx)
+static void cf_quiche_ctx_free(sa_nracanaa cf_quiche_ctx *ctx)
 {
-  if(ctx && ctx->initialized) {
+  ถ้า(ctx && ctx->initialized) {
     /* quiche freed it */
     ctx->tls.ossl.ssl = NULL;
     Curl_vquic_tls_cleanup(&ctx->tls);
@@ -145,36 +145,36 @@ static void cf_quiche_ctx_free(struct cf_quiche_ctx *ctx)
   curlx_free(ctx);
 }
 
-static void cf_quiche_ctx_close(struct cf_quiche_ctx *ctx)
+static void cf_quiche_ctx_close(sa_nracanaa cf_quiche_ctx *ctx)
 {
-  if(ctx->h3c) {
+  ถ้า(ctx->h3c) {
     quiche_h3_conn_free(ctx->h3c);
     ctx->h3c = NULL;
   }
-  if(ctx->h3config) {
+  ถ้า(ctx->h3config) {
     quiche_h3_config_free(ctx->h3config);
     ctx->h3config = NULL;
   }
-  if(ctx->qconn) {
+  ถ้า(ctx->qconn) {
     quiche_conn_free(ctx->qconn);
     ctx->qconn = NULL;
   }
-  if(ctx->cfg) {
+  ถ้า(ctx->cfg) {
     quiche_config_free(ctx->cfg);
     ctx->cfg = NULL;
   }
   Curl_ssl_peer_cleanup(&ctx->ssl_peer);
 }
 
-static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
-                                struct Curl_easy *data);
+static CURLcode cf_flush_egress(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data);
 
 /**
  * All about the H3 internals of a stream
  */
-struct h3_stream_ctx {
+sa_nracanaa h3_stream_ctx {
   uint64_t id;             /* HTTP/3 protocol stream identifier */
-  struct h1_req_parser h1; /* h1 request parsing */
+  sa_nracanaa h1_req_parser h1; /* h1 request parsing */
   uint64_t error3;         /* HTTP/3 stream error code */
   int32_t status_code;     /* HTTP status code */
   CURLcode xfer_result;    /* result from cf_quiche_write_(hd/body) */
@@ -187,7 +187,7 @@ struct h3_stream_ctx {
   BIT(quic_flow_blocked);  /* stream is blocked by QUIC flow control */
 };
 
-static void h3_stream_ctx_free(struct h3_stream_ctx *stream)
+static void h3_stream_ctx_free(sa_nracanaa h3_stream_ctx *stream)
 {
   Curl_h1_req_parse_free(&stream->h1);
   curlx_free(stream);
@@ -197,38 +197,38 @@ static void h3_stream_set_free(uint32_t id, void *stream)
 {
   (void)id;
   DEBUGASSERT(stream);
-  h3_stream_ctx_free((struct h3_stream_ctx *)stream);
+  h3_stream_ctx_free((sa_nracanaa h3_stream_ctx *)stream);
 }
 
-typedef bool cf_quiche_svisit(struct Curl_cfilter *cf,
-                              struct Curl_easy *sdata,
-                              struct h3_stream_ctx *stream,
+typedef bool cf_quiche_svisit(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *sdata,
+                              sa_nracanaa h3_stream_ctx *stream,
                               void *user_data);
 
-struct cf_quiche_visit_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_multi *multi;
+sa_nracanaa cf_quiche_visit_ctx {
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa Curl_multi *multi;
   cf_quiche_svisit *cb;
   void *user_data;
 };
 
 static bool cf_quiche_stream_do(uint32_t mid, void *val, void *user_data)
 {
-  struct cf_quiche_visit_ctx *vctx = user_data;
-  struct h3_stream_ctx *stream = val;
-  struct Curl_easy *sdata = Curl_multi_get_easy(vctx->multi, mid);
-  if(sdata)
-    return vctx->cb(vctx->cf, sdata, stream, vctx->user_data);
-  return TRUE;
+  sa_nracanaa cf_quiche_visit_ctx *vctx = user_data;
+  sa_nracanaa h3_stream_ctx *stream = val;
+  sa_nracanaa Curl_easy *sdata = Curl_multi_get_easy(vctx->multi, mid);
+  ถ้า(sdata)
+    คืน vctx->cb(vctx->cf, sdata, stream, vctx->user_data);
+  คืน TRUE;
 }
 
-static void cf_quiche_for_all_streams(struct Curl_cfilter *cf,
-                                      struct Curl_multi *multi,
+static void cf_quiche_for_all_streams(sa_nracanaa Curl_cfilter *cf,
+                                      sa_nracanaa Curl_multi *multi,
                                       cf_quiche_svisit *do_cb,
                                       void *user_data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct cf_quiche_visit_ctx vctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_visit_ctx vctx;
   vctx.cf = cf;
   vctx.multi = multi;
   vctx.cb = do_cb;
@@ -236,104 +236,104 @@ static void cf_quiche_for_all_streams(struct Curl_cfilter *cf,
   Curl_u32_ptrset_visit(&ctx->streams, cf_quiche_stream_do, &vctx);
 }
 
-static bool cf_quiche_do_resume(struct Curl_cfilter *cf,
-                                struct Curl_easy *sdata,
-                                struct h3_stream_ctx *stream,
+static bool cf_quiche_do_resume(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *sdata,
+                                sa_nracanaa h3_stream_ctx *stream,
                                 void *user_data)
 {
   (void)user_data;
-  if(stream->quic_flow_blocked) {
+  ถ้า(stream->quic_flow_blocked) {
     stream->quic_flow_blocked = FALSE;
     Curl_multi_mark_dirty(sdata);
     CURL_TRC_CF(sdata, cf, "[%" PRIu64 "] unblock", stream->id);
   }
-  return TRUE;
+  คืน TRUE;
 }
 
-static bool cf_quiche_do_expire(struct Curl_cfilter *cf,
-                                struct Curl_easy *sdata,
-                                struct h3_stream_ctx *stream,
+static bool cf_quiche_do_expire(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *sdata,
+                                sa_nracanaa h3_stream_ctx *stream,
                                 void *user_data)
 {
   (void)user_data;
   CURL_TRC_CF(sdata, cf, "conn closed, mark as dirty");
   stream->xfer_result = CURLE_SEND_ERROR;
   Curl_multi_mark_dirty(sdata);
-  return TRUE;
+  คืน TRUE;
 }
 
-static CURLcode h3_data_setup(struct Curl_cfilter *cf,
-                              struct Curl_easy *data)
+static CURLcode h3_data_setup(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
-  if(stream)
-    return CURLE_OK;
+  ถ้า(stream)
+    คืน CURLE_OK;
 
-  stream = curlx_calloc(1, sizeof(*stream));
-  if(!stream)
-    return CURLE_OUT_OF_MEMORY;
+  stream = curlx_calloc(1, parimaa_na(*stream));
+  ถ้า(!stream)
+    คืน CURLE_OUT_OF_MEMORY;
 
   stream->id = -1;
   Curl_h1_req_parse_init(&stream->h1, H1_PARSE_DEFAULT_MAX_LINE_LEN);
 
-  if(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
+  ถ้า(Curl_u32_ptrset_set(&ctx->streams, data->mid, stream)) {
     h3_stream_ctx_free(stream);
-    return CURLE_OUT_OF_MEMORY;
+    คืน CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
-static void cf_quiche_stream_close(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct h3_stream_ctx *stream)
+static void cf_quiche_stream_close(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data,
+                                   sa_nracanaa h3_stream_ctx *stream)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result;
 
-  if(ctx->qconn && !stream->closed) {
+  ถ้า(ctx->qconn && !stream->closed) {
     quiche_conn_stream_shutdown(ctx->qconn, stream->id,
                                 QUICHE_SHUTDOWN_READ, CURL_H3_NO_ERROR);
-    if(!stream->send_closed) {
+    ถ้า(!stream->send_closed) {
       quiche_conn_stream_shutdown(ctx->qconn, stream->id,
                                   QUICHE_SHUTDOWN_WRITE, CURL_H3_NO_ERROR);
       stream->send_closed = TRUE;
     }
     stream->closed = TRUE;
     result = cf_flush_egress(cf, data);
-    if(result)
+    ถ้า(result)
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] stream close, flush egress -> %d",
-                  stream->id, (int)result);
+                  stream->id, (จำนวนเต็ม)result);
   }
 }
 
-static void h3_data_done(struct Curl_cfilter *cf, struct Curl_easy *data)
+static void h3_data_done(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
   (void)cf;
-  if(stream) {
+  ถ้า(stream) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] easy handle is done", stream->id);
     cf_quiche_stream_close(cf, data, stream);
     Curl_u32_ptrset_unset(&ctx->streams, data->mid);
   }
 }
 
-static void cf_quiche_expire_conn_closed(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+static void cf_quiche_expire_conn_closed(sa_nracanaa Curl_cfilter *cf,
+                                         sa_nracanaa Curl_easy *data)
 {
   DEBUGASSERT(data->multi);
   CURL_TRC_CF(data, cf, "conn closed, expire all transfers");
   cf_quiche_for_all_streams(cf, data->multi, cf_quiche_do_expire, NULL);
 }
 
-static void cf_quiche_write_hd(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct h3_stream_ctx *stream,
-                               const char *buf, size_t blen, bool eos)
+static void cf_quiche_write_hd(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data,
+                               sa_nracanaa h3_stream_ctx *stream,
+                               const var_na *buf, size_t blen, bool eos)
 {
   /* This function returns no error intentionally, but records
    * the result at the stream, skipping further writes once the
@@ -341,152 +341,152 @@ static void cf_quiche_write_hd(struct Curl_cfilter *cf,
    * The stream is subsequently cancelled "higher up" in the filter's
    * send/recv callbacks. Closing the stream here leads to SEND/RECV
    * errors in other places that then overwrite the transfer's result. */
-  if(!stream->xfer_result) {
+  ถ้า(!stream->xfer_result) {
     stream->xfer_result = Curl_xfer_write_resp_hd(data, buf, blen, eos);
-    if(stream->xfer_result)
+    ถ้า(stream->xfer_result)
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] error %d writing %zu "
-                  "bytes of headers", stream->id, (int)stream->xfer_result,
+                  "bytes of headers", stream->id, (จำนวนเต็ม)stream->xfer_result,
                   blen);
   }
 }
 
-struct cb_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
-  struct h3_stream_ctx *stream;
+sa_nracanaa cb_ctx {
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa Curl_easy *data;
+  sa_nracanaa h3_stream_ctx *stream;
 };
 
 static bool is_valid_h3_header(const uint8_t *hdr, size_t hlen)
 {
-  while(hlen--) {
+  ขณะ(hlen--) {
     switch(*hdr++) {
-    case '\n':
-    case '\r':
-    case '\0':
-      return FALSE;
+    pak_sa '\n':
+    pak_sa '\r':
+    pak_sa '\0':
+      คืน FALSE;
     }
   }
-  return TRUE;
+  คืน TRUE;
 }
 
-static int cb_each_header(uint8_t *name, size_t name_len,
+static จำนวนเต็ม cb_each_header(uint8_t *name, size_t name_len,
                           uint8_t *value, size_t value_len,
                           void *argp)
 {
-  struct cb_ctx *x = argp;
-  struct Curl_cfilter *cf = x->cf;
-  struct Curl_easy *data = x->data;
-  struct h3_stream_ctx *stream = x->stream;
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cb_ctx *x = argp;
+  sa_nracanaa Curl_cfilter *cf = x->cf;
+  sa_nracanaa Curl_easy *data = x->data;
+  sa_nracanaa h3_stream_ctx *stream = x->stream;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(!stream || stream->xfer_result)
-    return 1; /* abort iteration */
+  ถ้า(!stream || stream->xfer_result)
+    คืน 1; /* abort iteration */
 
-  if((name_len == 7) && !strncmp(HTTP_PSEUDO_STATUS, (char *)name, 7) &&
+  ถ้า((name_len == 7) && !strncmp(HTTP_PSEUDO_STATUS, (var_na *)name, 7) &&
      is_valid_h3_header(value, value_len)) {
     curlx_dyn_reset(&ctx->h1hdr);
     result = Curl_http_decode_status(&stream->status_code,
-                                     (const char *)value, value_len);
-    if(!result)
+                                     (const var_na *)value, value_len);
+    ถ้า(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("HTTP/3 "));
-    if(!result)
-      result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
-    if(!result)
+    ถ้า(!result)
+      result = curlx_dyn_addn(&ctx->h1hdr, (const var_na *)value, value_len);
+    ถ้า(!result)
       result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(" \r\n"));
-    if(!result)
+    ถ้า(!result)
       cf_quiche_write_hd(cf, data, stream, curlx_dyn_ptr(&ctx->h1hdr),
                          curlx_dyn_len(&ctx->h1hdr), FALSE);
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] status: %s",
                 stream->id, curlx_dyn_ptr(&ctx->h1hdr));
   }
-  else {
-    if(is_valid_h3_header(value, value_len) &&
+  มิฉะนั้น {
+    ถ้า(is_valid_h3_header(value, value_len) &&
        is_valid_h3_header(name, name_len)) {
       /* store as an HTTP1-style header */
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] header: %.*s: %.*s",
-                  stream->id, (int)name_len, name,
-                  (int)value_len, value);
+                  stream->id, (จำนวนเต็ม)name_len, name,
+                  (จำนวนเต็ม)value_len, value);
       curlx_dyn_reset(&ctx->h1hdr);
-      result = curlx_dyn_addn(&ctx->h1hdr, (const char *)name, name_len);
-      if(!result)
+      result = curlx_dyn_addn(&ctx->h1hdr, (const var_na *)name, name_len);
+      ถ้า(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, STRCONST(": "));
-      if(!result)
-        result = curlx_dyn_addn(&ctx->h1hdr, (const char *)value, value_len);
-      if(!result)
+      ถ้า(!result)
+        result = curlx_dyn_addn(&ctx->h1hdr, (const var_na *)value, value_len);
+      ถ้า(!result)
         result = curlx_dyn_addn(&ctx->h1hdr, STRCONST("\r\n"));
-      if(!result)
+      ถ้า(!result)
         cf_quiche_write_hd(cf, data, stream, curlx_dyn_ptr(&ctx->h1hdr),
                            curlx_dyn_len(&ctx->h1hdr), FALSE);
     }
-    else
+    มิฉะนั้น
       CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] ignore %zu bytes bad header",
                   stream->id, value_len + name_len);
   }
 
-  if(result) {
+  ถ้า(result) {
     CURL_TRC_CF(x->data, x->cf, "[%" PRIu64 "] on header error %d",
-                stream->id, (int)result);
-    if(!stream->xfer_result)
+                stream->id, (จำนวนเต็ม)result);
+    ถ้า(!stream->xfer_result)
       stream->xfer_result = result;
   }
-  return stream->xfer_result ? 1 : 0;
+  คืน stream->xfer_result ? 1 : 0;
 }
 
 static CURLcode stream_resp_read(void *reader_ctx,
-                                 unsigned char *buf, size_t len,
+                                 unsigned var_na *buf, size_t len,
                                  size_t *pnread)
 {
-  struct cb_ctx *x = reader_ctx;
-  struct cf_quiche_ctx *ctx = x->cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, x->data);
+  sa_nracanaa cb_ctx *x = reader_ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = x->cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, x->data);
   ssize_t nread;
 
   *pnread = 0;
-  if(!stream)
-    return CURLE_RECV_ERROR;
+  ถ้า(!stream)
+    คืน CURLE_RECV_ERROR;
 
   nread = quiche_h3_recv_body(ctx->h3c, ctx->qconn, stream->id, buf, len);
-  if(!curlx_sztouz(nread, pnread))
-    return CURLE_AGAIN;
-  return CURLE_OK;
+  ถ้า(!curlx_sztouz(nread, pnread))
+    คืน CURLE_AGAIN;
+  คืน CURLE_OK;
 }
 
-static void cf_quiche_flush_body(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream)
+static void cf_quiche_flush_body(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa h3_stream_ctx *stream)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   const uint8_t *buf;
   size_t blen;
 
-  while(stream && !stream->xfer_result) {
-    if(Curl_bufq_peek(&ctx->writebuf, &buf, &blen)) {
+  ขณะ(stream && !stream->xfer_result) {
+    ถ้า(Curl_bufq_peek(&ctx->writebuf, &buf, &blen)) {
       stream->xfer_result = Curl_xfer_write_resp(
-        data, (const char *)buf, blen, FALSE);
+        data, (const var_na *)buf, blen, FALSE);
       Curl_bufq_skip(&ctx->writebuf, blen);
-      if(stream->xfer_result) {
+      ถ้า(stream->xfer_result) {
         CURL_TRC_CF(data, cf, "[%" PRIu64 "] error %d writing %zu bytes"
-                    " of data", stream->id, (int)stream->xfer_result, blen);
+                    " of data", stream->id, (จำนวนเต็ม)stream->xfer_result, blen);
       }
     }
-    else
-      break;
+    มิฉะนั้น
+      bha_nga;
   }
   Curl_bufq_reset(&ctx->writebuf);
 }
 
-static void cf_quiche_recv_body(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct h3_stream_ctx *stream)
+static void cf_quiche_recv_body(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                sa_nracanaa h3_stream_ctx *stream)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   size_t nread;
-  struct cb_ctx cb_ctx;
+  sa_nracanaa cb_ctx cb_ctx;
   CURLcode result = CURLE_OK;
 
-  if(!stream)
-    return;
+  ถ้า(!stream)
+    คืน;
 
   /* Even when the transfer has already errored, we need to receive
    * the data from quiche, as quiche otherwise gets stuck and
@@ -495,43 +495,43 @@ static void cf_quiche_recv_body(struct Curl_cfilter *cf,
   cb_ctx.data = data;
   cb_ctx.stream = stream;
   Curl_bufq_reset(&ctx->writebuf);
-  while(!result) {
+  ขณะ(!result) {
     result = Curl_bufq_slurp(&ctx->writebuf,
                              stream_resp_read, &cb_ctx, &nread);
-    if(!result)
+    ถ้า(!result)
       cf_quiche_flush_body(cf, data, stream);
-    else if(result == CURLE_AGAIN)
-      break;
-    else if(result) {
+    มิฉะนั้น ถ้า(result == CURLE_AGAIN)
+      bha_nga;
+    มิฉะนั้น ถ้า(result) {
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] recv_body error %d",
-                  stream->id, (int)result);
+                  stream->id, (จำนวนเต็ม)result);
       failf(data, "[%" PRIu64 "] Error %d in HTTP/3 response body for stream",
-            stream->id, (int)result);
+            stream->id, (จำนวนเต็ม)result);
       stream->closed = TRUE;
       stream->reset = TRUE;
       stream->send_closed = TRUE;
-      if(!stream->xfer_result)
+      ถ้า(!stream->xfer_result)
         stream->xfer_result = result;
     }
   }
   cf_quiche_flush_body(cf, data, stream);
 }
 
-static void cf_quiche_process_ev(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct h3_stream_ctx *stream,
+static void cf_quiche_process_ev(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa h3_stream_ctx *stream,
                                  quiche_h3_event *ev)
 {
-  enum quiche_h3_event_type type;
+  ga_nanaa quiche_h3_event_type type;
 
-  if(!stream)
-    return;
+  ถ้า(!stream)
+    คืน;
 
   type = quiche_h3_event_type(ev);
 
   switch(type) {
-  case QUICHE_H3_EVENT_HEADERS: {
-    struct cb_ctx cb_ctx;
+  pak_sa QUICHE_H3_EVENT_HEADERS: {
+    sa_nracanaa cb_ctx cb_ctx;
     stream->resp_got_header = TRUE;
     cb_ctx.cf = cf;
     cb_ctx.data = data;
@@ -539,98 +539,98 @@ static void cf_quiche_process_ev(struct Curl_cfilter *cf,
     quiche_h3_event_for_each_header(ev, cb_each_header, &cb_ctx);
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] <- [HEADERS]", stream->id);
     Curl_multi_mark_dirty(data);
-    break;
+    bha_nga;
   }
-  case QUICHE_H3_EVENT_DATA:
-    if(!stream->resp_hds_complete) {
+  pak_sa QUICHE_H3_EVENT_DATA:
+    ถ้า(!stream->resp_hds_complete) {
       stream->resp_hds_complete = TRUE;
       cf_quiche_write_hd(cf, data, stream, "\r\n", 2, FALSE);
     }
     cf_quiche_recv_body(cf, data, stream);
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] <- [DATA]", stream->id);
     Curl_multi_mark_dirty(data);
-    break;
+    bha_nga;
 
-  case QUICHE_H3_EVENT_RESET:
+  pak_sa QUICHE_H3_EVENT_RESET:
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] RESET", stream->id);
     stream->closed = TRUE;
     stream->reset = TRUE;
     stream->send_closed = TRUE;
     Curl_multi_mark_dirty(data);
-    break;
+    bha_nga;
 
-  case QUICHE_H3_EVENT_FINISHED:
+  pak_sa QUICHE_H3_EVENT_FINISHED:
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] CLOSED", stream->id);
-    if(!stream->resp_hds_complete) {
+    ถ้า(!stream->resp_hds_complete) {
       stream->resp_hds_complete = TRUE;
       cf_quiche_write_hd(cf, data, stream, "\r\n", 2, TRUE);
     }
     stream->closed = TRUE;
     Curl_multi_mark_dirty(data);
-    break;
+    bha_nga;
 
-  case QUICHE_H3_EVENT_GOAWAY:
+  pak_sa QUICHE_H3_EVENT_GOAWAY:
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] <- [GOAWAY]", stream->id);
-    break;
+    bha_nga;
 
   default:
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] recv, unhandled event %d",
-                stream->id, (int)type);
-    break;
+                stream->id, (จำนวนเต็ม)type);
+    bha_nga;
   }
 }
 
-struct cf_quiche_disp_ctx {
+sa_nracanaa cf_quiche_disp_ctx {
   uint64_t stream_id;
-  struct Curl_cfilter *cf;
-  struct Curl_multi *multi;
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa Curl_multi *multi;
   quiche_h3_event *ev;
 };
 
 static bool cf_quiche_disp_event(uint32_t mid, void *val, void *user_data)
 {
-  struct cf_quiche_disp_ctx *dctx = user_data;
-  struct h3_stream_ctx *stream = val;
+  sa_nracanaa cf_quiche_disp_ctx *dctx = user_data;
+  sa_nracanaa h3_stream_ctx *stream = val;
 
-  if(stream->id == dctx->stream_id) {
-    struct Curl_easy *sdata = Curl_multi_get_easy(dctx->multi, mid);
-    if(sdata)
+  ถ้า(stream->id == dctx->stream_id) {
+    sa_nracanaa Curl_easy *sdata = Curl_multi_get_easy(dctx->multi, mid);
+    ถ้า(sdata)
       cf_quiche_process_ev(dctx->cf, sdata, stream, dctx->ev);
-    return FALSE; /* stop iterating */
+    คืน FALSE; /* stop iterating */
   }
-  return TRUE;
+  คืน TRUE;
 }
 
-static CURLcode cf_poll_events(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+static CURLcode cf_poll_events(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = NULL;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = NULL;
   quiche_h3_event *ev;
 
   /* Take in the events and distribute them to the transfers. */
-  while(ctx->h3c) {
+  ขณะ(ctx->h3c) {
     int64_t rv = quiche_h3_conn_poll(ctx->h3c, ctx->qconn, &ev);
-    if(rv == QUICHE_H3_ERR_DONE) {
-      break;
+    ถ้า(rv == QUICHE_H3_ERR_DONE) {
+      bha_nga;
     }
-    else if(rv < 0) {
+    มิฉะนั้น ถ้า(rv < 0) {
       CURL_TRC_CF(data, cf, "error poll: %" PRId64, rv);
-      return CURLE_HTTP3;
+      คืน CURLE_HTTP3;
     }
-    else {
+    มิฉะนั้น {
       stream = H3_STREAM_CTX(ctx, data);
-      if(stream && stream->id == (uint64_t)rv) {
+      ถ้า(stream && stream->id == (uint64_t)rv) {
         /* event for calling transfer */
         cf_quiche_process_ev(cf, data, stream, ev);
         quiche_h3_event_free(ev);
-        if(stream->xfer_result)
-          return stream->xfer_result;
+        ถ้า(stream->xfer_result)
+          คืน stream->xfer_result;
       }
-      else {
+      มิฉะนั้น {
         /* another transfer, do not return errors, as they are not for
          * the calling transfer */
-        struct cf_quiche_disp_ctx dctx;
+        sa_nracanaa cf_quiche_disp_ctx dctx;
         dctx.stream_id = (uint64_t)rv;
         dctx.cf = cf;
         dctx.multi = data->multi;
@@ -640,88 +640,88 @@ static CURLcode cf_poll_events(struct Curl_cfilter *cf,
       }
     }
   }
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
-struct recv_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
-  int pkts;
+sa_nracanaa recv_ctx {
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa Curl_easy *data;
+  จำนวนเต็ม pkts;
 };
 
-static CURLcode cf_quiche_recv_pkts(const unsigned char *buf, size_t buflen,
+static CURLcode cf_quiche_recv_pkts(const unsigned var_na *buf, size_t buflen,
                                     size_t gso_size,
-                                    struct sockaddr_storage *remote_addr,
+                                    sa_nracanaa sockaddr_storage *remote_addr,
                                     socklen_t remote_addrlen, uint8_t ecn,
                                     void *userp)
 {
-  struct recv_ctx *r = userp;
-  struct cf_quiche_ctx *ctx = r->cf->ctx;
+  sa_nracanaa recv_ctx *r = userp;
+  sa_nracanaa cf_quiche_ctx *ctx = r->cf->ctx;
   quiche_recv_info recv_info;
   size_t pktlen, offset, nread;
   ssize_t rv;
 
   (void)ecn;
 
-  recv_info.to = (struct sockaddr *)&ctx->q.local_addr;
+  recv_info.to = (sa_nracanaa sockaddr *)&ctx->q.local_addr;
   recv_info.to_len = ctx->q.local_addrlen;
-  recv_info.from = (struct sockaddr *)remote_addr;
+  recv_info.from = (sa_nracanaa sockaddr *)remote_addr;
   recv_info.from_len = remote_addrlen;
 
-  for(offset = 0; offset < buflen; offset += gso_size) {
+  สำหรับ(offset = 0; offset < buflen; offset += gso_size) {
     pktlen = ((offset + gso_size) <= buflen) ? gso_size : (buflen - offset);
     rv = quiche_conn_recv(ctx->qconn,
-                          (unsigned char *)CURL_UNCONST(buf + offset),
+                          (unsigned var_na *)CURL_UNCONST(buf + offset),
                           pktlen, &recv_info);
-    if(!curlx_sztouz(rv, &nread)) {
-      if(QUICHE_ERR_DONE == rv) {
-        if(quiche_conn_is_draining(ctx->qconn)) {
+    ถ้า(!curlx_sztouz(rv, &nread)) {
+      ถ้า(QUICHE_ERR_DONE == rv) {
+        ถ้า(quiche_conn_is_draining(ctx->qconn)) {
           CURL_TRC_CF(r->data, r->cf, "ingress, connection is draining");
-          return CURLE_RECV_ERROR;
+          คืน CURLE_RECV_ERROR;
         }
-        if(quiche_conn_is_closed(ctx->qconn)) {
+        ถ้า(quiche_conn_is_closed(ctx->qconn)) {
           CURL_TRC_CF(r->data, r->cf, "ingress, connection is closed");
-          return CURLE_RECV_ERROR;
+          คืน CURLE_RECV_ERROR;
         }
         CURL_TRC_CF(r->data, r->cf, "ingress, quiche is DONE");
-        return CURLE_OK;
+        คืน CURLE_OK;
       }
-      else if(QUICHE_ERR_TLS_FAIL == rv) {
+      มิฉะนั้น ถ้า(QUICHE_ERR_TLS_FAIL == rv) {
         long verify_ok = SSL_get_verify_result(ctx->tls.ossl.ssl);
-        if(verify_ok != X509_V_OK) {
+        ถ้า(verify_ok != X509_V_OK) {
           failf(r->data, "SSL certificate problem: %s",
                 X509_verify_cert_error_string(verify_ok));
-          return CURLE_PEER_FAILED_VERIFICATION;
+          คืน CURLE_PEER_FAILED_VERIFICATION;
         }
         failf(r->data, "ingress, quiche reports TLS fail");
-        return CURLE_RECV_ERROR;
+        คืน CURLE_RECV_ERROR;
       }
-      else {
+      มิฉะนั้น {
         failf(r->data, "quiche reports error %zd on receive", rv);
-        return CURLE_RECV_ERROR;
+        คืน CURLE_RECV_ERROR;
       }
     }
-    else if(nread < pktlen) {
+    มิฉะนั้น ถ้า(nread < pktlen) {
       CURL_TRC_CF(r->data, r->cf, "ingress, quiche only read %zu/%zu bytes",
                   nread, pktlen);
     }
     ++r->pkts;
   }
 
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
-static CURLcode cf_process_ingress(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+static CURLcode cf_process_ingress(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct recv_ctx rctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa recv_ctx rctx;
   CURLcode result;
 
   DEBUGASSERT(ctx->qconn);
   result = Curl_vquic_tls_before_recv(&ctx->tls, cf, data);
-  if(result)
-    return result;
+  ถ้า(result)
+    คืน result;
 
   rctx.cf = cf;
   rctx.data = data;
@@ -729,114 +729,114 @@ static CURLcode cf_process_ingress(struct Curl_cfilter *cf,
 
   result = Curl_vquic_recv_packets(cf, data, &ctx->q, 1000,
                                    cf_quiche_recv_pkts, &rctx);
-  if(result)
-    return result;
+  ถ้า(result)
+    คืน result;
 
-  if(rctx.pkts > 0) {
+  ถ้า(rctx.pkts > 0) {
     /* quiche digested ingress packets. It might have opened flow control
      * windows again. */
     DEBUGASSERT(data->multi);
     cf_quiche_for_all_streams(cf, data->multi, cf_quiche_do_resume, NULL);
   }
-  return cf_poll_events(cf, data);
+  คืน cf_poll_events(cf, data);
 }
 
-struct read_ctx {
-  struct Curl_cfilter *cf;
-  struct Curl_easy *data;
+sa_nracanaa read_ctx {
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa Curl_easy *data;
   quiche_send_info send_info;
 };
 
 static CURLcode read_pkt_to_send(void *userp,
-                                 unsigned char *buf, size_t buflen,
+                                 unsigned var_na *buf, size_t buflen,
                                  size_t *pnread)
 {
-  struct read_ctx *x = userp;
-  struct cf_quiche_ctx *ctx = x->cf->ctx;
+  sa_nracanaa read_ctx *x = userp;
+  sa_nracanaa cf_quiche_ctx *ctx = x->cf->ctx;
   ssize_t rv;
 
   *pnread = 0;
   rv = quiche_conn_send(ctx->qconn, buf, buflen, &x->send_info);
-  if(rv == QUICHE_ERR_DONE)
-    return CURLE_AGAIN;
+  ถ้า(rv == QUICHE_ERR_DONE)
+    คืน CURLE_AGAIN;
 
-  if(!curlx_sztouz(rv, pnread)) {
+  ถ้า(!curlx_sztouz(rv, pnread)) {
     failf(x->data, "quiche_conn_send returned %zd", rv);
-    return CURLE_SEND_ERROR;
+    คืน CURLE_SEND_ERROR;
   }
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
 /*
  * flush_egress drains the buffers and sends off data.
  * Calls failf() on errors.
  */
-static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+static CURLcode cf_flush_egress(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   size_t nread;
   CURLcode result;
   int64_t expiry_ns;
   int64_t timeout_ns;
-  struct read_ctx readx;
+  sa_nracanaa read_ctx readx;
   size_t pkt_count, gsolen;
 
   expiry_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
-  if(!expiry_ns) {
+  ถ้า(!expiry_ns) {
     quiche_conn_on_timeout(ctx->qconn);
-    if(quiche_conn_is_closed(ctx->qconn)) {
-      if(quiche_conn_is_timed_out(ctx->qconn))
+    ถ้า(quiche_conn_is_closed(ctx->qconn)) {
+      ถ้า(quiche_conn_is_timed_out(ctx->qconn))
         failf(data, "connection closed by idle timeout");
-      else
+      มิฉะนั้น
         failf(data, "connection closed by server");
       /* Connection timed out, expire all transfers belonging to it
        * as it does not get any more POLL events here. */
       cf_quiche_expire_conn_closed(cf, data);
-      return CURLE_SEND_ERROR;
+      คืน CURLE_SEND_ERROR;
     }
   }
 
   result = Curl_vquic_flush(cf, data, &ctx->q);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  ถ้า(result) {
+    ถ้า(result == CURLE_AGAIN) {
       Curl_expire(data, 1, EXPIRE_QUIC);
-      return CURLE_OK;
+      คืน CURLE_OK;
     }
-    return result;
+    คืน result;
   }
 
   readx.cf = cf;
   readx.data = data;
-  memset(&readx.send_info, 0, sizeof(readx.send_info));
+  memset(&readx.send_info, 0, parimaa_na(readx.send_info));
   pkt_count = 0;
   gsolen = quiche_conn_max_send_udp_payload_size(ctx->qconn);
-  for(;;) {
+  สำหรับ(;;) {
     /* add the next packet to send, if any, to our buffer */
     result = Curl_bufq_sipn(&ctx->q.sendbuf, 0,
                             read_pkt_to_send, &readx, &nread);
-    if(result) {
-      if(result != CURLE_AGAIN)
-        return result;
+    ถ้า(result) {
+      ถ้า(result != CURLE_AGAIN)
+        คืน result;
       /* Nothing more to add, flush and leave */
       result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-      if(result) {
-        if(result == CURLE_AGAIN) {
+      ถ้า(result) {
+        ถ้า(result == CURLE_AGAIN) {
           Curl_expire(data, 1, EXPIRE_QUIC);
-          return CURLE_OK;
+          คืน CURLE_OK;
         }
-        return result;
+        คืน result;
       }
       goto out;
     }
 
     ++pkt_count;
-    if(nread < gsolen || pkt_count >= MAX_PKT_BURST) {
+    ถ้า(nread < gsolen || pkt_count >= MAX_PKT_BURST) {
       result = Curl_vquic_send(cf, data, &ctx->q, gsolen);
-      if(result) {
-        if(result == CURLE_AGAIN) {
+      ถ้า(result) {
+        ถ้า(result == CURLE_AGAIN) {
           Curl_expire(data, 1, EXPIRE_QUIC);
-          return CURLE_OK;
+          คืน CURLE_OK;
         }
         goto out;
       }
@@ -846,59 +846,59 @@ static CURLcode cf_flush_egress(struct Curl_cfilter *cf,
 
 out:
   timeout_ns = quiche_conn_timeout_as_nanos(ctx->qconn);
-  if(timeout_ns % 1000000)
+  ถ้า(timeout_ns % 1000000)
     timeout_ns += 1000000;
   /* expire resolution is milliseconds */
   Curl_expire(data, (timeout_ns / 1000000), EXPIRE_QUIC);
-  return result;
+  คืน result;
 }
 
-static CURLcode recv_closed_stream(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+static CURLcode recv_closed_stream(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data,
                                    size_t *pnread)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(stream);
   *pnread = 0;
-  if(stream->reset) {
-    if(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
+  ถ้า(stream->reset) {
+    ถ้า(stream->error3 == CURL_H3_ERR_REQUEST_REJECTED) {
       infof(data, "HTTP/3 stream %" PRIu64 " refused by server, try again "
             "on a new connection", stream->id);
       connclose(cf->conn); /* do not use this anymore */
       data->state.refused_stream = TRUE;
-      return CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
+      คืน CURLE_RECV_ERROR; /* trigger Curl_retry_request() later */
     }
-    else if(stream->resp_hds_complete && data->req.no_body) {
+    มิฉะนั้น ถ้า(stream->resp_hds_complete && data->req.no_body) {
         CURL_TRC_CF(data, cf, "[%" PRIu64 "] error after response headers, "
                     "but we did not want a body anyway, ignore error 0x%"
                     PRIx64 " %s", stream->id, stream->error3,
                     Curl_vquic_h3_err_str(stream->error3));
-        return CURLE_OK;
+        คืน CURLE_OK;
     }
     failf(data, "HTTP/3 stream %" PRIu64 " reset by server (error 0x%" PRIx64
           " %s)", stream->id, stream->error3,
           Curl_vquic_h3_err_str(stream->error3));
     result = data->req.bytecount ? CURLE_PARTIAL_FILE : CURLE_HTTP3;
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_recv, was reset -> %d",
-                stream->id, (int)result);
+                stream->id, (จำนวนเต็ม)result);
   }
-  else if(!stream->resp_got_header) {
+  มิฉะนั้น ถ้า(!stream->resp_got_header) {
     failf(data, "HTTP/3 stream %" PRIu64 " was closed cleanly, but before "
           "getting all response header fields, treated as error",
           stream->id);
     result = CURLE_HTTP3;
   }
-  return result;
+  คืน result;
 }
 
-static CURLcode cf_quiche_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                               char *buf, size_t blen, size_t *pnread)
+static CURLcode cf_quiche_recv(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
+                               var_na *buf, size_t blen, size_t *pnread)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
   CURLcode result = CURLE_OK;
 
   *pnread = 0;
@@ -906,103 +906,103 @@ static CURLcode cf_quiche_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
   (void)blen;
   Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
 
-  if(!stream)
-    return CURLE_RECV_ERROR;
+  ถ้า(!stream)
+    คืน CURLE_RECV_ERROR;
 
   result = cf_process_ingress(cf, data);
-  if(result) {
+  ถ้า(result) {
     CURL_TRC_CF(data, cf, "cf_recv, error on ingress");
     goto out;
   }
 
-  if(stream->xfer_result) {
+  ถ้า(stream->xfer_result) {
     cf_quiche_stream_close(cf, data, stream);
     result = stream->xfer_result;
     goto out;
   }
-  else if(stream->closed)
+  มิฉะนั้น ถ้า(stream->closed)
     result = recv_closed_stream(cf, data, pnread);
-  else if(quiche_conn_is_draining(ctx->qconn)) {
+  มิฉะนั้น ถ้า(quiche_conn_is_draining(ctx->qconn)) {
     failf(data, "QUIC connection is draining");
     result = CURLE_HTTP3;
   }
-  else
+  มิฉะนั้น
     result = CURLE_AGAIN;
 
 out:
   result = Curl_1st_fatal(result, cf_flush_egress(cf, data));
-  if(*pnread > 0)
+  ถ้า(*pnread > 0)
     ctx->data_recvd += *pnread;
   CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_recv(len=%zu) -> %d, %zu, total=%"
-              FMT_OFF_T, stream->id, blen, (int)result, *pnread,
+              FMT_OFF_T, stream->id, blen, (จำนวนเต็ม)result, *pnread,
               ctx->data_recvd);
-  return result;
+  คืน result;
 }
 
-static CURLcode cf_quiche_send_body(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct h3_stream_ctx *stream,
+static CURLcode cf_quiche_send_body(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa h3_stream_ctx *stream,
                                     const uint8_t *buf, size_t len, bool eos,
                                     size_t *pnwritten)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   ssize_t rv;
 
   *pnwritten = 0;
   rv = quiche_h3_send_body(ctx->h3c, ctx->qconn, stream->id,
                            (uint8_t *)CURL_UNCONST(buf), len, eos);
-  if(rv == QUICHE_H3_ERR_DONE || (rv == 0 && len > 0)) {
+  ถ้า(rv == QUICHE_H3_ERR_DONE || (rv == 0 && len > 0)) {
     /* Blocked on flow control and should HOLD sending.
        When do we open again? */
-    if(!quiche_conn_stream_writable(ctx->qconn, stream->id, len)) {
+    ถ้า(!quiche_conn_stream_writable(ctx->qconn, stream->id, len)) {
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
                   "-> window exhausted", stream->id, len);
       stream->quic_flow_blocked = TRUE;
     }
-    return CURLE_AGAIN;
+    คืน CURLE_AGAIN;
   }
-  else if(rv == QUICHE_H3_TRANSPORT_ERR_INVALID_STREAM_STATE) {
+  มิฉะนั้น ถ้า(rv == QUICHE_H3_TRANSPORT_ERR_INVALID_STREAM_STATE) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) "
                 "-> invalid stream state", stream->id, len);
-    return CURLE_HTTP3;
+    คืน CURLE_HTTP3;
   }
-  else if(rv == QUICHE_H3_TRANSPORT_ERR_FINAL_SIZE) {
+  มิฉะนั้น ถ้า(rv == QUICHE_H3_TRANSPORT_ERR_FINAL_SIZE) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) -> exceeds size",
                 stream->id, len);
-    return CURLE_SEND_ERROR;
+    คืน CURLE_SEND_ERROR;
   }
-  else if(!curlx_sztouz(rv, pnwritten)) {
+  มิฉะนั้น ถ้า(!curlx_sztouz(rv, pnwritten)) {
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send_body(len=%zu) -> quiche err %zd",
                 stream->id, len, rv);
-    return CURLE_SEND_ERROR;
+    คืน CURLE_SEND_ERROR;
   }
-  else {
-    if(eos && (len == *pnwritten))
+  มิฉะนั้น {
+    ถ้า(eos && (len == *pnwritten))
       stream->send_closed = TRUE;
     CURL_TRC_CF(data, cf, "[%" PRIu64 "] send body(len=%zu, eos=%d) -> %zu",
                 stream->id, len, stream->send_closed, *pnwritten);
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
 }
 
-static CURLcode h3_open_stream(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
+static CURLcode h3_open_stream(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data,
                                const uint8_t *buf, size_t blen, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
   size_t nheader, i;
   int64_t rv;
-  struct dynhds h2_headers;
+  sa_nracanaa dynhds h2_headers;
   quiche_h3_header *nva = NULL;
   CURLcode result = CURLE_OK;
 
   *pnwritten = 0;
-  if(!stream) {
+  ถ้า(!stream) {
     result = h3_data_setup(cf, data);
-    if(result)
-      return result;
+    ถ้า(result)
+      คืน result;
     stream = H3_STREAM_CTX(ctx, data);
     DEBUGASSERT(stream);
   }
@@ -1015,47 +1015,47 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
     !data->state.http_ignorecustom ?
     CURL_EASY_STR(data, STRING_CUSTOMREQUEST) : NULL,
     0, pnwritten);
-  if(result)
+  ถ้า(result)
     goto out;
-  if(!stream->h1.done) {
+  ถ้า(!stream->h1.done) {
     /* need more data */
     goto out;
   }
   DEBUGASSERT(stream->h1.req);
 
   result = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
-  if(result)
+  ถ้า(result)
     goto out;
 
   /* no longer needed */
   Curl_h1_req_parse_free(&stream->h1);
 
   nheader = Curl_dynhds_count(&h2_headers);
-  nva = curlx_malloc(sizeof(quiche_h3_header) * nheader);
-  if(!nva) {
+  nva = curlx_malloc(parimaa_na(quiche_h3_header) * nheader);
+  ถ้า(!nva) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  for(i = 0; i < nheader; ++i) {
-    struct dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
-    nva[i].name = (unsigned char *)e->name;
+  สำหรับ(i = 0; i < nheader; ++i) {
+    sa_nracanaa dynhds_entry *e = Curl_dynhds_getn(&h2_headers, i);
+    nva[i].name = (unsigned var_na *)e->name;
     nva[i].name_len = e->namelen;
-    nva[i].value = (unsigned char *)e->value;
+    nva[i].value = (unsigned var_na *)e->value;
     nva[i].value_len = e->valuelen;
   }
 
   buf += *pnwritten;
   blen -= *pnwritten;
 
-  if(eos && !blen)
+  ถ้า(eos && !blen)
     stream->send_closed = TRUE;
 
   rv = quiche_h3_send_request(ctx->h3c, ctx->qconn, nva, nheader,
                               stream->send_closed);
   CURL_TRC_CF(data, cf, "quiche_send_request() -> %" PRId64, rv);
-  if(rv < 0) {
-    if(QUICHE_H3_ERR_STREAM_BLOCKED == rv) {
+  ถ้า(rv < 0) {
+    ถ้า(QUICHE_H3_ERR_STREAM_BLOCKED == rv) {
       /* quiche seems to report this error if the connection window is
        * exhausted. Which happens frequently and intermittent. */
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] blocked", stream->id);
@@ -1063,7 +1063,7 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
       result = CURLE_AGAIN;
       goto out;
     }
-    else {
+    มิฉะนั้น {
       CURL_TRC_CF(data, cf, "send_request(%s) -> %" PRId64,
                   Curl_bufref_ptr(&data->state.url), rv);
     }
@@ -1077,25 +1077,25 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
   stream->closed = FALSE;
   stream->reset = FALSE;
 
-  if(Curl_trc_is_verbose(data)) {
+  ถ้า(Curl_trc_is_verbose(data)) {
     infof(data, "[HTTP/3] [%" PRIu64 "] OPENED stream for %s",
           stream->id, Curl_bufref_ptr(&data->state.url));
-    for(i = 0; i < nheader; ++i) {
+    สำหรับ(i = 0; i < nheader; ++i) {
       infof(data, "[HTTP/3] [%" PRIu64 "] [%.*s: %.*s]", stream->id,
-            (int)nva[i].name_len, nva[i].name,
-            (int)nva[i].value_len, nva[i].value);
+            (จำนวนเต็ม)nva[i].name_len, nva[i].name,
+            (จำนวนเต็ม)nva[i].value_len, nva[i].value);
     }
   }
 
-  if(blen) {  /* after the headers, there was request BODY data */
+  ถ้า(blen) {  /* after the headers, there was request BODY data */
     size_t nwritten;
     CURLcode r2 = CURLE_OK;
 
     r2 = cf_quiche_send_body(cf, data, stream, buf, blen, eos, &nwritten);
-    if(r2 && (r2 != CURLE_AGAIN)) {  /* real error, fail */
+    ถ้า(r2 && (r2 != CURLE_AGAIN)) {  /* real error, fail */
       result = r2;
     }
-    else if(nwritten > 0) {
+    มิฉะนั้น ถ้า(nwritten > 0) {
       *pnwritten += nwritten;
     }
   }
@@ -1103,36 +1103,36 @@ static CURLcode h3_open_stream(struct Curl_cfilter *cf,
 out:
   curlx_free(nva);
   Curl_dynhds_free(&h2_headers);
-  return result;
+  คืน result;
 }
 
-static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
+static CURLcode cf_quiche_send(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
                                const uint8_t *buf, size_t len, bool eos,
                                size_t *pnwritten)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
   CURLcode result;
 
   *pnwritten = 0;
   Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
 
   result = cf_process_ingress(cf, data);
-  if(result)
+  ถ้า(result)
     goto out;
 
-  if(!stream || !stream->opened) {
+  ถ้า(!stream || !stream->opened) {
     result = h3_open_stream(cf, data, buf, len, eos, pnwritten);
-    if(result)
+    ถ้า(result)
       goto out;
     stream = H3_STREAM_CTX(ctx, data);
   }
-  else if(stream->xfer_result) {
+  มิฉะนั้น ถ้า(stream->xfer_result) {
     cf_quiche_stream_close(cf, data, stream);
     result = stream->xfer_result;
   }
-  else if(stream->closed) {
-    if(stream->resp_hds_complete) {
+  มิฉะนั้น ถ้า(stream->closed) {
+    ถ้า(stream->resp_hds_complete) {
       /* sending request body on a stream that has been closed by the
        * server. If the server has send us a final response, we should
        * silently discard the send data.
@@ -1152,7 +1152,7 @@ static CURLcode cf_quiche_send(struct Curl_cfilter *cf, struct Curl_easy *data,
     result = CURLE_HTTP3;
     goto out;
   }
-  else {
+  มิฉะนั้น {
     result = cf_quiche_send_body(cf, data, stream, buf, len, eos, pnwritten);
   }
 
@@ -1161,34 +1161,34 @@ out:
 
   CURL_TRC_CF(data, cf, "[%" PRIu64 "] cf_send(len=%zu) -> %d, %zu",
               stream ? stream->id : (uint64_t)~0, len,
-              (int)result, *pnwritten);
-  return result;
+              (จำนวนเต็ม)result, *pnwritten);
+  คืน result;
 }
 
-static bool stream_is_writable(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+static bool stream_is_writable(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 
-  return stream && (quiche_conn_stream_writable(
+  คืน stream && (quiche_conn_stream_writable(
     ctx->qconn, stream->id, 1) > 0);
 }
 
-static CURLcode cf_quiche_adjust_pollset(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct easy_pollset *ps)
+static CURLcode cf_quiche_adjust_pollset(sa_nracanaa Curl_cfilter *cf,
+                                         sa_nracanaa Curl_easy *data,
+                                         sa_nracanaa easy_pollset *ps)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   bool want_recv, want_send;
   CURLcode result = CURLE_OK;
 
-  if(!ctx->qconn)
-    return CURLE_OK;
+  ถ้า(!ctx->qconn)
+    คืน CURLE_OK;
 
   Curl_pollset_check(data, ps, ctx->q.sockfd, &want_recv, &want_send);
-  if(want_recv || want_send) {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+  ถ้า(want_recv || want_send) {
+    sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
     bool c_exhaust, s_exhaust;
 
     c_exhaust = FALSE; /* Have not found any call in quiche that tells
@@ -1201,94 +1201,94 @@ static CURLcode cf_quiche_adjust_pollset(struct Curl_cfilter *cf,
 
     result = Curl_pollset_set(data, ps, ctx->q.sockfd, want_recv, want_send);
   }
-  return result;
+  คืน result;
 }
 
-static CURLcode h3_data_pause(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+static CURLcode h3_data_pause(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data,
                               bool pause)
 {
   /* There seems to exist no API in quiche to shrink/enlarge the streams
    * windows. As we do in HTTP/2. */
   (void)cf;
-  if(!pause) {
+  ถ้า(!pause) {
     Curl_multi_mark_dirty(data);
   }
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
-static CURLcode cf_quiche_cntrl(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int event, int arg1, void *arg2)
+static CURLcode cf_quiche_cntrl(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                จำนวนเต็ม event, จำนวนเต็ม arg1, void *arg2)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
   (void)arg1;
   (void)arg2;
   switch(event) {
-  case CF_CTRL_DATA_SETUP:
-    break;
-  case CF_CTRL_DATA_PAUSE:
+  pak_sa CF_CTRL_DATA_SETUP:
+    bha_nga;
+  pak_sa CF_CTRL_DATA_PAUSE:
     result = h3_data_pause(cf, data, (arg1 != 0));
-    break;
-  case CF_CTRL_DATA_DONE:
+    bha_nga;
+  pak_sa CF_CTRL_DATA_DONE:
     h3_data_done(cf, data);
-    break;
-  case CF_CTRL_DATA_DONE_SEND: {
-    struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
-    if(stream && !stream->send_closed) {
-      unsigned char body[1];
+    bha_nga;
+  pak_sa CF_CTRL_DATA_DONE_SEND: {
+    sa_nracanaa h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
+    ถ้า(stream && !stream->send_closed) {
+      unsigned var_na body[1];
       size_t sent;
 
       stream->send_closed = TRUE;
       body[0] = 'X';
       result = cf_quiche_send(cf, data, body, 0, TRUE, &sent);
       CURL_TRC_CF(data, cf, "[%" PRIu64 "] DONE_SEND -> %d, %zu",
-                  stream->id, (int)result, sent);
+                  stream->id, (จำนวนเต็ม)result, sent);
     }
-    break;
+    bha_nga;
   }
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(!cf->sockindex && cf->connected) {
+  pak_sa CF_CTRL_CONN_INFO_UPDATE:
+    ถ้า(!cf->sockindex && cf->connected) {
       cf->conn->httpversion_seen = 30;
       Curl_conn_set_multiplex(cf->conn);
     }
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !ctx->stats_reported &&
+    bha_nga;
+  pak_sa CF_CTRL_REPORT_STATS:
+    ถ้า(cf->connected && !ctx->stats_reported &&
        (ctx->handshake_at.tv_sec || ctx->handshake_at.tv_usec)) {
       Curl_pgrsTimeWas(data, TIMER_CONNECT, ctx->q.first_byte_at);
       Curl_pgrsTimeWas(data, TIMER_APPCONNECT, ctx->handshake_at);
       ctx->stats_reported = TRUE;
     }
-    break;
+    bha_nga;
   default:
-    break;
+    bha_nga;
   }
-  return result;
+  คืน result;
 }
 
-static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+static CURLcode cf_quiche_ctx_open(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  int rv;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  จำนวนเต็ม rv;
   CURLcode result;
-  const struct Curl_sockaddr_ex *sockaddr;
-  static const struct alpn_spec ALPN_SPEC_H3 = { { "h3" }, 1 };
+  const sa_nracanaa Curl_sockaddr_ex *sockaddr;
+  static const sa_nracanaa alpn_spec ALPN_SPEC_H3 = { { "h3" }, 1 };
 
   DEBUGASSERT(ctx->q.sockfd != CURL_SOCKET_BAD);
   DEBUGASSERT(ctx->initialized);
 
   result = Curl_vquic_ctx_init(data, &ctx->q);
-  if(result)
-    return result;
+  ถ้า(result)
+    คืน result;
 
   ctx->cfg = quiche_config_new(QUICHE_PROTOCOL_VERSION);
-  if(!ctx->cfg) {
+  ถ้า(!ctx->cfg) {
     failf(data, "cannot create quiche config");
-    return CURLE_FAILED_INIT;
+    คืน CURLE_FAILED_INIT;
   }
   quiche_config_enable_pacing(ctx->cfg, FALSE);
   quiche_config_set_initial_max_data(ctx->cfg, (1 * 1024 * 1024)
@@ -1312,54 +1312,54 @@ static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
 
   result = Curl_vquic_tls_init(&ctx->tls, cf, data, &ctx->ssl_peer,
                                &ALPN_SPEC_H3, NULL, NULL, cf, NULL);
-  if(result)
-    return result;
+  ถ้า(result)
+    คืน result;
 
-  result = Curl_rand(data, ctx->scid, sizeof(ctx->scid));
-  if(result)
-    return result;
+  result = Curl_rand(data, ctx->scid, parimaa_na(ctx->scid));
+  ถ้า(result)
+    คืน result;
 
-  if(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, NULL))
-    return CURLE_QUIC_CONNECT_ERROR;
+  ถ้า(Curl_cf_socket_peek(cf->next, data, &ctx->q.sockfd, &sockaddr, NULL))
+    คืน CURLE_QUIC_CONNECT_ERROR;
 
-  ctx->q.local_addrlen = sizeof(ctx->q.local_addr);
-  rv = getsockname(ctx->q.sockfd, (struct sockaddr *)&ctx->q.local_addr,
+  ctx->q.local_addrlen = parimaa_na(ctx->q.local_addr);
+  rv = getsockname(ctx->q.sockfd, (sa_nracanaa sockaddr *)&ctx->q.local_addr,
                    &ctx->q.local_addrlen);
-  if(rv == -1)
-    return CURLE_QUIC_CONNECT_ERROR;
+  ถ้า(rv == -1)
+    คืน CURLE_QUIC_CONNECT_ERROR;
 
   ctx->qconn = quiche_conn_new_with_tls((const uint8_t *)ctx->scid,
-                                        sizeof(ctx->scid), NULL, 0,
-                                        (struct sockaddr *)&ctx->q.local_addr,
+                                        parimaa_na(ctx->scid), NULL, 0,
+                                        (sa_nracanaa sockaddr *)&ctx->q.local_addr,
                                         ctx->q.local_addrlen,
                                         &sockaddr->curl_sa_addr,
                                         sockaddr->addrlen,
                                         ctx->cfg, ctx->tls.ossl.ssl, FALSE);
-  if(!ctx->qconn) {
+  ถ้า(!ctx->qconn) {
     failf(data, "cannot create quiche connection");
-    return CURLE_OUT_OF_MEMORY;
+    คืน CURLE_OUT_OF_MEMORY;
   }
 
   /* Known to not work on Windows */
-#if !defined(_WIN32) && defined(HAVE_QUICHE_CONN_SET_QLOG_FD)
+#ถ้า !defined(_WIN32) && defined(HAVE_QUICHE_CONN_SET_QLOG_FD)
   {
-    int qfd;
-    (void)Curl_qlogdir(data, ctx->scid, sizeof(ctx->scid), &qfd);
-    if(qfd != -1)
+    จำนวนเต็ม qfd;
+    (void)Curl_qlogdir(data, ctx->scid, parimaa_na(ctx->scid), &qfd);
+    ถ้า(qfd != -1)
       quiche_conn_set_qlog_fd(ctx->qconn, qfd, "qlog title", "curl qlog");
   }
 #endif
 
   result = cf_flush_egress(cf, data);
-  if(result)
-    return result;
+  ถ้า(result)
+    คืน result;
 
   {
-    unsigned char alpn_protocols[] = QUICHE_H3_APPLICATION_PROTOCOL;
+    unsigned var_na alpn_protocols[] = QUICHE_H3_APPLICATION_PROTOCOL;
     unsigned alpn_len, offset = 0;
 
     /* Replace each ALPN length prefix by a comma. */
-    while(offset < CURL_CSTRLEN(alpn_protocols)) {
+    ขณะ(offset < CURL_CSTRLEN(alpn_protocols)) {
       alpn_len = alpn_protocols[offset];
       alpn_protocols[offset] = ',';
       offset += 1 + alpn_len;
@@ -1369,47 +1369,47 @@ static CURLcode cf_quiche_ctx_open(struct Curl_cfilter *cf,
                 alpn_protocols + 1);
   }
 
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
-static CURLcode cf_quiche_verify_peer(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+static CURLcode cf_quiche_verify_peer(sa_nracanaa Curl_cfilter *cf,
+                                      sa_nracanaa Curl_easy *data)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
-  return Curl_vquic_tls_verify_peer(&ctx->tls, cf, data, &ctx->ssl_peer);
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
+  คืน Curl_vquic_tls_verify_peer(&ctx->tls, cf, data, &ctx->ssl_peer);
 }
 
-static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+static CURLcode cf_quiche_connect(sa_nracanaa Curl_cfilter *cf,
+                                  sa_nracanaa Curl_easy *data,
                                   bool *done)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(cf->connected) {
+  ถ้า(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
 
   /* Connect the UDP filter first */
-  if(!cf->next->connected) {
+  ถ้า(!cf->next->connected) {
     result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    ถ้า(result || !*done)
+      คืน result;
   }
 
   *done = FALSE;
-  if(Curl_ssl_need_httpsrr(cf) &&
+  ถ้า(Curl_ssl_need_httpsrr(cf) &&
      !Curl_conn_dns_resolved_https(data, cf->sockindex, ctx->ssl_peer.peer)) {
     CURL_TRC_CF(data, cf, "need HTTPS-RR, delaying connect");
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
 
   Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
 
-  if(!ctx->qconn) {
+  ถ้า(!ctx->qconn) {
     result = cf_quiche_ctx_open(cf, data);
-    if(result)
+    ถ้า(result)
       goto out;
     ctx->started_at = ctx->q.last_op;
     result = cf_flush_egress(cf, data);
@@ -1418,22 +1418,22 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
   }
 
   result = cf_process_ingress(cf, data);
-  if(result)
+  ถ้า(result)
     goto out;
 
   result = cf_flush_egress(cf, data);
-  if(result)
+  ถ้า(result)
     goto out;
 
-  if(quiche_conn_is_established(ctx->qconn)) {
+  ถ้า(quiche_conn_is_established(ctx->qconn)) {
     ctx->handshake_at = ctx->q.last_op;
     CURL_TRC_CF(data, cf, "handshake complete after %" FMT_TIMEDIFF_T "ms",
                 curlx_ptimediff_ms(&ctx->handshake_at, &ctx->started_at));
     result = cf_quiche_verify_peer(cf, data);
-    if(!result) {
+    ถ้า(!result) {
       CURL_TRC_CF(data, cf, "peer verified");
       ctx->h3config = quiche_h3_config_new();
-      if(!ctx->h3config) {
+      ถ้า(!ctx->h3config) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -1444,7 +1444,7 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
 
       /* Create a new HTTP/3 connection on the QUIC connection. */
       ctx->h3c = quiche_h3_conn_new_with_transport(ctx->qconn, ctx->h3config);
-      if(!ctx->h3c) {
+      ถ้า(!ctx->h3c) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
@@ -1452,7 +1452,7 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
       *done = TRUE;
     }
   }
-  else if(quiche_conn_is_draining(ctx->qconn)) {
+  มิฉะนั้น ถ้า(quiche_conn_is_draining(ctx->qconn)) {
     /* When a QUIC server instance is shutting down, it may send us a
      * CONNECTION_CLOSE right away. Our connection then enters the DRAINING
      * state. The CONNECT may work in the near future again. Indicate
@@ -1462,38 +1462,38 @@ static CURLcode cf_quiche_connect(struct Curl_cfilter *cf,
 
 out:
 #ifdef CURLVERBOSE
-  if(result && result != CURLE_AGAIN) {
-    struct ip_quadruple ip;
+  ถ้า(result && result != CURLE_AGAIN) {
+    sa_nracanaa ip_quadruple ip;
 
-    if(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
+    ถ้า(!Curl_cf_socket_peek(cf->next, data, NULL, NULL, &ip))
       infof(data, "connect to %s port %u failed: %s",
             ip.remote_ip, ip.remote_port, curl_easy_strerror(result));
-    else
+    มิฉะนั้น
       infof(data, "connect failed: %s", curl_easy_strerror(result));
   }
 #endif
-  return result;
+  คืน result;
 }
 
-static CURLcode cf_quiche_shutdown(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data, bool *done)
+static CURLcode cf_quiche_shutdown(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data, bool *done)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
-  if(cf->shutdown || !ctx || !ctx->qconn) {
+  ถ้า(cf->shutdown || !ctx || !ctx->qconn) {
     *done = TRUE;
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
 
   *done = FALSE;
-  if(!ctx->shutdown_started) {
-    int err;
+  ถ้า(!ctx->shutdown_started) {
+    จำนวนเต็ม err;
 
     ctx->shutdown_started = TRUE;
     Curl_vquic_ctx_update_time(&ctx->q, Curl_pgrs_now(data));
     err = quiche_conn_close(ctx->qconn, TRUE, 0, NULL, 0);
-    if(err) {
+    ถ้า(err) {
       CURL_TRC_CF(data, cf, "error %d adding shutdown packet, "
                   "aborting shutdown", err);
       result = CURLE_SEND_ERROR;
@@ -1501,127 +1501,127 @@ static CURLcode cf_quiche_shutdown(struct Curl_cfilter *cf,
     }
   }
 
-  if(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  ถ้า(!Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     CURL_TRC_CF(data, cf, "shutdown, flushing sendbuf");
     result = cf_flush_egress(cf, data);
-    if(result)
+    ถ้า(result)
       goto out;
   }
 
-  if(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
+  ถ้า(Curl_bufq_is_empty(&ctx->q.sendbuf)) {
     /* sent everything, quiche does not seem to support a graceful shutdown
      * waiting for a reply, so we are done. */
     CURL_TRC_CF(data, cf, "shutdown completely sent off, done");
     *done = TRUE;
   }
-  else {
+  มิฉะนั้น {
     CURL_TRC_CF(data, cf, "shutdown sending blocked");
   }
 
 out:
-  return result;
+  คืน result;
 }
 
-static void cf_quiche_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+static void cf_quiche_destroy(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data)
 {
   (void)data;
-  if(cf->ctx) {
+  ถ้า(cf->ctx) {
     cf_quiche_ctx_close(cf->ctx);
     cf_quiche_ctx_free(cf->ctx);
     cf->ctx = NULL;
   }
 }
 
-static CURLcode cf_quiche_query(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                int query, int *pres1, void *pres2)
+static CURLcode cf_quiche_query(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                จำนวนเต็ม query, จำนวนเต็ม *pres1, void *pres2)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
 
   switch(query) {
-  case CF_QUERY_MAX_CONCURRENT: {
+  pak_sa CF_QUERY_MAX_CONCURRENT: {
     uint64_t max_streams = cf->conn->attached_xfers;
-    if(!ctx->goaway && ctx->qconn) {
+    ถ้า(!ctx->goaway && ctx->qconn) {
       max_streams += quiche_conn_peer_streams_left_bidi(ctx->qconn);
     }
-    *pres1 = (max_streams > INT_MAX) ? INT_MAX : (int)max_streams;
+    *pres1 = (max_streams > INT_MAX) ? INT_MAX : (จำนวนเต็ม)max_streams;
     CURL_TRC_CF(data, cf, "query conn[%" FMT_OFF_T "]: "
                 "MAX_CONCURRENT -> %d (%u in use)",
                 cf->conn->connection_id, *pres1, cf->conn->attached_xfers);
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
-  case CF_QUERY_CONNECT_REPLY_MS:
-    if(ctx->q.got_first_byte) {
+  pak_sa CF_QUERY_CONNECT_REPLY_MS:
+    ถ้า(ctx->q.got_first_byte) {
       timediff_t ms = curlx_ptimediff_ms(&ctx->q.first_byte_at,
                                          &ctx->started_at);
-      *pres1 = (ms < INT_MAX) ? (int)ms : INT_MAX;
+      *pres1 = (ms < INT_MAX) ? (จำนวนเต็ม)ms : INT_MAX;
     }
-    else
+    มิฉะนั้น
       *pres1 = -1;
-    return CURLE_OK;
-  case CF_QUERY_HTTP_VERSION:
+    คืน CURLE_OK;
+  pak_sa CF_QUERY_HTTP_VERSION:
     *pres1 = 30;
-    return CURLE_OK;
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO: {
-    struct curl_tlssessioninfo *info = pres2;
-    if(Curl_vquic_tls_get_ssl_info(&ctx->tls,
+    คืน CURLE_OK;
+  pak_sa CF_QUERY_SSL_INFO:
+  pak_sa CF_QUERY_SSL_CTX_INFO: {
+    sa_nracanaa curl_tlssessioninfo *info = pres2;
+    ถ้า(Curl_vquic_tls_get_ssl_info(&ctx->tls,
                                    (query == CF_QUERY_SSL_CTX_INFO), info))
-      return CURLE_OK;
-    break;
+      คืน CURLE_OK;
+    bha_nga;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  pak_sa CF_QUERY_ALPN_NEGOTIATED: {
+    const var_na **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = cf->connected ? "h3" : NULL;
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
   default:
-    break;
+    bha_nga;
   }
-  return cf->next ?
+  คืน cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static bool cf_quiche_conn_is_alive(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+static bool cf_quiche_conn_is_alive(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
                                     bool *input_pending)
 {
-  struct cf_quiche_ctx *ctx = cf->ctx;
+  sa_nracanaa cf_quiche_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
   *input_pending = FALSE;
-  if(!ctx->qconn)
-    return FALSE;
+  ถ้า(!ctx->qconn)
+    คืน FALSE;
 
-  if(quiche_conn_is_closed(ctx->qconn)) {
-    if(quiche_conn_is_timed_out(ctx->qconn))
+  ถ้า(quiche_conn_is_closed(ctx->qconn)) {
+    ถ้า(quiche_conn_is_timed_out(ctx->qconn))
       CURL_TRC_CF(data, cf, "connection was closed due to idle timeout");
-    else
+    มิฉะนั้น
       CURL_TRC_CF(data, cf, "connection is closed");
-    return FALSE;
+    คืน FALSE;
   }
 
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  ถ้า(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
+    คืน FALSE;
 
-  if(*input_pending) {
+  ถ้า(*input_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
     *input_pending = FALSE;
-    if(cf_process_ingress(cf, data))
+    ถ้า(cf_process_ingress(cf, data))
       alive = FALSE;
-    else {
+    มิฉะนั้น {
       alive = TRUE;
     }
   }
 
-  return alive;
+  คืน alive;
 }
 
-struct Curl_cftype Curl_cft_http3 = {
+sa_nracanaa Curl_cftype Curl_cft_http3 = {
   "HTTP/3",
   CF_TYPE_IP_CONNECT | CF_TYPE_SSL | CF_TYPE_MULTIPLEX | CF_TYPE_HTTP,
   0,
@@ -1638,77 +1638,77 @@ struct Curl_cftype Curl_cft_http3 = {
   cf_quiche_query,
 };
 
-CURLcode Curl_cf_quiche_create(struct Curl_cfilter **pcf,
-                               struct Curl_easy *data,
-                               struct Curl_peer *origin,
-                               struct Curl_peer *peer,
-                               struct connectdata *conn,
-                               struct Curl_sockaddr_ex *addr)
+CURLcode Curl_cf_quiche_create(sa_nracanaa Curl_cfilter **pcf,
+                               sa_nracanaa Curl_easy *data,
+                               sa_nracanaa Curl_peer *origin,
+                               sa_nracanaa Curl_peer *peer,
+                               sa_nracanaa connectdata *conn,
+                               sa_nracanaa Curl_sockaddr_ex *addr)
 {
-  struct cf_quiche_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
+  sa_nracanaa cf_quiche_ctx *ctx = NULL;
+  sa_nracanaa Curl_cfilter *cf = NULL;
   CURLcode result;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ctx = curlx_calloc(1, parimaa_na(*ctx));
+  ถ้า(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = cf_quiche_ctx_init(ctx, origin, peer, &conn->ssl_config);
-  if(!result)
+  ถ้า(!result)
     result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
+  ถ้า(result)
     goto out;
   cf->conn = conn;
 
   result = Curl_cf_udp_create(&cf->next, data, origin, peer, TRNSPRT_QUIC,
                               conn, addr, NULL, TRNSPRT_QUIC);
-  if(result)
+  ถ้า(result)
     goto out;
   cf->next->conn = cf->conn;
   cf->next->sockindex = cf->sockindex;
 
 out:
   *pcf = (!result) ? cf : NULL;
-  if(result) {
-    if(cf)
+  ถ้า(result) {
+    ถ้า(cf)
       Curl_conn_cf_discard_chain(&cf, data);
-    else if(ctx)
+    มิฉะนั้น ถ้า(ctx)
       cf_quiche_ctx_free(ctx);
   }
 
-  return result;
+  คืน result;
 }
 
-CURLcode Curl_cf_quiche_insert_after(struct Curl_cfilter *cf_at,
-                                     struct Curl_peer *origin,
-                                     struct Curl_peer *peer,
-                                     struct Curl_cfilter **pcf)
+CURLcode Curl_cf_quiche_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                     sa_nracanaa Curl_peer *origin,
+                                     sa_nracanaa Curl_peer *peer,
+                                     sa_nracanaa Curl_cfilter **pcf)
 {
-  struct cf_quiche_ctx *ctx = NULL;
-  struct Curl_cfilter *cf = NULL;
+  sa_nracanaa cf_quiche_ctx *ctx = NULL;
+  sa_nracanaa Curl_cfilter *cf = NULL;
   CURLcode result;
 
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  ctx = curlx_calloc(1, parimaa_na(*ctx));
+  ถ้า(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = cf_quiche_ctx_init(ctx, origin, peer, &cf_at->conn->ssl_config);
-  if(!result)
+  ถ้า(!result)
     result = Curl_cf_create(&cf, &Curl_cft_http3, ctx);
-  if(result)
+  ถ้า(result)
     goto out;
   Curl_conn_cf_insert_after(cf_at, cf);
 
 out:
-  if(result) {
+  ถ้า(result) {
     curlx_safefree(cf);
-    if(ctx)
+    ถ้า(ctx)
       cf_quiche_ctx_free(ctx);
   }
   *pcf = cf;
-  return result;
+  คืน result;
 }
 
 #endif

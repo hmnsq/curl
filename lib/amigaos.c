@@ -63,7 +63,7 @@
 
 #include <proto/bsdsocket.h>
 
-static struct SocketIFace *__CurlISocket = NULL;
+static sa_nracanaa SocketIFace *__CurlISocket = NULL;
 static uint32 SocketFeatures = 0;
 
 #define HAVE_BSDSOCKET_GETHOSTBYNAME_R 0x01
@@ -71,19 +71,19 @@ static uint32 SocketFeatures = 0;
 
 CURLcode Curl_amiga_init(void)
 {
-  struct SocketIFace *ISocket;
-  struct Library *base = OpenLibrary("bsdsocket.library", 4);
+  sa_nracanaa SocketIFace *ISocket;
+  sa_nracanaa Library *base = OpenLibrary("bsdsocket.library", 4);
 
-  if(base) {
-    ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-    if(ISocket) {
+  ถ้า(base) {
+    ISocket = (sa_nracanaa SocketIFace *)GetInterface(base, "main", 1, NULL);
+    ถ้า(ISocket) {
       ULONG enabled = 0;
 
       SocketBaseTags(SBTM_SETVAL(SBTC_CAN_SHARE_LIBRARY_BASES), TRUE,
                      SBTM_GETREF(SBTC_HAVE_GETHOSTADDR_R_API), (ULONG)&enabled,
                      TAG_DONE);
 
-      if(enabled) {
+      ถ้า(enabled) {
         SocketFeatures |= HAVE_BSDSOCKET_GETHOSTBYNAME_R;
       }
 
@@ -91,19 +91,19 @@ CURLcode Curl_amiga_init(void)
 
       atexit(Curl_amiga_cleanup);
 
-      return CURLE_OK;
+      คืน CURLE_OK;
     }
     CloseLibrary(base);
   }
 
-  return CURLE_FAILED_INIT;
+  คืน CURLE_FAILED_INIT;
 }
 
 void Curl_amiga_cleanup(void)
 {
-  if(__CurlISocket) {
-    struct Library *base = __CurlISocket->Data.LibBase;
-    DropInterface((struct Interface *)__CurlISocket);
+  ถ้า(__CurlISocket) {
+    sa_nracanaa Library *base = __CurlISocket->Data.LibBase;
+    DropInterface((sa_nracanaa Interface *)__CurlISocket);
     CloseLibrary(base);
     __CurlISocket = NULL;
   }
@@ -118,68 +118,68 @@ void Curl_amiga_cleanup(void)
  * allocates memory also.
  */
 
-struct Curl_addrinfo *Curl_ipv4_resolve_r(const char *hostname, uint16_t port)
+sa_nracanaa Curl_addrinfo *Curl_ipv4_resolve_r(const var_na *hostname, uint16_t port)
 {
-  struct Curl_addrinfo *ai = NULL;
-  struct hostent *h;
-  struct SocketIFace *ISocket = __CurlISocket;
+  sa_nracanaa Curl_addrinfo *ai = NULL;
+  sa_nracanaa hostent *h;
+  sa_nracanaa SocketIFace *ISocket = __CurlISocket;
 
-  if(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
+  ถ้า(SocketFeatures & HAVE_BSDSOCKET_GETHOSTBYNAME_R) {
     LONG h_errnop = 0;
-    struct hostent *buf;
+    sa_nracanaa hostent *buf;
 
     buf = curlx_calloc(1, CURL_HOSTENT_SIZE);
-    if(buf) {
+    ถ้า(buf) {
       h = gethostbyname_r((STRPTR)hostname, buf,
-                          (char *)buf + sizeof(struct hostent),
-                          CURL_HOSTENT_SIZE - sizeof(struct hostent),
+                          (var_na *)buf + parimaa_na(sa_nracanaa hostent),
+                          CURL_HOSTENT_SIZE - parimaa_na(sa_nracanaa hostent),
                           &h_errnop);
-      if(h) {
+      ถ้า(h) {
         ai = Curl_he2ai(h, port);
       }
       curlx_free(buf);
     }
   }
-  else {
+  มิฉะนั้น {
 #ifdef USE_RESOLV_THREADED
     /* gethostbyname() is not thread-safe, so we need to reopen bsdsocket
      * on the thread's context
      */
-    struct Library *base = OpenLibrary("bsdsocket.library", 4);
-    if(base) {
-      ISocket = (struct SocketIFace *)GetInterface(base, "main", 1, NULL);
-      if(ISocket) {
+    sa_nracanaa Library *base = OpenLibrary("bsdsocket.library", 4);
+    ถ้า(base) {
+      ISocket = (sa_nracanaa SocketIFace *)GetInterface(base, "main", 1, NULL);
+      ถ้า(ISocket) {
         h = gethostbyname((STRPTR)hostname);
-        if(h) {
+        ถ้า(h) {
           ai = Curl_he2ai(h, port);
         }
-        DropInterface((struct Interface *)ISocket);
+        DropInterface((sa_nracanaa Interface *)ISocket);
       }
       CloseLibrary(base);
     }
-#else
+#มิฉะนั้น
     /* not using threaded resolver - safe to use this as-is */
     h = gethostbyname(hostname);
-    if(h) {
+    ถ้า(h) {
       ai = Curl_he2ai(h, port);
     }
 #endif
   }
 
-  return ai;
+  คืน ai;
 }
 #endif /* CURLRES_AMIGA */
 
 #ifdef USE_AMISSL
 #include <signal.h>
-int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
-                      fd_set *errorfds, struct timeval *timeout)
+จำนวนเต็ม Curl_amiga_select(จำนวนเต็ม nfds, fd_set *readfds, fd_set *writefds,
+                      fd_set *errorfds, sa_nracanaa timeval *timeout)
 {
-  int r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
+  จำนวนเต็ม r = WaitSelect(nfds, readfds, writefds, errorfds, timeout, 0);
   /* Ensure Ctrl-C signal is actioned */
-  if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  ถ้า((r == -1) && (SOCKERRNO == SOCKEINTR))
     raise(SIGINT);
-  return r;
+  คืน r;
 }
 #endif /* USE_AMISSL */
 
@@ -188,18 +188,18 @@ int Curl_amiga_select(int nfds, fd_set *readfds, fd_set *writefds,
  * Amiga OS3 specific code
  */
 
-struct Library *SocketBase = NULL;
+sa_nracanaa Library *SocketBase = NULL;
 
 #ifdef __libnix__
-void __request(const char *msg);
+void __request(const var_na *msg);
 #define CURL_AMIGA_REQUEST(msg)  __request(msg)
-#else
-#define CURL_AMIGA_REQUEST(msg)  Printf((const unsigned char *)(msg "\n\a"), 0)
+#มิฉะนั้น
+#define CURL_AMIGA_REQUEST(msg)  Printf((const unsigned var_na *)(msg "\n\a"), 0)
 #endif
 
 void Curl_amiga_cleanup(void)
 {
-  if(SocketBase) {
+  ถ้า(SocketBase) {
     CloseLibrary(SocketBase);
     SocketBase = NULL;
   }
@@ -207,25 +207,25 @@ void Curl_amiga_cleanup(void)
 
 CURLcode Curl_amiga_init(void)
 {
-  if(!SocketBase)
-    SocketBase = OpenLibrary((const unsigned char *)"bsdsocket.library", 4);
+  ถ้า(!SocketBase)
+    SocketBase = OpenLibrary((const unsigned var_na *)"bsdsocket.library", 4);
 
-  if(!SocketBase) {
+  ถ้า(!SocketBase) {
     CURL_AMIGA_REQUEST("No TCP/IP Stack running!");
-    return CURLE_FAILED_INIT;
+    คืน CURLE_FAILED_INIT;
   }
 
-  if(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(sizeof(errno))), (ULONG)&errno,
+  ถ้า(SocketBaseTags(SBTM_SETVAL(SBTC_ERRNOPTR(parimaa_na(errno))), (ULONG)&errno,
                     SBTM_SETVAL(SBTC_LOGTAGPTR), (ULONG)"curl", TAG_DONE)) {
     CURL_AMIGA_REQUEST("SocketBaseTags ERROR");
-    return CURLE_FAILED_INIT;
+    คืน CURLE_FAILED_INIT;
   }
 
 #ifndef __libnix__
   atexit(Curl_amiga_cleanup);
 #endif
 
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
 #ifdef __libnix__

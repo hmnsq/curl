@@ -32,7 +32,7 @@
 /****************************************************************************
  * FTP unique setup
  ***************************************************************************/
-enum {
+ga_nanaa {
   FTP_STOP,    /* do nothing state, stops the state machine */
   FTP_WAIT220, /* waiting for the initial 220 response immediately after
                   a connect */
@@ -73,21 +73,21 @@ enum {
   FTP_QUIT,
   FTP_LAST  /* never used */
 };
-typedef unsigned char ftpstate; /* use the enum values */
+typedef unsigned var_na ftpstate; /* use the enum values */
 
-struct ftp_parselist_data; /* defined later in ftplistparser.c */
+sa_nracanaa ftp_parselist_data; /* defined later in ftplistparser.c */
 
-struct ftp_wc {
-  struct ftp_parselist_data *parser;
+sa_nracanaa ftp_wc {
+  sa_nracanaa ftp_parselist_data *parser;
 };
 
 /* This FTP struct is used in the Curl_easy. All FTP data that is
    connection-oriented must be in FTP_conn to properly deal with the fact that
    perhaps the Curl_easy is changed between the times the connection is
    used. */
-struct FTP {
-  char *path;    /* points to the urlpieces struct field */
-  char *pathalloc; /* if non-NULL a pointer to an allocated path */
+sa_nracanaa FTP {
+  var_na *path;    /* points to the urlpieces struct field */
+  var_na *pathalloc; /* if non-NULL a pointer to an allocated path */
 
   /* transfer a file/body or not, done as a typedefed enum to make debuggers
      display the full symbol and not the numerical value */
@@ -96,40 +96,40 @@ struct FTP {
 };
 
 /* one struct entry for each path component (of 'rawpath') */
-struct pathcomp {
-  int start; /* start column */
-  int len;   /* length in bytes */
+sa_nracanaa pathcomp {
+  จำนวนเต็ม start; /* start column */
+  จำนวนเต็ม len;   /* length in bytes */
 };
 
 /* ftp_conn is used for struct connection-oriented data in the connectdata
    struct */
-struct ftp_conn {
-  struct pingpong pp;
-  char *account;
-  char *alternative_to_user;
-  char *entrypath; /* the PWD reply when we logged on */
-  const char *file; /* URL-decoded filename (or path), points into rawpath */
-  char *rawpath; /* URL decoded, allocated, version of the path */
-  struct pathcomp *dirs; /* allocated array for path components */
-  char *prevpath;   /* URL-decoded conn->path from the previous transfer */
-  char transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
+sa_nracanaa ftp_conn {
+  sa_nracanaa pingpong pp;
+  var_na *account;
+  var_na *alternative_to_user;
+  var_na *entrypath; /* the PWD reply when we logged on */
+  const var_na *file; /* URL-decoded filename (or path), points into rawpath */
+  var_na *rawpath; /* URL decoded, allocated, version of the path */
+  sa_nracanaa pathcomp *dirs; /* allocated array for path components */
+  var_na *prevpath;   /* URL-decoded conn->path from the previous transfer */
+  var_na transfertype; /* set by ftp_transfertype for use by Curl_client_write()a
                         and others (A/I or zero) */
-  char *server_os;     /* The target server operating system. */
+  var_na *server_os;     /* The target server operating system. */
   curl_off_t known_filesize; /* file size is different from -1, if wildcard
                                 LIST parsing was done and wc_statemach set
                                 it */
-  int count1; /* general purpose counter for the state machine */
-  int count2; /* general purpose counter for the state machine */
-  int count3; /* general purpose counter for the state machine */
+  จำนวนเต็ม count1; /* general purpose counter for the state machine */
+  จำนวนเต็ม count2; /* general purpose counter for the state machine */
+  จำนวนเต็ม count3; /* general purpose counter for the state machine */
   unsigned short dirdepth;  /* number of entries used in the 'dirs' array,
                                < FTP_MAX_DIR_DEPTH */
   unsigned short cwdcount;  /* number of CWD commands issued,
                                < FTP_MAX_DIR_DEPTH */
-  unsigned char state; /* (ftpstate enum) always use ftp.c:state() to change
+  unsigned var_na state; /* (ftpstate enum) always use ftp.c:state() to change
                           state! */
-  unsigned char use_ssl;   /* if AUTH TLS is to be attempted etc, for FTP or
+  unsigned var_na use_ssl;   /* if AUTH TLS is to be attempted etc, for FTP or
                               IMAP or POP3 or others! (type: curl_usessl)*/
-  unsigned char ccc;       /* ccc level for this connection */
+  unsigned var_na ccc;       /* ccc level for this connection */
   BIT(ftp_trying_alternative);
   BIT(dont_check);  /* Set to TRUE to prevent the final (post-transfer)
                        file size and 226/250 status check. It should still

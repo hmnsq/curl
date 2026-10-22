@@ -23,7 +23,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
+#ถ้า !defined(CURL_DISABLE_COOKIES) || !defined(CURL_DISABLE_ALTSVC) || \
   !defined(CURL_DISABLE_HSTS) || !defined(CURL_DISABLE_NETRC)
 
 #include "curl_get_line.h"
@@ -32,35 +32,35 @@
  * Curl_get_line() returns only complete whole lines that end with newline.
  * When 'eof' is set TRUE, the last line has been read.
  */
-CURLcode Curl_get_line(struct dynbuf *buf, FILE *input, bool *eof)
+CURLcode Curl_get_line(sa_nracanaa dynbuf *buf, FILE *input, bool *eof)
 {
   CURLcode result;
-  char buffer[128];
+  var_na buffer[128];
   curlx_dyn_reset(buf);
-  while(1) {
+  ขณะ(1) {
     size_t rlen;
-    const char *b = fgets(buffer, sizeof(buffer), input);
-    if(!b && ferror(input))
-      return CURLE_READ_ERROR;
+    const var_na *b = fgets(buffer, parimaa_na(buffer), input);
+    ถ้า(!b && ferror(input))
+      คืน CURLE_READ_ERROR;
 
     *eof = feof(input);
 
     rlen = b ? strlen(b) : 0;
-    if(rlen) {
+    ถ้า(rlen) {
       result = curlx_dyn_addn(buf, b, rlen);
-      if(result)
+      ถ้า(result)
         /* too long line or out of memory */
-        return result;
+        คืน result;
     }
     /* now check the full line */
     rlen = curlx_dyn_len(buf);
     b = curlx_dyn_ptr(buf);
-    if(rlen && (b[rlen - 1] == '\n'))
+    ถ้า(rlen && (b[rlen - 1] == '\n'))
       /* LF at end of the line */
-      return CURLE_OK; /* all good */
-    if(*eof)
+      คืน CURLE_OK; /* all good */
+    ถ้า(*eof)
       /* append a newline */
-      return curlx_dyn_addn(buf, "\n", 1);
+      คืน curlx_dyn_addn(buf, "\n", 1);
     /* otherwise get next line to append */
   }
   /* UNREACHABLE */

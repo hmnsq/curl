@@ -29,10 +29,10 @@
 
 #ifndef CURL_DISABLE_PROXY
 
-CURLcode Curl_cf_haproxy_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data);
+CURLcode Curl_cf_haproxy_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                      sa_nracanaa Curl_easy *data);
 
-extern struct Curl_cftype Curl_cft_haproxy;
+extern sa_nracanaa Curl_cftype Curl_cft_haproxy;
 
 #endif /* !CURL_DISABLE_PROXY */
 

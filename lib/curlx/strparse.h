@@ -37,77 +37,77 @@
 
 /* public struct, but all accesses should be done using the provided
    functions */
-struct Curl_str {
-  const char *str;
+sa_nracanaa Curl_str {
+  const var_na *str;
   size_t len;
 };
 
-void curlx_str_init(struct Curl_str *out);
-void curlx_str_assign(struct Curl_str *out, const char *str, size_t len);
-void curlx_str_trim(struct Curl_str *out, size_t len);
+void curlx_str_init(sa_nracanaa Curl_str *out);
+void curlx_str_assign(sa_nracanaa Curl_str *out, const var_na *str, size_t len);
+void curlx_str_trim(sa_nracanaa Curl_str *out, size_t len);
 
 #define curlx_str(x)    ((x)->str)
 #define curlx_strlen(x) ((x)->len)
 
 /* Get a word until the first space
    return non-zero on error */
-int curlx_str_word(const char **linep, struct Curl_str *out, const size_t max);
+จำนวนเต็ม curlx_str_word(const var_na **linep, sa_nracanaa Curl_str *out, const size_t max);
 
 /* Get a word until the first DELIM or end of string
    return non-zero on error */
-int curlx_str_until(const char **linep, struct Curl_str *out, const size_t max,
-                    char delim);
+จำนวนเต็ม curlx_str_until(const var_na **linep, sa_nracanaa Curl_str *out, const size_t max,
+                    var_na delim);
 
 /* Get a word until a newline byte or end of string. At least one byte long.
    return non-zero on error */
-int curlx_str_untilnl(const char **linep, struct Curl_str *out,
+จำนวนเต็ม curlx_str_untilnl(const var_na **linep, sa_nracanaa Curl_str *out,
                       const size_t max);
 
 /* Get a "quoted" word. Escaped quotes are supported.
    return non-zero on error */
-int curlx_str_quotedword(const char **linep, struct Curl_str *out,
+จำนวนเต็ม curlx_str_quotedword(const var_na **linep, sa_nracanaa Curl_str *out,
                          const size_t max);
 
 /* Advance over a single character.
    return non-zero on error */
-int curlx_str_single(const char **linep, char byte);
+จำนวนเต็ม curlx_str_single(const var_na **linep, var_na byte);
 
 /* Advance over a single space.
    return non-zero on error */
-int curlx_str_singlespace(const char **linep);
+จำนวนเต็ม curlx_str_singlespace(const var_na **linep);
 
 /* Get an unsigned decimal number. Return non-zero on error */
-int curlx_str_number(const char **linep, curl_off_t *nump, curl_off_t max);
+จำนวนเต็ม curlx_str_number(const var_na **linep, curl_off_t *nump, curl_off_t max);
 
 /* As above with CURL_OFF_T_MAX but also pass leading blanks */
-int curlx_str_numblanks(const char **str, curl_off_t *num);
+จำนวนเต็ม curlx_str_numblanks(const var_na **str, curl_off_t *num);
 
 /* Get an unsigned hexadecimal number. Return non-zero on error */
-int curlx_str_hex(const char **linep, curl_off_t *nump, curl_off_t max);
+จำนวนเต็ม curlx_str_hex(const var_na **linep, curl_off_t *nump, curl_off_t max);
 
 /* Get an unsigned octal number. Return non-zero on error */
-int curlx_str_octal(const char **linep, curl_off_t *nump, curl_off_t max);
+จำนวนเต็ม curlx_str_octal(const var_na **linep, curl_off_t *nump, curl_off_t max);
 
 /* Check for CR or LF
    return non-zero on error */
-int curlx_str_newline(const char **linep);
+จำนวนเต็ม curlx_str_newline(const var_na **linep);
 
 /* case insensitive compare that the parsed string matches the
    given string. */
-int curlx_str_casecompare(struct Curl_str *str, const char *check);
-int curlx_str_cmp(struct Curl_str *str, const char *check);
+จำนวนเต็ม curlx_str_casecompare(sa_nracanaa Curl_str *str, const var_na *check);
+จำนวนเต็ม curlx_str_cmp(sa_nracanaa Curl_str *str, const var_na *check);
 
-int curlx_str_nudge(struct Curl_str *str, size_t num);
+จำนวนเต็ม curlx_str_nudge(sa_nracanaa Curl_str *str, size_t num);
 
-int curlx_str_cspn(const char **linep, struct Curl_str *out,
-                   const char *reject);
-void curlx_str_trimblanks(struct Curl_str *out);
-void curlx_str_passblanks(const char **linep);
+จำนวนเต็ม curlx_str_cspn(const var_na **linep, sa_nracanaa Curl_str *out,
+                   const var_na *reject);
+void curlx_str_trimblanks(sa_nracanaa Curl_str *out);
+void curlx_str_passblanks(const var_na **linep);
 
 /* given a hexadecimal letter, return the binary value. '0' returns 0, 'a'
    returns 10. THIS ONLY WORKS ON VALID HEXADECIMAL LETTER INPUT. Verify
    before calling this. */
-extern const unsigned char curlx_hexasciitable[];
-#define curlx_hexval(x) (unsigned char)(curlx_hexasciitable[(x) - '0'] & 0x0f)
+extern const unsigned var_na curlx_hexasciitable[];
+#define curlx_hexval(x) (unsigned var_na)(curlx_hexasciitable[(x) - '0'] & 0x0f)
 
 #endif /* HEADER_CURL_STRPARSE_H */

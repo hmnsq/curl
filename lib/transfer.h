@@ -25,17 +25,17 @@
  ***************************************************************************/
 #define Curl_headersep(x) ((((x) == ':') || ((x) == ';')))
 
-char *Curl_checkheaders(const struct Curl_easy *data,
-                        const char *thisheader,
+var_na *Curl_checkheaders(const sa_nracanaa Curl_easy *data,
+                        const var_na *thisheader,
                         const size_t thislen);
 
-void Curl_init_CONNECT(struct Curl_easy *data);
+void Curl_init_CONNECT(sa_nracanaa Curl_easy *data);
 
-CURLcode Curl_pretransfer(struct Curl_easy *data);
+CURLcode Curl_pretransfer(sa_nracanaa Curl_easy *data);
 
-CURLcode Curl_sendrecv(struct Curl_easy *data);
-CURLcode Curl_retry_request(struct Curl_easy *data, char **url);
-bool Curl_meets_timecondition(struct Curl_easy *data, time_t timeofdoc);
+CURLcode Curl_sendrecv(sa_nracanaa Curl_easy *data);
+CURLcode Curl_retry_request(sa_nracanaa Curl_easy *data, var_na **url);
+bool Curl_meets_timecondition(sa_nracanaa Curl_easy *data, time_t timeofdoc);
 
 /**
  * Write the transfer raw response bytes, as received from the connection.
@@ -49,11 +49,11 @@ bool Curl_meets_timecondition(struct Curl_easy *data, time_t timeofdoc);
  * @param is_eos   TRUE iff the connection indicates this to be the last
  *                 bytes of the response
  */
-CURLcode Curl_xfer_write_resp(struct Curl_easy *data,
-                              const char *buf, size_t blen,
+CURLcode Curl_xfer_write_resp(sa_nracanaa Curl_easy *data,
+                              const var_na *buf, size_t blen,
                               bool is_eos);
 
-bool Curl_xfer_write_is_paused(struct Curl_easy *data);
+bool Curl_xfer_write_is_paused(sa_nracanaa Curl_easy *data);
 
 /**
  * Write a single "header" line from a server response.
@@ -61,26 +61,26 @@ bool Curl_xfer_write_is_paused(struct Curl_easy *data);
  * @param hdlen    the length of the header line
  * @param is_eos   TRUE iff this is the end of the response
  */
-CURLcode Curl_xfer_write_resp_hd(struct Curl_easy *data,
-                                 const char *hd0, size_t hdlen, bool is_eos);
+CURLcode Curl_xfer_write_resp_hd(sa_nracanaa Curl_easy *data,
+                                 const var_na *hd0, size_t hdlen, bool is_eos);
 
 /* The transfer is neither receiving nor sending. */
-void Curl_xfer_setup_nop(struct Curl_easy *data);
+void Curl_xfer_setup_nop(sa_nracanaa Curl_easy *data);
 
 /* The transfer sends data on the given socket index */
-void Curl_xfer_setup_send(struct Curl_easy *data,
+void Curl_xfer_setup_send(sa_nracanaa Curl_easy *data,
                           int8_t sockindex);
 
 /* The transfer receives data on the given socket index, the
  * amount to receive (or -1 if unknown). */
-void Curl_xfer_setup_recv(struct Curl_easy *data,
+void Curl_xfer_setup_recv(sa_nracanaa Curl_easy *data,
                           int8_t sockindex,
                           curl_off_t recv_size);
 
 /* *After* Curl_xfer_setup_xxx(), tell the transfer to shutdown the
  * connection at the end. Let the transfer either fail or ignore any
  * errors during shutdown. */
-void Curl_xfer_set_shutdown(struct Curl_easy *data,
+void Curl_xfer_set_shutdown(sa_nracanaa Curl_easy *data,
                             bool shutdown,
                             bool ignore_errors);
 
@@ -88,7 +88,7 @@ void Curl_xfer_set_shutdown(struct Curl_easy *data,
  * The transfer will use socket 1 to send/recv. `recv_size` is
  * the amount to receive or -1 if unknown.
  */
-void Curl_xfer_setup_sendrecv(struct Curl_easy *data,
+void Curl_xfer_setup_sendrecv(sa_nracanaa Curl_easy *data,
                               int8_t sockindex,
                               curl_off_t recv_size);
 
@@ -96,25 +96,25 @@ void Curl_xfer_setup_sendrecv(struct Curl_easy *data,
  * Multi has set transfer to DONE. Last chance to trigger
  * missing response things like writing an EOS to the client.
  */
-CURLcode Curl_xfer_write_done(struct Curl_easy *data, bool premature);
+CURLcode Curl_xfer_write_done(sa_nracanaa Curl_easy *data, bool premature);
 
 /**
  * Return TRUE iff transfer has pending data to send. Checks involved
  * connection filters.
  */
-bool Curl_xfer_needs_flush(struct Curl_easy *data);
+bool Curl_xfer_needs_flush(sa_nracanaa Curl_easy *data);
 
 /**
  * Flush any pending send data on the transfer connection.
  */
-CURLcode Curl_xfer_flush(struct Curl_easy *data);
+CURLcode Curl_xfer_flush(sa_nracanaa Curl_easy *data);
 
 /**
  * Send data on the socket/connection filter designated
  * for transfer's outgoing data.
  * Return CURLE_OK on blocking with (*pnwritten == 0).
  */
-CURLcode Curl_xfer_send(struct Curl_easy *data,
+CURLcode Curl_xfer_send(sa_nracanaa Curl_easy *data,
                         const void *buf, size_t blen, bool eos,
                         size_t *pnwritten);
 
@@ -123,32 +123,32 @@ CURLcode Curl_xfer_send(struct Curl_easy *data,
  * for transfer's incoming data.
  * Return CURLE_AGAIN on blocking with (*pnrcvd == 0).
  */
-CURLcode Curl_xfer_recv(struct Curl_easy *data,
-                        char *buf, size_t blen,
+CURLcode Curl_xfer_recv(sa_nracanaa Curl_easy *data,
+                        var_na *buf, size_t blen,
                         size_t *pnrcvd);
 
-CURLcode Curl_xfer_send_close(struct Curl_easy *data);
-CURLcode Curl_xfer_send_shutdown(struct Curl_easy *data, bool *done);
+CURLcode Curl_xfer_send_close(sa_nracanaa Curl_easy *data);
+CURLcode Curl_xfer_send_shutdown(sa_nracanaa Curl_easy *data, bool *done);
 
 /* Return TRUE if the transfer is not done, but further progress
  * is blocked. For example when it is only receiving and its writer
  * is PAUSED. */
-bool Curl_xfer_is_blocked(struct Curl_easy *data);
+bool Curl_xfer_is_blocked(sa_nracanaa Curl_easy *data);
 
 /* Query if send/recv for transfer is paused. */
-bool Curl_xfer_send_is_paused(struct Curl_easy *data);
-bool Curl_xfer_recv_is_paused(struct Curl_easy *data);
+bool Curl_xfer_send_is_paused(sa_nracanaa Curl_easy *data);
+bool Curl_xfer_recv_is_paused(sa_nracanaa Curl_easy *data);
 
 /* Enable/Disable pausing of send/recv for the transfer. */
-CURLcode Curl_xfer_pause_send(struct Curl_easy *data, bool enable);
-CURLcode Curl_xfer_pause_recv(struct Curl_easy *data, bool enable);
+CURLcode Curl_xfer_pause_send(sa_nracanaa Curl_easy *data, bool enable);
+CURLcode Curl_xfer_pause_recv(sa_nracanaa Curl_easy *data, bool enable);
 
 /* TRUE if the transfer is secure, e.g. uses TLS and does not
  * use a forward proxy. */
-bool Curl_xfer_is_secure(struct Curl_easy *data);
+bool Curl_xfer_is_secure(sa_nracanaa Curl_easy *data);
 
 /* Internal variant of the API function */
-CURLcode Curl_easy_recv(struct Curl_easy *data,
+CURLcode Curl_easy_recv(sa_nracanaa Curl_easy *data,
                         void *buffer, size_t buflen, size_t *n);
 
 #endif /* HEADER_CURL_TRANSFER_H */

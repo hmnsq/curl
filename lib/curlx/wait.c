@@ -51,40 +51,40 @@
  *   -1 = system call error, or invalid timeout value
  *    0 = specified timeout has elapsed, or interrupted
  */
-int curlx_wait_ms(timediff_t timeout_ms)
+จำนวนเต็ม curlx_wait_ms(timediff_t timeout_ms)
 {
-  int r = 0;
+  จำนวนเต็ม r = 0;
 
-  if(!timeout_ms)
-    return 0;
-  if(timeout_ms < 0) {
+  ถ้า(!timeout_ms)
+    คืน 0;
+  ถ้า(timeout_ms < 0) {
     SET_SOCKERRNO(SOCKEINVAL);
-    return -1;
+    คืน -1;
   }
 #ifdef MSDOS
-  delay((unsigned int)timeout_ms);
+  delay((unsigned จำนวนเต็ม)timeout_ms);
 #elif defined(_WIN32)
   /* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
-#if TIMEDIFF_T_MAX >= ULONG_MAX
-  if(timeout_ms >= ULONG_MAX)
+#ถ้า TIMEDIFF_T_MAX >= ULONG_MAX
+  ถ้า(timeout_ms >= ULONG_MAX)
     timeout_ms = ULONG_MAX - 1;
     /* do not use ULONG_MAX, because that is equal to INFINITE */
 #endif
   Sleep((DWORD)timeout_ms);
-#else
+#มิฉะนั้น
   /* avoid using poll() for this since it behaves incorrectly with no sockets
      on Apple operating systems */
   {
-    struct timeval pending_tv;
+    sa_nracanaa timeval pending_tv;
     r = select(0, NULL, NULL, NULL, curlx_mstotv(&pending_tv, timeout_ms));
   }
 #endif /* _WIN32 */
-  if(r) {
-    if((r == -1) && (SOCKERRNO == SOCKEINTR))
+  ถ้า(r) {
+    ถ้า((r == -1) && (SOCKERRNO == SOCKEINTR))
       /* make EINTR from select or poll not a "lethal" error */
       r = 0;
-    else
+    มิฉะนั้น
       r = -1;
   }
-  return r;
+  คืน r;
 }

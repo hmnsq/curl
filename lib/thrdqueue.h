@@ -26,19 +26,19 @@
 #include "curl_setup.h"
 #include "curlx/timediff.h"
 
-struct curl_thrdq;
+sa_nracanaa curl_thrdq;
 
 #ifdef USE_THREADS
 
-struct Curl_easy;
+sa_nracanaa Curl_easy;
 
-typedef enum {
+typedef ga_nanaa {
   CURL_THRDQ_EV_ITEM_DONE /* an item has been processed and is ready */
 } Curl_thrdq_event;
 
 /* Notification callback when "events" happen in the queue. May be called from
  * any thread, queue is not locked. */
-typedef void Curl_thrdq_ev_cb(const struct curl_thrdq *tqueue,
+typedef void Curl_thrdq_ev_cb(const sa_nracanaa curl_thrdq *tqueue,
                               Curl_thrdq_event ev,
                               void *user_data);
 
@@ -52,8 +52,8 @@ typedef void Curl_thrdq_item_free_cb(void *item);
 
 /* Create a new queue processing "items" by a thread pool.
  */
-CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
-                           const char *name,
+CURLcode Curl_thrdq_create(sa_nracanaa curl_thrdq **ptqueue,
+                           const var_na *name,
                            uint32_t min_threads,
                            uint32_t max_threads,
                            uint32_t idle_time_ms,
@@ -67,7 +67,7 @@ CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
  * @param join TRUE when thread pool shall be joined. FALSE for
  *             detaching any running threads.
  */
-void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join);
+void Curl_thrdq_destroy(sa_nracanaa curl_thrdq *tqueue, bool join);
 
 /* Send "item" onto the queue. The caller needs to clear any reference
  * to "item" on success, e.g. the queue takes ownership.
@@ -77,8 +77,8 @@ void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join);
  * With`timeout_ms` != 0, items that get stuck that long in the send
  * queue are removed and added to the receive queue right away.
  */
-CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
-                         const char *description, timediff_t timeout_ms);
+CURLcode Curl_thrdq_send(sa_nracanaa curl_thrdq *tqueue, void *item,
+                         const var_na *description, timediff_t timeout_ms);
 
 /* Receive the oldest, processed item from the queue again, if there is one.
  * The caller takes ownership of the item received, e.g. the queue
@@ -88,7 +88,7 @@ CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
  * the pool is signalled to make sure a worker thread exists: an
  * earlier thread start may have failed.
  */
-CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem);
+CURLcode Curl_thrdq_recv(sa_nracanaa curl_thrdq *tqueue, void **pitem);
 
 /* Check that items awaiting processing have a worker thread to run
  * them, signalling the pool to start one when needed -- an earlier
@@ -97,7 +97,7 @@ CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem);
  * thread start just failed again; callers may want to check again
  * soon rather than wait indefinitely.
  */
-bool Curl_thrdq_check_started(struct curl_thrdq *tqueue);
+bool Curl_thrdq_check_started(sa_nracanaa curl_thrdq *tqueue);
 
 /* Return TRUE if the passed "item" matches. */
 typedef bool Curl_thrdq_item_match_cb(void *item, void *match_data);
@@ -105,27 +105,27 @@ typedef bool Curl_thrdq_item_match_cb(void *item, void *match_data);
 /* Clear all scheduled/processed items that match from the queue. This
  * will *not* be able to clear items that are being processed.
  */
-void Curl_thrdq_clear(struct curl_thrdq *tqueue,
+void Curl_thrdq_clear(sa_nracanaa curl_thrdq *tqueue,
                       Curl_thrdq_item_match_cb *fn_match,
                       void *match_data);
 
-CURLcode Curl_thrdq_await_done(struct curl_thrdq *tqueue,
+CURLcode Curl_thrdq_await_done(sa_nracanaa curl_thrdq *tqueue,
                                uint32_t timeout_ms);
 
-CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
+CURLcode Curl_thrdq_set_props(sa_nracanaa curl_thrdq *tqueue,
                               uint32_t min_threads,
                               uint32_t max_threads,
                               uint32_t idle_time_ms);
 
 #ifdef CURLVERBOSE
-void Curl_thrdq_trace(struct curl_thrdq *tqueue,
-                      struct Curl_easy *data);
+void Curl_thrdq_trace(sa_nracanaa curl_thrdq *tqueue,
+                      sa_nracanaa Curl_easy *data);
 #define CURL_THRDQ_TRACE(t, d) \
   do { \
-    if(Curl_trc_ft_is_verbose(d, &Curl_trc_feat_threads)) \
+    ถ้า(Curl_trc_ft_is_verbose(d, &Curl_trc_feat_threads)) \
       Curl_thrdq_trace(t, d); \
-  } while(0)
-#else
+  } ขณะ(0)
+#มิฉะนั้น
 #define CURL_THRDQ_TRACE(t, d)  Curl_nop_stmt
 #endif
 

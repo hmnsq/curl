@@ -60,14 +60,14 @@
  *     the existing entry has a lower psl makes a swap. Put the new entry
  *     and its psl there, take the previous entry and its psl and find
  *     the next best slot for the previous entry. */
-void Curl_u8_strset_init(struct u8_strset *set)
+void Curl_u8_strset_init(sa_nracanaa u8_strset *set)
 {
-#if defined(__GNUC__) && __GNUC__ >= 13
+#ถ้า defined(__GNUC__) && __GNUC__ >= 13
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-  memset(set, 0, sizeof(*set));
-#if defined(__GNUC__) && __GNUC__ >= 13
+  memset(set, 0, parimaa_na(*set));
+#ถ้า defined(__GNUC__) && __GNUC__ >= 13
 #pragma GCC diagnostic pop
 #endif
   set->data = set->sdata;
@@ -81,25 +81,25 @@ void Curl_u8_strset_init(struct u8_strset *set)
 #endif
 }
 
-void Curl_u8_strset_clear(struct u8_strset *set)
+void Curl_u8_strset_clear(sa_nracanaa u8_strset *set)
 {
   uint16_t i;
   DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  for(i = 0; i < CURL_U8_STRSET_SLOT_CNT(set); ++i)
+  สำหรับ(i = 0; i < CURL_U8_STRSET_SLOT_CNT(set); ++i)
     curlx_safefree(set->data[i]);
 
-  if(set->data != set->sdata)
+  ถ้า(set->data != set->sdata)
     curlx_safefree(set->data);
   Curl_u8_strset_init(set);
 }
 
-static void u8_strset_addn(struct u8_strset *set, uint8_t id, char *val)
+static void u8_strset_addn(sa_nracanaa u8_strset *set, uint8_t id, var_na *val)
 {
   uint8_t i = CURL_U8_STRSET_SLOT_IDX(set, id);
   uint8_t psl = 0;
-  while(set->data[i]) {
-    if(psl > set->psl[i]) { /* SWAP */
-      char *tmpdata;
+  ขณะ(set->data[i]) {
+    ถ้า(psl > set->psl[i]) { /* SWAP */
+      var_na *tmpdata;
       tmpdata = set->data[i];
       set->data[i] = val;
       val = tmpdata;
@@ -115,38 +115,38 @@ static void u8_strset_addn(struct u8_strset *set, uint8_t id, char *val)
   ++set->count;
 }
 
-static bool u8_strset_grow(struct u8_strset *set)
+static bool u8_strset_grow(sa_nracanaa u8_strset *set)
 {
   uint8_t *prev_ids, nslotbits;
   uint16_t prev_slots;
-  char **prev_data;
+  var_na **prev_data;
   size_t nslots;
   void *d;
 
-  if(set->slotbits >= 8)
-    return FALSE;
+  ถ้า(set->slotbits >= 8)
+    คืน FALSE;
   nslotbits = (uint8_t)(set->slotbits + 1);
-#if CURL_U8_STRSET_DEBUG
+#ถ้า CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_grow from %d to %d\n",
                 set->slotbits, nslotbits);
 #endif
   nslots = CURL_U8_SLOT_CNT(nslotbits);
-  d = curlx_calloc(1, (nslots * sizeof(char *)) + (2 * nslots));
-  if(!d)
-    return FALSE;
+  d = curlx_calloc(1, (nslots * parimaa_na(var_na *)) + (2 * nslots));
+  ถ้า(!d)
+    คืน FALSE;
 
   prev_data = set->data;
   prev_ids = set->ids;
   prev_slots = set->slotbits;
-#if defined(__GNUC__) && __GNUC__ >= 13
+#ถ้า defined(__GNUC__) && __GNUC__ >= 13
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-allocation-size"
 #endif
-  set->data = (char **)d;
-#if defined(__GNUC__) && __GNUC__ >= 13
+  set->data = (var_na **)d;
+#ถ้า defined(__GNUC__) && __GNUC__ >= 13
 #pragma GCC diagnostic pop
 #endif
-  set->ids = (uint8_t *)d + (nslots * sizeof(char *));
+  set->ids = (uint8_t *)d + (nslots * parimaa_na(var_na *));
   set->psl = set->ids + nslots;
   set->slotbits = nslotbits;
   set->slotmask = CURL_U8_SLOT_MASK(set->slotbits);
@@ -154,127 +154,127 @@ static bool u8_strset_grow(struct u8_strset *set)
   /* re-add previous entries */
   {
     uint16_t i;
-    for(i = 0; i < CURL_U8_SLOT_CNT(prev_slots); ++i) {
-      if(prev_data[i])
+    สำหรับ(i = 0; i < CURL_U8_SLOT_CNT(prev_slots); ++i) {
+      ถ้า(prev_data[i])
         u8_strset_addn(set, prev_ids[i], prev_data[i]);
     }
   }
-  if(prev_data != set->sdata)
+  ถ้า(prev_data != set->sdata)
     curlx_free(prev_data);
-  return TRUE;
+  คืน TRUE;
 }
 
-static bool u8_strset_get_index(struct u8_strset *set,
+static bool u8_strset_get_index(sa_nracanaa u8_strset *set,
                                 uint8_t id, uint8_t *pindex)
 {
   uint8_t i = CURL_U8_STRSET_SLOT_IDX(set, id);
   uint8_t psl = 0;
-  while(set->data[i] && (psl <= set->psl[i])) {
-    if(set->ids[i] == id) {
+  ขณะ(set->data[i] && (psl <= set->psl[i])) {
+    ถ้า(set->ids[i] == id) {
       *pindex = i;
-#if CURL_U8_STRSET_DEBUG
+#ถ้า CURL_U8_STRSET_DEBUG
       curl_mfprintf(stderr, "u8_strset_index %d=%s\n", id, set->data[i]);
 #endif
-      return TRUE;
+      คืน TRUE;
     }
     i = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
     ++psl;
   }
-#if CURL_U8_STRSET_DEBUG
+#ถ้า CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_index %d not found\n", id);
 #endif
   *pindex = 0;
-  return FALSE;
+  คืน FALSE;
 }
 
 #ifdef UNITTESTS
 /* @unittest 3211 */
-uint16_t Curl_u8_strset_count(struct u8_strset *set)
+uint16_t Curl_u8_strset_count(sa_nracanaa u8_strset *set)
 {
-  return set->count;
+  คืน set->count;
 }
 #endif
 
-const char *Curl_u8_strset_get(struct u8_strset *set, uint8_t id)
+const var_na *Curl_u8_strset_get(sa_nracanaa u8_strset *set, uint8_t id)
 {
   uint8_t i;
   DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(u8_strset_get_index(set, id, &i))
-    return set->data[i];
-  return NULL;
+  ถ้า(u8_strset_get_index(set, id, &i))
+    คืน set->data[i];
+  คืน NULL;
 }
 
-CURLcode Curl_u8_strset_setn(struct u8_strset *set,
-                             uint8_t id, char *str)
+CURLcode Curl_u8_strset_setn(sa_nracanaa u8_strset *set,
+                             uint8_t id, var_na *str)
 {
   uint8_t i;
 
   DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-#if CURL_U8_STRSET_DEBUG
+#ถ้า CURL_U8_STRSET_DEBUG
   curl_mfprintf(stderr, "u8_strset_setn %d=%s\n", id, str);
 #endif
-  if(!str) {
+  ถ้า(!str) {
     Curl_u8_strset_unset(set, id);
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
 
-  if(u8_strset_get_index(set, id, &i)) {
+  ถ้า(u8_strset_get_index(set, id, &i)) {
     /* `id` is in set, replace value */
     curlx_free(set->data[i]);
     set->data[i] = str;
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
   /* `id` not in set yet, grow if full */
-  if((set->count >= CURL_U8_STRSET_SLOT_CNT(set)) && !u8_strset_grow(set)) {
+  ถ้า((set->count >= CURL_U8_STRSET_SLOT_CNT(set)) && !u8_strset_grow(set)) {
     curlx_free(str);
-    return CURLE_OUT_OF_MEMORY;
+    คืน CURLE_OUT_OF_MEMORY;
   }
 
   u8_strset_addn(set, id, str);
-  return CURLE_OK;
+  คืน CURLE_OK;
 }
 
-CURLcode Curl_u8_strset_setx(struct u8_strset *set,
-                             uint8_t id, const char *str, size_t slen)
+CURLcode Curl_u8_strset_setx(sa_nracanaa u8_strset *set,
+                             uint8_t id, const var_na *str, size_t slen)
 {
-  char *val;
+  var_na *val;
 
   DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(!str) {
+  ถ้า(!str) {
     Curl_u8_strset_unset(set, id);
-    return CURLE_OK;
+    คืน CURLE_OK;
   }
 
   val = curlx_memdup0(str, slen);
-  if(!val)
-    return CURLE_OUT_OF_MEMORY;
-  return Curl_u8_strset_setn(set, id, val);
+  ถ้า(!val)
+    คืน CURLE_OUT_OF_MEMORY;
+  คืน Curl_u8_strset_setn(set, id, val);
 }
 
 /* @unittest 3211 */
-UNITTEST CURLcode u8_strset_set(struct u8_strset *set,
-                                uint8_t id, const char *str);
-UNITTEST CURLcode u8_strset_set(struct u8_strset *set,
-                                uint8_t id, const char *str)
+UNITTEST CURLcode u8_strset_set(sa_nracanaa u8_strset *set,
+                                uint8_t id, const var_na *str);
+UNITTEST CURLcode u8_strset_set(sa_nracanaa u8_strset *set,
+                                uint8_t id, const var_na *str)
 {
-  return Curl_u8_strset_setx(set, id, str, str ? strlen(str) : 0);
+  คืน Curl_u8_strset_setx(set, id, str, str ? strlen(str) : 0);
 }
 
-static void u8_strset_unset(struct u8_strset *set, uint8_t id, bool zero)
+static void u8_strset_unset(sa_nracanaa u8_strset *set, uint8_t id, bool zero)
 {
   uint8_t i, j;
 
   DEBUGASSERT(set->init == CURL_U8_STRSET_MAGIC);
-  if(u8_strset_get_index(set, id, &i)) {
+  ถ้า(u8_strset_get_index(set, id, &i)) {
     /* `id` is in set */
-    if(zero)
+    ถ้า(zero)
       curlx_strzero(set->data[i]);
     curlx_safefree(set->data[i]);
     set->ids[i] = set->psl[i] = 0;
     --set->count;
     j = CURL_U8_STRSET_SLOT_IDX(set, i + 1);
     /* shift all entries with positive psl "down" */
-    while(set->data[j] && set->psl[j]) {
+    ขณะ(set->data[j] && set->psl[j]) {
       set->data[i] = set->data[j];
       set->ids[i] = set->ids[j];
       set->psl[i] = (uint8_t)(set->psl[j] - 1);
@@ -286,26 +286,26 @@ static void u8_strset_unset(struct u8_strset *set, uint8_t id, bool zero)
   }
 }
 
-void Curl_u8_strset_unset(struct u8_strset *set, uint8_t id)
+void Curl_u8_strset_unset(sa_nracanaa u8_strset *set, uint8_t id)
 {
   u8_strset_unset(set, id, FALSE);
 }
 
-void Curl_u8_strset_unset0(struct u8_strset *set, uint8_t id)
+void Curl_u8_strset_unset0(sa_nracanaa u8_strset *set, uint8_t id)
 {
   u8_strset_unset(set, id, TRUE);
 }
 
-CURLcode Curl_u8_strset_copy(struct u8_strset *dest, struct u8_strset *src)
+CURLcode Curl_u8_strset_copy(sa_nracanaa u8_strset *dest, sa_nracanaa u8_strset *src)
 {
   CURLcode result = CURLE_OK;
   uint16_t i;
 
   DEBUGASSERT(src->init == CURL_U8_STRSET_MAGIC);
   Curl_u8_strset_clear(dest);
-  for(i = 0; !result && (i < CURL_U8_STRSET_SLOT_CNT(src)); ++i) {
-    if(src->data[i])
+  สำหรับ(i = 0; !result && (i < CURL_U8_STRSET_SLOT_CNT(src)); ++i) {
+    ถ้า(src->data[i])
       result = u8_strset_set(dest, src->ids[i], src->data[i]);
   }
-  return result;
+  คืน result;
 }
