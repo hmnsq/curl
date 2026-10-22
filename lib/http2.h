@@ -23,7 +23,7 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_NGHTTP2
 
@@ -34,37 +34,37 @@
 /*
  * Store nghttp2 version info in this buffer.
  */
-void Curl_http2_ver(char *p, size_t len);
+ശൂന്യം Curl_http2_ver(അക്ഷരം *p, size_t len);
 
 #ifdef CURLVERBOSE
-int Curl_nghttp2_fr_print(const nghttp2_frame *frame, char *buffer,
+പൂർണ്ണസംഖ്യ Curl_nghttp2_fr_print(സ്ഥിരം nghttp2_frame *frame, അക്ഷരം *buffer,
                           size_t blen);
 #endif
 
-CURLcode Curl_http2_request_upgrade(struct dynbuf *req,
-                                    struct Curl_easy *data);
+CURLcode Curl_http2_request_upgrade(ഘടന dynbuf *req,
+                                    ഘടന Curl_easy *data);
 
 /* returns true if the HTTP/2 stream error was HTTP_1_1_REQUIRED */
-bool Curl_h2_http_1_1_error(struct Curl_easy *data);
+bool Curl_h2_http_1_1_error(ഘടന Curl_easy *data);
 
-bool Curl_http2_may_switch(struct Curl_easy *data);
+bool Curl_http2_may_switch(ഘടന Curl_easy *data);
 
-CURLcode Curl_http2_switch(struct Curl_easy *data);
+CURLcode Curl_http2_switch(ഘടന Curl_easy *data);
 
-CURLcode Curl_http2_switch_at(struct Curl_cfilter *cf, struct Curl_easy *data);
+CURLcode Curl_http2_switch_at(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data);
 
-CURLcode Curl_http2_upgrade(struct Curl_easy *data,
-                            struct connectdata *conn, int8_t sockindex,
-                            const char *mem, size_t nread);
+CURLcode Curl_http2_upgrade(ഘടന Curl_easy *data,
+                            ഘടന connectdata *conn, int8_t sockindex,
+                            സ്ഥിരം അക്ഷരം *mem, size_t nread);
 
-void *Curl_nghttp2_malloc(size_t size, void *user_data);
-void Curl_nghttp2_free(void *ptr, void *user_data);
-void *Curl_nghttp2_calloc(size_t nmemb, size_t size, void *user_data);
-void *Curl_nghttp2_realloc(void *ptr, size_t size, void *user_data);
+ശൂന്യം *Curl_nghttp2_malloc(size_t size, ശൂന്യം *user_data);
+ശൂന്യം Curl_nghttp2_free(ശൂന്യം *ptr, ശൂന്യം *user_data);
+ശൂന്യം *Curl_nghttp2_calloc(size_t nmemb, size_t size, ശൂന്യം *user_data);
+ശൂന്യം *Curl_nghttp2_realloc(ശൂന്യം *ptr, size_t size, ശൂന്യം *user_data);
 
-extern struct Curl_cftype Curl_cft_nghttp2;
+ബാഹ്യ ഘടന Curl_cftype Curl_cft_nghttp2;
 
-#else /* USE_NGHTTP2 */
+#അല്ലെങ്കിൽ /* USE_NGHTTP2 */
 
 #define Curl_http2_may_switch(a) FALSE
 

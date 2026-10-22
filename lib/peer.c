@@ -24,67 +24,67 @@
 /*
  * IDN conversions
  */
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#അന്തര്ഭാവ <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#അന്തര്ഭാവ <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#അന്തര്ഭാവ <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#അന്തര്ഭാവ <net/if.h>
 #endif
 #ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
+#അന്തര്ഭാവ <Iphlpapi.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#അന്തര്ഭാവ <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#അന്തര്ഭാവ <sys/param.h>
 #endif
 
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#അന്തര്ഭാവ <in.h>
+#അന്തര്ഭാവ <inet.h>
 #endif
 
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
+#അന്തര്ഭാവ <sys/un.h>
 #endif
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
-#include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
+#എങ്കിൽ defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#എങ്കിൽ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#അന്തര്ഭാവ <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
 #endif
-#include <iphlpapi.h>
+#അന്തര്ഭാവ <iphlpapi.h>
 #endif
 
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "protocol.h"
-#include "http_proxy.h"
-#include "idn.h"
-#include "curlx/strdup.h"
-#include "curlx/strparse.h"
-#include "peer.h"
-#include "urldata.h"
-#include "url.h"
-#include "urlapi-int.h"
-#include "vtls/vtls.h"
+#അന്തര്ഭാവ "curl_addrinfo.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "protocol.h"
+#അന്തര്ഭാവ "http_proxy.h"
+#അന്തര്ഭാവ "idn.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
+#അന്തര്ഭാവ "curlx/strparse.h"
+#അന്തര്ഭാവ "peer.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "url.h"
+#അന്തര്ഭാവ "urlapi-int.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
 
-struct peer_parse {
-  const struct Curl_scheme *scheme;
-  struct Curl_str host_user;
-  struct Curl_str host;
-  struct Curl_str zoneid;
-  char *tmp_host_user;
-  char *tmp_host;
-  char *tmp_zoneid;
+ഘടന peer_parse {
+  സ്ഥിരം ഘടന Curl_scheme *scheme;
+  ഘടന Curl_str host_user;
+  ഘടന Curl_str host;
+  ഘടന Curl_str zoneid;
+  അക്ഷരം *tmp_host_user;
+  അക്ഷരം *tmp_host;
+  അക്ഷരം *tmp_zoneid;
   uint32_t scopeid;
   uint16_t port;
   bool ipv6;
@@ -92,38 +92,38 @@ struct peer_parse {
   bool abstract_uds;
 };
 
-static void peer_parse_clear(struct peer_parse *pp)
+സ്ഥിതം ശൂന്യം peer_parse_clear(ഘടന peer_parse *pp)
 {
   curlx_free(pp->tmp_host_user);
   curlx_free(pp->tmp_host);
   curlx_free(pp->tmp_zoneid);
-  memset(pp, 0, sizeof(*pp));
+  memset(pp, 0, വലുപ്പം(*pp));
 }
 
-static CURLcode peer_create(struct peer_parse *pp,
-                            struct Curl_peer **ppeer)
+സ്ഥിതം CURLcode peer_create(ഘടന peer_parse *pp,
+                            ഘടന Curl_peer **ppeer)
 {
-  struct Curl_peer *peer = NULL;
+  ഘടന Curl_peer *peer = ശൂന്യ;
   CURLcode result = CURLE_OK;
   size_t zone_alen = 0, host_alen = 0;
 
-  if(!pp || !pp->scheme)
-    return CURLE_FAILED_INIT;
-  if(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pp || !pp->scheme)
+    തിരികെ CURLE_FAILED_INIT;
+  എങ്കിൽ(!pp->host.len && !(pp->scheme->flags & PROTOPT_NONETWORK))
+    തിരികെ CURLE_FAILED_INIT;
 
-  if((pp->host.str != pp->host_user.str) ||
+  എങ്കിൽ((pp->host.str != pp->host_user.str) ||
      (pp->host.len != pp->host_user.len)) {
     host_alen = pp->host.len + 1;
   }
   zone_alen = pp->zoneid.len ? (pp->zoneid.len + 1) : 0;
 
   /* null-terminator already part of struct */
-  peer = curlx_calloc(1, sizeof(*peer) +
+  peer = curlx_calloc(1, വലുപ്പം(*peer) +
                          pp->host_user.len + host_alen + zone_alen);
-  if(!peer) {
+  എങ്കിൽ(!peer) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
   peer->refcount = 1;
@@ -135,35 +135,35 @@ static CURLcode peer_create(struct peer_parse *pp,
   peer->unix_socket = pp->unix_socket;
   peer->abstract_uds = pp->abstract_uds;
 
-  if(pp->host_user.len)
+  എങ്കിൽ(pp->host_user.len)
     memcpy(peer->user_hostname, pp->host_user.str, pp->host_user.len);
 
-  if(host_alen) {
+  എങ്കിൽ(host_alen) {
     peer->hostname = peer->user_hostname + pp->host_user.len + 1;
     memcpy(peer->hostname, pp->host.str, pp->host.len);
   }
 
-  if(zone_alen) {
+  എങ്കിൽ(zone_alen) {
     peer->zoneid = peer->user_hostname + pp->host_user.len + 1 + host_alen;
     memcpy(peer->zoneid, pp->zoneid.str, pp->zoneid.len);
 #ifdef USE_IPV6
     /* Determine scope_id if not already provided */
-    if(!peer->scopeid) {
-      const char *p = peer->zoneid;
+    എങ്കിൽ(!peer->scopeid) {
+      സ്ഥിരം അക്ഷരം *p = peer->zoneid;
       curl_off_t scope;
-      if(!curlx_str_number(&p, &scope, UINT_MAX) && !*p) {
+      എങ്കിൽ(!curlx_str_സംഖ്യ(&p, &scope, UINT_MAX) && !*p) {
         /* A plain number, use it directly as a scope id. */
         peer->scopeid = (uint32_t)scope;
       }
 #ifdef HAVE_IF_NAMETOINDEX
-      else {
+      അല്ലെങ്കിൽ {
         /* Zone identifier is not fully numeric */
-        unsigned int idx = 0;
+        unsigned പൂർണ്ണസംഖ്യ idx = 0;
         idx = if_nametoindex(peer->zoneid);
-        if(idx) {
+        എങ്കിൽ(idx) {
           peer->scopeid = (uint32_t)idx;
         }
-        else {
+        അല്ലെങ്കിൽ {
           /* Do we want to return an error here? */
         }
       }
@@ -173,111 +173,111 @@ static CURLcode peer_create(struct peer_parse *pp,
   }
 
 out:
-  if(!result)
+  എങ്കിൽ(!result)
     *ppeer = peer;
-  else
+  അല്ലെങ്കിൽ
     Curl_peer_unlink(&peer);
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode peer_parse_host(struct Curl_easy *data,
-                                struct peer_parse *pp,
+സ്ഥിതം CURLcode peer_parse_host(ഘടന Curl_easy *data,
+                                ഘടന peer_parse *pp,
                                 bool scan_for_ipv6)
 {
-  if(!pp || !pp->host_user.str || !pp->host_user.len)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pp || !pp->host_user.str || !pp->host_user.len)
+    തിരികെ CURLE_FAILED_INIT;
 
-  if(pp->host_user.str[0] == '[') {
-    const char *s = pp->host_user.str + 1;
-    struct Curl_str tmp;
-    if(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
-      return CURLE_URL_MALFORMAT;
+  എങ്കിൽ(pp->host_user.str[0] == '[') {
+    സ്ഥിരം അക്ഷരം *s = pp->host_user.str + 1;
+    ഘടന Curl_str tmp;
+    എങ്കിൽ(curlx_str_until(&s, &tmp, pp->host_user.len - 1, ']'))
+      തിരികെ CURLE_URL_MALFORMAT;
 
-    if(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
+    എങ്കിൽ(!Curl_looks_like_ipv6(tmp.str, tmp.len, TRUE,
                              &pp->host, &pp->zoneid)) {
       failf(data, "Invalid IPv6 address format in '%.*s'",
-            (int)pp->host_user.len, pp->host_user.str);
-      return CURLE_URL_MALFORMAT;
+            (പൂർണ്ണസംഖ്യ)pp->host_user.len, pp->host_user.str);
+      തിരികെ CURLE_URL_MALFORMAT;
     }
     pp->ipv6 = TRUE;
   }
-  else {
+  അല്ലെങ്കിൽ {
 #ifdef USE_IDN
-    if(!Curl_is_ASCII_str(&pp->host_user)) {
+    എങ്കിൽ(!Curl_is_ASCII_str(&pp->host_user)) {
       CURLcode result;
-      if(!pp->tmp_host_user) {
+      എങ്കിൽ(!pp->tmp_host_user) {
         /* need a null-terminated string for IDN */
         pp->tmp_host_user = curlx_memdup0(pp->host_user.str,
                                           pp->host_user.len);
-        if(!pp->tmp_host_user)
-          return CURLE_OUT_OF_MEMORY;
+        എങ്കിൽ(!pp->tmp_host_user)
+          തിരികെ CURLE_OUT_OF_MEMORY;
       }
       result = Curl_idn_decode(pp->tmp_host_user, &pp->tmp_host);
-      if(result)
-        return result;
+      എങ്കിൽ(result)
+        തിരികെ result;
       pp->host.str = pp->tmp_host;
       pp->host.len = strlen(pp->host.str);
     }
-    else
+    അല്ലെങ്കിൽ
 #endif
-    if(scan_for_ipv6 &&
+    എങ്കിൽ(scan_for_ipv6 &&
        Curl_looks_like_ipv6(pp->host_user.str, pp->host_user.len, TRUE,
                             &pp->host, &pp->zoneid)) {
-      if(pp->host_user.len < MAX_IPADR_LEN) {
-        char tmp[MAX_IPADR_LEN];
+      എങ്കിൽ(pp->host_user.len < MAX_IPADR_LEN) {
+        അക്ഷരം tmp[MAX_IPADR_LEN];
         memcpy(tmp, pp->host_user.str, pp->host_user.len);
         tmp[pp->host_user.len] = 0;
         pp->ipv6 = !Curl_is_ipv4addr(tmp);
       }
-      else
+      അല്ലെങ്കിൽ
         pp->ipv6 = TRUE;
     }
-    else
+    അല്ലെങ്കിൽ
       pp->host = pp->host_user;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
+CURLcode Curl_peer_create(ഘടന Curl_easy *data,
+                          സ്ഥിരം ഘടന Curl_scheme *scheme,
+                          സ്ഥിരം അക്ഷരം *hostname,
                           uint16_t port,
-                          struct Curl_peer **ppeer)
+                          ഘടന Curl_peer **ppeer)
 {
-  struct peer_parse pp;
+  ഘടന peer_parse pp;
   CURLcode result;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  memset(&pp, 0, വലുപ്പം(pp));
   pp.scheme = scheme;
   pp.host_user.str = hostname;
   pp.host_user.len = strlen(hostname);
   pp.port = port;
 
   result = peer_parse_host(data, &pp, TRUE);
-  if(!result)
+  എങ്കിൽ(!result)
     result = peer_create(&pp, ppeer);
 
   peer_parse_clear(&pp);
-  return result;
+  തിരികെ result;
 }
 
 #ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+CURLcode Curl_peer_uds_create(സ്ഥിരം ഘടന Curl_scheme *scheme,
+                              സ്ഥിരം അക്ഷരം *path,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer)
+                              ഘടന Curl_peer **ppeer)
 {
-  struct peer_parse pp;
+  ഘടന peer_parse pp;
   size_t pathlen = path ? strlen(path) : 0;
   CURLcode result = CURLE_OK;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  if(!scheme)
-    return CURLE_FAILED_INIT;
-  if(!pathlen)
-    return CURLE_FAILED_INIT;
+  memset(&pp, 0, വലുപ്പം(pp));
+  എങ്കിൽ(!scheme)
+    തിരികെ CURLE_FAILED_INIT;
+  എങ്കിൽ(!pathlen)
+    തിരികെ CURLE_FAILED_INIT;
 
   pp.scheme = scheme;
   pp.host_user.str = pp.host.str = path;
@@ -287,50 +287,50 @@ CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
 
   result = peer_create(&pp, ppeer);
   peer_parse_clear(&pp);
-  return result;
+  തിരികെ result;
 }
 #endif /* USE_UNIX_SOCKETS */
 
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src)
+ശൂന്യം Curl_peer_link(ഘടന Curl_peer **pdest, ഘടന Curl_peer *src)
 {
-  if(*pdest != src) {
+  എങ്കിൽ(*pdest != src) {
     Curl_peer_unlink(pdest);
     *pdest = src;
-    if(src) {
+    എങ്കിൽ(src) {
       DEBUGASSERT(src->refcount < UINT32_MAX);
       src->refcount++;
     }
   }
 }
 
-void Curl_peer_unlink(struct Curl_peer **ppeer)
+ശൂന്യം Curl_peer_unlink(ഘടന Curl_peer **ppeer)
 {
-  if(*ppeer) {
-    struct Curl_peer *peer = *ppeer;
+  എങ്കിൽ(*ppeer) {
+    ഘടന Curl_peer *peer = *ppeer;
 
     DEBUGASSERT(peer->refcount);
-    *ppeer = NULL;
-    if(peer->refcount)
+    *ppeer = ശൂന്യ;
+    എങ്കിൽ(peer->refcount)
       peer->refcount--;
-    if(!peer->refcount) {
+    എങ്കിൽ(!peer->refcount) {
       curlx_free(peer);
     }
   }
 }
 
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2)
+bool Curl_peer_equal(ഘടന Curl_peer *p1, ഘടന Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  തിരികെ (p1 == p2) ||
          (p1 && p2 &&
           (p1->scheme == p2->scheme) &&
           Curl_peer_same_destination(p1, p2));
 }
 
-static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
+സ്ഥിതം bool peer_same_hostname(ഘടന Curl_peer *p1, ഘടന Curl_peer *p2)
 {
   /* UNIX domain socket paths must be compared case-sensitive,
    * as many filesystem are like that. */
-  return (p1->unix_socket == p2->unix_socket) &&
+  തിരികെ (p1->unix_socket == p2->unix_socket) &&
          (p1->abstract_uds == p2->abstract_uds) &&
          (p1->ipv6 == p2->ipv6) &&
          /* unix_socket paths are case-sensitive, hostnames are not.
@@ -341,15 +341,15 @@ static bool peer_same_hostname(struct Curl_peer *p1, struct Curl_peer *p2)
            curl_strequal(p1->hostname, p2->hostname)));
 }
 
-static bool peer_same_zoneid(const char *z1, const char *z2)
+സ്ഥിതം bool peer_same_zoneid(സ്ഥിരം അക്ഷരം *z1, സ്ഥിരം അക്ഷരം *z2)
 {
-  return (z1 == z2) ||
+  തിരികെ (z1 == z2) ||
          (z1 && z2 && !strcmp(z1, z2));
 }
 
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2)
+bool Curl_peer_same_destination(ഘടന Curl_peer *p1, ഘടന Curl_peer *p2)
 {
-  return (p1 == p2) ||
+  തിരികെ (p1 == p2) ||
          (p1 && p2 &&
           (p1->port == p2->port) &&
           peer_same_hostname(p1, p2) &&
@@ -357,183 +357,183 @@ bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2)
           (p1->scopeid || peer_same_zoneid(p1->zoneid, p2->zoneid)));
 }
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
+CURLcode Curl_peer_from_url(CURLU *uh, ഘടന Curl_easy *data,
                             uint16_t port_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer)
+                            ഘടന Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  char *zoneid = NULL, *scheme = NULL, *hostname = NULL;
+  ഘടന peer_parse pp;
+  അക്ഷരം *zoneid = ശൂന്യ, *scheme = ശൂന്യ, *hostname = ശൂന്യ;
   CURLUcode uc;
   CURLcode result;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  memset(&pp, 0, വലുപ്പം(pp));
 
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme, 0);
-  if(uc)
-    return Curl_uc_to_curlcode(uc);
+  എങ്കിൽ(uc)
+    തിരികെ Curl_uc_to_curlcode(uc);
   pp.scheme = Curl_get_scheme(scheme);
-  if(!pp.scheme) {
+  എങ്കിൽ(!pp.scheme) {
     failf(data, "Protocol \"%s\" not supported%s", scheme,
           data->state.this_is_a_follow ? " (in redirect)" : "");
     result = CURLE_UNSUPPORTED_PROTOCOL;
-    goto out;
+    പോകുക out;
   }
 
   uc = curl_url_get(uh, CURLUPART_HOST, &hostname, 0);
-  if(uc) {
-    if((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
+  എങ്കിൽ(uc) {
+    എങ്കിൽ((uc == CURLUE_NO_HOST) && (pp.scheme->flags & PROTOPT_NONETWORK))
       ; /* acceptable */
-    else {
+    അല്ലെങ്കിൽ {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
   }
-  else if(strlen(hostname) > MAX_URL_LEN) {
+  അല്ലെങ്കിൽ എങ്കിൽ(strlen(hostname) > MAX_URL_LEN) {
     failf(data, "Too long hostname (maximum is %d)", MAX_URL_LEN);
     result = CURLE_URL_MALFORMAT;
-    goto out;
+    പോകുക out;
   }
 
   pp.host_user.str = hostname ? hostname : "";
   pp.host_user.len = strlen(pp.host_user.str);
-  if(pp.host_user.len) {
+  എങ്കിൽ(pp.host_user.len) {
     result = peer_parse_host(data, &pp, FALSE);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  else
+  അല്ലെങ്കിൽ
     pp.host = pp.host_user;
 
-  if(port_override) {
+  എങ്കിൽ(port_override) {
     /* if set, we use this instead of the port possibly given in the URL */
-    char portbuf[16];
-    curl_msnprintf(portbuf, sizeof(portbuf), "%d", port_override);
+    അക്ഷരം portbuf[16];
+    curl_msnprintf(portbuf, വലുപ്പം(portbuf), "%d", port_override);
     uc = curl_url_set(uh, CURLUPART_PORT, portbuf, 0);
-    if(uc) {
+    എങ്കിൽ(uc) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
-    else
+    അല്ലെങ്കിൽ
       pp.port = port_override;
   }
-  else {
+  അല്ലെങ്കിൽ {
     uc = Curl_url_get_port(uh, &pp.port);
-    if(uc) {
-      if(uc == CURLUE_OUT_OF_MEMORY) {
+    എങ്കിൽ(uc) {
+      എങ്കിൽ(uc == CURLUE_OUT_OF_MEMORY) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        പോകുക out;
       }
-      else if(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
+      അല്ലെങ്കിൽ എങ്കിൽ(!(pp.scheme->flags & PROTOPT_NONETWORK)) {
         result = CURLE_URL_MALFORMAT;
-        goto out;
+        പോകുക out;
       }
       /* no port ok when not a network scheme */
     }
   }
 
-  if(scopeid_override)
+  എങ്കിൽ(scopeid_override)
     /* Override any scope id from an URL zone. */
     pp.scopeid = scopeid_override;
-  else {
-    if(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
+  അല്ലെങ്കിൽ {
+    എങ്കിൽ(curl_url_get(uh, CURLUPART_ZONEID, &zoneid, 0) ==
        CURLUE_OUT_OF_MEMORY) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
-    if(zoneid) {
+    എങ്കിൽ(zoneid) {
       pp.zoneid.str = zoneid;
       pp.zoneid.len = strlen(zoneid);
     }
   }
 
   result = peer_create(&pp, ppeer);
-  if(result)
+  എങ്കിൽ(result)
     failf(data, "Error %d creating peer for %s:%u",
-          (int)result, pp.host_user.str, pp.port);
+          (പൂർണ്ണസംഖ്യ)result, pp.host_user.str, pp.port);
 
 out:
   peer_parse_clear(&pp);
   curlx_free(scheme);
   curlx_free(hostname);
   curlx_free(zoneid);
-  return result;
+  തിരികെ result;
 }
 
 /* Parse a "host:port" string to connect to into a peer.
  * IPv6 addresses might appear in brackets or without them. */
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer)
+CURLcode Curl_peer_from_connect_to(ഘടന Curl_easy *data,
+                                   സ്ഥിരം ഘടന Curl_peer *dest,
+                                   സ്ഥിരം അക്ഷരം *connect_to,
+                                   ഘടന Curl_peer **ppeer)
 {
-  struct peer_parse pp;
-  const char *portstr = NULL;
+  ഘടന peer_parse pp;
+  സ്ഥിരം അക്ഷരം *portstr = ശൂന്യ;
   bool port_switch = FALSE;
   CURLcode result;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
-  if(!connect_to || !*connect_to)
-    return CURLE_FAILED_INIT;
+  memset(&pp, 0, വലുപ്പം(pp));
+  എങ്കിൽ(!connect_to || !*connect_to)
+    തിരികെ CURLE_FAILED_INIT;
 
   pp.scheme = dest->scheme;
 
   /* detect and extract RFC6874-style IPv6-addresses */
-  if(connect_to[0] == '[') {
-    const char *s = strchr(connect_to + 1, ']');
-    if(!s) {
+  എങ്കിൽ(connect_to[0] == '[') {
+    സ്ഥിരം അക്ഷരം *s = strchr(connect_to + 1, ']');
+    എങ്കിൽ(!s) {
       failf(data, "Invalid IPv6 address format in '%s'", connect_to);
       result = CURLE_SETOPT_OPTION_SYNTAX;
-      goto out;
+      പോകുക out;
     }
     portstr = strchr(s, ':');
     pp.host_user.str = connect_to;
     pp.host_user.len = s - pp.host_user.str + 1;
     pp.ipv6 = TRUE;
   }
-  else {
+  അല്ലെങ്കിൽ {
     portstr = strchr(connect_to, ':');
     pp.host_user.str = connect_to;
     pp.host_user.len = portstr ?
       (size_t)(portstr - connect_to) : strlen(connect_to);
   }
 
-  if(!pp.host_user.len) { /* no hostname found, only port switch */
+  എങ്കിൽ(!pp.host_user.len) { /* no hostname found, only port switch */
     port_switch = TRUE;
     pp.host_user.str = dest->user_hostname;
     pp.host_user.len = strlen(dest->user_hostname);
   }
 
   result = peer_parse_host(data, &pp, FALSE);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
   /* On a port switch, ipv6 must stay the same */
   DEBUGASSERT(!port_switch || ((bool)pp.ipv6 == (bool)dest->ipv6));
 
-  if(portstr && portstr[1]) {
-    const char *p = portstr + 1;
+  എങ്കിൽ(portstr && portstr[1]) {
+    സ്ഥിരം അക്ഷരം *p = portstr + 1;
     curl_off_t portparse;
-    if(curlx_str_number(&p, &portparse, 0xffff)) {
+    എങ്കിൽ(curlx_str_സംഖ്യ(&p, &portparse, 0xffff)) {
       failf(data, "No valid port number in '%s'", connect_to);
       result = CURLE_SETOPT_OPTION_SYNTAX;
-      goto out;
+      പോകുക out;
     }
     pp.port = (uint16_t)portparse; /* we know it will fit */
   }
-  else
+  അല്ലെങ്കിൽ
     pp.port = dest->port;
 
 #ifndef USE_IPV6
-  if(pp.ipv6) {
+  എങ്കിൽ(pp.ipv6) {
     failf(data, "Use of IPv6 in *_CONNECT_TO without IPv6 support built-in");
     result = CURLE_NOT_BUILT_IN;
-    goto out;
+    പോകുക out;
   }
 #endif
-  if(pp.ipv6 && port_switch) {
-    if(dest->zoneid) {
+  എങ്കിൽ(pp.ipv6 && port_switch) {
+    എങ്കിൽ(dest->zoneid) {
       pp.zoneid.str = dest->zoneid;
       pp.zoneid.len = strlen(dest->zoneid);
     }
@@ -541,12 +541,12 @@ CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
   }
 
   result = peer_create(&pp, ppeer);
-  CURL_TRC_M(data, "connect-to peer_create2 -> %d", (int)result);
+  CURL_TRC_M(data, "connect-to peer_create2 -> %d", (പൂർണ്ണസംഖ്യ)result);
 
 out:
-  CURL_TRC_M(data, "parse connect_to peer: %s -> %d", connect_to, (int)result);
+  CURL_TRC_M(data, "parse connect_to peer: %s -> %d", connect_to, (പൂർണ്ണസംഖ്യ)result);
   peer_parse_clear(&pp);
-  return result;
+  തിരികെ result;
 }
 
 #ifndef CURL_DISABLE_PROXY
@@ -555,47 +555,47 @@ out:
 #define UNIX_SOCKET_PREFIX "localhost"
 #endif
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
-                                  uint8_t *proxytype, const char *url)
+CURLcode Curl_scheme_to_proxytype(ഘടന Curl_easy *data,
+                                  സ്ഥിരം അക്ഷരം *scheme,
+                                  uint8_t *proxytype, സ്ഥിരം അക്ഷരം *url)
 {
-  if(!scheme)
-    return CURLE_OK;
+  എങ്കിൽ(!scheme)
+    തിരികെ CURLE_OK;
 
-  if(curl_strequal("https", scheme)) {
-    if(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
+  എങ്കിൽ(curl_strequal("https", scheme)) {
+    എങ്കിൽ(*proxytype != CURLPROXY_HTTPS2 && *proxytype != CURLPROXY_HTTPS3)
       *proxytype = CURLPROXY_HTTPS;
   }
-  else if(curl_strequal("socks5h", scheme))
+  അല്ലെങ്കിൽ എങ്കിൽ(curl_strequal("socks5h", scheme))
     *proxytype = CURLPROXY_SOCKS5_HOSTNAME;
-  else if(curl_strequal("socks5", scheme))
+  അല്ലെങ്കിൽ എങ്കിൽ(curl_strequal("socks5", scheme))
     *proxytype = CURLPROXY_SOCKS5;
-  else if(curl_strequal("socks4a", scheme))
+  അല്ലെങ്കിൽ എങ്കിൽ(curl_strequal("socks4a", scheme))
     *proxytype = CURLPROXY_SOCKS4A;
-  else if(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
+  അല്ലെങ്കിൽ എങ്കിൽ(curl_strequal("socks4", scheme) || curl_strequal("socks", scheme))
     *proxytype = CURLPROXY_SOCKS4;
-  else if(curl_strequal("http", scheme)) {
-    if(*proxytype != CURLPROXY_HTTP_1_0)
+  അല്ലെങ്കിൽ എങ്കിൽ(curl_strequal("http", scheme)) {
+    എങ്കിൽ(*proxytype != CURLPROXY_HTTP_1_0)
       *proxytype = CURLPROXY_HTTP;
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* Any other xxx:// reject! */
     failf(data, "Unsupported proxy scheme for \'%s\'", url);
-    return CURLE_COULDNT_CONNECT;
+    തിരികെ CURLE_COULDNT_CONNECT;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  ഘടന Curl_easy *data,
+                                  സ്ഥിരം അക്ഷരം *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  ഘടന Curl_peer **ppeer,
                                   uint8_t *pproxytype)
 {
-  struct peer_parse pp;
-  char *scheme = NULL;
-  char *portptr = NULL;
+  ഘടന peer_parse pp;
+  അക്ഷരം *scheme = ശൂന്യ;
+  അക്ഷരം *portptr = ശൂന്യ;
 #ifdef USE_UNIX_SOCKETS
   bool is_socks = FALSE;
 #endif
@@ -603,135 +603,135 @@ CURLcode Curl_peer_from_proxy_url(CURLU *uh,
   CURLcode result = CURLE_OK;
 
   Curl_peer_unlink(ppeer);
-  memset(&pp, 0, sizeof(pp));
+  memset(&pp, 0, വലുപ്പം(pp));
   pp.port = CURL_DEFAULT_PROXY_PORT;
   uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                     CURLU_NON_SUPPORT_SCHEME | CURLU_NO_GUESS_SCHEME);
-  if(uc) {
-    if(uc == CURLUE_OUT_OF_MEMORY) {
+  എങ്കിൽ(uc) {
+    എങ്കിൽ(uc == CURLUE_OUT_OF_MEMORY) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
     /* URL came without scheme, the passed `proxytype` determines it */
-    switch(proxytype) {
-    case CURLPROXY_HTTP:
-    case CURLPROXY_HTTP_1_0:
+    തിരഞ്ഞെടുപ്പ്(proxytype) {
+    അവസ്ഥ CURLPROXY_HTTP:
+    അവസ്ഥ CURLPROXY_HTTP_1_0:
       pp.scheme = &Curl_scheme_http;
-      break;
-    case CURLPROXY_HTTPS:
-    case CURLPROXY_HTTPS2:
-    case CURLPROXY_HTTPS3:
+      നിർത്തുക;
+    അവസ്ഥ CURLPROXY_HTTPS:
+    അവസ്ഥ CURLPROXY_HTTPS2:
+    അവസ്ഥ CURLPROXY_HTTPS3:
       pp.scheme = &Curl_scheme_https;
-      break;
-    case CURLPROXY_SOCKS4:
+      നിർത്തുക;
+    അവസ്ഥ CURLPROXY_SOCKS4:
       pp.scheme = &Curl_scheme_socks4;
-      break;
-    case CURLPROXY_SOCKS4A:
+      നിർത്തുക;
+    അവസ്ഥ CURLPROXY_SOCKS4A:
       pp.scheme = &Curl_scheme_socks4a;
-      break;
-    case CURLPROXY_SOCKS5:
+      നിർത്തുക;
+    അവസ്ഥ CURLPROXY_SOCKS5:
       pp.scheme = &Curl_scheme_socks5;
-      break;
-    case CURLPROXY_SOCKS5_HOSTNAME:
+      നിർത്തുക;
+    അവസ്ഥ CURLPROXY_SOCKS5_HOSTNAME:
       pp.scheme = &Curl_scheme_socks5h;
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       failf(data, "Unsupported proxy type %u for \'%s\'", proxytype, url);
       result = CURLE_COULDNT_RESOLVE_PROXY;
-      goto out;
+      പോകുക out;
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
     pp.scheme = Curl_get_scheme(scheme);
     result = Curl_scheme_to_proxytype(data, scheme, &proxytype, url);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
   DEBUGASSERT(pp.scheme);
 
-  if(CURL_PROXY_IS_HTTPS(proxytype) &&
+  എങ്കിൽ(CURL_PROXY_IS_HTTPS(proxytype) &&
      !Curl_ssl_supports(data, SSLSUPP_HTTPS_PROXY)) {
     failf(data, "Unsupported proxy \'%s\', libcurl is built without the "
           "HTTPS-proxy support.", url);
     result = CURLE_NOT_BUILT_IN;
-    goto out;
+    പോകുക out;
   }
 
-  switch(pp.scheme->family) {
-  case CURLPROTO_SOCKS:
+  തിരഞ്ഞെടുപ്പ്(pp.scheme->family) {
+  അവസ്ഥ CURLPROTO_SOCKS:
 #ifdef USE_UNIX_SOCKETS
     is_socks = TRUE;
 #endif
-    break;
-  case CURLPROTO_HTTP:
-    break;
-  default:
+    നിർത്തുക;
+  അവസ്ഥ CURLPROTO_HTTP:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     failf(data, "Unsupported proxy protocol for \'%s\'", url);
     result = CURLE_COULDNT_CONNECT;
-    goto out;
+    പോകുക out;
   }
 
   uc = curl_url_get(uh, CURLUPART_PORT, &portptr, CURLU_NO_DEFAULT_PORT);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
+  എങ്കിൽ(uc == CURLUE_OUT_OF_MEMORY) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
-  if(portptr) {
-    curl_off_t num;
-    const char *p = portptr;
-    if(!curlx_str_number(&p, &num, UINT16_MAX))
-      pp.port = (uint16_t)num;
+  എങ്കിൽ(portptr) {
+    curl_off_t അക്കം;
+    സ്ഥിരം അക്ഷരം *p = portptr;
+    എങ്കിൽ(!curlx_str_സംഖ്യ(&p, &അക്കം, UINT16_MAX))
+      pp.port = (uint16_t)അക്കം;
     /* Should we not error out when the port number is invalid? */
     curlx_free(portptr);
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* No port in URL, take the set one or the scheme's default */
-    if(data->set.proxyport)
+    എങ്കിൽ(data->set.proxyport)
       pp.port = data->set.proxyport;
-    else
+    അല്ലെങ്കിൽ
       pp.port = pp.scheme->defport;
   }
 
   /* now, clone the proxy hostname */
   uc = curl_url_get(uh, CURLUPART_HOST, &pp.tmp_host_user, CURLU_URLDECODE);
-  if(uc) {
+  എങ്കിൽ(uc) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
   pp.host_user.str = pp.tmp_host_user;
   pp.host_user.len = strlen(pp.tmp_host_user);
 
 #ifdef USE_UNIX_SOCKETS
-  if(is_socks && curl_strequal(UNIX_SOCKET_PREFIX, pp.tmp_host_user)) {
+  എങ്കിൽ(is_socks && curl_strequal(UNIX_SOCKET_PREFIX, pp.tmp_host_user)) {
     uc = curl_url_get(uh, CURLUPART_PATH, &pp.tmp_host, CURLU_URLDECODE);
-    if(uc) {
+    എങ്കിൽ(uc) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
     /* path will be "/", if no path was found */
-    if(strcmp("/", pp.tmp_host)) {
+    എങ്കിൽ(strcmp("/", pp.tmp_host)) {
       pp.host.str = pp.tmp_host;
       pp.host.len = strlen(pp.tmp_host);
       pp.unix_socket = TRUE;
     }
-    else {
+    അല്ലെങ്കിൽ {
       pp.host = pp.host_user;
     }
   }
 #endif /* USE_UNIX_SOCKETS */
 
-  if(!pp.host.len) {
+  എങ്കിൽ(!pp.host.len) {
     result = peer_parse_host(data, &pp, FALSE);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
   uc = curl_url_get(uh, CURLUPART_ZONEID, &pp.tmp_zoneid, 0);
-  if(uc == CURLUE_OUT_OF_MEMORY) {
+  എങ്കിൽ(uc == CURLUE_OUT_OF_MEMORY) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
-  if(pp.tmp_zoneid) {
+  എങ്കിൽ(pp.tmp_zoneid) {
     pp.zoneid.str = pp.tmp_zoneid;
     pp.zoneid.len = strlen(pp.tmp_zoneid);
   }
@@ -743,10 +743,10 @@ out:
   peer_parse_clear(&pp);
   curlx_free(scheme);
 #ifdef DEBUGBUILD
-  if(!result)
+  എങ്കിൽ(!result)
     DEBUGASSERT(*ppeer);
 #endif
-  return result;
+  തിരികെ result;
 }
 
 #endif /* !CURL_DISABLE_PROXY */

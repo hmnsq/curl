@@ -24,6 +24,6 @@
  *
  ***************************************************************************/
 
-const char *curlx_strerror(int err, char *buf, size_t buflen);
+സ്ഥിരം അക്ഷരം *curlx_strerror(പൂർണ്ണസംഖ്യ err, അക്ഷരം *buf, size_t buflen);
 
 #endif /* HEADER_CURL_STRERR_H */

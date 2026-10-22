@@ -21,196 +21,196 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_THREADS
 
-#include "llist.h"
-#include "curl_threads.h"
-#include "thrdpool.h"
-#include "thrdqueue.h"
-#include "curlx/timeval.h"
+#അന്തര്ഭാവ "llist.h"
+#അന്തര്ഭാവ "curl_threads.h"
+#അന്തര്ഭാവ "thrdpool.h"
+#അന്തര്ഭാവ "thrdqueue.h"
+#അന്തര്ഭാവ "curlx/timeval.h"
 #ifdef CURLVERBOSE
-#include "curl_trc.h"
-#include "urldata.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "urldata.h"
 #endif
 
 
-struct curl_thrdq {
-  const char *name;
+ഘടന curl_thrdq {
+  സ്ഥിരം അക്ഷരം *name;
   curl_mutex_t lock;
   curl_cond_t await;
-  struct Curl_llist sendq;
-  struct Curl_llist recvq;
-  struct curl_thrdpool *tpool;
+  ഘടന Curl_llist sendq;
+  ഘടന Curl_llist recvq;
+  ഘടന curl_thrdpool *tpool;
   Curl_thrdq_item_free_cb *fn_free;
   Curl_thrdq_item_process_cb *fn_process;
   Curl_thrdq_ev_cb *fn_event;
-  void *fn_user_data;
+  ശൂന്യം *fn_user_data;
   BIT(aborted);
 };
 
-struct thrdq_item {
-  struct Curl_llist_node node;
+ഘടന thrdq_item {
+  ഘടന Curl_llist_കണ്ണി കണ്ണി;
   Curl_thrdq_item_free_cb *fn_free;
   Curl_thrdq_item_process_cb *fn_process;
-  void *item;
-  struct curltime start;
+  ശൂന്യം *item;
+  ഘടന curltime start;
   timediff_t timeout_ms;
-  const char *description;
+  സ്ഥിരം അക്ഷരം *description;
 };
 
-static struct thrdq_item *thrdq_item_create(struct curl_thrdq *tqueue,
-                                            void *item,
-                                            const char *description,
+സ്ഥിതം ഘടന thrdq_item *thrdq_item_create(ഘടന curl_thrdq *tqueue,
+                                            ശൂന്യം *item,
+                                            സ്ഥിരം അക്ഷരം *description,
                                             timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
+  ഘടന thrdq_item *qitem;
 
-  qitem = curlx_calloc(1, sizeof(*qitem));
-  if(!qitem)
-    return NULL;
+  qitem = curlx_calloc(1, വലുപ്പം(*qitem));
+  എങ്കിൽ(!qitem)
+    തിരികെ ശൂന്യ;
   qitem->item = item;
   qitem->description = description;
   qitem->fn_free = tqueue->fn_free;
   qitem->fn_process = tqueue->fn_process;
-  if(timeout_ms) {
+  എങ്കിൽ(timeout_ms) {
     qitem->start = curlx_now();
     qitem->timeout_ms = timeout_ms;
   }
-  return qitem;
+  തിരികെ qitem;
 }
 
-static void thrdq_item_destroy(struct thrdq_item *qitem)
+സ്ഥിതം ശൂന്യം thrdq_item_destroy(ഘടന thrdq_item *qitem)
 {
-  if(qitem->item)
+  എങ്കിൽ(qitem->item)
     qitem->fn_free(qitem->item);
   curlx_free(qitem);
 }
 
-static void thrdq_item_list_dtor(void *user_data, void *elem)
+സ്ഥിതം ശൂന്യം thrdq_item_list_dtor(ശൂന്യം *user_data, ശൂന്യം *elem)
 {
-  (void)user_data;
+  (ശൂന്യം)user_data;
   thrdq_item_destroy(elem);
 }
 
-static void *thrdq_tpool_take(void *user_data, const char **pdescription,
+സ്ഥിതം ശൂന്യം *thrdq_tpool_take(ശൂന്യം *user_data, സ്ഥിരം അക്ഷരം **pdescription,
                               timediff_t *ptimeout_ms)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = NULL;
-  struct Curl_llist_node *e;
-  Curl_thrdq_ev_cb *fn_event = NULL;
-  void *fn_user_data = NULL;
+  ഘടന curl_thrdq *tqueue = user_data;
+  ഘടന thrdq_item *qitem = ശൂന്യ;
+  ഘടന Curl_llist_കണ്ണി *e;
+  Curl_thrdq_ev_cb *fn_event = ശൂന്യ;
+  ശൂന്യം *fn_user_data = ശൂന്യ;
 
   Curl_mutex_acquire(&tqueue->lock);
-  *pdescription = NULL;
+  *pdescription = ശൂന്യ;
   *ptimeout_ms = 0;
-  if(!tqueue->aborted) {
+  എങ്കിൽ(!tqueue->aborted) {
     e = Curl_llist_head(&tqueue->sendq);
-    if(e) {
-      struct curltime now = curlx_now();
+    എങ്കിൽ(e) {
+      ഘടന curltime now = curlx_now();
       timediff_t timeout_ms;
-      while(e) {
-        qitem = Curl_node_take_elem(e);
+      ആകുമ്പോൾ(e) {
+        qitem = Curl_കണ്ണി_take_elem(e);
         timeout_ms = (!qitem->timeout_ms) ? 0 :
           (qitem->timeout_ms - curlx_ptimediff_ms(&now, &qitem->start));
-        if(timeout_ms < 0) {
+        എങ്കിൽ(timeout_ms < 0) {
           /* timed out while queued, place on receive queue */
-          Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+          Curl_llist_append(&tqueue->recvq, qitem, &qitem->കണ്ണി);
           fn_event = tqueue->fn_event;
           fn_user_data = tqueue->fn_user_data;
-          qitem = NULL;
+          qitem = ശൂന്യ;
           e = Curl_llist_head(&tqueue->sendq);
-          continue;
+          തുടരുക;
         }
-        else {
+        അല്ലെങ്കിൽ {
           *pdescription = qitem->description;
           *ptimeout_ms = timeout_ms;
-          break;
+          നിർത്തുക;
         }
       }
     }
   }
   Curl_mutex_release(&tqueue->lock);
   /* avoiding deadlocks */
-  if(fn_event)
+  എങ്കിൽ(fn_event)
     fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
-  return qitem;
+  തിരികെ qitem;
 }
 
-static void thrdq_tpool_return(void *item, void *user_data)
+സ്ഥിതം ശൂന്യം thrdq_tpool_return(ശൂന്യം *item, ശൂന്യം *user_data)
 {
-  struct curl_thrdq *tqueue = user_data;
-  struct thrdq_item *qitem = item;
-  Curl_thrdq_ev_cb *fn_event = NULL;
-  void *fn_user_data = NULL;
+  ഘടന curl_thrdq *tqueue = user_data;
+  ഘടന thrdq_item *qitem = item;
+  Curl_thrdq_ev_cb *fn_event = ശൂന്യ;
+  ശൂന്യം *fn_user_data = ശൂന്യ;
 
-  if(!tqueue) {
+  എങ്കിൽ(!tqueue) {
     thrdq_item_destroy(item);
-    return;
+    തിരികെ;
   }
 
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  എങ്കിൽ(tqueue->aborted) {
     thrdq_item_destroy(qitem);
   }
-  else {
-    DEBUGASSERT(!Curl_node_llist(&qitem->node));
-    Curl_llist_append(&tqueue->recvq, qitem, &qitem->node);
+  അല്ലെങ്കിൽ {
+    DEBUGASSERT(!Curl_കണ്ണി_llist(&qitem->കണ്ണി));
+    Curl_llist_append(&tqueue->recvq, qitem, &qitem->കണ്ണി);
     fn_event = tqueue->fn_event;
     fn_user_data = tqueue->fn_user_data;
   }
   Curl_mutex_release(&tqueue->lock);
   /* avoiding deadlocks */
-  if(fn_event)
+  എങ്കിൽ(fn_event)
     fn_event(tqueue, CURL_THRDQ_EV_ITEM_DONE, fn_user_data);
 }
 
-static void thrdq_tpool_process(void *item)
+സ്ഥിതം ശൂന്യം thrdq_tpool_process(ശൂന്യം *item)
 {
-  struct thrdq_item *qitem = item;
+  ഘടന thrdq_item *qitem = item;
   qitem->fn_process(qitem->item);
 }
 
-static void thrdq_unlink(struct curl_thrdq *tqueue, bool locked, bool join)
+സ്ഥിതം ശൂന്യം thrdq_unlink(ഘടന curl_thrdq *tqueue, bool locked, bool join)
 {
   DEBUGASSERT(tqueue->aborted);
-  if(tqueue->tpool) {
-    if(locked)
+  എങ്കിൽ(tqueue->tpool) {
+    എങ്കിൽ(locked)
       Curl_mutex_release(&tqueue->lock);
     Curl_thrdpool_destroy(tqueue->tpool, join);
-    tqueue->tpool = NULL;
-    if(locked)
+    tqueue->tpool = ശൂന്യ;
+    എങ്കിൽ(locked)
       Curl_mutex_acquire(&tqueue->lock);
   }
 
-  Curl_llist_destroy(&tqueue->sendq, NULL);
-  Curl_llist_destroy(&tqueue->recvq, NULL);
+  Curl_llist_destroy(&tqueue->sendq, ശൂന്യ);
+  Curl_llist_destroy(&tqueue->recvq, ശൂന്യ);
   Curl_cond_destroy(&tqueue->await);
-  if(locked)
+  എങ്കിൽ(locked)
     Curl_mutex_release(&tqueue->lock);
   Curl_mutex_destroy(&tqueue->lock);
   curlx_free(tqueue);
 }
 
-CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
-                           const char *name,
+CURLcode Curl_thrdq_create(ഘടന curl_thrdq **ptqueue,
+                           സ്ഥിരം അക്ഷരം *name,
                            uint32_t min_threads,
                            uint32_t max_threads,
                            uint32_t idle_time_ms,
                            Curl_thrdq_item_free_cb *fn_free,
                            Curl_thrdq_item_process_cb *fn_process,
                            Curl_thrdq_ev_cb *fn_event,
-                           void *user_data)
+                           ശൂന്യം *user_data)
 {
-  struct curl_thrdq *tqueue;
+  ഘടന curl_thrdq *tqueue;
   CURLcode result = CURLE_OUT_OF_MEMORY;
   DEBUGASSERT(name);
 
-  tqueue = curlx_calloc(1, sizeof(*tqueue));
-  if(!tqueue)
-    goto out;
+  tqueue = curlx_calloc(1, വലുപ്പം(*tqueue));
+  എങ്കിൽ(!tqueue)
+    പോകുക out;
 
   Curl_mutex_init(&tqueue->lock);
   Curl_cond_init(&tqueue->await);
@@ -232,16 +232,16 @@ CURLcode Curl_thrdq_create(struct curl_thrdq **ptqueue,
                                 tqueue);
 
 out:
-  if(result && tqueue) {
+  എങ്കിൽ(result && tqueue) {
     tqueue->aborted = TRUE;
     thrdq_unlink(tqueue, FALSE, TRUE);
-    tqueue = NULL;
+    tqueue = ശൂന്യ;
   }
   *ptqueue = tqueue;
-  return result;
+  തിരികെ result;
 }
 
-void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
+ശൂന്യം Curl_thrdq_destroy(ഘടന curl_thrdq *tqueue, bool join)
 {
   Curl_mutex_acquire(&tqueue->lock);
   DEBUGASSERT(!tqueue->aborted);
@@ -249,36 +249,36 @@ void Curl_thrdq_destroy(struct curl_thrdq *tqueue, bool join)
   thrdq_unlink(tqueue, TRUE, join);
 }
 
-static uint32_t thrdq_get_signals(struct curl_thrdq *tqueue)
+സ്ഥിതം uint32_t thrdq_get_signals(ഘടന curl_thrdq *tqueue)
 {
-  size_t qlen = Curl_llist_count(&tqueue->sendq);
-  return (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
+  size_t qlen = Curl_llist_എണ്ണം(&tqueue->sendq);
+  തിരികെ (qlen <= UINT32_MAX) ? (uint32_t)qlen : UINT32_MAX;
 }
 
-CURLcode Curl_thrdq_send(struct curl_thrdq *tqueue, void *item,
-                         const char *description, timediff_t timeout_ms)
+CURLcode Curl_thrdq_send(ഘടന curl_thrdq *tqueue, ശൂന്യം *item,
+                         സ്ഥിരം അക്ഷരം *description, timediff_t timeout_ms)
 {
-  struct thrdq_item *qitem;
+  ഘടന thrdq_item *qitem;
   CURLcode result = CURLE_OK;
   uint32_t signals = 0;
 
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  എങ്കിൽ(tqueue->aborted) {
     DEBUGASSERT(0);
     result = CURLE_SEND_ERROR;
-    goto out;
+    പോകുക out;
   }
-  if(timeout_ms < 0) {
+  എങ്കിൽ(timeout_ms < 0) {
     result = CURLE_OPERATION_TIMEDOUT;
-    goto out;
+    പോകുക out;
   }
 
   qitem = thrdq_item_create(tqueue, item, description, timeout_ms);
-  if(!qitem) {
+  എങ്കിൽ(!qitem) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
-  Curl_llist_append(&tqueue->sendq, qitem, &qitem->node);
+  Curl_llist_append(&tqueue->sendq, qitem, &qitem->കണ്ണി);
   signals = thrdq_get_signals(tqueue);
 
 out:
@@ -287,45 +287,45 @@ out:
    * item to the queue already, it might have been taken for processing
    * already. Any error in signalling the pool cannot be reported to
    * the caller since it needs to give up ownership of item. */
-  if(!result && signals)
-    (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  എങ്കിൽ(!result && signals)
+    (ശൂന്യം)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
+  തിരികെ result;
 }
 
-bool Curl_thrdq_check_started(struct curl_thrdq *tqueue)
+bool Curl_thrdq_check_started(ഘടന curl_thrdq *tqueue)
 {
   size_t unprocessed;
 
   Curl_mutex_acquire(&tqueue->lock);
-  unprocessed = tqueue->aborted ? 0 : Curl_llist_count(&tqueue->sendq);
+  unprocessed = tqueue->aborted ? 0 : Curl_llist_എണ്ണം(&tqueue->sendq);
   Curl_mutex_release(&tqueue->lock);
-  return !unprocessed ||
+  തിരികെ !unprocessed ||
          !Curl_thrdpool_signal(tqueue->tpool, (uint32_t)unprocessed);
 }
 
-CURLcode Curl_thrdq_recv(struct curl_thrdq *tqueue, void **pitem)
+CURLcode Curl_thrdq_recv(ഘടന curl_thrdq *tqueue, ശൂന്യം **pitem)
 {
   CURLcode result = CURLE_AGAIN;
-  struct Curl_llist_node *e;
+  ഘടന Curl_llist_കണ്ണി *e;
   uint32_t signals = 0;
 
-  *pitem = NULL;
+  *pitem = ശൂന്യ;
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  എങ്കിൽ(tqueue->aborted) {
     DEBUGASSERT(0);
     result = CURLE_RECV_ERROR;
-    goto out;
+    പോകുക out;
   }
 
   e = Curl_llist_head(&tqueue->recvq);
-  if(e) {
-    struct thrdq_item *qitem = Curl_node_take_elem(e);
+  എങ്കിൽ(e) {
+    ഘടന thrdq_item *qitem = Curl_കണ്ണി_take_elem(e);
     *pitem = qitem->item;
-    qitem->item = NULL;
+    qitem->item = ശൂന്യ;
     thrdq_item_destroy(qitem);
     result = CURLE_OK;
   }
-  else
+  അല്ലെങ്കിൽ
     signals = thrdq_get_signals(tqueue);
 
 out:
@@ -335,34 +335,34 @@ out:
    * thread to work on them. An earlier thread start may have failed,
    * which `Curl_thrdq_send()` cannot report to its caller. Without
    * this, such items would sit unprocessed until the next send. */
-  if(signals)
-    (void)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  എങ്കിൽ(signals)
+    (ശൂന്യം)Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
+  തിരികെ result;
 }
 
-static void thrdq_llist_clean_matches(struct Curl_llist *llist,
+സ്ഥിതം ശൂന്യം thrdq_llist_clean_matches(ഘടന Curl_llist *llist,
                                       Curl_thrdq_item_match_cb *fn_match,
-                                      void *match_data)
+                                      ശൂന്യം *match_data)
 {
-  struct Curl_llist_node *e, *n;
-  struct thrdq_item *qitem;
+  ഘടന Curl_llist_കണ്ണി *e, *n;
+  ഘടന thrdq_item *qitem;
 
-  for(e = Curl_llist_head(llist); e; e = n) {
-    n = Curl_node_next(e);
-    qitem = Curl_node_elem(e);
-    if(fn_match(qitem->item, match_data))
-      Curl_node_remove(e);
+  വേണ്ടി(e = Curl_llist_head(llist); e; e = n) {
+    n = Curl_കണ്ണി_next(e);
+    qitem = Curl_കണ്ണി_elem(e);
+    എങ്കിൽ(fn_match(qitem->item, match_data))
+      Curl_കണ്ണി_remove(e);
   }
 }
 
-void Curl_thrdq_clear(struct curl_thrdq *tqueue,
+ശൂന്യം Curl_thrdq_clear(ഘടന curl_thrdq *tqueue,
                       Curl_thrdq_item_match_cb *fn_match,
-                      void *match_data)
+                      ശൂന്യം *match_data)
 {
   Curl_mutex_acquire(&tqueue->lock);
-  if(tqueue->aborted) {
+  എങ്കിൽ(tqueue->aborted) {
     DEBUGASSERT(0);
-    goto out;
+    പോകുക out;
   }
   thrdq_llist_clean_matches(&tqueue->sendq, fn_match, match_data);
   thrdq_llist_clean_matches(&tqueue->recvq, fn_match, match_data);
@@ -372,16 +372,16 @@ out:
 
 #ifdef UNITTESTS
 /* @unittest 3301 */
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_done(ഘടന curl_thrdq *tqueue,
                                    uint32_t timeout_ms);
-UNITTEST CURLcode thrdq_await_done(struct curl_thrdq *tqueue,
+UNITTEST CURLcode thrdq_await_done(ഘടന curl_thrdq *tqueue,
                                    uint32_t timeout_ms)
 {
-  return Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
+  തിരികെ Curl_thrdpool_await_idle(tqueue->tpool, timeout_ms);
 }
 #endif
 
-CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
+CURLcode Curl_thrdq_set_props(ഘടന curl_thrdq *tqueue,
                               uint32_t min_threads,
                               uint32_t max_threads,
                               uint32_t idle_time_ms)
@@ -395,33 +395,33 @@ CURLcode Curl_thrdq_set_props(struct curl_thrdq *tqueue,
 
   result = Curl_thrdpool_set_props(tqueue->tpool, min_threads,
                                    max_threads, idle_time_ms);
-  if(!result && signals)
+  എങ്കിൽ(!result && signals)
     result = Curl_thrdpool_signal(tqueue->tpool, (uint32_t)signals);
-  return result;
+  തിരികെ result;
 }
 
 #ifdef CURLVERBOSE
-void Curl_thrdq_trace(struct curl_thrdq *tqueue,
-                      struct Curl_easy *data)
+ശൂന്യം Curl_thrdq_trace(ഘടന curl_thrdq *tqueue,
+                      ഘടന Curl_easy *data)
 {
-  struct curl_trc_feat *feat = &Curl_trc_feat_threads;
-  if(Curl_trc_ft_is_verbose(data, feat)) {
-    struct Curl_llist_node *e;
-    struct thrdq_item *qitem;
+  ഘടന curl_trc_feat *feat = &Curl_trc_feat_threads;
+  എങ്കിൽ(Curl_trc_ft_is_verbose(data, feat)) {
+    ഘടന Curl_llist_കണ്ണി *e;
+    ഘടന thrdq_item *qitem;
 
     Curl_thrdpool_trace(tqueue->tpool, data);
     Curl_mutex_acquire(&tqueue->lock);
-    if(!Curl_llist_count(&tqueue->sendq) &&
-       !Curl_llist_count(&tqueue->recvq)) {
+    എങ്കിൽ(!Curl_llist_എണ്ണം(&tqueue->sendq) &&
+       !Curl_llist_എണ്ണം(&tqueue->recvq)) {
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] empty", tqueue->name);
     }
-    for(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
+    വേണ്ടി(e = Curl_llist_head(&tqueue->sendq); e; e = Curl_കണ്ണി_next(e)) {
+      qitem = Curl_കണ്ണി_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] in: %s",
                           tqueue->name, qitem->description);
     }
-    for(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_node_next(e)) {
-      qitem = Curl_node_elem(e);
+    വേണ്ടി(e = Curl_llist_head(&tqueue->recvq); e; e = Curl_കണ്ണി_next(e)) {
+      qitem = Curl_കണ്ണി_elem(e);
       Curl_trc_feat_infof(data, feat, "[TQUEUE-%s] out: %s",
                           tqueue->name, qitem->description);
     }

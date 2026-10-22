@@ -26,17 +26,17 @@
  * but vtls.c should ever call or use these functions.
  *
  */
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_WOLFSSL
 
-#include <wolfssl/options.h>
-#include <wolfssl/version.h>
+#അന്തര്ഭാവ <wolfssl/options.h>
+#അന്തര്ഭാവ <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX < 0x05000000 /* wolfSSL 5.0.0 (2021-11-01) */
+#എങ്കിൽ LIBWOLFSSL_VERSION_HEX < 0x05000000 /* wolfSSL 5.0.0 (2021-11-01) */
 #error "wolfSSL 5.0.0 or greater required"
 #endif
-#if defined(OPENSSL_COEXIST) && LIBWOLFSSL_VERSION_HEX < 0x05007006
+#എങ്കിൽ defined(OPENSSL_COEXIST) && LIBWOLFSSL_VERSION_HEX < 0x05007006
 #error "wolfSSL 5.7.6 or greater required to coexist with OpenSSL"
 #endif
 
@@ -53,34 +53,34 @@
 #endif
 #endif
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "vdns/cf-dns.h"
-#include "vdns/httpsrr.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/keylog.h"
-#include "connect.h" /* for the connect timeout */
-#include "progress.h"
-#include "curlx/strdup.h"
-#include "curlx/strcopy.h"
-#include "vtls/x509asn1.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "vdns/cf-dns.h"
+#അന്തര്ഭാവ "vdns/httpsrr.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
+#അന്തര്ഭാവ "vtls/vtls_int.h"
+#അന്തര്ഭാവ "vtls/vtls_scache.h"
+#അന്തര്ഭാവ "vtls/keylog.h"
+#അന്തര്ഭാവ "connect.h" /* for the connect timeout */
+#അന്തര്ഭാവ "progress.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
+#അന്തര്ഭാവ "curlx/strcopy.h"
+#അന്തര്ഭാവ "vtls/x509asn1.h"
 #ifdef USE_ECH
-#include "curlx/base64.h"
+#അന്തര്ഭാവ "curlx/base64.h"
 #endif
 
-#include <wolfssl/ssl.h>
-#include <wolfssl/error-ssl.h>
+#അന്തര്ഭാവ <wolfssl/ssl.h>
+#അന്തര്ഭാവ <wolfssl/error-ssl.h>
 
-#include "vtls/wolfssl.h"
+#അന്തര്ഭാവ "vtls/wolfssl.h"
 
 /* KEEP_PEER_CERT is a product of the presence of build time symbol
    OPENSSL_EXTRA without NO_CERTS, depending on the version. KEEP_PEER_CERT is
    in wolfSSL's settings.h, and the latter two are build time symbols in
    options.h. */
 #ifndef KEEP_PEER_CERT
-#if defined(HAVE_WOLFSSL_GET_PEER_CERTIFICATE) || \
+#എങ്കിൽ defined(HAVE_WOLFSSL_GET_PEER_CERTIFICATE) || \
   (defined(OPENSSL_EXTRA) && !defined(NO_CERTS))
 #define KEEP_PEER_CERT
 #endif
@@ -90,7 +90,7 @@
 #define USE_BIO_CHAIN
 #ifdef HAVE_WOLFSSL_BIO_SET_SHUTDOWN
 #define USE_FULL_BIO
-#else /* HAVE_WOLFSSL_BIO_SET_SHUTDOWN */
+#അല്ലെങ്കിൽ /* HAVE_WOLFSSL_BIO_SET_SHUTDOWN */
 #undef USE_FULL_BIO
 #endif
 /* wolfSSL 5.7.4 and older do not have these symbols, but only the
@@ -104,7 +104,7 @@
 #define wolfSSL_BIO_set_retry_read    BIO_set_retry_read
 #endif /* !WOLFSSL_BIO_CTRL_GET_CLOSE */
 
-#else /* HAVE_WOLFSSL_BIO_NEW */
+#അല്ലെങ്കിൽ /* HAVE_WOLFSSL_BIO_NEW */
 #undef USE_BIO_CHAIN
 #endif
 
@@ -118,172 +118,172 @@
  * wolfSSL_get_client_random and wolfSSL_get_keys require OPENSSL_EXTRA
  * (--enable-opensslextra or --enable-all).
  */
-#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
-static int wssl_tls13_secret_callback(SSL *ssl, int id,
-                                      const unsigned char *secret,
-                                      int secretSz, void *ctx)
+#എങ്കിൽ defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_tls13_secret_callback(SSL *ssl, പൂർണ്ണസംഖ്യ id,
+                                      സ്ഥിരം unsigned അക്ഷരം *secret,
+                                      പൂർണ്ണസംഖ്യ secretSz, ശൂന്യം *ctx)
 {
-  const char *label;
-  unsigned char client_random[SSL3_RANDOM_SIZE];
-  (void)ctx;
+  സ്ഥിരം അക്ഷരം *label;
+  unsigned അക്ഷരം client_random[SSL3_RANDOM_SIZE];
+  (ശൂന്യം)ctx;
 
-  if(!ssl || !Curl_tls_keylog_enabled()) {
-    return 0;
+  എങ്കിൽ(!ssl || !Curl_tls_keylog_enabled()) {
+    തിരികെ 0;
   }
 
-  switch(id) {
-  case CLIENT_EARLY_TRAFFIC_SECRET:
+  തിരഞ്ഞെടുപ്പ്(id) {
+  അവസ്ഥ CLIENT_EARLY_TRAFFIC_SECRET:
     label = "CLIENT_EARLY_TRAFFIC_SECRET";
-    break;
-  case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
+    നിർത്തുക;
+  അവസ്ഥ CLIENT_HANDSHAKE_TRAFFIC_SECRET:
     label = "CLIENT_HANDSHAKE_TRAFFIC_SECRET";
-    break;
-  case SERVER_HANDSHAKE_TRAFFIC_SECRET:
+    നിർത്തുക;
+  അവസ്ഥ SERVER_HANDSHAKE_TRAFFIC_SECRET:
     label = "SERVER_HANDSHAKE_TRAFFIC_SECRET";
-    break;
-  case CLIENT_TRAFFIC_SECRET:
+    നിർത്തുക;
+  അവസ്ഥ CLIENT_TRAFFIC_SECRET:
     label = "CLIENT_TRAFFIC_SECRET_0";
-    break;
-  case SERVER_TRAFFIC_SECRET:
+    നിർത്തുക;
+  അവസ്ഥ SERVER_TRAFFIC_SECRET:
     label = "SERVER_TRAFFIC_SECRET_0";
-    break;
-  case EARLY_EXPORTER_SECRET:
+    നിർത്തുക;
+  അവസ്ഥ EARLY_EXPORTER_SECRET:
     label = "EARLY_EXPORTER_SECRET";
-    break;
-  case EXPORTER_SECRET:
+    നിർത്തുക;
+  അവസ്ഥ EXPORTER_SECRET:
     label = "EXPORTER_SECRET";
-    break;
-  default:
-    return 0;
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ 0;
   }
 
-  if(wolfSSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE) == 0) {
+  എങ്കിൽ(wolfSSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE) == 0) {
     /* Should never happen as wolfSSL_KeepArrays() was called before. */
-    return 0;
+    തിരികെ 0;
   }
 
-  Curl_tls_keylog_write(label, client_random, sizeof(client_random),
+  Curl_tls_keylog_write(label, client_random, വലുപ്പം(client_random),
                         secret, secretSz);
-  return 0;
+  തിരികെ 0;
 }
 #endif /* HAVE_SECRET_CALLBACK && WOLFSSL_TLS13 */
 
-static void wssl_log_tls12_secret(WOLFSSL *ssl)
+സ്ഥിതം ശൂന്യം wssl_log_tls12_secret(WOLFSSL *ssl)
 {
-  unsigned char *ms, *sr, *cr;
-  unsigned int msLen, srLen, crLen, i, x = 0;
+  unsigned അക്ഷരം *ms, *sr, *cr;
+  unsigned പൂർണ്ണസംഖ്യ msLen, srLen, crLen, i, x = 0;
 
   /* wolfSSL_GetVersion is available since 3.13, we use it instead of
    * SSL_version since the latter relies on OPENSSL_ALL (--enable-opensslall or
    * --enable-all). Failing to perform this check could result in an unusable
    * key log line when TLS 1.3 is actually negotiated. */
-  switch(wolfSSL_GetVersion(ssl)) {
-  case WOLFSSL_SSLV3:
-  case WOLFSSL_TLSV1:
-  case WOLFSSL_TLSV1_1:
-  case WOLFSSL_TLSV1_2:
-    break;
-  default:
+  തിരഞ്ഞെടുപ്പ്(wolfSSL_GetVersion(ssl)) {
+  അവസ്ഥ WOLFSSL_SSLV3:
+  അവസ്ഥ WOLFSSL_TLSV1:
+  അവസ്ഥ WOLFSSL_TLSV1_1:
+  അവസ്ഥ WOLFSSL_TLSV1_2:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     /* TLS 1.3 does not use this mechanism, the "master secret" returned below
      * is not directly usable. */
-    return;
+    തിരികെ;
   }
 
-  if(wolfSSL_get_keys(ssl, &ms, &msLen, &sr, &srLen, &cr, &crLen) !=
+  എങ്കിൽ(wolf_SSL_get_താക്കോലുകൾ(ssl, &ms, &msLen, &sr, &srLen, &cr, &crLen) !=
      WOLFSSL_SUCCESS) {
-    return;
+    തിരികെ;
   }
 
   /* Check for a missing master secret and skip logging. That can happen if
    * curl rejects the server certificate and aborts the handshake.
    */
-  for(i = 0; i < msLen; i++) {
+  വേണ്ടി(i = 0; i < msLen; i++) {
     x |= ms[i];
   }
-  if(x == 0) {
-    return;
+  എങ്കിൽ(x == 0) {
+    തിരികെ;
   }
 
   Curl_tls_keylog_write("CLIENT_RANDOM", cr, crLen, ms, msLen);
 }
 #endif /* OPENSSL_EXTRA */
 
-static int wssl_do_file_type(const char *type)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_do_file_type(സ്ഥിരം അക്ഷരം *type)
 {
-  if(!type || !type[0])
-    return WOLFSSL_FILETYPE_PEM;
-  if(curl_strequal(type, "PEM"))
-    return WOLFSSL_FILETYPE_PEM;
-  if(curl_strequal(type, "DER"))
-    return WOLFSSL_FILETYPE_ASN1;
-  return -1;
+  എങ്കിൽ(!type || !type[0])
+    തിരികെ WOLFSSL_FILETYPE_PEM;
+  എങ്കിൽ(curl_strequal(type, "PEM"))
+    തിരികെ WOLFSSL_FILETYPE_PEM;
+  എങ്കിൽ(curl_strequal(type, "DER"))
+    തിരികെ WOLFSSL_FILETYPE_ASN1;
+  തിരികെ -1;
 }
 
 #ifdef USE_BIO_CHAIN
 
-static int wssl_bio_cf_create(WOLFSSL_BIO *bio)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_bio_cf_create(WOLFSSL_BIO *bio)
 {
 #ifdef USE_FULL_BIO
   wolfSSL_BIO_set_shutdown(bio, 1);
 #endif
-  wolfSSL_BIO_set_data(bio, NULL);
-  return 1;
+  wolfSSL_BIO_set_data(bio, ശൂന്യ);
+  തിരികെ 1;
 }
 
-static long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, int cmd, long num, void *ptr)
+സ്ഥിതം long wssl_bio_cf_ctrl(WOLFSSL_BIO *bio, പൂർണ്ണസംഖ്യ cmd, long അക്കം, ശൂന്യം *ptr)
 {
-  struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
+  ഘടന Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
   long ret = 1;
 
-  (void)cf;
-  (void)ptr;
-  (void)num;
-  switch(cmd) {
-  case WOLFSSL_BIO_CTRL_GET_CLOSE:
+  (ശൂന്യം)cf;
+  (ശൂന്യം)ptr;
+  (ശൂന്യം)അക്കം;
+  തിരഞ്ഞെടുപ്പ്(cmd) {
+  അവസ്ഥ WOLFSSL_BIO_CTRL_GET_CLOSE:
 #ifdef USE_FULL_BIO
     ret = (long)wolfSSL_BIO_get_shutdown(bio);
-#else
+#അല്ലെങ്കിൽ
     ret = 0;
 #endif
-    break;
-  case WOLFSSL_BIO_CTRL_SET_CLOSE:
+    നിർത്തുക;
+  അവസ്ഥ WOLFSSL_BIO_CTRL_SET_CLOSE:
 #ifdef USE_FULL_BIO
-    wolfSSL_BIO_set_shutdown(bio, (int)num);
+    wolfSSL_BIO_set_shutdown(bio, (പൂർണ്ണസംഖ്യ)അക്കം);
 #endif
-    break;
-  case WOLFSSL_BIO_CTRL_FLUSH:
+    നിർത്തുക;
+  അവസ്ഥ WOLFSSL_BIO_CTRL_FLUSH:
     /* we do no delayed writes, but if we ever would, this
      * needs to trigger it. */
     ret = 1;
-    break;
-  case WOLFSSL_BIO_CTRL_DUP:
+    നിർത്തുക;
+  അവസ്ഥ WOLFSSL_BIO_CTRL_DUP:
     ret = 1;
-    break;
+    നിർത്തുക;
 #ifdef WOLFSSL_BIO_CTRL_EOF
-  case WOLFSSL_BIO_CTRL_EOF: {
+  അവസ്ഥ WOLFSSL_BIO_CTRL_EOF: {
     /* EOF has been reached on input? */
-    struct ssl_connect_data *connssl = cf->ctx;
-    return connssl->peer_closed;
+    ഘടന ssl_connect_data *connssl = cf->ctx;
+    തിരികെ connssl->peer_closed;
   }
 #endif
-  default:
+  സ്ഥിരസ്ഥിതി:
     ret = 0;
-    break;
+    നിർത്തുക;
   }
-  return ret;
+  തിരികെ ret;
 }
 
-static int wssl_bio_cf_out_write(WOLFSSL_BIO *bio, const char *buf, int blen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_bio_cf_out_write(WOLFSSL_BIO *bio, സ്ഥിരം അക്ഷരം *buf, പൂർണ്ണസംഖ്യ blen)
 {
-  struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   size_t nwritten, skiplen = 0;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
-  if(wssl->shutting_down && wssl->io_send_blocked_len &&
+  എങ്കിൽ(wssl->shutting_down && wssl->io_send_blocked_len &&
      (wssl->io_send_blocked_len < blen)) {
     /* bug in wolfSSL: <https://github.com/wolfSSL/wolfssl/issues/7784>
      * It adds the close notify message again every time we retry
@@ -294,88 +294,88 @@ static int wssl_bio_cf_out_write(WOLFSSL_BIO *bio, const char *buf, int blen)
     blen = wssl->io_send_blocked_len;
   }
   result = Curl_conn_cf_send(cf->next, data,
-                             (const uint8_t *)buf, blen, FALSE, &nwritten);
+                             (സ്ഥിരം uint8_t *)buf, blen, FALSE, &nwritten);
   wssl->io_result = result;
   CURL_TRC_CF(data, cf, "bio_write(len=%d) -> %d, %zu",
-              blen, (int)result, nwritten);
+              blen, (പൂർണ്ണസംഖ്യ)result, nwritten);
 #ifdef USE_FULL_BIO
   wolfSSL_BIO_clear_retry_flags(bio);
 #endif
-  if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result == CURLE_AGAIN) {
     wolfSSL_BIO_set_retry_write(bio);
-    if(wssl->shutting_down && !wssl->io_send_blocked_len)
+    എങ്കിൽ(wssl->shutting_down && !wssl->io_send_blocked_len)
       wssl->io_send_blocked_len = blen;
   }
-  else if(!result && skiplen)
+  അല്ലെങ്കിൽ എങ്കിൽ(!result && skiplen)
     nwritten += skiplen;
-  return result ? -1 : (int)nwritten;
+  തിരികെ result ? -1 : (പൂർണ്ണസംഖ്യ)nwritten;
 }
 
-static int wssl_bio_cf_in_read(WOLFSSL_BIO *bio, char *buf, int blen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_bio_cf_in_read(WOLFSSL_BIO *bio, അക്ഷരം *buf, പൂർണ്ണസംഖ്യ blen)
 {
-  struct Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = wolfSSL_BIO_get_data(bio);
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   size_t nread = 0;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
-  if(!data || (blen < 0)) {
+  എങ്കിൽ(!data || (blen < 0)) {
     wssl->io_result = CURLE_FAILED_INIT;
-    return -1;
+    തിരികെ -1;
   }
-  if(!buf || !blen)
-    return 0;
+  എങ്കിൽ(!buf || !blen)
+    തിരികെ 0;
 
-  if((connssl->connecting_state == ssl_connect_2) &&
+  എങ്കിൽ((connssl->connecting_state == ssl_connect_2) &&
      !wssl->x509_store_setup) {
     /* During handshake, init the x509 store before receiving the
      * server response. This allows sending of ClientHello without delay. */
     result = Curl_wssl_setup_x509_store(cf, data, wssl);
-    if(result) {
-      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (int)result);
+    എങ്കിൽ(result) {
+      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (പൂർണ്ണസംഖ്യ)result);
       wssl->io_result = result;
-      return -1;
+      തിരികെ -1;
     }
   }
 
   result = Curl_conn_cf_recv(cf->next, data, buf, blen, &nread);
   wssl->io_result = result;
-  CURL_TRC_CF(data, cf, "bio_read(len=%d) -> %d, %zu", blen, (int)result,
+  CURL_TRC_CF(data, cf, "bio_read(len=%d) -> %d, %zu", blen, (പൂർണ്ണസംഖ്യ)result,
               nread);
 #ifdef USE_FULL_BIO
   wolfSSL_BIO_clear_retry_flags(bio);
 #endif
-  if(result == CURLE_AGAIN)
+  എങ്കിൽ(result == CURLE_AGAIN)
     wolfSSL_BIO_set_retry_read(bio);
-  else if(nread == 0)
+  അല്ലെങ്കിൽ എങ്കിൽ(nread == 0)
     connssl->peer_closed = TRUE;
-  return result ? -1 : (int)nread;
+  തിരികെ result ? -1 : (പൂർണ്ണസംഖ്യ)nread;
 }
 
-static WOLFSSL_BIO_METHOD *wssl_bio_cf_method = NULL;
+സ്ഥിതം WOLFSSL_BIO_METHOD *wssl_bio_cf_method = ശൂന്യ;
 
-static int wssl_bio_cf_init_methods(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_bio_cf_init_methods(ശൂന്യം)
 {
   wssl_bio_cf_method = wolfSSL_BIO_meth_new(WOLFSSL_BIO_MEMORY,
                                             "wolfSSL CF BIO");
-  if(!wssl_bio_cf_method)
-    return FALSE; /* error */
+  എങ്കിൽ(!wssl_bio_cf_method)
+    തിരികെ FALSE; /* error */
   wolfSSL_BIO_meth_set_write(wssl_bio_cf_method, &wssl_bio_cf_out_write);
   wolfSSL_BIO_meth_set_read(wssl_bio_cf_method, &wssl_bio_cf_in_read);
   wolfSSL_BIO_meth_set_ctrl(wssl_bio_cf_method, &wssl_bio_cf_ctrl);
   wolfSSL_BIO_meth_set_create(wssl_bio_cf_method, &wssl_bio_cf_create);
-  return TRUE; /* fine */
+  തിരികെ TRUE; /* fine */
 }
 
-static void wssl_bio_cf_free_methods(void)
+സ്ഥിതം ശൂന്യം wssl_bio_cf_free_methods(ശൂന്യം)
 {
   wolfSSL_BIO_meth_free(wssl_bio_cf_method);
-  wssl_bio_cf_method = NULL;
+  wssl_bio_cf_method = ശൂന്യ;
 }
 
-#else /* USE_BIO_CHAIN */
+#അല്ലെങ്കിൽ /* USE_BIO_CHAIN */
 
 #define wssl_bio_cf_init_methods() TRUE
 #define wssl_bio_cf_free_methods() Curl_nop_stmt
@@ -383,52 +383,52 @@ static void wssl_bio_cf_free_methods(void)
 #endif /* !USE_BIO_CHAIN */
 
 #ifdef HAVE_EX_DATA
-CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_wssl_cache_session(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
                                  WOLFSSL_SESSION *session,
-                                 int ietf_tls_id,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+                                 പൂർണ്ണസംഖ്യ ietf_tls_id,
+                                 സ്ഥിരം അക്ഷരം *alpn,
+                                 unsigned അക്ഷരം *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **pscs)
+                                 ഘടന Curl_ssl_session **pscs)
 {
   CURLcode result = CURLE_OK;
-  struct Curl_ssl_session *sc_session = NULL, *sc_dup = NULL;
-  unsigned char *sdata = NULL, *sdata_ptr, *qtp_clone = NULL;
-  unsigned int sdata_len;
-  unsigned int earlydata_max = 0;
+  ഘടന Curl_ssl_session *sc_session = ശൂന്യ, *sc_dup = ശൂന്യ;
+  unsigned അക്ഷരം *sdata = ശൂന്യ, *sdata_ptr, *qtp_clone = ശൂന്യ;
+  unsigned പൂർണ്ണസംഖ്യ sdata_len;
+  unsigned പൂർണ്ണസംഖ്യ earlydata_max = 0;
 
-  if(pscs)
-    *pscs = NULL;
-  if(!session)
-    goto out;
+  എങ്കിൽ(pscs)
+    *pscs = ശൂന്യ;
+  എങ്കിൽ(!session)
+    പോകുക out;
 
-  sdata_len = wolfSSL_i2d_SSL_SESSION(session, NULL);
-  if(sdata_len <= 0) {
+  sdata_len = wolfSSL_i2d_SSL_SESSION(session, ശൂന്യ);
+  എങ്കിൽ(sdata_len <= 0) {
     CURL_TRC_CF(data, cf, "fail to assess session length: %u", sdata_len);
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
   sdata = sdata_ptr = curlx_calloc(1, sdata_len);
-  if(!sdata) {
+  എങ്കിൽ(!sdata) {
     failf(data, "unable to allocate session buffer of %u bytes", sdata_len);
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
   /* wolfSSL right now does not change the last parameter here, but it
    * might one day decide to do so for OpenSSL compatibility. */
   sdata_len = wolfSSL_i2d_SSL_SESSION(session, &sdata_ptr);
-  if(sdata_len <= 0) {
+  എങ്കിൽ(sdata_len <= 0) {
     CURL_TRC_CF(data, cf, "fail to serialize session: %u", sdata_len);
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
-  if(quic_tp && quic_tp_len) {
-    qtp_clone = curlx_memdup0((const char *)quic_tp, quic_tp_len);
-    if(!qtp_clone) {
+  എങ്കിൽ(quic_tp && quic_tp_len) {
+    qtp_clone = curlx_memdup0((സ്ഥിരം അക്ഷരം *)quic_tp, quic_tp_len);
+    എങ്കിൽ(!qtp_clone) {
       curlx_free(sdata);
-      return CURLE_OUT_OF_MEMORY;
+      തിരികെ CURLE_OUT_OF_MEMORY;
     }
   }
 #ifdef WOLFSSL_EARLY_DATA
@@ -437,168 +437,168 @@ CURLcode Curl_wssl_cache_session(struct Curl_cfilter *cf,
 
   result = Curl_ssl_session_create2(sdata, sdata_len,
                                     ietf_tls_id, alpn,
-                                    (curl_off_t)time(NULL) +
+                                    (curl_off_t)time(ശൂന്യ) +
                                     wolfSSL_SESSION_get_timeout(session),
                                     earlydata_max, qtp_clone, quic_tp_len,
                                     &sc_session);
-  sdata = NULL;  /* took ownership of sdata */
-  if(!result && pscs &&  /* return a duplicate if asked for and FTP */
+  sdata = ശൂന്യ;  /* took ownership of sdata */
+  എങ്കിൽ(!result && pscs &&  /* return a duplicate if asked for and FTP */
      (cf->conn->scheme->family == CURLPROTO_FTP))
     result = Curl_ssl_session_dup(sc_session, &sc_dup);
-  if(!result) {
-    result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+  എങ്കിൽ(!result) {
+    result = Curl_ssl_scache_put(cf, data, ssl_peer_താക്കോൽ, sc_session);
     /* took ownership of `sc_session` */
-    sc_session = NULL;
+    sc_session = ശൂന്യ;
   }
 
 out:
   curlx_free(sdata);
-  if(!result && pscs) {
+  എങ്കിൽ(!result && pscs) {
     *pscs = sc_dup;
-    sc_dup = NULL;
+    sc_dup = ശൂന്യ;
   }
   Curl_ssl_session_destroy(sc_session);
   Curl_ssl_session_destroy(sc_dup);
-  return result;
+  തിരികെ result;
 }
 
-static int wssl_vtls_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_vtls_new_session_cb(WOLFSSL *ssl, WOLFSSL_SESSION *session)
 {
-  struct Curl_cfilter *cf;
+  ഘടന Curl_cfilter *cf;
 
-  cf = (struct Curl_cfilter *)wolfSSL_get_app_data(ssl);
+  cf = (ഘടന Curl_cfilter *)wolfSSL_get_app_data(ssl);
   DEBUGASSERT(cf);
-  if(cf && session) {
-    struct ssl_connect_data *connssl = cf->ctx;
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
-    struct Curl_ssl_session *scs = NULL;
+  എങ്കിൽ(cf && session) {
+    ഘടന ssl_connect_data *connssl = cf->ctx;
+    ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
+    ഘടന Curl_ssl_session *scs = ശൂന്യ;
     DEBUGASSERT(connssl);
     DEBUGASSERT(data);
-    if(connssl && data) {
-      (void)Curl_wssl_cache_session(cf, data, connssl->peer.scache_key,
+    എങ്കിൽ(connssl && data) {
+      (ശൂന്യം)Curl_wssl_cache_session(cf, data, connssl->peer.scache_താക്കോൽ,
                                     session, wolfSSL_version(ssl),
-                                    connssl->negotiated.alpn, NULL, 0, &scs);
-      if(scs) {
+                                    connssl->negotiated.alpn, ശൂന്യ, 0, &scs);
+      എങ്കിൽ(scs) {
         Curl_ssl_session_destroy(connssl->session);
         connssl->session = scs;
       }
     }
   }
-  return 0;
+  തിരികെ 0;
 }
 #endif
 
-static CURLcode wssl_on_session_reuse(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct alpn_spec *alpns,
-                                      struct Curl_ssl_session *scs,
+സ്ഥിതം CURLcode wssl_on_session_reuse(ഘടന Curl_cfilter *cf,
+                                      ഘടന Curl_easy *data,
+                                      ഘടന alpn_spec *alpns,
+                                      ഘടന Curl_ssl_session *scs,
                                       bool *do_early_data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
 #ifdef WOLFSSL_EARLY_DATA
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
 
   connssl->earlydata_max = wolfSSL_SESSION_get_max_early_data(
     wolfSSL_get_session(wssl->ssl));
-#else
+#അല്ലെങ്കിൽ
   connssl->earlydata_max = 0;
 #endif
 
   /* Seems to be no wolfSSL way to signal no EarlyData in session */
-  return Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
+  തിരികെ Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
                                connssl->earlydata_max);
 }
 
-static bool wssl_apply_session(
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct wssl_ctx *wss,
-  struct alpn_spec *alpns,
+സ്ഥിതം bool wssl_apply_session(
+  ഘടന Curl_cfilter *cf,
+  ഘടന Curl_easy *data,
+  ഘടന wssl_ctx *wss,
+  ഘടന alpn_spec *alpns,
   Curl_wssl_init_session_reuse_cb *sess_reuse_cb,
-  struct Curl_ssl_session *scs)
+  ഘടന Curl_ssl_session *scs)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
-  WOLFSSL_SESSION *session = NULL;
+  WOLFSSL_SESSION *session = ശൂന്യ;
   bool success = FALSE;
 
-  if(scs && scs->sdata && scs->sdata_len &&
+  എങ്കിൽ(scs && scs->sdata && scs->sdata_len &&
      (!scs->alpn || Curl_alpn_contains_proto(alpns, scs->alpn))) {
     /* wolfSSL changes the passed pointer for whatever reasons, yikes */
-    const unsigned char *sdata = scs->sdata;
-    session = wolfSSL_d2i_SSL_SESSION(NULL, &sdata, (long)scs->sdata_len);
-    if(session) {
-      int ret = wolfSSL_set_session(wss->ssl, session);
-      if(ret != WOLFSSL_SUCCESS) {
+    സ്ഥിരം unsigned അക്ഷരം *sdata = scs->sdata;
+    session = wolfSSL_d2i_SSL_SESSION(ശൂന്യ, &sdata, (long)scs->sdata_len);
+    എങ്കിൽ(session) {
+      പൂർണ്ണസംഖ്യ ret = wolfSSL_set_session(wss->ssl, session);
+      എങ്കിൽ(ret != WOLFSSL_SUCCESS) {
         infof(data, "cached session not accepted (%d), "
               "removing from cache", ret);
-        goto out;
+        പോകുക out;
       }
-      else {
+      അല്ലെങ്കിൽ {
         infof(data, "SSL reusing session with ALPN '%s'",
               scs->alpn ? scs->alpn : "-");
         success = TRUE;
-        if(conn_config->earlydata &&
+        എങ്കിൽ(conn_config->earlydata &&
            !cf->conn->bits.connect_only &&
            !strcmp("TLSv1.3", wolfSSL_get_version(wss->ssl))) {
           bool do_early_data = FALSE;
-          if(sess_reuse_cb) {
+          എങ്കിൽ(sess_reuse_cb) {
             result = sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
-            if(result) {
-              goto out;
+            എങ്കിൽ(result) {
+              പോകുക out;
             }
           }
 #ifdef WOLFSSL_EARLY_DATA
-          if(do_early_data) {
-            unsigned int edmax = (scs->earlydata_max < UINT_MAX) ?
-              (unsigned int)scs->earlydata_max : UINT_MAX;
+          എങ്കിൽ(do_early_data) {
+            unsigned പൂർണ്ണസംഖ്യ edmax = (scs->earlydata_max < UINT_MAX) ?
+              (unsigned പൂർണ്ണസംഖ്യ)scs->earlydata_max : UINT_MAX;
             /* We only try the ALPN protocol the session used before,
              * otherwise we might send early data for the wrong protocol */
             Curl_alpn_restrict_to(alpns, scs->alpn);
             wolfSSL_set_max_early_data(wss->ssl, edmax);
           }
-#else
+#അല്ലെങ്കിൽ
           /* Should never enable when not supported */
           DEBUGASSERT(!do_early_data);
 #endif
         }
       }
     }
-    else {
+    അല്ലെങ്കിൽ {
       failf(data, "could not decode previous session");
     }
   }
 out:
   wolfSSL_SESSION_free(session);
-  return success;
+  തിരികെ success;
 }
 
-static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
+സ്ഥിതം CURLcode wssl_populate_x509_store(ഘടന Curl_cfilter *cf,
+                                         ഘടന Curl_easy *data,
                                          WOLFSSL_X509_STORE *store,
-                                         struct wssl_ctx *wssl)
+                                         ഘടന wssl_ctx *wssl)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  const struct curl_blob *ca_info_blob = conn_config->ca_info_blob;
-  const char * const ssl_cafile =
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  സ്ഥിരം ഘടന curl_blob *ca_info_blob = conn_config->ca_info_blob;
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം ssl_cafile =
     /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-    (ca_info_blob ? NULL : conn_config->CAfile);
-  const char * const ssl_capath = conn_config->CApath;
+    (ca_info_blob ? ശൂന്യ : conn_config->CAfile);
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം ssl_capath = conn_config->CApath;
   bool imported_native_ca = FALSE;
   bool imported_ca_info_blob = FALSE;
 
 #ifndef NO_FILESYSTEM
   /* load native CA certificates */
-  if(conn_config->native_ca_store) {
+  എങ്കിൽ(conn_config->native_ca_store) {
 #ifdef WOLFSSL_SYS_CA_CERTS
-    if(wolfSSL_CTX_load_system_CA_certs(wssl->ssl_ctx) != WOLFSSL_SUCCESS) {
+    എങ്കിൽ(wolfSSL_CTX_load_system_CA_certs(wssl->ssl_ctx) != WOLFSSL_SUCCESS) {
       infof(data, "error importing native CA store, continuing anyway");
     }
-    else {
+    അല്ലെങ്കിൽ {
       imported_native_ca = TRUE;
       infof(data, "successfully imported native CA store");
     }
-#else
+#അല്ലെങ്കിൽ
     infof(data, "ignoring native CA option because wolfSSL was built without "
                 "native CA support");
 #endif
@@ -606,15 +606,15 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
 #endif /* !NO_FILESYSTEM */
 
   /* load certificate blob */
-  if(ca_info_blob) {
-    if(wolfSSL_CTX_load_verify_buffer(wssl->ssl_ctx, ca_info_blob->data,
+  എങ്കിൽ(ca_info_blob) {
+    എങ്കിൽ(wolfSSL_CTX_load_verify_buffer(wssl->ssl_ctx, ca_info_blob->data,
                                       (long)ca_info_blob->len,
                                       WOLFSSL_FILETYPE_PEM) !=
        WOLFSSL_SUCCESS) {
       failf(data, "error importing CA certificate blob");
-      return CURLE_SSL_CACERT_BADFILE;
+      തിരികെ CURLE_SSL_CACERT_BADFILE;
     }
-    else {
+    അല്ലെങ്കിൽ {
       imported_ca_info_blob = TRUE;
       infof(data, "successfully imported CA certificate blob");
     }
@@ -625,33 +625,33 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
 
   CURL_TRC_CF(data, cf, "wssl_populate_x509_store, path=%s, blob=%d",
               ssl_cafile ? ssl_cafile : "none", !!ca_info_blob);
-  if(!store)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!store)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  if(ssl_cafile || ssl_capath) {
-    int rc =
+  എങ്കിൽ(ssl_cafile || ssl_capath) {
+    പൂർണ്ണസംഖ്യ rc =
       wolfSSL_CTX_load_verify_locations_ex(wssl->ssl_ctx,
                                            ssl_cafile,
                                            ssl_capath,
                                            WOLFSSL_LOAD_FLAG_IGNORE_ERR);
-    if(rc != WOLFSSL_SUCCESS) {
-      if(conn_config->verifypeer &&
+    എങ്കിൽ(rc != WOLFSSL_SUCCESS) {
+      എങ്കിൽ(conn_config->verifypeer &&
          !imported_native_ca && !imported_ca_info_blob) {
         /* Fail if we insist on successfully verifying the server. */
         failf(data, "error setting certificate verify locations:"
               " CAfile: %s CApath: %s",
               ssl_cafile ? ssl_cafile : "none",
               ssl_capath ? ssl_capath : "none");
-        return CURLE_SSL_CACERT_BADFILE;
+        തിരികെ CURLE_SSL_CACERT_BADFILE;
       }
-      else {
+      അല്ലെങ്കിൽ {
         /* continue with a warning if no strict certificate
            verification is required. */
         infof(data, "error setting certificate verify locations,"
                     " continuing anyway:");
       }
     }
-    else {
+    അല്ലെങ്കിൽ {
       /* Everything is fine. */
       infof(data, "successfully set certificate verify locations:");
     }
@@ -659,115 +659,115 @@ static CURLcode wssl_populate_x509_store(struct Curl_cfilter *cf,
     infof(data, " CApath: %s", ssl_capath ? ssl_capath : "none");
   }
 #endif
-  (void)store;
-  return CURLE_OK;
+  (ശൂന്യം)store;
+  തിരികെ CURLE_OK;
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_WSSL_X509_KEY   "tls:wssl:x509:share"
+#define MPROTO_WSSL_X509_താക്കോൽ   "tls:wssl:x509:share"
 
-struct wssl_x509_share {
-  char *CAfile;              /* CAfile path used to generate X509 store */
+ഘടന wssl_x509_share {
+  അക്ഷരം *CAfile;              /* CAfile path used to generate X509 store */
   WOLFSSL_X509_STORE *store; /* cached X509 store or NULL if none */
-  struct curltime time;      /* when the cached store was created */
+  ഘടന curltime time;      /* when the cached store was created */
 };
 
-static void wssl_x509_share_free(const void *key, size_t key_len, void *p)
+സ്ഥിതം ശൂന്യം wssl_x509_share_free(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_len, ശൂന്യം *p)
 {
-  struct wssl_x509_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_WSSL_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_WSSL_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
-  if(share->store) {
+  ഘടന wssl_x509_share *share = p;
+  DEBUGASSERT(താക്കോൽ_len == CURL_CSTRLEN(MPROTO_WSSL_X509_താക്കോൽ));
+  DEBUGASSERT(!memcmp(MPROTO_WSSL_X509_താക്കോൽ, താക്കോൽ, താക്കോൽ_len));
+  (ശൂന്യം)താക്കോൽ;
+  (ശൂന്യം)താക്കോൽ_len;
+  എങ്കിൽ(share->store) {
     wolfSSL_X509_STORE_free(share->store);
   }
   curlx_free(share->CAfile);
   curlx_free(share);
 }
 
-static bool wssl_cached_x509_store_expired(struct Curl_easy *data,
-                                           const struct wssl_x509_share *mb)
+സ്ഥിതം bool wssl_cached_x509_store_expired(ഘടന Curl_easy *data,
+                                           സ്ഥിരം ഘടന wssl_x509_share *mb)
 {
   timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &mb->time);
   timediff_t timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
 
-  if(timeout_ms < 0)
-    return FALSE;
+  എങ്കിൽ(timeout_ms < 0)
+    തിരികെ FALSE;
 
-  return elapsed_ms >= timeout_ms;
+  തിരികെ elapsed_ms >= timeout_ms;
 }
 
-static bool wssl_cached_x509_store_different(struct Curl_cfilter *cf,
-                                             const struct wssl_x509_share *mb)
+സ്ഥിതം bool wssl_cached_x509_store_different(ഘടന Curl_cfilter *cf,
+                                             സ്ഥിരം ഘടന wssl_x509_share *mb)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!mb->CAfile || !conn_config->CAfile)
-    return mb->CAfile != conn_config->CAfile;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  എങ്കിൽ(!mb->CAfile || !conn_config->CAfile)
+    തിരികെ mb->CAfile != conn_config->CAfile;
 
-  return strcmp(mb->CAfile, conn_config->CAfile);
+  തിരികെ strcmp(mb->CAfile, conn_config->CAfile);
 }
 
-static WOLFSSL_X509_STORE *wssl_get_cached_x509_store(struct Curl_cfilter *cf,
-                                                      struct Curl_easy *data)
+സ്ഥിതം WOLFSSL_X509_STORE *wssl_get_cached_x509_store(ഘടന Curl_cfilter *cf,
+                                                      ഘടന Curl_easy *data)
 {
-  struct Curl_multi *multi = data->multi;
-  struct wssl_x509_share *share;
-  WOLFSSL_X509_STORE *store = NULL;
+  ഘടന Curl_multi *multi = data->multi;
+  ഘടന wssl_x509_share *share;
+  WOLFSSL_X509_STORE *store = ശൂന്യ;
 
   DEBUGASSERT(multi);
   share = multi ? Curl_hash_pick(&multi->proto_hash,
-                                 MPROTO_WSSL_X509_KEY,
-                                 CURL_CSTRLEN(MPROTO_WSSL_X509_KEY)) : NULL;
-  if(share && share->store &&
+                                 MPROTO_WSSL_X509_താക്കോൽ,
+                                 CURL_CSTRLEN(MPROTO_WSSL_X509_താക്കോൽ)) : ശൂന്യ;
+  എങ്കിൽ(share && share->store &&
      !wssl_cached_x509_store_expired(data, share) &&
      !wssl_cached_x509_store_different(cf, share)) {
     store = share->store;
   }
 
-  return store;
+  തിരികെ store;
 }
 
-static void wssl_set_cached_x509_store(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+സ്ഥിതം ശൂന്യം wssl_set_cached_x509_store(ഘടന Curl_cfilter *cf,
+                                       ഘടന Curl_easy *data,
                                        WOLFSSL_X509_STORE *store)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_multi *multi = data->multi;
-  struct wssl_x509_share *share;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_multi *multi = data->multi;
+  ഘടന wssl_x509_share *share;
 
   DEBUGASSERT(multi);
-  if(!multi)
-    return;
+  എങ്കിൽ(!multi)
+    തിരികെ;
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_WSSL_X509_KEY,
-                         CURL_CSTRLEN(MPROTO_WSSL_X509_KEY));
+                         MPROTO_WSSL_X509_താക്കോൽ,
+                         CURL_CSTRLEN(MPROTO_WSSL_X509_താക്കോൽ));
 
-  if(!share) {
-    share = curlx_calloc(1, sizeof(*share));
-    if(!share)
-      return;
-    if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_WSSL_X509_KEY,
-                       CURL_CSTRLEN(MPROTO_WSSL_X509_KEY),
+  എങ്കിൽ(!share) {
+    share = curlx_calloc(1, വലുപ്പം(*share));
+    എങ്കിൽ(!share)
+      തിരികെ;
+    എങ്കിൽ(!Curl_hash_add2(&multi->proto_hash,
+                       MPROTO_WSSL_X509_താക്കോൽ,
+                       CURL_CSTRLEN(MPROTO_WSSL_X509_താക്കോൽ),
                        share, wssl_x509_share_free)) {
       curlx_free(share);
-      return;
+      തിരികെ;
     }
   }
 
-  if(wolfSSL_X509_STORE_up_ref(store)) {
-    char *CAfile = NULL;
+  എങ്കിൽ(wolfSSL_X509_STORE_up_ref(store)) {
+    അക്ഷരം *CAfile = ശൂന്യ;
 
-    if(conn_config->CAfile) {
+    എങ്കിൽ(conn_config->CAfile) {
       CAfile = curlx_strdup(conn_config->CAfile);
-      if(!CAfile) {
+      എങ്കിൽ(!CAfile) {
         wolfSSL_X509_STORE_free(store);
-        return;
+        തിരികെ;
       }
     }
 
-    if(share->store) {
+    എങ്കിൽ(share->store) {
       wolfSSL_X509_STORE_free(share->store);
       curlx_free(share->CAfile);
     }
@@ -778,11 +778,11 @@ static void wssl_set_cached_x509_store(struct Curl_cfilter *cf,
   }
 }
 
-CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct wssl_ctx *wssl)
+CURLcode Curl_wssl_setup_x509_store(ഘടന Curl_cfilter *cf,
+                                    ഘടന Curl_easy *data,
+                                    ഘടന wssl_ctx *wssl)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
   WOLFSSL_X509_STORE *cached_store;
   bool cache_criteria_met;
@@ -801,324 +801,324 @@ CURLcode Curl_wssl_setup_x509_store(struct Curl_cfilter *cf,
     !conn_config->native_ca_store;
 
   cached_store = cache_criteria_met ? wssl_get_cached_x509_store(cf, data)
-                                    : NULL;
-  if(cached_store &&
+                                    : ശൂന്യ;
+  എങ്കിൽ(cached_store &&
      wolfSSL_CTX_get_cert_store(wssl->ssl_ctx) == cached_store) {
     /* The cached store is already in use, do nothing. */
   }
-  else if(cached_store && wolfSSL_X509_STORE_up_ref(cached_store)) {
+  അല്ലെങ്കിൽ എങ്കിൽ(cached_store && wolfSSL_X509_STORE_up_ref(cached_store)) {
     wolfSSL_CTX_set_cert_store(wssl->ssl_ctx, cached_store);
   }
-  else if(cache_criteria_met) {
+  അല്ലെങ്കിൽ എങ്കിൽ(cache_criteria_met) {
     /* wolfSSL's initial store in CTX is not shareable by default.
      * Make a new one, suitable for adding to the cache. See #14278 */
     WOLFSSL_X509_STORE *store = wolfSSL_X509_STORE_new();
-    if(!store) {
+    എങ്കിൽ(!store) {
       failf(data, "SSL: could not create a X509 store");
-      return CURLE_OUT_OF_MEMORY;
+      തിരികെ CURLE_OUT_OF_MEMORY;
     }
     wolfSSL_CTX_set_cert_store(wssl->ssl_ctx, store);
 
     result = wssl_populate_x509_store(cf, data, store, wssl);
-    if(!result) {
+    എങ്കിൽ(!result) {
       wssl_set_cached_x509_store(cf, data, store);
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* We never share the CTX's store, use it. */
     WOLFSSL_X509_STORE *store = wolfSSL_CTX_get_cert_store(wssl->ssl_ctx);
     result = wssl_populate_x509_store(cf, data, store, wssl);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 #ifdef WOLFSSL_TLS13
-static CURLcode wssl_add_default_ciphers(bool tls13, struct dynbuf *buf)
+സ്ഥിതം CURLcode wssl_add_default_ciphers(bool tls13, ഘടന dynbuf *buf)
 {
-  int i;
-  char *str;
+  പൂർണ്ണസംഖ്യ i;
+  അക്ഷരം *str;
 
-  for(i = 0; (str = wolfSSL_get_cipher_list(i)) != NULL; i++) {
+  വേണ്ടി(i = 0; (str = wolfSSL_get_cipher_list(i)) != ശൂന്യ; i++) {
     size_t n;
-    if((!strncmp(str, "TLS13", 5)) != tls13)
-      continue;
+    എങ്കിൽ((!strncmp(str, "TLS13", 5)) != tls13)
+      തുടരുക;
 
     /* if there already is data in the string, add colon separator */
-    if(curlx_dyn_len(buf)) {
+    എങ്കിൽ(curlx_dyn_len(buf)) {
       CURLcode result = curlx_dyn_addn(buf, ":", 1);
-      if(result)
-        return result;
+      എങ്കിൽ(result)
+        തിരികെ result;
     }
 
     n = strlen(str);
-    if(curlx_dyn_addn(buf, str, n))
-      return CURLE_OUT_OF_MEMORY;
+    എങ്കിൽ(curlx_dyn_addn(buf, str, n))
+      തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 #endif
 
 #ifndef OPENSSL_EXTRA
-static int wssl_legacy_CTX_set_min_proto_version(WOLFSSL_CTX *ctx, int version)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_legacy_CTX_set_min_proto_version(WOLFSSL_CTX *ctx, പൂർണ്ണസംഖ്യ version)
 {
-  int res;
-  switch(version) {
-  default:
-  case TLS1_VERSION:
+  പൂർണ്ണസംഖ്യ res;
+  തിരഞ്ഞെടുപ്പ്(version) {
+  സ്ഥിരസ്ഥിതി:
+  അവസ്ഥ TLS1_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1);
-    if(res == WOLFSSL_SUCCESS)
-      return res;
+    എങ്കിൽ(res == WOLFSSL_SUCCESS)
+      തിരികെ res;
     FALLTHROUGH();
-  case TLS1_1_VERSION:
+  അവസ്ഥ TLS1_1_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1_1);
-    if(res == WOLFSSL_SUCCESS)
-      return res;
+    എങ്കിൽ(res == WOLFSSL_SUCCESS)
+      തിരികെ res;
     FALLTHROUGH();
-  case TLS1_2_VERSION:
+  അവസ്ഥ TLS1_2_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1_2);
 #ifdef WOLFSSL_TLS13
-    if(res == WOLFSSL_SUCCESS)
-      return res;
+    എങ്കിൽ(res == WOLFSSL_SUCCESS)
+      തിരികെ res;
     FALLTHROUGH();
-  case TLS1_3_VERSION:
+  അവസ്ഥ TLS1_3_VERSION:
     res = wolfSSL_CTX_SetMinVersion(ctx, WOLFSSL_TLSV1_3);
 #endif
   }
-  return res;
+  തിരികെ res;
 }
 
-static int wssl_legacy_CTX_set_max_proto_version(WOLFSSL_CTX *ctx, int version)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_legacy_CTX_set_max_proto_version(WOLFSSL_CTX *ctx, പൂർണ്ണസംഖ്യ version)
 {
-  (void)ctx, (void)version;
-  return WOLFSSL_NOT_IMPLEMENTED;
+  (ശൂന്യം)ctx, (ശൂന്യം)version;
+  തിരികെ WOLFSSL_NOT_IMPLEMENTED;
 }
 #define wolfSSL_CTX_set_min_proto_version wssl_legacy_CTX_set_min_proto_version
 #define wolfSSL_CTX_set_max_proto_version wssl_legacy_CTX_set_max_proto_version
 #endif /* OPENSSL_EXTRA */
 
-static CURLcode wssl_client_cert(struct Curl_easy *data,
-                                 struct ssl_filter_config *conn_config,
-                                 struct wssl_ctx *wctx)
+സ്ഥിതം CURLcode wssl_client_cert(ഘടന Curl_easy *data,
+                                 ഘടന ssl_filter_config *conn_config,
+                                 ഘടന wssl_ctx *wctx)
 {
   /* Load the client certificate, and private key */
 #ifndef NO_FILESYSTEM
-  if(conn_config->cert_blob || conn_config->clientcert) {
-    const char *cert_file = conn_config->clientcert;
-    const char *key_file = conn_config->key;
-    const struct curl_blob *cert_blob = conn_config->cert_blob;
-    const struct curl_blob *key_blob = conn_config->key_blob;
-    int file_type = wssl_do_file_type(conn_config->cert_type);
-    int rc;
+  എങ്കിൽ(conn_config->cert_blob || conn_config->clientcert) {
+    സ്ഥിരം അക്ഷരം *cert_file = conn_config->clientcert;
+    സ്ഥിരം അക്ഷരം *താക്കോൽ_file = conn_config->താക്കോൽ;
+    സ്ഥിരം ഘടന curl_blob *cert_blob = conn_config->cert_blob;
+    സ്ഥിരം ഘടന curl_blob *താക്കോൽ_blob = conn_config->താക്കോൽ_blob;
+    പൂർണ്ണസംഖ്യ file_type = wssl_do_file_type(conn_config->cert_type);
+    പൂർണ്ണസംഖ്യ rc;
 
-    switch(file_type) {
-    case WOLFSSL_FILETYPE_PEM:
+    തിരഞ്ഞെടുപ്പ്(file_type) {
+    അവസ്ഥ WOLFSSL_FILETYPE_PEM:
       rc = cert_blob ?
         wolfSSL_CTX_use_certificate_chain_buffer(wctx->ssl_ctx,
                                                  cert_blob->data,
                                                  (long)cert_blob->len) :
         wolfSSL_CTX_use_certificate_chain_file(wctx->ssl_ctx, cert_file);
-      break;
-    case WOLFSSL_FILETYPE_ASN1:
+      നിർത്തുക;
+    അവസ്ഥ WOLFSSL_FILETYPE_ASN1:
       rc = cert_blob ?
         wolfSSL_CTX_use_certificate_buffer(wctx->ssl_ctx, cert_blob->data,
                                            (long)cert_blob->len, file_type) :
         wolfSSL_CTX_use_certificate_file(wctx->ssl_ctx, cert_file, file_type);
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       failf(data, "unknown cert type");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(rc != 1) {
+    എങ്കിൽ(rc != 1) {
       failf(data, "unable to use client certificate");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(!key_blob && !key_file) {
-      key_blob = cert_blob;
-      key_file = cert_file;
+    എങ്കിൽ(!താക്കോൽ_blob && !താക്കോൽ_file) {
+      താക്കോൽ_blob = cert_blob;
+      താക്കോൽ_file = cert_file;
     }
-    else
-      file_type = wssl_do_file_type(conn_config->key_type);
+    അല്ലെങ്കിൽ
+      file_type = wssl_do_file_type(conn_config->താക്കോൽ_type);
 
-    rc = key_blob ?
-      wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
-                                        (long)key_blob->len, file_type) :
-      wolfSSL_CTX_use_PrivateKey_file(wctx->ssl_ctx, key_file, file_type);
-    if(rc != 1) {
+    rc = താക്കോൽ_blob ?
+      wolf_SSL_CTX_use_Private_താക്കോൽ_buffer(wctx->ssl_ctx, താക്കോൽ_blob->data,
+                                        (long)താക്കോൽ_blob->len, file_type) :
+      wolf_SSL_CTX_use_Private_താക്കോൽ_file(wctx->ssl_ctx, താക്കോൽ_file, file_type);
+    എങ്കിൽ(rc != 1) {
       failf(data, "unable to set private key");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
-#else /* NO_FILESYSTEM */
-  if(conn_config->cert_blob) {
-    const struct curl_blob *cert_blob = conn_config->cert_blob;
-    const struct curl_blob *key_blob = conn_config->key_blob;
-    int file_type = wssl_do_file_type(conn_config->cert_type);
-    int rc;
+#അല്ലെങ്കിൽ /* NO_FILESYSTEM */
+  എങ്കിൽ(conn_config->cert_blob) {
+    സ്ഥിരം ഘടന curl_blob *cert_blob = conn_config->cert_blob;
+    സ്ഥിരം ഘടന curl_blob *താക്കോൽ_blob = conn_config->താക്കോൽ_blob;
+    പൂർണ്ണസംഖ്യ file_type = wssl_do_file_type(conn_config->cert_type);
+    പൂർണ്ണസംഖ്യ rc;
 
-    switch(file_type) {
-    case WOLFSSL_FILETYPE_PEM:
+    തിരഞ്ഞെടുപ്പ്(file_type) {
+    അവസ്ഥ WOLFSSL_FILETYPE_PEM:
       rc = wolfSSL_CTX_use_certificate_chain_buffer(wctx->ssl_ctx,
                                                     cert_blob->data,
                                                     (long)cert_blob->len);
-      break;
-    case WOLFSSL_FILETYPE_ASN1:
+      നിർത്തുക;
+    അവസ്ഥ WOLFSSL_FILETYPE_ASN1:
       rc = wolfSSL_CTX_use_certificate_buffer(wctx->ssl_ctx, cert_blob->data,
                                               (long)cert_blob->len, file_type);
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       failf(data, "unknown cert type");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
     }
-    if(rc != 1) {
+    എങ്കിൽ(rc != 1) {
       failf(data, "unable to use client certificate");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
 
-    if(!key_blob)
-      key_blob = cert_blob;
-    else
-      file_type = wssl_do_file_type(conn_config->key_type);
+    എങ്കിൽ(!താക്കോൽ_blob)
+      താക്കോൽ_blob = cert_blob;
+    അല്ലെങ്കിൽ
+      file_type = wssl_do_file_type(conn_config->താക്കോൽ_type);
 
-    if(wolfSSL_CTX_use_PrivateKey_buffer(wctx->ssl_ctx, key_blob->data,
-                                         (long)key_blob->len,
+    എങ്കിൽ(wolf_SSL_CTX_use_Private_താക്കോൽ_buffer(wctx->ssl_ctx, താക്കോൽ_blob->data,
+                                         (long)താക്കോൽ_blob->len,
                                          file_type) != 1) {
       failf(data, "unable to set private key");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 #endif /* !NO_FILESYSTEM */
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode ssl_version(struct Curl_easy *data,
-                            struct ssl_filter_config *conn_config,
-                            struct wssl_ctx *wctx,
-                            int *min_version, int *max_version)
+സ്ഥിതം CURLcode ssl_version(ഘടന Curl_easy *data,
+                            ഘടന ssl_filter_config *conn_config,
+                            ഘടന wssl_ctx *wctx,
+                            പൂർണ്ണസംഖ്യ *min_version, പൂർണ്ണസംഖ്യ *max_version)
 {
-  int res;
+  പൂർണ്ണസംഖ്യ res;
   *min_version = *max_version = 0;
   DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
 
-  switch(conn_config->version) {
-  case CURL_SSLVERSION_TLSv1:
-  case CURL_SSLVERSION_TLSv1_0:
+  തിരഞ്ഞെടുപ്പ്(conn_config->version) {
+  അവസ്ഥ CURL_SSLVERSION_TLSv1:
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_0:
     *min_version = TLS1_VERSION;
-    break;
-  case CURL_SSLVERSION_TLSv1_1:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_1:
     *min_version = TLS1_1_VERSION;
-    break;
-  case CURL_SSLVERSION_TLSv1_2:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_2:
     *min_version = TLS1_2_VERSION;
-    break;
+    നിർത്തുക;
 #ifdef WOLFSSL_TLS13
-  case CURL_SSLVERSION_TLSv1_3:
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_3:
     *min_version = TLS1_3_VERSION;
-    break;
+    നിർത്തുക;
 #endif
-  default:
+  സ്ഥിരസ്ഥിതി:
     failf(data, "wolfSSL: unsupported minimum TLS version value");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
-  switch(conn_config->version_max) {
+  തിരഞ്ഞെടുപ്പ്(conn_config->version_max) {
 #ifdef WOLFSSL_TLS13
-  case CURL_SSLVERSION_MAX_TLSv1_3:
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_3:
     *max_version = TLS1_3_VERSION;
-    break;
+    നിർത്തുക;
 #endif
-  case CURL_SSLVERSION_MAX_TLSv1_2:
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_2:
     *max_version = TLS1_2_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_1:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_1:
     *max_version = TLS1_1_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_0:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_0:
     *max_version = TLS1_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_DEFAULT:
-  case CURL_SSLVERSION_MAX_NONE:
-    break;
-  default:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_DEFAULT:
+  അവസ്ഥ CURL_SSLVERSION_MAX_NONE:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     failf(data, "wolfSSL: unsupported maximum TLS version value");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
   res = wolfSSL_CTX_set_min_proto_version(wctx->ssl_ctx, *min_version);
-  if(res != WOLFSSL_SUCCESS) {
+  എങ്കിൽ(res != WOLFSSL_SUCCESS) {
     failf(data, "wolfSSL: failed set the minimum TLS version");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(*max_version) {
+  എങ്കിൽ(*max_version) {
     res = wolfSSL_CTX_set_max_proto_version(wctx->ssl_ctx, *max_version);
-    if(res != WOLFSSL_SUCCESS) {
+    എങ്കിൽ(res != WOLFSSL_SUCCESS) {
       failf(data, "wolfSSL: failed set the maximum TLS version");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #ifdef WOLFSSL_TLS13
 #define MAX_CIPHER_LEN 4096
 #endif
 
-static CURLcode wssl_init_ciphers(struct Curl_easy *data,
-                                  struct wssl_ctx *wctx,
-                                  struct ssl_filter_config *conn_config,
-                                  int tls_min, int tls_max)
+സ്ഥിതം CURLcode wssl_init_ciphers(ഘടന Curl_easy *data,
+                                  ഘടന wssl_ctx *wctx,
+                                  ഘടന ssl_filter_config *conn_config,
+                                  പൂർണ്ണസംഖ്യ tls_min, പൂർണ്ണസംഖ്യ tls_max)
 {
 #ifndef WOLFSSL_TLS13
-  const char *ciphers = conn_config->cipher_list;
-  (void)tls_min;
-  (void)tls_max;
-  if(ciphers) {
-    if(!SSL_CTX_set_cipher_list(wctx->ssl_ctx, ciphers)) {
+  സ്ഥിരം അക്ഷരം *ciphers = conn_config->cipher_list;
+  (ശൂന്യം)tls_min;
+  (ശൂന്യം)tls_max;
+  എങ്കിൽ(ciphers) {
+    എങ്കിൽ(!SSL_CTX_set_cipher_list(wctx->ssl_ctx, ciphers)) {
       failf(data, "failed setting cipher list: %s", ciphers);
-      return CURLE_SSL_CIPHER;
+      തിരികെ CURLE_SSL_CIPHER;
     }
     infof(data, "Cipher selection: %s", ciphers);
   }
-  return CURLE_OK;
-#else
+  തിരികെ CURLE_OK;
+#അല്ലെങ്കിൽ
   CURLcode result = CURLE_OK;
-  if(conn_config->cipher_list || conn_config->cipher_list13) {
-    const char *ciphers12 = conn_config->cipher_list;
-    const char *ciphers13 = conn_config->cipher_list13;
-    struct dynbuf c;
+  എങ്കിൽ(conn_config->cipher_list || conn_config->cipher_list13) {
+    സ്ഥിരം അക്ഷരം *ciphers12 = conn_config->cipher_list;
+    സ്ഥിരം അക്ഷരം *ciphers13 = conn_config->cipher_list13;
+    ഘടന dynbuf c;
     curlx_dyn_init(&c, MAX_CIPHER_LEN);
 
-    if(!tls_max || (tls_max >= TLS1_3_VERSION)) {
-      if(ciphers13)
+    എങ്കിൽ(!tls_max || (tls_max >= TLS1_3_VERSION)) {
+      എങ്കിൽ(ciphers13)
         result = curlx_dyn_add(&c, ciphers13);
-      else
+      അല്ലെങ്കിൽ
         result = wssl_add_default_ciphers(TRUE, &c);
     }
 
-    if(!result && (tls_min < TLS1_3_VERSION)) {
-      if(ciphers12) {
-        if(curlx_dyn_len(&c))
+    എങ്കിൽ(!result && (tls_min < TLS1_3_VERSION)) {
+      എങ്കിൽ(ciphers12) {
+        എങ്കിൽ(curlx_dyn_len(&c))
           result = curlx_dyn_addn(&c, ":", 1);
-        if(!result)
+        എങ്കിൽ(!result)
           result = curlx_dyn_add(&c, ciphers12);
       }
-      else
+      അല്ലെങ്കിൽ
         result = wssl_add_default_ciphers(FALSE, &c);
     }
-    if(!result) {
-      if(!wolfSSL_CTX_set_cipher_list(wctx->ssl_ctx, curlx_dyn_ptr(&c))) {
+    എങ്കിൽ(!result) {
+      എങ്കിൽ(!wolfSSL_CTX_set_cipher_list(wctx->ssl_ctx, curlx_dyn_ptr(&c))) {
         failf(data, "failed setting cipher list: %s", curlx_dyn_ptr(&c));
         result = CURLE_SSL_CIPHER;
       }
-      else
+      അല്ലെങ്കിൽ
         infof(data, "Cipher selection: %s", curlx_dyn_ptr(&c));
     }
     curlx_dyn_free(&c);
   }
-  return result;
+  തിരികെ result;
 #endif
 }
 
@@ -1128,266 +1128,266 @@ static CURLcode wssl_init_ciphers(struct Curl_easy *data,
    does not. */
 #ifdef OPENSSL_EXTRA
 #define wssl_CTX_set1_groups_list wolfSSL_CTX_set1_groups_list
-#else
+#അല്ലെങ്കിൽ
 #define wssl_CTX_set1_groups_list wolfSSL_CTX_set1_curves_list
 #endif
 
-static CURLcode wssl_init_curves(struct Curl_easy *data,
-                                 struct wssl_ctx *wctx,
-                                 struct ssl_filter_config *conn_config)
+സ്ഥിതം CURLcode wssl_init_curves(ഘടന Curl_easy *data,
+                                 ഘടന wssl_ctx *wctx,
+                                 ഘടന ssl_filter_config *conn_config)
 {
-  char *curves = conn_config->curves;
+  അക്ഷരം *curves = conn_config->curves;
   /* Without an explicit list, leave the key share group selection to
      wolfSSL's own default. */
-  if(curves && !wssl_CTX_set1_groups_list(wctx->ssl_ctx, curves)) {
+  എങ്കിൽ(curves && !wssl_CTX_set1_groups_list(wctx->ssl_ctx, curves)) {
     failf(data, "failed setting curves list: '%s'", curves);
-    return CURLE_SSL_CIPHER;
+    തിരികെ CURLE_SSL_CIPHER;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode wssl_init_ssl_handle(
-  struct wssl_ctx *wctx,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct ssl_peer *peer,
-  struct alpn_spec *alpns,
-  void *ssl_user_data,
-  unsigned char transport,
+സ്ഥിതം CURLcode wssl_init_ssl_handle(
+  ഘടന wssl_ctx *wctx,
+  ഘടന Curl_cfilter *cf,
+  ഘടന Curl_easy *data,
+  ഘടന ssl_peer *peer,
+  ഘടന alpn_spec *alpns,
+  ശൂന്യം *ssl_user_data,
+  unsigned അക്ഷരം transport,
   Curl_wssl_init_session_reuse_cb *sess_reuse_cb)
 {
-  struct Curl_ssl_session *scs = NULL;
+  ഘടന Curl_ssl_session *scs = ശൂന്യ;
   bool session_applied = FALSE;
 
   /* Let's make an SSL structure */
   wctx->ssl = wolfSSL_new(wctx->ssl_ctx);
-  if(!wctx->ssl) {
+  എങ്കിൽ(!wctx->ssl) {
     failf(data, "SSL: could not create a handle");
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
 #ifdef HAVE_EX_DATA
   wolfSSL_set_app_data(wctx->ssl, ssl_user_data);
-#else
-  (void)ssl_user_data;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)ssl_user_data;
 #endif
 #ifdef WOLFSSL_QUIC
-  if(transport == TRNSPRT_QUIC)
+  എങ്കിൽ(transport == TRNSPRT_QUIC)
     wolfSSL_set_quic_use_legacy_codepoint(wctx->ssl, 0);
-#else
-  (void)transport;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)transport;
 #endif
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  എങ്കിൽ((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
     scs = Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
+    എങ്കിൽ(scs) {
       session_applied = wssl_apply_session(cf, data, wctx, alpns,
                                            sess_reuse_cb, scs);
-      if(session_applied)
+      എങ്കിൽ(session_applied)
         CURL_TRC_CF(data, cf, "applied SSL session from control connection");
-      scs = NULL;
+      scs = ശൂന്യ;
     }
   }
 
   /* Check if there is a cached ID we can/should use here! */
-  if(!session_applied && Curl_ssl_scache_use(cf, data)) {
+  എങ്കിൽ(!session_applied && Curl_ssl_scache_use(cf, data)) {
     /* Set session from cache if there is one */
-    CURLcode result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
-    if(!result && scs) {
-      if(wssl_apply_session(cf, data, wctx, alpns, sess_reuse_cb, scs))
-        Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
-      else
+    CURLcode result = Curl_ssl_scache_take(cf, data, peer->scache_താക്കോൽ, &scs);
+    എങ്കിൽ(!result && scs) {
+      എങ്കിൽ(wssl_apply_session(cf, data, wctx, alpns, sess_reuse_cb, scs))
+        Curl_ssl_scache_return(cf, data, peer->scache_താക്കോൽ, scs);
+      അല്ലെങ്കിൽ
         Curl_ssl_session_destroy(scs);
     }
   }
 
 #ifdef HAVE_ALPN
-  if(alpns->count) {
-    struct alpn_proto_buf proto;
-    memset(&proto, 0, sizeof(proto));
+  എങ്കിൽ(alpns->എണ്ണം) {
+    ഘടന alpn_proto_buf proto;
+    memset(&proto, 0, വലുപ്പം(proto));
     Curl_alpn_to_proto_str(&proto, alpns);
 
-    if(wolfSSL_UseALPN(wctx->ssl, (char *)proto.data,
-                       (unsigned int)proto.len,
+    എങ്കിൽ(wolfSSL_UseALPN(wctx->ssl, (അക്ഷരം *)proto.data,
+                       (unsigned പൂർണ്ണസംഖ്യ)proto.len,
                        WOLFSSL_ALPN_CONTINUE_ON_MISMATCH)
        != WOLFSSL_SUCCESS) {
       failf(data, "SSL: failed setting ALPN protocols");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
     CURL_TRC_CF(data, cf, "set ALPN: %s", proto.data);
   }
 #endif /* HAVE_ALPN */
 
 #ifdef OPENSSL_EXTRA
-  if(Curl_tls_keylog_enabled()) {
+  എങ്കിൽ(Curl_tls_keylog_enabled()) {
     /* Ensure the Client Random is preserved. */
     wolfSSL_KeepArrays(wctx->ssl);
-#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
-    wolfSSL_set_tls13_secret_cb(wctx->ssl, wssl_tls13_secret_callback, NULL);
+#എങ്കിൽ defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13)
+    wolfSSL_set_tls13_secret_cb(wctx->ssl, wssl_tls13_secret_callback, ശൂന്യ);
 #endif
   }
 #endif /* OPENSSL_EXTRA */
 
 #ifdef HAVE_SECURE_RENEGOTIATION
-  if(wolfSSL_UseSecureRenegotiation(wctx->ssl) != SSL_SUCCESS) {
+  എങ്കിൽ(wolfSSL_UseSecureRenegotiation(wctx->ssl) != SSL_SUCCESS) {
     failf(data, "SSL: failed setting secure renegotiation");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 #endif /* HAVE_SECURE_RENEGOTIATION */
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
-static CURLcode wssl_init_ech(struct wssl_ctx *wctx,
-                              struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              struct ssl_peer *peer)
+സ്ഥിതം CURLcode wssl_init_ech(ഘടന wssl_ctx *wctx,
+                              ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
+                              ഘടന ssl_peer *peer)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int trying_ech_now = 0;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  പൂർണ്ണസംഖ്യ trying_ech_now = 0;
 
-  if(conn_config->ech_public) {
+  എങ്കിൽ(conn_config->ech_public) {
     infof(data, "ECH: outername not supported with wolfSSL");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
-  if(conn_config->ech == CURLECH_GREASE) {
+  എങ്കിൽ(conn_config->ech == CURLECH_GREASE) {
     infof(data, "ECH: GREASE is done by default by wolfSSL: no need to ask");
   }
-  else if(conn_config->ech && conn_config->ech_config) {
-    const char *b64val = conn_config->ech_config;
+  അല്ലെങ്കിൽ എങ്കിൽ(conn_config->ech && conn_config->ech_config) {
+    സ്ഥിരം അക്ഷരം *b64val = conn_config->ech_config;
     word32 b64len = 0;
 
     b64len = (word32)strlen(b64val);
-    if(b64len && wolfSSL_SetEchConfigsBase64(wctx->ssl, CURL_UNCONST(b64val),
+    എങ്കിൽ(b64len && wolfSSL_SetEchConfigsBase64(wctx->ssl, CURL_UNCONST(b64val),
                                              b64len) != WOLFSSL_SUCCESS) {
-      if(conn_config->ech == CURLECH_HARD)
-        return CURLE_SSL_CONNECT_ERROR;
+      എങ്കിൽ(conn_config->ech == CURLECH_HARD)
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
-    else {
+    അല്ലെങ്കിൽ {
       trying_ech_now = 1;
       infof(data, "ECH: ECHConfig from command line");
     }
   }
-  else {
-    const struct Curl_https_rrinfo *rinfo =
+  അല്ലെങ്കിൽ {
+    സ്ഥിരം ഘടന Curl_https_rrinfo *rinfo =
       Curl_conn_dns_get_https(data, cf->sockindex, peer->origin);
 
-    if(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
-      const unsigned char *ecl = rinfo->echconfiglist;
+    എങ്കിൽ(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
+      സ്ഥിരം unsigned അക്ഷരം *ecl = rinfo->echconfiglist;
       size_t elen = rinfo->echconfiglist_len;
 
       infof(data, "ECH: ECHConfig from HTTPS RR");
-      if(wolfSSL_SetEchConfigs(wctx->ssl, ecl, (word32)elen) !=
+      എങ്കിൽ(wolfSSL_SetEchConfigs(wctx->ssl, ecl, (word32)elen) !=
          WOLFSSL_SUCCESS) {
         infof(data, "ECH: wolfSSL_SetEchConfigs failed");
-        if(conn_config->ech == CURLECH_HARD) {
-          return CURLE_SSL_CONNECT_ERROR;
+        എങ്കിൽ(conn_config->ech == CURLECH_HARD) {
+          തിരികെ CURLE_SSL_CONNECT_ERROR;
         }
       }
-      else {
+      അല്ലെങ്കിൽ {
         trying_ech_now = 1;
         infof(data, "ECH: imported ECHConfigList of length %zu", elen);
       }
     }
-    else {
+    അല്ലെങ്കിൽ {
       infof(data, "ECH: requested but no ECHConfig available");
-      if(conn_config->ech == CURLECH_HARD) {
-        return CURLE_SSL_CONNECT_ERROR;
+      എങ്കിൽ(conn_config->ech == CURLECH_HARD) {
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
       }
     }
   }
 
-  if(trying_ech_now &&
+  എങ്കിൽ(trying_ech_now &&
      wolfSSL_set_min_proto_version(wctx->ssl, TLS1_3_VERSION) != 1) {
     infof(data, "ECH: cannot force TLSv1.3 [ERROR]");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 #endif /* HAVE_WOLFSSL_CTX_GENERATEECHCONFIG */
 
-CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_wssl_ctx_init(ഘടന wssl_ctx *wctx,
+                            ഘടന Curl_cfilter *cf,
+                            ഘടന Curl_easy *data,
+                            ഘടന ssl_peer *peer,
+                            സ്ഥിരം ഘടന alpn_spec *alpns_requested,
                             Curl_wssl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+                            ശൂന്യം *cb_user_data,
+                            ശൂന്യം *ssl_user_data,
                             Curl_wssl_init_session_reuse_cb *sess_reuse_cb)
 {
-  struct ssl_filter_config *conn_config;
-  WOLFSSL_METHOD *req_method = NULL;
-  struct alpn_spec alpns;
+  ഘടന ssl_filter_config *conn_config;
+  WOLFSSL_METHOD *req_method = ശൂന്യ;
+  ഘടന alpn_spec alpns;
   CURLcode result = CURLE_FAILED_INIT;
-  unsigned char transport;
-  int tls_min, tls_max;
+  unsigned അക്ഷരം transport;
+  പൂർണ്ണസംഖ്യ tls_min, tls_max;
 
   DEBUGASSERT(!wctx->ssl_ctx);
   DEBUGASSERT(!wctx->ssl);
   conn_config = Curl_ssl_cf_get_filter_config(cf);
-  if(!conn_config) {
+  എങ്കിൽ(!conn_config) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
   Curl_alpn_copy(&alpns, alpns_requested);
   DEBUGASSERT(cf->next);
   transport = Curl_conn_cf_get_transport(cf->next, data);
 
   req_method = wolfTLS_client_method();
-  if(!req_method) {
+  എങ്കിൽ(!req_method) {
     failf(data, "wolfSSL: could not create a client method");
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
-  if(wctx->ssl_ctx)
+  എങ്കിൽ(wctx->ssl_ctx)
     wolfSSL_CTX_free(wctx->ssl_ctx);
 
   wctx->ssl_ctx = wolfSSL_CTX_new(req_method);
-  if(!wctx->ssl_ctx) {
+  എങ്കിൽ(!wctx->ssl_ctx) {
     failf(data, "wolfSSL: could not create a context");
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
   result = ssl_version(data, conn_config, wctx, &tls_min, &tls_max);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   result = wssl_init_ciphers(data, wctx, conn_config, tls_min, tls_max);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   result = wssl_init_curves(data, wctx, conn_config);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   result = wssl_client_cert(data, conn_config, wctx);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /* SSL always tries to verify the peer, this only says whether it should
    * fail to connect if the verification fails, or if it should continue
    * anyway. In the latter case the result of the verification is checked with
    * SSL_get_verify_result() below. */
   wolfSSL_CTX_set_verify(wctx->ssl_ctx, conn_config->verifypeer ?
-                         WOLFSSL_VERIFY_PEER : WOLFSSL_VERIFY_NONE, NULL);
+                         WOLFSSL_VERIFY_PEER : WOLFSSL_VERIFY_NONE, ശൂന്യ);
 
 #ifdef HAVE_SNI
-  if(peer->sni) {
+  എങ്കിൽ(peer->sni) {
     size_t sni_len = strlen(peer->sni);
-    if((sni_len < USHRT_MAX)) {
-      if(wolfSSL_CTX_UseSNI(wctx->ssl_ctx, WOLFSSL_SNI_HOST_NAME,
+    എങ്കിൽ((sni_len < USHRT_MAX)) {
+      എങ്കിൽ(wolfSSL_CTX_UseSNI(wctx->ssl_ctx, WOLFSSL_SNI_HOST_NAME,
                             peer->sni, (unsigned short)sni_len) != 1) {
         failf(data, "Failed to set SNI");
         result = CURLE_SSL_CONNECT_ERROR;
-        goto out;
+        പോകുക out;
       }
       CURL_TRC_CF(data, cf, "set SNI '%s'", peer->sni);
     }
@@ -1395,96 +1395,96 @@ CURLcode Curl_wssl_ctx_init(struct wssl_ctx *wctx,
 #endif
 
 #ifdef HAVE_EX_DATA
-  if(Curl_ssl_scache_use(cf, data) && (transport != TRNSPRT_QUIC)) {
+  എങ്കിൽ(Curl_ssl_scache_use(cf, data) && (transport != TRNSPRT_QUIC)) {
     /* Register to get notified when a new session is received */
     wolfSSL_CTX_sess_set_new_cb(wctx->ssl_ctx, wssl_vtls_new_session_cb);
   }
 #endif
 
-  if(cb_setup) {
+  എങ്കിൽ(cb_setup) {
     result = cb_setup(cf, data, cb_user_data);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
   /* give application a chance to interfere with SSL set up. */
-  if(data->set.ssl_fsslctx) {
-    if(!wctx->x509_store_setup) {
+  എങ്കിൽ(data->set.ssl_fsslctx) {
+    എങ്കിൽ(!wctx->x509_store_setup) {
       result = Curl_wssl_setup_x509_store(cf, data, wctx);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
     }
     result = (*data->set.ssl_fsslctx)(data, wctx->ssl_ctx,
                                       data->set.ssl_fsslctxp);
-    if(result) {
+    എങ്കിൽ(result) {
       failf(data, "error signaled by SSL ctx callback");
-      goto out;
+      പോകുക out;
     }
   }
 #ifdef NO_FILESYSTEM
-  else if(conn_config->verifypeer) {
+  അല്ലെങ്കിൽ എങ്കിൽ(conn_config->verifypeer) {
     failf(data, "SSL: Certificates cannot be loaded because wolfSSL was built"
           " with no file system. Either disable peer verification"
           " (insecure) or if you are building an application with libcurl you"
           " can load certificates via CURLOPT_SSL_CTX_FUNCTION.");
     result = CURLE_SSL_CONNECT_ERROR;
-    goto out;
+    പോകുക out;
   }
 #endif
 
   result = wssl_init_ssl_handle(wctx, cf, data, peer, &alpns, ssl_user_data,
                                 transport, sess_reuse_cb);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
-  if(Curl_ssl_ech_enabled(cf)) {
+  എങ്കിൽ(Curl_ssl_ech_enabled(cf)) {
     result = wssl_init_ech(wctx, cf, data, peer);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 #endif /* HAVE_WOLFSSL_CTX_GENERATEECHCONFIG */
 
   result = CURLE_OK;
 
 out:
-  if(result && wctx->ssl) {
+  എങ്കിൽ(result && wctx->ssl) {
     wolfSSL_free(wctx->ssl);
-    wctx->ssl = NULL;
+    wctx->ssl = ശൂന്യ;
   }
-  if(result && wctx->ssl_ctx) {
+  എങ്കിൽ(result && wctx->ssl_ctx) {
     wolfSSL_CTX_free(wctx->ssl_ctx);
-    wctx->ssl_ctx = NULL;
+    wctx->ssl_ctx = ശൂന്യ;
   }
-  return result;
+  തിരികെ result;
 }
 
 /*
  * This function loads all the client/CA certificates and CRLs. Setup the TLS
  * layer and do all necessary magic.
  */
-static CURLcode wssl_connect_step1(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+സ്ഥിതം CURLcode wssl_connect_step1(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result;
 
   DEBUGASSERT(wssl);
 
-  if(connssl->state == ssl_connection_complete)
-    return CURLE_OK;
+  എങ്കിൽ(connssl->state == ssl_connection_complete)
+    തിരികെ CURLE_OK;
 
   result = Curl_wssl_ctx_init(wssl, cf, data, &connssl->peer, connssl->alpn,
-                              NULL, NULL, cf, wssl_on_session_reuse);
-  if(result)
-    return result;
+                              ശൂന്യ, ശൂന്യ, cf, wssl_on_session_reuse);
+  എങ്കിൽ(result)
+    തിരികെ result;
 
 #ifdef HAVE_ALPN
-  if(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
-    struct alpn_proto_buf proto;
-    memset(&proto, 0, sizeof(proto));
+  എങ്കിൽ(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
+    ഘടന alpn_proto_buf proto;
+    memset(&proto, 0, വലുപ്പം(proto));
     Curl_alpn_to_proto_str(&proto, connssl->alpn);
     infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
   }
@@ -1492,10 +1492,10 @@ static CURLcode wssl_connect_step1(struct Curl_cfilter *cf,
 
   /* Enable RFC2818 checks on domain names. This cannot check
    * IP addresses which we need to do extra after the handshake. */
-  if(conn_config->verifyhost && connssl->peer.sni) {
-    if(wolfSSL_check_domain_name(wssl->ssl, connssl->peer.sni) !=
+  എങ്കിൽ(conn_config->verifyhost && connssl->peer.sni) {
+    എങ്കിൽ(wolfSSL_check_domain_name(wssl->ssl, connssl->peer.sni) !=
        WOLFSSL_SUCCESS) {
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 
@@ -1503,192 +1503,192 @@ static CURLcode wssl_connect_step1(struct Curl_cfilter *cf,
   {
     WOLFSSL_BIO *bio;
 
-    if(!wssl_bio_cf_method)
-      return CURLE_FAILED_INIT;
+    എങ്കിൽ(!wssl_bio_cf_method)
+      തിരികെ CURLE_FAILED_INIT;
     bio = wolfSSL_BIO_new(wssl_bio_cf_method);
-    if(!bio)
-      return CURLE_OUT_OF_MEMORY;
+    എങ്കിൽ(!bio)
+      തിരികെ CURLE_OUT_OF_MEMORY;
 
     wolfSSL_BIO_set_data(bio, cf);
     wolfSSL_set_bio(wssl->ssl, bio, bio);
   }
-#else /* !USE_BIO_CHAIN */
+#അല്ലെങ്കിൽ /* !USE_BIO_CHAIN */
   {
     curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, data);
-    if(sockfd > INT_MAX) {
+    എങ്കിൽ(sockfd > INT_MAX) {
       failf(data, "SSL: socket value too large");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
     /* pass the raw socket into the SSL layer */
-    if(!wolfSSL_set_fd(wssl->ssl, (int)sockfd)) {
+    എങ്കിൽ(!wolfSSL_set_fd(wssl->ssl, (പൂർണ്ണസംഖ്യ)sockfd)) {
       failf(data, "SSL: wolfSSL_set_fd failed");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 #endif /* USE_BIO_CHAIN */
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static char *wssl_strerror(unsigned long error, char *buf, unsigned long size)
+സ്ഥിതം അക്ഷരം *wssl_strerror(unsigned long error, അക്ഷരം *buf, unsigned long size)
 {
   DEBUGASSERT(size > 40);
   *buf = '\0';
 
   wolfSSL_ERR_error_string_n(error, buf, size);
 
-  if(!*buf) {
-    const char *msg = error ? "Unknown error" : "No error";
-    curlx_strcopy(buf, size, msg, strlen(msg));
+  എങ്കിൽ(!*buf) {
+    സ്ഥിരം അക്ഷരം *സന്ദേശം = error ? "Unknown error" : "No error";
+    curlx_strcopy(buf, size, സന്ദേശം, strlen(സന്ദേശം));
   }
 
-  return buf;
+  തിരികെ buf;
 }
 
-CURLcode Curl_wssl_verify_pinned(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct wssl_ctx *wssl)
+CURLcode Curl_wssl_verify_pinned(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 ഘടന wssl_ctx *wssl)
 {
-  WOLFSSL_X509 *x509 = NULL;
+  WOLFSSL_X509 *x509 = ശൂന്യ;
   CURLcode result = CURLE_OK;
 #ifndef CURL_DISABLE_PROXY
-  const char * const pinnedpubkey = Curl_ssl_cf_is_proxy(cf) ?
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം pinnedpubkey = Curl_ssl_cf_is_proxy(cf) ?
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-#else
-  const char * const pinnedpubkey =
+#അല്ലെങ്കിൽ
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം pinnedpubkey =
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
-  (void)cf;
+  (ശൂന്യം)cf;
 #endif
 
-  if(pinnedpubkey) {
+  എങ്കിൽ(pinnedpubkey) {
 #ifdef KEEP_PEER_CERT
-    const uint8_t *x509_der;
-    int x509_der_len;
-    struct Curl_X509certificate x509_parsed;
-    struct Curl_asn1Element *pubkey;
+    സ്ഥിരം uint8_t *x509_der;
+    പൂർണ്ണസംഖ്യ x509_der_len;
+    ഘടന Curl_X509certificate x509_parsed;
+    ഘടന Curl_asn1Element *pubkey;
 
     result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
     x509 = wolfSSL_get_peer_certificate(wssl->ssl);
-    if(!x509) {
+    എങ്കിൽ(!x509) {
       failf(data, "SSL: failed retrieving server certificate");
-      goto end;
+      പോകുക end;
     }
 
     x509_der = wolfSSL_X509_get_der(x509, &x509_der_len);
-    if(!x509_der) {
+    എങ്കിൽ(!x509_der) {
       failf(data, "SSL: failed retrieving ASN.1 server certificate");
-      goto end;
+      പോകുക end;
     }
 
-    memset(&x509_parsed, 0, sizeof(x509_parsed));
-    if(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
-      goto end;
+    memset(&x509_parsed, 0, വലുപ്പം(x509_parsed));
+    എങ്കിൽ(Curl_parseX509(&x509_parsed, x509_der, x509_der + x509_der_len))
+      പോകുക end;
 
-    pubkey = &x509_parsed.subjectPublicKeyInfo;
-    if(!pubkey->header || pubkey->end <= pubkey->header) {
+    pubkey = &x509_parsed.subject_Public_താക്കോൽ_Info;
+    എങ്കിൽ(!pubkey->header || pubkey->end <= pubkey->header) {
       failf(data, "SSL: failed retrieving public key from server certificate");
-      goto end;
+      പോകുക end;
     }
 
     result = Curl_pin_peer_pubkey(data, pinnedpubkey,
-                                  (const unsigned char *)pubkey->header,
+                                  (സ്ഥിരം unsigned അക്ഷരം *)pubkey->header,
                                   (size_t)(pubkey->end - pubkey->header));
-    if(result)
+    എങ്കിൽ(result)
       failf(data, "SSL: public key does not match pinned public key");
-#else
+#അല്ലെങ്കിൽ
     failf(data, "Library lacks pinning support built-in");
-    return CURLE_NOT_BUILT_IN;
+    തിരികെ CURLE_NOT_BUILT_IN;
 #endif
   }
 end:
   wolfSSL_FreeX509(x509);
-  return result;
+  തിരികെ result;
 }
 
 #ifdef WOLFSSL_EARLY_DATA
-static CURLcode wssl_send_earlydata(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+സ്ഥിതം CURLcode wssl_send_earlydata(ഘടന Curl_cfilter *cf,
+                                    ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  const unsigned char *buf;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
+  സ്ഥിരം unsigned അക്ഷരം *buf;
   size_t blen;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sending);
   wssl->io_result = CURLE_OK;
-  while(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
-    int nwritten = 0, rc;
+  ആകുമ്പോൾ(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
+    പൂർണ്ണസംഖ്യ nwritten = 0, rc;
 
     wolfSSL_ERR_clear_error();
-    rc = wolfSSL_write_early_data(wssl->ssl, buf, (int)blen, &nwritten);
+    rc = wolfSSL_write_early_data(wssl->ssl, buf, (പൂർണ്ണസംഖ്യ)blen, &nwritten);
     CURL_TRC_CF(data, cf, "wolfSSL_write_early_data(len=%zu) -> %d, %d",
                 blen, rc, nwritten);
-    if(rc < 0) {
-      int err = wolfSSL_get_error(wssl->ssl, rc);
-      char error_buffer[256];
-      switch(err) {
-      case WOLFSSL_ERROR_NONE: /* did not get anything */
-      case WOLFSSL_ERROR_WANT_READ:
-      case WOLFSSL_ERROR_WANT_WRITE:
-        return CURLE_AGAIN;
+    എങ്കിൽ(rc < 0) {
+      പൂർണ്ണസംഖ്യ err = wolfSSL_get_error(wssl->ssl, rc);
+      അക്ഷരം error_buffer[256];
+      തിരഞ്ഞെടുപ്പ്(err) {
+      അവസ്ഥ WOLFSSL_ERROR_NONE: /* did not get anything */
+      അവസ്ഥ WOLFSSL_ERROR_WANT_READ:
+      അവസ്ഥ WOLFSSL_ERROR_WANT_WRITE:
+        തിരികെ CURLE_AGAIN;
       }
       CURL_TRC_CF(data, cf, "SSL send early data, error: '%s'(%d)",
                   wssl_strerror((unsigned long)err, error_buffer,
-                                sizeof(error_buffer)), err);
-      return CURLE_SEND_ERROR;
+                                വലുപ്പം(error_buffer)), err);
+      തിരികെ CURLE_SEND_ERROR;
     }
 
     Curl_bufq_skip(&connssl->earlydata, (size_t)nwritten);
   }
   /* sent everything there was */
   connssl->earlydata_state = ssl_earlydata_sent;
-  if(!Curl_ssl_cf_is_proxy(cf))
+  എങ്കിൽ(!Curl_ssl_cf_is_proxy(cf))
     Curl_pgrsEarlyData(data, (curl_off_t)connssl->earlydata_skip);
   infof(data, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 #endif /* WOLFSSL_EARLY_DATA */
 
-static CURLcode wssl_handshake(struct Curl_cfilter *cf, struct Curl_easy *data)
+സ്ഥിതം CURLcode wssl_handshake(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int ret = -1, detail;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  പൂർണ്ണസംഖ്യ ret = -1, detail;
   CURLcode result;
 
   DEBUGASSERT(wssl);
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
 #ifdef WOLFSSL_EARLY_DATA
-  if(connssl->earlydata_state == ssl_earlydata_sending) {
+  എങ്കിൽ(connssl->earlydata_state == ssl_earlydata_sending) {
     result = wssl_send_earlydata(cf, data);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
   DEBUGASSERT((connssl->earlydata_state == ssl_earlydata_none) ||
               (connssl->earlydata_state == ssl_earlydata_sent));
-#else
+#അല്ലെങ്കിൽ
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_none);
 #endif /* WOLFSSL_EARLY_DATA */
 
   wolfSSL_ERR_clear_error();
   ret = wolfSSL_connect(wssl->ssl);
 
-  if(!wssl->x509_store_setup) {
+  എങ്കിൽ(!wssl->x509_store_setup) {
     /* After having send off the ClientHello, we prepare the x509
      * store to verify the coming certificate from the server */
     result = Curl_wssl_setup_x509_store(cf, data, wssl);
-    if(result) {
-      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (int)result);
-      return result;
+    എങ്കിൽ(result) {
+      CURL_TRC_CF(data, cf, "Curl_wssl_setup_x509_store() -> %d", (പൂർണ്ണസംഖ്യ)result);
+      തിരികെ result;
     }
   }
 
 #ifdef OPENSSL_EXTRA
-  if(Curl_tls_keylog_enabled()) {
+  എങ്കിൽ(Curl_tls_keylog_enabled()) {
     /* If key logging is enabled, wait for the handshake to complete and then
      * proceed with logging secrets (for TLS 1.2 or older).
      *
@@ -1700,7 +1700,7 @@ static CURLcode wssl_handshake(struct Curl_cfilter *cf, struct Curl_easy *data)
      * Note that OpenSSL SSL_want_read() is always true here. If wolfSSL ever
      * changes, the worst case is that no key is logged on error.
      */
-    if(ret == WOLFSSL_SUCCESS ||
+    എങ്കിൽ(ret == WOLFSSL_SUCCESS ||
        (!wolfSSL_want_read(wssl->ssl) &&
         !wolfSSL_want_write(wssl->ssl))) {
       wssl_log_tls12_secret(wssl->ssl);
@@ -1718,302 +1718,302 @@ static CURLcode wssl_handshake(struct Curl_cfilter *cf, struct Curl_easy *data)
    * verified. With an anonymous cipher suite the server sends none and
    * neither the CA nor the hostname check runs. For an IP address as
    * hostname, also check the certificate for an IP match. */
-  if(ret == WOLFSSL_SUCCESS &&
+  എങ്കിൽ(ret == WOLFSSL_SUCCESS &&
      (conn_config->verifypeer || conn_config->verifyhost)) {
     WOLFSSL_X509 *cert = wolfSSL_get_peer_certificate(wssl->ssl);
-    if(!cert) {
+    എങ്കിൽ(!cert) {
       failf(data, "unable to get peer certificate");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      തിരികെ CURLE_PEER_FAILED_VERIFICATION;
     }
-    if(conn_config->verifyhost && !connssl->peer.sni) {
+    എങ്കിൽ(conn_config->verifyhost && !connssl->peer.sni) {
       ret = wolfSSL_X509_check_ip_asc(cert, connssl->peer.origin->hostname,
                                       0);
       CURL_TRC_CF(data, cf, "check peer certificate for IP match on %s -> %d",
                   connssl->peer.origin->hostname, ret);
-      if(ret != WOLFSSL_SUCCESS)
+      എങ്കിൽ(ret != WOLFSSL_SUCCESS)
         detail = DOMAIN_NAME_MISMATCH;
     }
     wolfSSL_X509_free(cert);
   }
 
-  if(ret == WOLFSSL_SUCCESS) {
-    return CURLE_OK;
+  എങ്കിൽ(ret == WOLFSSL_SUCCESS) {
+    തിരികെ CURLE_OK;
   }
-  else {
-    if(detail == WOLFSSL_ERROR_WANT_READ) {
+  അല്ലെങ്കിൽ {
+    എങ്കിൽ(detail == WOLFSSL_ERROR_WANT_READ) {
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      return CURLE_AGAIN;
+      തിരികെ CURLE_AGAIN;
     }
-    else if(detail == WOLFSSL_ERROR_WANT_WRITE) {
+    അല്ലെങ്കിൽ എങ്കിൽ(detail == WOLFSSL_ERROR_WANT_WRITE) {
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      return CURLE_AGAIN;
+      തിരികെ CURLE_AGAIN;
     }
-    else if(detail == DOMAIN_NAME_MISMATCH) {
+    അല്ലെങ്കിൽ എങ്കിൽ(detail == DOMAIN_NAME_MISMATCH) {
       /* There is no easy way to override only the CN matching.
        * This enables the override of both mismatching SubjectAltNames
        * as also mismatching CN fields */
       failf(data, " subject alt name(s) or common name do not match \"%s\"",
             connssl->peer.origin->hostname);
-      return CURLE_PEER_FAILED_VERIFICATION;
+      തിരികെ CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(detail == ASN_NO_SIGNER_E) {
-      if(conn_config->verifypeer) {
+    അല്ലെങ്കിൽ എങ്കിൽ(detail == ASN_NO_SIGNER_E) {
+      എങ്കിൽ(conn_config->verifypeer) {
         failf(data, " CA signer not available for verification");
-        return CURLE_SSL_CACERT_BADFILE;
+        തിരികെ CURLE_SSL_CACERT_BADFILE;
       }
       /* Continue with a warning if no strict certificate
          verification is required. */
       infof(data, "CA signer not available for verification, "
                   "continuing anyway");
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
-    else if(detail == ASN_AFTER_DATE_E) {
+    അല്ലെങ്കിൽ എങ്കിൽ(detail == ASN_AFTER_DATE_E) {
       failf(data, "server verification failed: certificate has expired.");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      തിരികെ CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(detail == ASN_BEFORE_DATE_E) {
+    അല്ലെങ്കിൽ എങ്കിൽ(detail == ASN_BEFORE_DATE_E) {
       failf(data, "server verification failed: certificate not valid yet.");
-      return CURLE_PEER_FAILED_VERIFICATION;
+      തിരികെ CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(wssl->io_result) {
-      switch(wssl->io_result) {
-      case CURLE_SEND_ERROR:
-      case CURLE_RECV_ERROR:
-        return CURLE_SSL_CONNECT_ERROR;
-      default:
-        return wssl->io_result;
+    അല്ലെങ്കിൽ എങ്കിൽ(wssl->io_result) {
+      തിരഞ്ഞെടുപ്പ്(wssl->io_result) {
+      അവസ്ഥ CURLE_SEND_ERROR:
+      അവസ്ഥ CURLE_RECV_ERROR:
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
+      സ്ഥിരസ്ഥിതി:
+        തിരികെ wssl->io_result;
       }
     }
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
-    else if(detail == -1) {
+    അല്ലെങ്കിൽ എങ്കിൽ(detail == -1) {
       /* try access a retry_config ECHConfigList for tracing */
       byte echConfigs[1000];
       word32 echConfigsLen = 1000;
-      int rv = 0;
+      പൂർണ്ണസംഖ്യ rv = 0;
 
       /* this currently does not produce the retry_configs */
       rv = wolfSSL_GetEchConfigs(wssl->ssl, echConfigs, &echConfigsLen);
-      if(rv != WOLFSSL_SUCCESS) {
+      എങ്കിൽ(rv != WOLFSSL_SUCCESS) {
         infof(data, "Failed to get ECHConfigs");
       }
-      else {
-        char *b64str = NULL;
+      അല്ലെങ്കിൽ {
+        അക്ഷരം *b64str = ശൂന്യ;
         size_t blen = 0;
 
         result = curlx_base64_encode(echConfigs, echConfigsLen,
                                      &b64str, &blen);
-        if(!result && b64str)
+        എങ്കിൽ(!result && b64str)
           infof(data, "ECH: (not yet) retry_configs %s", b64str);
         curlx_free(b64str);
       }
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
 #endif
-    else {
-      char error_buffer[256];
+    അല്ലെങ്കിൽ {
+      അക്ഷരം error_buffer[256];
       failf(data, "SSL_connect failed with error %d: %s", detail,
             wssl_strerror((unsigned long)detail, error_buffer,
-                          sizeof(error_buffer)));
-      return CURLE_SSL_CONNECT_ERROR;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 }
 
-static CURLcode wssl_send(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          const void *buf, size_t blen,
+സ്ഥിതം CURLcode wssl_send(ഘടന Curl_cfilter *cf,
+                          ഘടന Curl_easy *data,
+                          സ്ഥിരം ശൂന്യം *buf, size_t blen,
                           size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  int nwritten;
+  പൂർണ്ണസംഖ്യ nwritten;
 
   DEBUGASSERT(wssl);
   *pnwritten = 0;
   wolfSSL_ERR_clear_error();
 
-  if(blen) {
-    int memlen = (blen > (size_t)INT_MAX) ? INT_MAX : (int)blen;
+  എങ്കിൽ(blen) {
+    പൂർണ്ണസംഖ്യ memlen = (blen > (size_t)INT_MAX) ? INT_MAX : (പൂർണ്ണസംഖ്യ)blen;
 
     nwritten = wolfSSL_write(wssl->ssl, buf, memlen);
 
-    if(nwritten > 0)
+    എങ്കിൽ(nwritten > 0)
       *pnwritten += (size_t)nwritten;
-    else {
-      int err = wolfSSL_get_error(wssl->ssl, nwritten);
+    അല്ലെങ്കിൽ {
+      പൂർണ്ണസംഖ്യ err = wolfSSL_get_error(wssl->ssl, nwritten);
 
-      switch(err) {
-      case WOLFSSL_ERROR_WANT_READ:
-      case WOLFSSL_ERROR_WANT_WRITE:
+      തിരഞ്ഞെടുപ്പ്(err) {
+      അവസ്ഥ WOLFSSL_ERROR_WANT_READ:
+      അവസ്ഥ WOLFSSL_ERROR_WANT_WRITE:
         /* there is data pending, re-invoke wolfSSL_write() */
-        if(*pnwritten) {
+        എങ്കിൽ(*pnwritten) {
           result = CURLE_OK;
-          goto out;
+          പോകുക out;
         }
         result = CURLE_AGAIN;
-        goto out;
+        പോകുക out;
 
-      default:
-        if(wssl->io_result == CURLE_AGAIN) {
-          if(*pnwritten) {
+      സ്ഥിരസ്ഥിതി:
+        എങ്കിൽ(wssl->io_result == CURLE_AGAIN) {
+          എങ്കിൽ(*pnwritten) {
             result = CURLE_OK;
-            goto out;
+            പോകുക out;
           }
           result = CURLE_AGAIN;
-          goto out;
+          പോകുക out;
         }
         {
-          char error_buffer[256];
+          അക്ഷരം error_buffer[256];
           failf(data, "SSL write: %s, errno %d",
                 wssl_strerror((unsigned long)err, error_buffer,
-                              sizeof(error_buffer)),
+                              വലുപ്പം(error_buffer)),
                 SOCKERRNO);
         }
         result = CURLE_SEND_ERROR;
-        goto out;
+        പോകുക out;
       }
     }
   }
 
 out:
   CURL_TRC_CF(data, cf, "wssl_send(len=%zu) -> %d, %zu",
-              blen, (int)result, *pnwritten);
-  return result;
+              blen, (പൂർണ്ണസംഖ്യ)result, *pnwritten);
+  തിരികെ result;
 }
 
-static CURLcode wssl_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+സ്ഥിതം CURLcode wssl_shutdown(ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
                               bool send_shutdown, bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wctx = (struct wssl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wctx = (ഘടന wssl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  char buf[1024];
-  int nread = -1, err;
+  അക്ഷരം buf[1024];
+  പൂർണ്ണസംഖ്യ nread = -1, err;
   size_t i;
-  VERBOSE(char error_buffer[256]);
+  VERBOSE(അക്ഷരം error_buffer[256]);
 
   DEBUGASSERT(wctx);
-  if(!wctx->ssl || cf->shutdown) {
+  എങ്കിൽ(!wctx->ssl || cf->shutdown) {
     *done = TRUE;
-    goto out;
+    പോകുക out;
   }
 
   wctx->shutting_down = TRUE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
   *done = FALSE;
-  if(!(wolfSSL_get_shutdown(wctx->ssl) & WOLFSSL_SENT_SHUTDOWN)) {
+  എങ്കിൽ(!(wolfSSL_get_shutdown(wctx->ssl) & WOLFSSL_SENT_SHUTDOWN)) {
     /* We have not started the shutdown from our side yet. Check
      * if the server already sent us one. */
     wolfSSL_ERR_clear_error();
-    nread = wolfSSL_read(wctx->ssl, buf, (int)sizeof(buf));
+    nread = wolfSSL_read(wctx->ssl, buf, (പൂർണ്ണസംഖ്യ)വലുപ്പം(buf));
     err = wolfSSL_get_error(wctx->ssl, nread);
     CURL_TRC_CF(data, cf, "wolfSSL_read, nread=%d, err=%d", nread, err);
-    if(!nread && err == WOLFSSL_ERROR_ZERO_RETURN) {
-      bool input_pending;
+    എങ്കിൽ(!nread && err == WOLFSSL_ERROR_ZERO_RETURN) {
+      bool നിവേശം_pending;
       /* Yes, it did. */
-      if(!send_shutdown) {
+      എങ്കിൽ(!send_shutdown) {
         CURL_TRC_CF(data, cf, "SSL shutdown received, not sending");
         *done = TRUE;
-        goto out;
+        പോകുക out;
       }
-      else if(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
+      അല്ലെങ്കിൽ എങ്കിൽ(!cf->next->cft->is_alive(cf->next, data, &നിവേശം_pending)) {
         /* Server closed the connection after its closy notify. It
          * seems not interested to see our close notify, so do not
          * send it. We are done. */
         CURL_TRC_CF(data, cf, "peer closed connection");
         connssl->peer_closed = TRUE;
         *done = TRUE;
-        goto out;
+        പോകുക out;
       }
     }
   }
 
   /* wolfSSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  if(send_shutdown) {
+  എങ്കിൽ(send_shutdown) {
     wolfSSL_ERR_clear_error();
     nread = wolfSSL_shutdown(wctx->ssl);
-    if(nread == 1) {
+    എങ്കിൽ(nread == 1) {
       CURL_TRC_CF(data, cf, "SSL shutdown finished");
       *done = TRUE;
-      goto out;
+      പോകുക out;
     }
-    if(wolfSSL_get_error(wctx->ssl, nread) == WOLFSSL_ERROR_WANT_WRITE) {
+    എങ്കിൽ(wolfSSL_get_error(wctx->ssl, nread) == WOLFSSL_ERROR_WANT_WRITE) {
       CURL_TRC_CF(data, cf, "SSL shutdown still wants to send");
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      goto out;
+      പോകുക out;
     }
     /* Having sent the close notify, we use wolfSSL_read() to get the
      * missing close notify from the server. */
   }
 
-  for(i = 0; i < 10; ++i) {
+  വേണ്ടി(i = 0; i < 10; ++i) {
     wolfSSL_ERR_clear_error();
-    nread = wolfSSL_read(wctx->ssl, buf, (int)sizeof(buf));
-    if(nread <= 0)
-      break;
+    nread = wolfSSL_read(wctx->ssl, buf, (പൂർണ്ണസംഖ്യ)വലുപ്പം(buf));
+    എങ്കിൽ(nread <= 0)
+      നിർത്തുക;
   }
   err = wolfSSL_get_error(wctx->ssl, nread);
-  switch(err) {
-  case WOLFSSL_ERROR_ZERO_RETURN: /* no more data */
+  തിരഞ്ഞെടുപ്പ്(err) {
+  അവസ്ഥ WOLFSSL_ERROR_ZERO_RETURN: /* no more data */
     CURL_TRC_CF(data, cf, "SSL shutdown received");
     *done = TRUE;
-    break;
-  case WOLFSSL_ERROR_NONE: /* did not get anything */
-  case WOLFSSL_ERROR_WANT_READ:
+    നിർത്തുക;
+  അവസ്ഥ WOLFSSL_ERROR_NONE: /* did not get anything */
+  അവസ്ഥ WOLFSSL_ERROR_WANT_READ:
     /* wolfSSL has sent its notify and now wants to read the reply
      * from the server. We are not really interested in that. */
     CURL_TRC_CF(data, cf, "SSL shutdown sent, want receive");
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    break;
-  case WOLFSSL_ERROR_WANT_WRITE:
+    നിർത്തുക;
+  അവസ്ഥ WOLFSSL_ERROR_WANT_WRITE:
     CURL_TRC_CF(data, cf, "SSL shutdown send blocked");
     connssl->io_need = CURL_SSL_IO_NEED_SEND;
-    break;
-  default:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     CURL_TRC_CF(data, cf, "SSL shutdown, error: '%s'(%d)",
                 wssl_strerror((unsigned long)err, error_buffer,
-                              sizeof(error_buffer)),
+                              വലുപ്പം(error_buffer)),
                 err);
     result = CURLE_RECV_ERROR;
-    break;
+    നിർത്തുക;
   }
 
 out:
   cf->shutdown = (result || *done);
-  return result;
+  തിരികെ result;
 }
 
-static void wssl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം wssl_close(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
 
-  (void)data;
+  (ശൂന്യം)data;
 
   DEBUGASSERT(wssl);
 
-  if(wssl->ssl) {
+  എങ്കിൽ(wssl->ssl) {
     wolfSSL_free(wssl->ssl);
-    wssl->ssl = NULL;
+    wssl->ssl = ശൂന്യ;
   }
-  if(wssl->ssl_ctx) {
+  എങ്കിൽ(wssl->ssl_ctx) {
     wolfSSL_CTX_free(wssl->ssl_ctx);
-    wssl->ssl_ctx = NULL;
+    wssl->ssl_ctx = ശൂന്യ;
   }
 }
 
-static CURLcode wssl_recv(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          char *buf, size_t blen,
+സ്ഥിതം CURLcode wssl_recv(ഘടന Curl_cfilter *cf,
+                          ഘടന Curl_easy *data,
+                          അക്ഷരം *buf, size_t blen,
                           size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
-  int buffsize = (blen > (size_t)INT_MAX) ? INT_MAX : (int)blen;
-  int nread;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
+  പൂർണ്ണസംഖ്യ buffsize = (blen > (size_t)INT_MAX) ? INT_MAX : (പൂർണ്ണസംഖ്യ)blen;
+  പൂർണ്ണസംഖ്യ nread;
 
   DEBUGASSERT(wssl);
 
@@ -2022,68 +2022,68 @@ static CURLcode wssl_recv(struct Curl_cfilter *cf,
 
   nread = wolfSSL_read(wssl->ssl, buf, buffsize);
 
-  if(nread > 0)
+  എങ്കിൽ(nread > 0)
     *pnread = (size_t)nread;
-  else {
-    int err = wolfSSL_get_error(wssl->ssl, nread);
+  അല്ലെങ്കിൽ {
+    പൂർണ്ണസംഖ്യ err = wolfSSL_get_error(wssl->ssl, nread);
 
-    switch(err) {
-    case WOLFSSL_ERROR_ZERO_RETURN: /* no more data */
+    തിരഞ്ഞെടുപ്പ്(err) {
+    അവസ്ഥ WOLFSSL_ERROR_ZERO_RETURN: /* no more data */
       CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> CLOSED", blen);
-      return CURLE_OK;
-    case WOLFSSL_ERROR_NONE:
-    case WOLFSSL_ERROR_WANT_READ:
-    case WOLFSSL_ERROR_WANT_WRITE:
-      if(!wssl->io_result && !connssl->peer_closed) {
+      തിരികെ CURLE_OK;
+    അവസ്ഥ WOLFSSL_ERROR_NONE:
+    അവസ്ഥ WOLFSSL_ERROR_WANT_READ:
+    അവസ്ഥ WOLFSSL_ERROR_WANT_WRITE:
+      എങ്കിൽ(!wssl->io_result && !connssl->peer_closed) {
         /* there is data pending, re-invoke wolfSSL_read() */
         CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> AGAIN", blen);
-        return CURLE_AGAIN;
+        തിരികെ CURLE_AGAIN;
       }
       /* fall through to default error handling below */
       FALLTHROUGH();
-    default:
-      if(wssl->io_result == CURLE_AGAIN) {
+    സ്ഥിരസ്ഥിതി:
+      എങ്കിൽ(wssl->io_result == CURLE_AGAIN) {
         CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> AGAIN", blen);
-        return CURLE_AGAIN;
+        തിരികെ CURLE_AGAIN;
       }
-      else if(!wssl->io_result && connssl->peer_closed) {
+      അല്ലെങ്കിൽ എങ്കിൽ(!wssl->io_result && connssl->peer_closed) {
         CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> CLOSED", blen);
         failf(data, "Connection closed abruptly");
       }
-      else {
-        char error_buffer[256];
+      അല്ലെങ്കിൽ {
+        അക്ഷരം error_buffer[256];
         failf(data, "SSL read: %s, errno %d",
               wssl_strerror((unsigned long)err, error_buffer,
-                            sizeof(error_buffer)),
+                            വലുപ്പം(error_buffer)),
               SOCKERRNO);
       }
-      return CURLE_RECV_ERROR;
+      തിരികെ CURLE_RECV_ERROR;
     }
   }
 
   CURL_TRC_CF(data, cf, "wssl_recv(len=%zu) -> 0, %zu", blen, *pnread);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-size_t Curl_wssl_version(char *buffer, size_t size)
+size_t Curl_wssl_version(അക്ഷരം *buffer, size_t size)
 {
-  return curl_msnprintf(buffer, size, "wolfSSL/%s", wolfSSL_lib_version());
+  തിരികെ curl_msnprintf(buffer, size, "wolfSSL/%s", wolfSSL_lib_version());
 }
 
-static int wssl_init(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ wssl_init(ശൂന്യം)
 {
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
 
 #ifdef OPENSSL_EXTRA
   Curl_tls_keylog_open();
 #endif
   ret = (wolfSSL_Init() == WOLFSSL_SUCCESS);
-  if(ret)
+  എങ്കിൽ(ret)
     ret = wssl_bio_cf_init_methods();
-  return ret;
+  തിരികെ ret;
 }
 
-static void wssl_cleanup(void)
+സ്ഥിതം ശൂന്യം wssl_cleanup(ശൂന്യം)
 {
   wssl_bio_cf_free_methods();
   wolfSSL_Cleanup();
@@ -2092,109 +2092,109 @@ static void wssl_cleanup(void)
 #endif
 }
 
-static bool wssl_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+സ്ഥിതം bool wssl_data_pending(ഘടന Curl_cfilter *cf,
+                              സ്ഥിരം ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *ctx = cf->ctx;
-  struct wssl_ctx *wssl;
+  ഘടന ssl_connect_data *ctx = cf->ctx;
+  ഘടന wssl_ctx *wssl;
 
-  (void)data;
+  (ശൂന്യം)data;
   DEBUGASSERT(ctx && ctx->backend);
 
-  wssl = (struct wssl_ctx *)ctx->backend;
-  if(wssl->ssl)   /* wolfSSL is in use */
-    return wolfSSL_pending(wssl->ssl);
-  else
-    return FALSE;
+  wssl = (ഘടന wssl_ctx *)ctx->backend;
+  എങ്കിൽ(wssl->ssl)   /* wolfSSL is in use */
+    തിരികെ wolfSSL_pending(wssl->ssl);
+  അല്ലെങ്കിൽ
+    തിരികെ FALSE;
 }
 
-void Curl_wssl_report_handshake(struct Curl_easy *data, struct wssl_ctx *wssl)
+ശൂന്യം Curl_wssl_report_handshake(ഘടന Curl_easy *data, ഘടന wssl_ctx *wssl)
 {
-  (void)wssl;
+  (ശൂന്യം)wssl;
   infof(data, "SSL connection using %s / %s",
         wolfSSL_get_version(wssl->ssl),
         wolfSSL_get_cipher_name(wssl->ssl));
 }
 
-static CURLcode wssl_connect(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+സ്ഥിതം CURLcode wssl_connect(ഘടന Curl_cfilter *cf,
+                             ഘടന Curl_easy *data,
                              bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
+  എങ്കിൽ(ssl_connection_complete == connssl->state) {
     *done = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   *done = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_1) {
 #ifdef HAVE_WOLFSSL_CTX_GENERATEECHCONFIG
     /* if we do ECH and need the HTTPS-RR information for it,
      * we delay the connect until it arrives or DNS resolve fails. */
-    if(Curl_ssl_need_httpsrr(cf) &&
+    എങ്കിൽ(Curl_ssl_need_httpsrr(cf) &&
        !Curl_conn_dns_resolved_https(data, cf->sockindex,
                                      connssl->peer.peer)) {
       CURL_TRC_CF(data, cf, "need HTTPS-RR for ECH, delaying connect");
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
 #endif /* HAVE_WOLFSSL_CTX_GENERATEECHCONFIG */
     result = wssl_connect_step1(cf, data);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
     connssl->connecting_state = ssl_connect_2;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
-    if(connssl->earlydata_state == ssl_earlydata_await) {
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_2) {
+    എങ്കിൽ(connssl->earlydata_state == ssl_earlydata_await) {
       /* We defer the handshake until request data arrives. */
       DEBUGASSERT(connssl->state == ssl_connection_deferred);
-      goto out;
+      പോകുക out;
     }
     result = wssl_handshake(cf, data);
-    if(result == CURLE_AGAIN)
-      goto out;
+    എങ്കിൽ(result == CURLE_AGAIN)
+      പോകുക out;
     wssl->hs_result = result;
     connssl->connecting_state = ssl_connect_3;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_3) {
     /* Once the handshake has errored, it stays in that state and
      * errors again on every call. */
-    if(wssl->hs_result) {
+    എങ്കിൽ(wssl->hs_result) {
       result = wssl->hs_result;
-      goto out;
+      പോകുക out;
     }
     result = Curl_wssl_verify_pinned(cf, data, wssl);
-    if(result) {
+    എങ്കിൽ(result) {
       wssl->hs_result = result;
-      goto out;
+      പോകുക out;
     }
     /* handshake was done without errors */
 #ifdef HAVE_ALPN
-    if(connssl->alpn) {
-      int rc;
-      char *protocol = NULL;
+    എങ്കിൽ(connssl->alpn) {
+      പൂർണ്ണസംഖ്യ rc;
+      അക്ഷരം *protocol = ശൂന്യ;
       unsigned short protocol_len = 0;
 
       rc = wolfSSL_ALPN_GetProtocol(wssl->ssl, &protocol, &protocol_len);
 
-      if(rc == WOLFSSL_SUCCESS) {
+      എങ്കിൽ(rc == WOLFSSL_SUCCESS) {
         Curl_alpn_set_negotiated(cf, data, connssl,
-                                 (const unsigned char *)protocol,
+                                 (സ്ഥിരം unsigned അക്ഷരം *)protocol,
                                  protocol_len);
       }
-      else if(rc == WOLFSSL_ALPN_NOT_FOUND)
-        Curl_alpn_set_negotiated(cf, data, connssl, NULL, 0);
-      else {
+      അല്ലെങ്കിൽ എങ്കിൽ(rc == WOLFSSL_ALPN_NOT_FOUND)
+        Curl_alpn_set_negotiated(cf, data, connssl, ശൂന്യ, 0);
+      അല്ലെങ്കിൽ {
         failf(data, "ALPN, failure getting protocol, error %d", rc);
         wssl->hs_result = result = CURLE_SSL_CONNECT_ERROR;
-        goto out;
+        പോകുക out;
       }
     }
 #endif /* HAVE_ALPN */
@@ -2204,7 +2204,7 @@ static CURLcode wssl_connect(struct Curl_cfilter *cf,
     Curl_wssl_report_handshake(data, wssl);
 
 #ifdef WOLFSSL_EARLY_DATA
-    if(connssl->earlydata_state > ssl_earlydata_none) {
+    എങ്കിൽ(connssl->earlydata_state > ssl_earlydata_none) {
       /* We should be in this state by now */
       DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sent);
       connssl->earlydata_state =
@@ -2215,71 +2215,71 @@ static CURLcode wssl_connect(struct Curl_cfilter *cf,
 #endif /* WOLFSSL_EARLY_DATA */
   }
 
-  if((connssl->connecting_state == ssl_connect_done) ||
+  എങ്കിൽ((connssl->connecting_state == ssl_connect_done) ||
      (connssl->state == ssl_connection_deferred)) {
     *done = TRUE;
   }
 
 out:
-  if(result) {
+  എങ്കിൽ(result) {
     *done = FALSE;
-    if(result == CURLE_AGAIN)
-      return CURLE_OK;
+    എങ്കിൽ(result == CURLE_AGAIN)
+      തിരികെ CURLE_OK;
   }
-  else if((connssl->connecting_state == ssl_connect_done) ||
+  അല്ലെങ്കിൽ എങ്കിൽ((connssl->connecting_state == ssl_connect_done) ||
           (connssl->state == ssl_connection_deferred)) {
     *done = TRUE;
   }
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode wssl_random(struct Curl_easy *data,
-                            unsigned char *entropy, size_t length)
+സ്ഥിതം CURLcode wssl_random(ഘടന Curl_easy *data,
+                            unsigned അക്ഷരം *entropy, size_t length)
 {
   WC_RNG rng;
-  (void)data;
-  if(wc_InitRng(&rng))
-    return CURLE_FAILED_INIT;
-  if(length > UINT_MAX)
-    return CURLE_FAILED_INIT;
-  if(wc_RNG_GenerateBlock(&rng, entropy, (unsigned)length))
-    return CURLE_FAILED_INIT;
-  if(wc_FreeRng(&rng))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  (ശൂന്യം)data;
+  എങ്കിൽ(wc_InitRng(&rng))
+    തിരികെ CURLE_FAILED_INIT;
+  എങ്കിൽ(length > UINT_MAX)
+    തിരികെ CURLE_FAILED_INIT;
+  എങ്കിൽ(wc_RNG_GenerateBlock(&rng, entropy, (unsigned)length))
+    തിരികെ CURLE_FAILED_INIT;
+  എങ്കിൽ(wc_FreeRng(&rng))
+    തിരികെ CURLE_FAILED_INIT;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode wssl_sha256sum(const unsigned char *input,
+സ്ഥിതം CURLcode wssl_sha256sum(സ്ഥിരം unsigned അക്ഷരം *നിവേശം,
                                size_t len,
-                               unsigned char *sha256sum /* output */,
+                               unsigned അക്ഷരം *sha256sum /* output */,
                                size_t unused)
 {
   wc_Sha256 SHA256pw;
-  (void)unused;
-  if(wc_InitSha256(&SHA256pw))
-    return CURLE_FAILED_INIT;
-  do {
+  (ശൂന്യം)unused;
+  എങ്കിൽ(wc_InitSha256(&SHA256pw))
+    തിരികെ CURLE_FAILED_INIT;
+  ചെയ്യുക {
     word32 ilen = (word32)CURLMIN(len, UINT32_MAX);
-    if(wc_Sha256Update(&SHA256pw, input, ilen))
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+    എങ്കിൽ(wc_Sha256Update(&SHA256pw, നിവേശം, ilen))
+      തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
     len -= ilen;
-    input += ilen;
-  } while(len);
-  if(wc_Sha256Final(&SHA256pw, sha256sum))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  return CURLE_OK;
+    നിവേശം += ilen;
+  } ആകുമ്പോൾ(len);
+  എങ്കിൽ(wc_Sha256Final(&SHA256pw, sha256sum))
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
+  തിരികെ CURLE_OK;
 }
 
-static void *wssl_get_internals(struct ssl_connect_data *connssl,
+സ്ഥിതം ശൂന്യം *wssl_get_internals(ഘടന ssl_connect_data *connssl,
                                 CURLINFO info)
 {
-  struct wssl_ctx *wssl = (struct wssl_ctx *)connssl->backend;
+  ഘടന wssl_ctx *wssl = (ഘടന wssl_ctx *)connssl->backend;
   DEBUGASSERT(wssl);
-  return info == CURLINFO_TLS_SESSION ?
-    (void *)wssl->ssl_ctx : (void *)wssl->ssl;
+  തിരികെ info == CURLINFO_TLS_SESSION ?
+    (ശൂന്യം *)wssl->ssl_ctx : (ശൂന്യം *)wssl->ssl;
 }
 
-const struct Curl_ssl Curl_ssl_wolfssl = {
+സ്ഥിരം ഘടന Curl_ssl Curl_ssl_wolfssl = {
   { CURLSSLBACKEND_WOLFSSL, "wolfssl" }, /* info */
 
 #ifdef KEEP_PEER_CERT
@@ -2301,7 +2301,7 @@ const struct Curl_ssl Curl_ssl_wolfssl = {
   SSLSUPP_CIPHER_LIST |
   SSLSUPP_SSL_EC_CURVES,
 
-  sizeof(struct wssl_ctx),
+  വലുപ്പം(ഘടന wssl_ctx),
 
   wssl_init,                       /* init */
   wssl_cleanup,                    /* cleanup */
@@ -2309,17 +2309,17 @@ const struct Curl_ssl Curl_ssl_wolfssl = {
   wssl_shutdown,                   /* shutdown */
   wssl_data_pending,               /* data_pending */
   wssl_random,                     /* random */
-  NULL,                            /* cert_status_request */
+  ശൂന്യ,                            /* cert_status_request */
   wssl_connect,                    /* connect */
   Curl_ssl_adjust_pollset,         /* adjust_pollset */
   wssl_get_internals,              /* get_internals */
   wssl_close,                      /* close_one */
-  NULL,                            /* close_all */
-  NULL,                            /* engines_list */
+  ശൂന്യ,                            /* close_all */
+  ശൂന്യ,                            /* engines_list */
   wssl_sha256sum,                  /* sha256sum */
   wssl_recv,                       /* recv decrypted data */
   wssl_send,                       /* send data to encrypt */
-  NULL,                            /* get_channel_binding */
+  ശൂന്യ,                            /* get_channel_binding */
 };
 
 #endif

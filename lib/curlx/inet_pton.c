@@ -17,20 +17,20 @@
  *
  * SPDX-License-Identifier: ISC
  */
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#അന്തര്ഭാവ <sys/param.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#അന്തര്ഭാവ <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#അന്തര്ഭാവ <arpa/inet.h>
 #endif
 
-#include "curlx/inet_pton.h"
-#include "curlx/strparse.h"
+#അന്തര്ഭാവ "curlx/inet_pton.h"
+#അന്തര്ഭാവ "curlx/strparse.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4
@@ -41,7 +41,7 @@
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
-#if !defined(USE_IPV6) && !defined(AF_INET6)
+#എങ്കിൽ !defined(USE_IPV6) && !defined(AF_INET6)
 #define AF_INET6 (AF_INET + 1)
 #endif
 
@@ -59,43 +59,43 @@
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, unsigned char *dst)
+സ്ഥിതം പൂർണ്ണസംഖ്യ inet_pton4(സ്ഥിരം അക്ഷരം *src, unsigned അക്ഷരം *dst)
 {
-  int saw_digit, octets, ch;
-  unsigned char tmp[INADDRSZ], *tp;
+  പൂർണ്ണസംഖ്യ saw_digit, octets, ch;
+  unsigned അക്ഷരം tmp[INADDRSZ], *tp;
 
   saw_digit = 0;
   octets = 0;
   tp = tmp;
   *tp = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISDIGIT(ch)) {
-      unsigned int val = (*tp * 10) + (ch - '0');
+  ആകുമ്പോൾ((ch = (unsigned അക്ഷരം)*src++) != '\0') {
+    എങ്കിൽ(ISDIGIT(ch)) {
+      unsigned പൂർണ്ണസംഖ്യ val = (*tp * 10) + (ch - '0');
 
-      if(saw_digit && *tp == 0)
-        return 0;
-      if(val > 255)
-        return 0;
-      *tp = (unsigned char)val;
-      if(!saw_digit) {
-        if(++octets > 4)
-          return 0;
+      എങ്കിൽ(saw_digit && *tp == 0)
+        തിരികെ 0;
+      എങ്കിൽ(val > 255)
+        തിരികെ 0;
+      *tp = (unsigned അക്ഷരം)val;
+      എങ്കിൽ(!saw_digit) {
+        എങ്കിൽ(++octets > 4)
+          തിരികെ 0;
         saw_digit = 1;
       }
     }
-    else if(ch == '.' && saw_digit) {
-      if(octets == 4)
-        return 0;
+    അല്ലെങ്കിൽ എങ്കിൽ(ch == '.' && saw_digit) {
+      എങ്കിൽ(octets == 4)
+        തിരികെ 0;
       *++tp = 0;
       saw_digit = 0;
     }
-    else
-      return 0;
+    അല്ലെങ്കിൽ
+      തിരികെ 0;
   }
-  if(octets < 4)
-    return 0;
+  എങ്കിൽ(octets < 4)
+    തിരികെ 0;
   memcpy(dst, tmp, INADDRSZ);
-  return 1;
+  തിരികെ 1;
 }
 
 /* int inet_pton6(src, dst)
@@ -110,82 +110,82 @@ static int inet_pton4(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, unsigned char *dst)
+സ്ഥിതം പൂർണ്ണസംഖ്യ inet_pton6(സ്ഥിരം അക്ഷരം *src, unsigned അക്ഷരം *dst)
 {
-  unsigned char tmp[IN6ADDRSZ], *tp, *endp, *colonp;
-  const char *curtok;
-  int ch, saw_xdigit;
+  unsigned അക്ഷരം tmp[IN6ADDRSZ], *tp, *endp, *colonp;
+  സ്ഥിരം അക്ഷരം *curtok;
+  പൂർണ്ണസംഖ്യ ch, saw_xdigit;
   size_t val;
 
   memset((tp = tmp), 0, IN6ADDRSZ);
   endp = tp + IN6ADDRSZ;
-  colonp = NULL;
+  colonp = ശൂന്യ;
   /* Leading :: requires some special handling. */
-  if(*src == ':' && *++src != ':')
-    return 0;
+  എങ്കിൽ(*src == ':' && *++src != ':')
+    തിരികെ 0;
   curtok = src;
   saw_xdigit = 0;
   val = 0;
-  while((ch = (unsigned char)*src++) != '\0') {
-    if(ISXDIGIT(ch)) {
+  ആകുമ്പോൾ((ch = (unsigned അക്ഷരം)*src++) != '\0') {
+    എങ്കിൽ(ISXDIGIT(ch)) {
       val <<= 4;
       val |= curlx_hexval(ch);
-      if(++saw_xdigit > 4)
-        return 0;
-      continue;
+      എങ്കിൽ(++saw_xdigit > 4)
+        തിരികെ 0;
+      തുടരുക;
     }
-    if(ch == ':') {
+    എങ്കിൽ(ch == ':') {
       curtok = src;
-      if(!saw_xdigit) {
-        if(colonp)
-          return 0;
+      എങ്കിൽ(!saw_xdigit) {
+        എങ്കിൽ(colonp)
+          തിരികെ 0;
         colonp = tp;
-        continue;
+        തുടരുക;
       }
-      if(!*src)
-        return 0;
-      if(tp + INT16SZ > endp)
-        return 0;
-      *tp++ = (unsigned char)((val >> 8) & 0xff);
-      *tp++ = (unsigned char)(val & 0xff);
+      എങ്കിൽ(!*src)
+        തിരികെ 0;
+      എങ്കിൽ(tp + INT16SZ > endp)
+        തിരികെ 0;
+      *tp++ = (unsigned അക്ഷരം)((val >> 8) & 0xff);
+      *tp++ = (unsigned അക്ഷരം)(val & 0xff);
       saw_xdigit = 0;
       val = 0;
-      continue;
+      തുടരുക;
     }
-    if(ch == '.' && ((tp + INADDRSZ) <= endp) &&
+    എങ്കിൽ(ch == '.' && ((tp + INADDRSZ) <= endp) &&
        inet_pton4(curtok, tp) > 0) {
       tp += INADDRSZ;
       saw_xdigit = 0;
-      break;    /* '\0' was seen by inet_pton4(). */
+      നിർത്തുക;    /* '\0' was seen by inet_pton4(). */
     }
-    return 0;
+    തിരികെ 0;
   }
-  if(saw_xdigit) {
-    if(tp + INT16SZ > endp)
-      return 0;
-    *tp++ = (unsigned char)((val >> 8) & 0xff);
-    *tp++ = (unsigned char)(val & 0xff);
+  എങ്കിൽ(saw_xdigit) {
+    എങ്കിൽ(tp + INT16SZ > endp)
+      തിരികെ 0;
+    *tp++ = (unsigned അക്ഷരം)((val >> 8) & 0xff);
+    *tp++ = (unsigned അക്ഷരം)(val & 0xff);
   }
-  if(colonp) {
+  എങ്കിൽ(colonp) {
     /*
      * Since some memmove()'s erroneously fail to handle
      * overlapping regions, we do the shift by hand.
      */
-    const ssize_t n = tp - colonp;
+    സ്ഥിരം ssize_t n = tp - colonp;
     ssize_t i;
 
-    if(tp == endp)
-      return 0;
-    for(i = 1; i <= n; i++) {
+    എങ്കിൽ(tp == endp)
+      തിരികെ 0;
+    വേണ്ടി(i = 1; i <= n; i++) {
       *(endp - i) = *(colonp + n - i);
       *(colonp + n - i) = 0;
     }
     tp = endp;
   }
-  if(tp != endp)
-    return 0;
+  എങ്കിൽ(tp != endp)
+    തിരികെ 0;
   memcpy(dst, tmp, IN6ADDRSZ);
-  return 1;
+  തിരികെ 1;
 }
 
 /*
@@ -200,15 +200,15 @@ static int inet_pton6(const char *src, unsigned char *dst)
  * author:
  *      Paul Vixie, 1996.
  */
-int curlx_inet_pton(int af, const char *src, void *dst)
+പൂർണ്ണസംഖ്യ curlx_inet_pton(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *src, ശൂന്യം *dst)
 {
-  switch(af) {
-  case AF_INET:
-    return inet_pton4(src, (unsigned char *)dst);
-  case AF_INET6:
-    return inet_pton6(src, (unsigned char *)dst);
-  default:
-    return -1;
+  തിരഞ്ഞെടുപ്പ്(af) {
+  അവസ്ഥ AF_INET:
+    തിരികെ inet_pton4(src, (unsigned അക്ഷരം *)dst);
+  അവസ്ഥ AF_INET6:
+    തിരികെ inet_pton6(src, (unsigned അക്ഷരം *)dst);
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ -1;
   }
   /* NOTREACHED */
 }

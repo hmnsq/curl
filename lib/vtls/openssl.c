@@ -25,92 +25,92 @@
  * Source file for all OpenSSL-specific code for the TLS/SSL layer. No code
  * but vtls.c should ever call or use these functions.
  */
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_OPENSSL
 
-#include "urldata.h"
-#include "curl_trc.h"
-#include "formdata.h" /* for the boundary function */
-#include "url.h" /* for the SSL config check function */
-#include "curlx/inet_pton.h"
-#include "vtls/openssl.h"
-#include "connect.h"
-#include "progress.h"
-#include "vtls/vtls.h"
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vauth/vauth.h"
-#include "vtls/keylog.h"
-#include "vtls/hostcheck.h"
-#include "transfer.h"
-#include "multiif.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "curlx/strcopy.h"
-#include "curlx/strdup.h"
-#include "vdns/cf-dns.h"
-#include "vdns/httpsrr.h"
-#include "vtls/apple.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "formdata.h" /* for the boundary function */
+#അന്തര്ഭാവ "url.h" /* for the SSL config check function */
+#അന്തര്ഭാവ "curlx/inet_pton.h"
+#അന്തര്ഭാവ "vtls/openssl.h"
+#അന്തര്ഭാവ "connect.h"
+#അന്തര്ഭാവ "progress.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
+#അന്തര്ഭാവ "vtls/vtls_int.h"
+#അന്തര്ഭാവ "vtls/vtls_scache.h"
+#അന്തര്ഭാവ "vauth/vauth.h"
+#അന്തര്ഭാവ "vtls/keylog.h"
+#അന്തര്ഭാവ "vtls/hostcheck.h"
+#അന്തര്ഭാവ "transfer.h"
+#അന്തര്ഭാവ "multiif.h"
+#അന്തര്ഭാവ "curlx/strerr.h"
+#അന്തര്ഭാവ "curlx/strparse.h"
+#അന്തര്ഭാവ "curlx/strcopy.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
+#അന്തര്ഭാവ "vdns/cf-dns.h"
+#അന്തര്ഭാവ "vdns/httpsrr.h"
+#അന്തര്ഭാവ "vtls/apple.h"
 #ifdef USE_ECH
-#include "curlx/base64.h"
+#അന്തര്ഭാവ "curlx/base64.h"
 #endif
 
-#include <openssl/rand.h>
-#include <openssl/x509v3.h>
+#അന്തര്ഭാവ <openssl/rand.h>
+#അന്തര്ഭാവ <openssl/x509v3.h>
 #ifndef OPENSSL_NO_DSA
-#include <openssl/dsa.h>
+#അന്തര്ഭാവ <openssl/dsa.h>
 #endif
-#include <openssl/dh.h>
-#include <openssl/err.h>
-#include <openssl/conf.h>
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/bio.h>
-#include <openssl/pkcs12.h>
-#include <openssl/tls1.h>
-#include <openssl/evp.h>
+#അന്തര്ഭാവ <openssl/dh.h>
+#അന്തര്ഭാവ <openssl/err.h>
+#അന്തര്ഭാവ <openssl/conf.h>
+#അന്തര്ഭാവ <openssl/bn.h>
+#അന്തര്ഭാവ <openssl/rsa.h>
+#അന്തര്ഭാവ <openssl/bio.h>
+#അന്തര്ഭാവ <openssl/pkcs12.h>
+#അന്തര്ഭാവ <openssl/tls1.h>
+#അന്തര്ഭാവ <openssl/evp.h>
 
-#if defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
-#include <openssl/ech.h>
+#എങ്കിൽ defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
+#അന്തര്ഭാവ <openssl/ech.h>
 #endif
 
 #ifndef OPENSSL_NO_OCSP
-#include <openssl/ocsp.h>
+#അന്തര്ഭാവ <openssl/ocsp.h>
 #endif
 
-#if !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
+#എങ്കിൽ !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_UI_CONSOLE)
 #define USE_OPENSSL_ENGINE
-#include <openssl/engine.h>
+#അന്തര്ഭാവ <openssl/engine.h>
 #endif
 
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_സംഖ്യ
 /* As of LibreSSL 2.0.0-4.0.0: OPENSSL_VERSION_NUMBER == 0x20000000L */
-#  if LIBRESSL_VERSION_NUMBER < 0x3040100fL /* 2021-10-14 */
+#  എങ്കിൽ LIBRESSL_VERSION_സംഖ്യ < 0x3040100fL /* 2021-10-14 */
 #    error "LibreSSL 3.4.1 or greater required"
 #  endif
-#elif !defined(HAVE_BORINGSSL_LIKE)
+#അല്ലെങ്കിലെങ്കിൽ !defined(HAVE_BORINGSSL_LIKE)
 #  ifndef HAVE_OPENSSL3 /* 2021-09-07 */
 #    error "OpenSSL 3.0.0 or greater required"
 #  endif
 #endif
 
-#if defined(HAVE_OPENSSL3) && !defined(OPENSSL_NO_UI_CONSOLE)
-#include <openssl/provider.h>
-#include <openssl/store.h>
+#എങ്കിൽ defined(HAVE_OPENSSL3) && !defined(OPENSSL_NO_UI_CONSOLE)
+#അന്തര്ഭാവ <openssl/provider.h>
+#അന്തര്ഭാവ <openssl/store.h>
 /* this is used in the following conditions to make them easier to read */
 #define OPENSSL_HAS_PROVIDERS
 #endif
 
 /* AWS-LC fixed a bug with large buffers in v1.61.0 which also introduced
  * X509_V_ERR_EC_KEY_EXPLICIT_PARAMS. */
-#if !defined(LIBRESSL_VERSION_NUMBER) && !defined(OPENSSL_IS_BORINGSSL) && \
-  (!defined(OPENSSL_IS_AWSLC) || defined(X509_V_ERR_EC_KEY_EXPLICIT_PARAMS))
+#എങ്കിൽ !defined(LIBRESSL_VERSION_സംഖ്യ) && !defined(OPENSSL_IS_BORINGSSL) && \
+  (!defined(OPENSSL_IS_AWSLC) || defined(X509_V_ERR_EC_താക്കോൽ_EXPLICIT_PARAMS))
 #define HAVE_SSL_CTX_SET_DEFAULT_READ_BUFFER_LEN 1
 #endif
 
-#if defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
-#include <openssl/ui.h>
+#എങ്കിൽ defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
+#അന്തര്ഭാവ <openssl/ui.h>
 #endif
 
 #ifdef HAVE_OPENSSL3
@@ -118,11 +118,11 @@
 #endif
 
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
-#include <openssl/core_names.h>
-#define DECLARE_PKEY_PARAM_BIGNUM(name) BIGNUM *name = NULL
+#അന്തര്ഭാവ <openssl/core_names.h>
+#define DECLARE_PKEY_PARAM_BIGNUM(name) BIGNUM *name = ശൂന്യ
 #define FREE_PKEY_PARAM_BIGNUM(name) BN_clear_free(name)
-#else
-#define DECLARE_PKEY_PARAM_BIGNUM(name) const BIGNUM *name
+#അല്ലെങ്കിൽ
+#define DECLARE_PKEY_PARAM_BIGNUM(name) സ്ഥിരം BIGNUM *name
 #define FREE_PKEY_PARAM_BIGNUM(name)
 #endif
 
@@ -143,136 +143,136 @@
  * LibreSSL: no
  * OpenSSL: supported since 1.0.2 (commit 0b362de5f575)
  */
-#ifndef LIBRESSL_VERSION_NUMBER
+#ifndef LIBRESSL_VERSION_സംഖ്യ
 #define HAVE_SSL_CTX_SET1_SIGALGS
 #endif
 
-#ifdef LIBRESSL_VERSION_NUMBER
+#ifdef LIBRESSL_VERSION_സംഖ്യ
 #define OSSL_PACKAGE "LibreSSL"
-#elif defined(OPENSSL_IS_AWSLC)
+#അല്ലെങ്കിലെങ്കിൽ defined(OPENSSL_IS_AWSLC)
 #define OSSL_PACKAGE "AWS-LC"
-#elif defined(OPENSSL_IS_BORINGSSL)
+#അല്ലെങ്കിലെങ്കിൽ defined(OPENSSL_IS_BORINGSSL)
 #define OSSL_PACKAGE "BoringSSL"
-#elif defined(USE_NGTCP2) && defined(USE_NGHTTP3) && \
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_NGTCP2) && defined(USE_NGHTTP3) && \
   !defined(OPENSSL_QUIC_API2)
 #define OSSL_PACKAGE "quictls"
-#else
+#അല്ലെങ്കിൽ
 #define OSSL_PACKAGE "OpenSSL"
 #endif
 
 #ifdef HAVE_BORINGSSL_LIKE
-typedef size_t numcert_t;
-typedef uint32_t sslerr_t;
-#else
-typedef int numcert_t;
-typedef unsigned long sslerr_t;
+തരനിർവചനം size_t numcert_t;
+തരനിർവചനം uint32_t sslerr_t;
+#അല്ലെങ്കിൽ
+തരനിർവചനം പൂർണ്ണസംഖ്യ numcert_t;
+തരനിർവചനം unsigned long sslerr_t;
 #endif
 #define ossl_valsize_t numcert_t
 
-#if OPENSSL_VERSION_NUMBER >= 0x40100000L
+#എങ്കിൽ OPENSSL_VERSION_സംഖ്യ >= 0x40100000L
 #define ossl_ASN1_STRING_get_length ASN1_STRING_get_length
-#else
-static size_t ossl_ASN1_STRING_get_length(const ASN1_STRING *str)
+#അല്ലെങ്കിൽ
+സ്ഥിതം size_t ossl_ASN1_STRING_get_length(സ്ഥിരം ASN1_STRING *str)
 {
-   const int length = ASN1_STRING_length(str);
-   return length >= 0 ? (size_t)length : 0;
+   സ്ഥിരം പൂർണ്ണസംഖ്യ length = ASN1_STRING_length(str);
+   തിരികെ length >= 0 ? (size_t)length : 0;
 }
 #endif
 
-static CURLcode push_certinfo(struct Curl_easy *data,
-                              BIO *mem, const char *label, int num)
+സ്ഥിതം CURLcode തള്ളുക_certinfo(ഘടന Curl_easy *data,
+                              BIO *mem, സ്ഥിരം അക്ഷരം *label, പൂർണ്ണസംഖ്യ അക്കം)
   WARN_UNUSED_RESULT;
 
-static CURLcode push_certinfo(struct Curl_easy *data,
-                              BIO *mem, const char *label, int num)
+സ്ഥിതം CURLcode തള്ളുക_certinfo(ഘടന Curl_easy *data,
+                              BIO *mem, സ്ഥിരം അക്ഷരം *label, പൂർണ്ണസംഖ്യ അക്കം)
 {
-  char *ptr;
+  അക്ഷരം *ptr;
   long len = BIO_get_mem_data(mem, &ptr);
-  CURLcode result = Curl_ssl_push_certinfo_len(data, num, label, ptr, len);
-  (void)BIO_reset(mem);
-  return result;
+  CURLcode result = Curl_ssl_തള്ളുക_certinfo_len(data, അക്കം, label, ptr, len);
+  (ശൂന്യം)BIO_reset(mem);
+  തിരികെ result;
 }
 
-static CURLcode pubkey_show(struct Curl_easy *data,
+സ്ഥിതം CURLcode pubkey_show(ഘടന Curl_easy *data,
                             BIO *mem,
-                            int num,
-                            const char *type,
-                            const char *name,
-                            const BIGNUM *bn) WARN_UNUSED_RESULT;
+                            പൂർണ്ണസംഖ്യ അക്കം,
+                            സ്ഥിരം അക്ഷരം *type,
+                            സ്ഥിരം അക്ഷരം *name,
+                            സ്ഥിരം BIGNUM *bn) WARN_UNUSED_RESULT;
 
-static CURLcode pubkey_show(struct Curl_easy *data,
+സ്ഥിതം CURLcode pubkey_show(ഘടന Curl_easy *data,
                             BIO *mem,
-                            int num,
-                            const char *type,
-                            const char *name,
-                            const BIGNUM *bn)
+                            പൂർണ്ണസംഖ്യ അക്കം,
+                            സ്ഥിരം അക്ഷരം *type,
+                            സ്ഥിരം അക്ഷരം *name,
+                            സ്ഥിരം BIGNUM *bn)
 {
-  char namebuf[32];
+  അക്ഷരം namebuf[32];
 
-  curl_msnprintf(namebuf, sizeof(namebuf), "%s(%s)", type, name);
+  curl_msnprintf(namebuf, വലുപ്പം(namebuf), "%s(%s)", type, name);
 
-  if(bn)
+  എങ്കിൽ(bn)
     BN_print(mem, bn);
-  return push_certinfo(data, mem, namebuf, num);
+  തിരികെ തള്ളുക_certinfo(data, mem, namebuf, അക്കം);
 }
 
-#define print_pubkey_BN(_type, _name, _num)           \
-  pubkey_show(data, mem, _num, #_type, #_name, _name)
+#define print_pubkey_BN(_type, _name, അക്കം_2)           \
+  pubkey_show(data, mem, അക്കം_2, #_type, #_name, _name)
 
-static int asn1_object_dump(const ASN1_OBJECT *a, char *buf, size_t len)
+സ്ഥിതം പൂർണ്ണസംഖ്യ asn1_object_dump(സ്ഥിരം ASN1_OBJECT *a, അക്ഷരം *buf, size_t len)
 {
-  int i = i2t_ASN1_OBJECT(buf, (int)len, a);
-  return (i >= (int)len);  /* buffer too small */
+  പൂർണ്ണസംഖ്യ i = i2t_ASN1_OBJECT(buf, (പൂർണ്ണസംഖ്യ)len, a);
+  തിരികെ (i >= (പൂർണ്ണസംഖ്യ)len);  /* buffer too small */
 }
 
-static CURLcode X509V3_ext(struct Curl_easy *data,
-                           int certnum,
-                           const STACK_OF(X509_EXTENSION) *extsarg)
+സ്ഥിതം CURLcode X509V3_ext(ഘടന Curl_easy *data,
+                           പൂർണ്ണസംഖ്യ certnum,
+                           സ്ഥിരം അട്ടി_OF(X509_EXTENSION) *extsarg)
 {
-  int i;
+  പൂർണ്ണസംഖ്യ i;
   CURLcode result = CURLE_OK;
-#ifdef LIBRESSL_VERSION_NUMBER
-  STACK_OF(X509_EXTENSION) *exts = CURL_UNCONST(extsarg);
-#else
-  const STACK_OF(X509_EXTENSION) *exts = extsarg;
+#ifdef LIBRESSL_VERSION_സംഖ്യ
+  അട്ടി_OF(X509_EXTENSION) *exts = CURL_UNCONST(extsarg);
+#അല്ലെങ്കിൽ
+  സ്ഥിരം അട്ടി_OF(X509_EXTENSION) *exts = extsarg;
 #endif
 
-  if((int)sk_X509_EXTENSION_num(exts) <= 0)
+  എങ്കിൽ((പൂർണ്ണസംഖ്യ)sk_X509_EXTENSION_അക്കം(exts) <= 0)
     /* no extensions, bail out */
-    return result;
+    തിരികെ result;
 
-  for(i = 0; i < (int)sk_X509_EXTENSION_num(exts); i++) {
-    const ASN1_OBJECT *obj;
-    X509_EXTENSION *ext = sk_X509_EXTENSION_value(exts, (ossl_valsize_t)i);
+  വേണ്ടി(i = 0; i < (പൂർണ്ണസംഖ്യ)sk_X509_EXTENSION_അക്കം(exts); i++) {
+    സ്ഥിരം ASN1_OBJECT *obj;
+    X509_EXTENSION *ext = sk_X509_EXTENSION_മൂല്യം(exts, (ossl_valsize_t)i);
     BUF_MEM *biomem;
-    char namebuf[128];
+    അക്ഷരം namebuf[128];
     BIO *bio_out = BIO_new(BIO_s_mem());
 
-    if(!bio_out)
-      return result;
+    എങ്കിൽ(!bio_out)
+      തിരികെ result;
 
     obj = X509_EXTENSION_get_object(ext);
 
-    if(asn1_object_dump(obj, namebuf, sizeof(namebuf)))
+    എങ്കിൽ(asn1_object_dump(obj, namebuf, വലുപ്പം(namebuf)))
       /* make sure the name is null-terminated */
       namebuf[CURL_CSTRLEN(namebuf)] = 0;
 
-    if(!X509V3_EXT_print(bio_out, ext, 0, 0))
+    എങ്കിൽ(!X509V3_EXT_print(bio_out, ext, 0, 0))
       ASN1_STRING_print(bio_out,
-                        (const ASN1_STRING *)X509_EXTENSION_get_data(ext));
+                        (സ്ഥിരം ASN1_STRING *)X509_EXTENSION_get_data(ext));
 
     BIO_get_mem_ptr(bio_out, &biomem);
-    result = Curl_ssl_push_certinfo_len(data, certnum, namebuf, biomem->data,
+    result = Curl_ssl_തള്ളുക_certinfo_len(data, certnum, namebuf, biomem->data,
                                         biomem->length);
     BIO_free(bio_out);
-    if(result)
-      break;
+    എങ്കിൽ(result)
+      നിർത്തുക;
   }
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode get_pkey_rsa(struct Curl_easy *data,
-                             EVP_PKEY *pubkey, BIO *mem, int i)
+സ്ഥിതം CURLcode get_pkey_rsa(ഘടന Curl_easy *data,
+                             EVP_PKEY *pubkey, BIO *mem, പൂർണ്ണസംഖ്യ i)
 {
   CURLcode result = CURLE_OK;
 #ifndef HAVE_EVP_PKEY_GET_PARAMS
@@ -283,24 +283,24 @@ static CURLcode get_pkey_rsa(struct Curl_easy *data,
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
-#else
-  RSA_get0_key(rsa, &n, &e, NULL);
+#അല്ലെങ്കിൽ
+  RSA_get0_താക്കോൽ(rsa, &n, &e, ശൂന്യ);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
-  BIO_printf(mem, "%d", (int)(n ? BN_num_bits(n) : 0));
-  result = push_certinfo(data, mem, "RSA Public Key", i);
-  if(!result) {
+  BIO_printf(mem, "%d", (പൂർണ്ണസംഖ്യ)(n ? BN_അക്കം_bits(n) : 0));
+  result = തള്ളുക_certinfo(data, mem, "RSA Public Key", i);
+  എങ്കിൽ(!result) {
     result = print_pubkey_BN(rsa, n, i);
-    if(!result)
+    എങ്കിൽ(!result)
       result = print_pubkey_BN(rsa, e, i);
   }
   FREE_PKEY_PARAM_BIGNUM(n);
   FREE_PKEY_PARAM_BIGNUM(e);
-  return result;
+  തിരികെ result;
 }
 
 #ifndef OPENSSL_NO_DSA
-static CURLcode get_pkey_dsa(struct Curl_easy *data,
-                             EVP_PKEY *pubkey, BIO *mem, int i)
+സ്ഥിതം CURLcode get_pkey_dsa(ഘടന Curl_easy *data,
+                             EVP_PKEY *pubkey, BIO *mem, പൂർണ്ണസംഖ്യ i)
 {
   CURLcode result = CURLE_OK;
 #ifndef HAVE_EVP_PKEY_GET_PARAMS
@@ -309,33 +309,33 @@ static CURLcode get_pkey_dsa(struct Curl_easy *data,
   DECLARE_PKEY_PARAM_BIGNUM(p);
   DECLARE_PKEY_PARAM_BIGNUM(q);
   DECLARE_PKEY_PARAM_BIGNUM(g);
-  DECLARE_PKEY_PARAM_BIGNUM(pub_key);
+  DECLARE_PKEY_PARAM_BIGNUM(pub_താക്കോൽ);
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_P, &p);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_Q, &q);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_G, &g);
-  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
-#else
+  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_താക്കോൽ, &pub_താക്കോൽ);
+#അല്ലെങ്കിൽ
   DSA_get0_pqg(dsa, &p, &q, &g);
-  DSA_get0_key(dsa, &pub_key, NULL);
+  DSA_get0_താക്കോൽ(dsa, &pub_താക്കോൽ, ശൂന്യ);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
   result = print_pubkey_BN(dsa, p, i);
-  if(!result)
+  എങ്കിൽ(!result)
     result = print_pubkey_BN(dsa, q, i);
-  if(!result)
+  എങ്കിൽ(!result)
     result = print_pubkey_BN(dsa, g, i);
-  if(!result)
-    result = print_pubkey_BN(dsa, pub_key, i);
+  എങ്കിൽ(!result)
+    result = print_pubkey_BN(dsa, pub_താക്കോൽ, i);
   FREE_PKEY_PARAM_BIGNUM(p);
   FREE_PKEY_PARAM_BIGNUM(q);
   FREE_PKEY_PARAM_BIGNUM(g);
-  FREE_PKEY_PARAM_BIGNUM(pub_key);
-  return result;
+  FREE_PKEY_PARAM_BIGNUM(pub_താക്കോൽ);
+  തിരികെ result;
 }
 #endif /* !OPENSSL_NO_DSA */
 
-static CURLcode get_pkey_dh(struct Curl_easy *data,
-                            EVP_PKEY *pubkey, BIO *mem, int i)
+സ്ഥിതം CURLcode get_pkey_dh(ഘടന Curl_easy *data,
+                            EVP_PKEY *pubkey, BIO *mem, പൂർണ്ണസംഖ്യ i)
 {
   CURLcode result;
 #ifndef HAVE_EVP_PKEY_GET_PARAMS
@@ -344,418 +344,418 @@ static CURLcode get_pkey_dh(struct Curl_easy *data,
   DECLARE_PKEY_PARAM_BIGNUM(p);
   DECLARE_PKEY_PARAM_BIGNUM(q);
   DECLARE_PKEY_PARAM_BIGNUM(g);
-  DECLARE_PKEY_PARAM_BIGNUM(pub_key);
+  DECLARE_PKEY_PARAM_BIGNUM(pub_താക്കോൽ);
 #ifdef HAVE_EVP_PKEY_GET_PARAMS
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_P, &p);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_Q, &q);
   EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_FFC_G, &g);
-  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
-#else
+  EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_PUB_താക്കോൽ, &pub_താക്കോൽ);
+#അല്ലെങ്കിൽ
   DH_get0_pqg(dh, &p, &q, &g);
-  DH_get0_key(dh, &pub_key, NULL);
+  DH_get0_താക്കോൽ(dh, &pub_താക്കോൽ, ശൂന്യ);
 #endif /* HAVE_EVP_PKEY_GET_PARAMS */
   result = print_pubkey_BN(dh, p, i);
-  if(!result)
+  എങ്കിൽ(!result)
     result = print_pubkey_BN(dh, q, i);
-  if(!result)
+  എങ്കിൽ(!result)
     result = print_pubkey_BN(dh, g, i);
-  if(!result)
-    result = print_pubkey_BN(dh, pub_key, i);
+  എങ്കിൽ(!result)
+    result = print_pubkey_BN(dh, pub_താക്കോൽ, i);
   FREE_PKEY_PARAM_BIGNUM(p);
   FREE_PKEY_PARAM_BIGNUM(q);
   FREE_PKEY_PARAM_BIGNUM(g);
-  FREE_PKEY_PARAM_BIGNUM(pub_key);
-  return result;
+  FREE_PKEY_PARAM_BIGNUM(pub_താക്കോൽ);
+  തിരികെ result;
 }
 
 #ifdef HAVE_OPENSSL3
 /* from OpenSSL commit fc756e594ed5a27af378 */
-typedef const X509_PUBKEY pubkeytype_t;
-#else
-typedef X509_PUBKEY pubkeytype_t;
+തരനിർവചനം സ്ഥിരം X509_PUBKEY pubkeytype_t;
+#അല്ലെങ്കിൽ
+തരനിർവചനം X509_PUBKEY pubkeytype_t;
 #endif
 
-static CURLcode ossl_certchain(struct Curl_easy *data, SSL *ssl)
+സ്ഥിതം CURLcode ossl_certchain(ഘടന Curl_easy *data, SSL *ssl)
 {
   CURLcode result;
-  STACK_OF(X509) *sk;
-  int i;
+  അട്ടി_OF(X509) *sk;
+  പൂർണ്ണസംഖ്യ i;
   numcert_t numcerts;
   BIO *mem;
 
   DEBUGASSERT(ssl);
 
   sk = SSL_get_peer_cert_chain(ssl);
-  if(!sk)
-    return CURLE_SSL_CONNECT_ERROR;
+  എങ്കിൽ(!sk)
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
 
-  numcerts = sk_X509_num(sk);
-  if(numcerts > MAX_ALLOWED_CERT_AMOUNT) {
-    failf(data, "%d certificates is more than allowed (%d)", (int)numcerts,
+  numcerts = sk_X509_അക്കം(sk);
+  എങ്കിൽ(numcerts > MAX_ALLOWED_CERT_AMOUNT) {
+    failf(data, "%d certificates is more than allowed (%d)", (പൂർണ്ണസംഖ്യ)numcerts,
           MAX_ALLOWED_CERT_AMOUNT);
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
-  result = Curl_ssl_init_certinfo(data, (int)numcerts);
-  if(result)
-    return result;
+  result = Curl_ssl_init_certinfo(data, (പൂർണ്ണസംഖ്യ)numcerts);
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   mem = BIO_new(BIO_s_mem());
-  if(!mem)
+  എങ്കിൽ(!mem)
     result = CURLE_OUT_OF_MEMORY;
 
-  for(i = 0; !result && (i < (int)numcerts); i++) {
-    X509 *x = sk_X509_value(sk, (ossl_valsize_t)i);
-    EVP_PKEY *pubkey = NULL;
+  വേണ്ടി(i = 0; !result && (i < (പൂർണ്ണസംഖ്യ)numcerts); i++) {
+    X509 *x = sk_X509_മൂല്യം(sk, (ossl_valsize_t)i);
+    EVP_PKEY *pubkey = ശൂന്യ;
     size_t j;
-    const ASN1_BIT_STRING *psig = NULL;
+    സ്ഥിരം ASN1_BIT_STRING *psig = ശൂന്യ;
 
     X509_NAME_print_ex(mem, X509_get_subject_name(x), 0, XN_FLAG_ONELINE);
-    result = push_certinfo(data, mem, "Subject", i);
-    if(result)
-      break;
+    result = തള്ളുക_certinfo(data, mem, "Subject", i);
+    എങ്കിൽ(result)
+      നിർത്തുക;
 
     X509_NAME_print_ex(mem, X509_get_issuer_name(x), 0, XN_FLAG_ONELINE);
-    result = push_certinfo(data, mem, "Issuer", i);
-    if(result)
-      break;
+    result = തള്ളുക_certinfo(data, mem, "Issuer", i);
+    എങ്കിൽ(result)
+      നിർത്തുക;
 
     BIO_printf(mem, "%lx", (unsigned long)X509_get_version(x));
-    result = push_certinfo(data, mem, "Version", i);
-    if(result)
-      break;
+    result = തള്ളുക_certinfo(data, mem, "Version", i);
+    എങ്കിൽ(result)
+      നിർത്തുക;
 
     {
-      ASN1_INTEGER *num = X509_get_serialNumber(x);
-      const unsigned char *numdata = ASN1_STRING_get0_data(num);
-      const size_t numlen = ossl_ASN1_STRING_get_length(num);
-      if(ASN1_STRING_type(num) == V_ASN1_NEG_INTEGER)
+      ASN1_INTEGER *അക്കം = X509_get_serial_സംഖ്യ(x);
+      സ്ഥിരം unsigned അക്ഷരം *numdata = ASN1_STRING_get0_data(അക്കം);
+      സ്ഥിരം size_t numlen = ossl_ASN1_STRING_get_length(അക്കം);
+      എങ്കിൽ(ASN1_STRING_type(അക്കം) == V_ASN1_NEG_INTEGER)
         BIO_puts(mem, "-");
-      for(j = 0; j < numlen; j++)
+      വേണ്ടി(j = 0; j < numlen; j++)
         BIO_printf(mem, "%02x", numdata[j]);
     }
-    result = push_certinfo(data, mem, "Serial Number", i);
-    if(result)
-      break;
+    result = തള്ളുക_certinfo(data, mem, "Serial Number", i);
+    എങ്കിൽ(result)
+      നിർത്തുക;
 
     {
-      const X509_ALGOR *sigalg = NULL;
-      pubkeytype_t *xpubkey = NULL;
-      ASN1_OBJECT *pubkeyoid = NULL;
+      സ്ഥിരം X509_ALGOR *sigalg = ശൂന്യ;
+      pubkeytype_t *xpubkey = ശൂന്യ;
+      ASN1_OBJECT *pubkeyoid = ശൂന്യ;
 
       X509_get0_signature(&psig, &sigalg, x);
-      if(sigalg) {
-        const ASN1_OBJECT *sigalgoid = NULL;
-        X509_ALGOR_get0(&sigalgoid, NULL, NULL, sigalg);
+      എങ്കിൽ(sigalg) {
+        സ്ഥിരം ASN1_OBJECT *sigalgoid = ശൂന്യ;
+        X509_ALGOR_get0(&sigalgoid, ശൂന്യ, ശൂന്യ, sigalg);
         i2a_ASN1_OBJECT(mem, sigalgoid);
-        result = push_certinfo(data, mem, "Signature Algorithm", i);
-        if(result)
-          break;
+        result = തള്ളുക_certinfo(data, mem, "Signature Algorithm", i);
+        എങ്കിൽ(result)
+          നിർത്തുക;
       }
 
       xpubkey = X509_get_X509_PUBKEY(x);
-      if(xpubkey) {
-        X509_PUBKEY_get0_param(&pubkeyoid, NULL, NULL, NULL, xpubkey);
-        if(pubkeyoid) {
+      എങ്കിൽ(xpubkey) {
+        X509_PUBKEY_get0_param(&pubkeyoid, ശൂന്യ, ശൂന്യ, ശൂന്യ, xpubkey);
+        എങ്കിൽ(pubkeyoid) {
           i2a_ASN1_OBJECT(mem, pubkeyoid);
-          result = push_certinfo(data, mem, "Public Key Algorithm", i);
-          if(result)
-            break;
+          result = തള്ളുക_certinfo(data, mem, "Public Key Algorithm", i);
+          എങ്കിൽ(result)
+            നിർത്തുക;
         }
       }
 
       result = X509V3_ext(data, i, X509_get0_extensions(x));
-      if(result)
-        break;
+      എങ്കിൽ(result)
+        നിർത്തുക;
     }
 
     ASN1_TIME_print(mem, X509_get0_notBefore(x));
-    result = push_certinfo(data, mem, "Start date", i);
-    if(result)
-      break;
+    result = തള്ളുക_certinfo(data, mem, "Start date", i);
+    എങ്കിൽ(result)
+      നിർത്തുക;
 
     ASN1_TIME_print(mem, X509_get0_notAfter(x));
-    result = push_certinfo(data, mem, "Expire date", i);
-    if(result)
-      break;
+    result = തള്ളുക_certinfo(data, mem, "Expire date", i);
+    എങ്കിൽ(result)
+      നിർത്തുക;
 
     pubkey = X509_get_pubkey(x);
-    if(!pubkey)
+    എങ്കിൽ(!pubkey)
       infof(data, "   Unable to load public key");
-    else {
-      switch(EVP_PKEY_id(pubkey)) {
-      case EVP_PKEY_RSA:
+    അല്ലെങ്കിൽ {
+      തിരഞ്ഞെടുപ്പ്(EVP_PKEY_id(pubkey)) {
+      അവസ്ഥ EVP_PKEY_RSA:
         result = get_pkey_rsa(data, pubkey, mem, i);
-        break;
+        നിർത്തുക;
 
 #ifndef OPENSSL_NO_DSA
-      case EVP_PKEY_DSA:
+      അവസ്ഥ EVP_PKEY_DSA:
         result = get_pkey_dsa(data, pubkey, mem, i);
-        break;
+        നിർത്തുക;
 #endif
 
-      case EVP_PKEY_DH:
+      അവസ്ഥ EVP_PKEY_DH:
         result = get_pkey_dh(data, pubkey, mem, i);
-        break;
+        നിർത്തുക;
       }
       EVP_PKEY_free(pubkey);
     }
 
-    if(!result && psig) {
-      const unsigned char *psigdata = ASN1_STRING_get0_data(psig);
-      const size_t psiglen = ossl_ASN1_STRING_get_length(psig);
-      for(j = 0; j < psiglen; j++)
+    എങ്കിൽ(!result && psig) {
+      സ്ഥിരം unsigned അക്ഷരം *psigdata = ASN1_STRING_get0_data(psig);
+      സ്ഥിരം size_t psiglen = ossl_ASN1_STRING_get_length(psig);
+      വേണ്ടി(j = 0; j < psiglen; j++)
         BIO_printf(mem, "%02x:", psigdata[j]);
-      result = push_certinfo(data, mem, "Signature", i);
+      result = തള്ളുക_certinfo(data, mem, "Signature", i);
     }
 
-    if(!result) {
+    എങ്കിൽ(!result) {
       PEM_write_bio_X509(mem, x);
-      result = push_certinfo(data, mem, "Cert", i);
+      result = തള്ളുക_certinfo(data, mem, "Cert", i);
     }
   }
 
   BIO_free(mem);
 
-  if(result)
+  എങ്കിൽ(result)
     /* cleanup all leftovers */
     Curl_ssl_free_certinfo(data);
 
-  return result;
+  തിരികെ result;
 }
 
-static int ossl_bio_cf_create(BIO *bio)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_bio_cf_create(BIO *bio)
 {
   BIO_set_shutdown(bio, 1);
   BIO_set_init(bio, 1);
-  BIO_set_data(bio, NULL);
-  return 1;
+  BIO_set_data(bio, ശൂന്യ);
+  തിരികെ 1;
 }
 
-static int ossl_bio_cf_destroy(BIO *bio)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_bio_cf_destroy(BIO *bio)
 {
-  if(!bio)
-    return 0;
-  return 1;
+  എങ്കിൽ(!bio)
+    തിരികെ 0;
+  തിരികെ 1;
 }
 
-static long ossl_bio_cf_ctrl(BIO *bio, int cmd, long num, void *ptr)
+സ്ഥിതം long ossl_bio_cf_ctrl(BIO *bio, പൂർണ്ണസംഖ്യ cmd, long അക്കം, ശൂന്യം *ptr)
 {
-  struct Curl_cfilter *cf = BIO_get_data(bio);
+  ഘടന Curl_cfilter *cf = BIO_get_data(bio);
   long ret = 1;
 
-  (void)cf;
-  (void)ptr;
-  switch(cmd) {
-  case BIO_CTRL_GET_CLOSE:
+  (ശൂന്യം)cf;
+  (ശൂന്യം)ptr;
+  തിരഞ്ഞെടുപ്പ്(cmd) {
+  അവസ്ഥ BIO_CTRL_GET_CLOSE:
     ret = (long)BIO_get_shutdown(bio);
-    break;
-  case BIO_CTRL_SET_CLOSE:
-    BIO_set_shutdown(bio, (int)num);
-    break;
-  case BIO_CTRL_FLUSH:
+    നിർത്തുക;
+  അവസ്ഥ BIO_CTRL_SET_CLOSE:
+    BIO_set_shutdown(bio, (പൂർണ്ണസംഖ്യ)അക്കം);
+    നിർത്തുക;
+  അവസ്ഥ BIO_CTRL_FLUSH:
     /* we do no delayed writes, but if we ever would, this
      * needs to trigger it. */
     ret = 1;
-    break;
-  case BIO_CTRL_DUP:
+    നിർത്തുക;
+  അവസ്ഥ BIO_CTRL_DUP:
     ret = 1;
-    break;
-  case BIO_CTRL_EOF: {
+    നിർത്തുക;
+  അവസ്ഥ BIO_CTRL_EOF: {
     /* EOF has been reached on input? */
-    struct ssl_connect_data *connssl = cf->ctx;
-    return connssl->peer_closed;
+    ഘടന ssl_connect_data *connssl = cf->ctx;
+    തിരികെ connssl->peer_closed;
   }
-  default:
+  സ്ഥിരസ്ഥിതി:
     ret = 0;
-    break;
+    നിർത്തുക;
   }
-  return ret;
+  തിരികെ ret;
 }
 
-static int ossl_bio_cf_out_write(BIO *bio, const char *buf, int blen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_bio_cf_out_write(BIO *bio, സ്ഥിരം അക്ഷരം *buf, പൂർണ്ണസംഖ്യ blen)
 {
-  struct Curl_cfilter *cf = BIO_get_data(bio);
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = BIO_get_data(bio);
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   size_t nwritten;
   CURLcode result;
 
   DEBUGASSERT(data);
-  if(blen < 0)
-    return 0;
+  എങ്കിൽ(blen < 0)
+    തിരികെ 0;
 
   result = Curl_conn_cf_send(cf->next, data,
-                             (const uint8_t *)buf, (size_t)blen, FALSE,
+                             (സ്ഥിരം uint8_t *)buf, (size_t)blen, FALSE,
                              &nwritten);
   CURL_TRC_CF(data, cf, "ossl_bio_cf_out_write(len=%d) -> %d, %zu",
-              blen, (int)result, nwritten);
+              blen, (പൂർണ്ണസംഖ്യ)result, nwritten);
   BIO_clear_retry_flags(bio);
   octx->io_result = result;
-  if(result) {
-    if(result == CURLE_AGAIN)
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result == CURLE_AGAIN)
       BIO_set_retry_write(bio);
-    return -1;
+    തിരികെ -1;
   }
-  return (int)nwritten;
+  തിരികെ (പൂർണ്ണസംഖ്യ)nwritten;
 }
 
-static int ossl_bio_cf_in_read(BIO *bio, char *buf, int blen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_bio_cf_in_read(BIO *bio, അക്ഷരം *buf, പൂർണ്ണസംഖ്യ blen)
 {
-  struct Curl_cfilter *cf = BIO_get_data(bio);
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = BIO_get_data(bio);
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   size_t nread;
   CURLcode result, r2;
 
   DEBUGASSERT(data);
   /* OpenSSL catches this case, so should we. */
-  if(!buf)
-    return 0;
-  if(blen < 0)
-    return 0;
+  എങ്കിൽ(!buf)
+    തിരികെ 0;
+  എങ്കിൽ(blen < 0)
+    തിരികെ 0;
 
   result = Curl_conn_cf_recv(cf->next, data, buf, (size_t)blen, &nread);
   CURL_TRC_CF(data, cf, "ossl_bio_cf_in_read(len=%d) -> %d, %zu",
-              blen, (int)result, nread);
+              blen, (പൂർണ്ണസംഖ്യ)result, nread);
   BIO_clear_retry_flags(bio);
   octx->io_result = result;
-  if(result) {
-    if(result == CURLE_AGAIN)
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result == CURLE_AGAIN)
       BIO_set_retry_read(bio);
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* feeding data to OpenSSL means SSL_read() might succeed */
-    connssl->input_pending = TRUE;
-    if(nread == 0)
+    connssl->നിവേശം_pending = TRUE;
+    എങ്കിൽ(nread == 0)
       connssl->peer_closed = TRUE;
   }
 
   /* Before returning server replies to the SSL instance, we need
    * to have setup the x509 store or verification fails. */
-  if(!octx->x509_store_setup) {
+  എങ്കിൽ(!octx->x509_store_setup) {
     r2 = Curl_ssl_setup_x509_store(cf, data, octx);
-    if(r2) {
+    എങ്കിൽ(r2) {
       BIO_clear_retry_flags(bio);
       octx->io_result = r2;
-      return -1;
+      തിരികെ -1;
     }
     octx->x509_store_setup = TRUE;
   }
-  return result ? -1 : (int)nread;
+  തിരികെ result ? -1 : (പൂർണ്ണസംഖ്യ)nread;
 }
 
-static BIO_METHOD *ossl_bio_cf_method_create(void)
+സ്ഥിതം BIO_METHOD *ossl_bio_cf_method_create(ശൂന്യം)
 {
   BIO_METHOD *m = BIO_meth_new(BIO_TYPE_MEM, "OpenSSL CF BIO");
-  if(m) {
+  എങ്കിൽ(m) {
     BIO_meth_set_write(m, &ossl_bio_cf_out_write);
     BIO_meth_set_read(m, &ossl_bio_cf_in_read);
     BIO_meth_set_ctrl(m, &ossl_bio_cf_ctrl);
     BIO_meth_set_create(m, &ossl_bio_cf_create);
     BIO_meth_set_destroy(m, &ossl_bio_cf_destroy);
   }
-  return m;
+  തിരികെ m;
 }
 
-static void ossl_bio_cf_method_free(BIO_METHOD *m)
+സ്ഥിതം ശൂന്യം ossl_bio_cf_method_free(BIO_METHOD *m)
 {
-  if(m)
+  എങ്കിൽ(m)
     BIO_meth_free(m);
 }
 
 #ifndef HAVE_KEYLOG_UPSTREAM
 #ifdef HAVE_KEYLOG_CALLBACK
-static void ossl_keylog_callback(const SSL *ssl, const char *line)
+സ്ഥിതം ശൂന്യം ossl_keylog_callback(സ്ഥിരം SSL *ssl, സ്ഥിരം അക്ഷരം *വരി)
 {
-  (void)ssl;
+  (ശൂന്യം)ssl;
 
-  Curl_tls_keylog_write_line(line);
+  Curl_tls_keylog_write_വരി(വരി);
 }
-#else
+#അല്ലെങ്കിൽ
 /*
  * ossl_log_tls12_secret is called by libcurl to make the CLIENT_RANDOMs if the
  * OpenSSL being used does not have native support for doing that.
  */
-static void ossl_log_tls12_secret(const SSL *ssl, bool *keylog_done)
+സ്ഥിതം ശൂന്യം ossl_log_tls12_secret(സ്ഥിരം SSL *ssl, bool *keylog_done)
 {
-  const SSL_SESSION *session;
-  unsigned char client_random[SSL3_RANDOM_SIZE];
-  unsigned char master_key[SSL_MAX_MASTER_KEY_LENGTH];
-  int master_key_length = 0;
+  സ്ഥിരം SSL_SESSION *session;
+  unsigned അക്ഷരം client_random[SSL3_RANDOM_SIZE];
+  unsigned അക്ഷരം master_താക്കോൽ[SSL_MAX_MASTER_താക്കോൽ_LENGTH];
+  പൂർണ്ണസംഖ്യ master_താക്കോൽ_length = 0;
 
   ERR_set_mark();
 
   session = SSL_get_session(ssl);
 
-  if(!session || *keylog_done) {
-    ERR_pop_to_mark();
-    return;
+  എങ്കിൽ(!session || *keylog_done) {
+    ERR_എടുക്കുക_to_mark();
+    തിരികെ;
   }
 
   SSL_get_client_random(ssl, client_random, SSL3_RANDOM_SIZE);
-  master_key_length = (int)
-    SSL_SESSION_get_master_key(session, master_key, SSL_MAX_MASTER_KEY_LENGTH);
+  master_താക്കോൽ_length = (പൂർണ്ണസംഖ്യ)
+    SSL_SESSION_get_master_താക്കോൽ(session, master_താക്കോൽ, SSL_MAX_MASTER_താക്കോൽ_LENGTH);
 
-  ERR_pop_to_mark();
+  ERR_എടുക്കുക_to_mark();
 
   /* The handshake has not progressed sufficiently yet, or this is a TLS 1.3
    * session (when curl was built with older OpenSSL headers and running with
    * newer OpenSSL runtime libraries). */
-  if(master_key_length <= 0)
-    return;
+  എങ്കിൽ(master_താക്കോൽ_length <= 0)
+    തിരികെ;
 
   *keylog_done = TRUE;
   Curl_tls_keylog_write("CLIENT_RANDOM", client_random,
-                        sizeof(client_random),
-                        master_key, master_key_length);
+                        വലുപ്പം(client_random),
+                        master_താക്കോൽ, master_താക്കോൽ_length);
 }
 #endif /* !HAVE_KEYLOG_CALLBACK */
 #endif /* HAVE_KEYLOG_UPSTREAM */
 
-static const char *SSL_ERROR_to_str(int err)
+സ്ഥിതം സ്ഥിരം അക്ഷരം *SSL_ERROR_to_str(പൂർണ്ണസംഖ്യ err)
 {
-  switch(err) {
-  case SSL_ERROR_NONE:
-    return "SSL_ERROR_NONE";
-  case SSL_ERROR_SSL:
-    return "SSL_ERROR_SSL";
-  case SSL_ERROR_WANT_READ:
-    return "SSL_ERROR_WANT_READ";
-  case SSL_ERROR_WANT_WRITE:
-    return "SSL_ERROR_WANT_WRITE";
-  case SSL_ERROR_WANT_X509_LOOKUP:
-    return "SSL_ERROR_WANT_X509_LOOKUP";
-  case SSL_ERROR_SYSCALL:
-    return "SSL_ERROR_SYSCALL";
-  case SSL_ERROR_ZERO_RETURN:
-    return "SSL_ERROR_ZERO_RETURN";
-  case SSL_ERROR_WANT_CONNECT:
-    return "SSL_ERROR_WANT_CONNECT";
-  case SSL_ERROR_WANT_ACCEPT:
-    return "SSL_ERROR_WANT_ACCEPT";
+  തിരഞ്ഞെടുപ്പ്(err) {
+  അവസ്ഥ SSL_ERROR_NONE:
+    തിരികെ "SSL_ERROR_NONE";
+  അവസ്ഥ SSL_ERROR_SSL:
+    തിരികെ "SSL_ERROR_SSL";
+  അവസ്ഥ SSL_ERROR_WANT_READ:
+    തിരികെ "SSL_ERROR_WANT_READ";
+  അവസ്ഥ SSL_ERROR_WANT_WRITE:
+    തിരികെ "SSL_ERROR_WANT_WRITE";
+  അവസ്ഥ SSL_ERROR_WANT_X509_LOOKUP:
+    തിരികെ "SSL_ERROR_WANT_X509_LOOKUP";
+  അവസ്ഥ SSL_ERROR_SYSCALL:
+    തിരികെ "SSL_ERROR_SYSCALL";
+  അവസ്ഥ SSL_ERROR_ZERO_RETURN:
+    തിരികെ "SSL_ERROR_ZERO_RETURN";
+  അവസ്ഥ SSL_ERROR_WANT_CONNECT:
+    തിരികെ "SSL_ERROR_WANT_CONNECT";
+  അവസ്ഥ SSL_ERROR_WANT_ACCEPT:
+    തിരികെ "SSL_ERROR_WANT_ACCEPT";
 #ifdef SSL_ERROR_WANT_ASYNC  /* OpenSSL 1.1.0+, LibreSSL 3.6.0+ */
-  case SSL_ERROR_WANT_ASYNC:
-    return "SSL_ERROR_WANT_ASYNC";
+  അവസ്ഥ SSL_ERROR_WANT_ASYNC:
+    തിരികെ "SSL_ERROR_WANT_ASYNC";
 #endif
 #ifdef SSL_ERROR_WANT_ASYNC_JOB  /* OpenSSL 1.1.0+, LibreSSL 3.6.0+ */
-  case SSL_ERROR_WANT_ASYNC_JOB:
-    return "SSL_ERROR_WANT_ASYNC_JOB";
+  അവസ്ഥ SSL_ERROR_WANT_ASYNC_JOB:
+    തിരികെ "SSL_ERROR_WANT_ASYNC_JOB";
 #endif
 #ifdef SSL_ERROR_WANT_CLIENT_HELLO_CB  /* OpenSSL 1.1.1, LibreSSL 3.6.0+ */
-  case SSL_ERROR_WANT_CLIENT_HELLO_CB:
-    return "SSL_ERROR_WANT_CLIENT_HELLO_CB";
+  അവസ്ഥ SSL_ERROR_WANT_CLIENT_HELLO_CB:
+    തിരികെ "SSL_ERROR_WANT_CLIENT_HELLO_CB";
 #endif
-  default:
-    return "SSL_ERROR unknown";
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ "SSL_ERROR unknown";
   }
 }
 
 /* Return error string for last OpenSSL error
  */
-static char *ossl_strerror(unsigned long error, char *buf, size_t size)
+സ്ഥിതം അക്ഷരം *ossl_strerror(unsigned long error, അക്ഷരം *buf, size_t size)
 {
   size_t len;
   DEBUGASSERT(size);
@@ -763,7 +763,7 @@ static char *ossl_strerror(unsigned long error, char *buf, size_t size)
 
   len = Curl_ossl_version(buf, size);
   DEBUGASSERT(len < (size - 2));
-  if(len < (size - 2)) {
+  എങ്കിൽ(len < (size - 2)) {
     buf += len;
     size -= (len + 2);
     *buf++ = ':';
@@ -773,54 +773,54 @@ static char *ossl_strerror(unsigned long error, char *buf, size_t size)
 
 #ifdef HAVE_BORINGSSL_LIKE
   ERR_error_string_n((uint32_t)error, buf, size);
-#else
+#അല്ലെങ്കിൽ
   ERR_error_string_n(error, buf, size);
 #endif
 
-  if(!*buf) {
-    const char *msg = error ? "Unknown error" : "No error";
-    curlx_strcopy(buf, size, msg, strlen(msg));
+  എങ്കിൽ(!*buf) {
+    സ്ഥിരം അക്ഷരം *സന്ദേശം = error ? "Unknown error" : "No error";
+    curlx_strcopy(buf, size, സന്ദേശം, strlen(സന്ദേശം));
   }
 
-  return buf;
+  തിരികെ buf;
 }
 
-static int passwd_callback(char *buf, int num, int encrypting, void *password)
+സ്ഥിതം പൂർണ്ണസംഖ്യ passwd_callback(അക്ഷരം *buf, പൂർണ്ണസംഖ്യ അക്കം, പൂർണ്ണസംഖ്യ encrypting, ശൂന്യം *password)
 {
   DEBUGASSERT(encrypting == 0);
 
-  if(!encrypting && num >= 0 && password) {
-    int klen = curlx_uztosi(strlen((char *)password));
-    if(num > klen) {
+  എങ്കിൽ(!encrypting && അക്കം >= 0 && password) {
+    പൂർണ്ണസംഖ്യ klen = curlx_uztosi(strlen((അക്ഷരം *)password));
+    എങ്കിൽ(അക്കം > klen) {
       memcpy(buf, password, klen + 1);
-      return klen;
+      തിരികെ klen;
     }
   }
-  return 0;
+  തിരികെ 0;
 }
 
 /*
  * rand_enough() returns TRUE if we have seeded the random engine properly.
  */
-static bool rand_enough(void)
+സ്ഥിതം bool rand_enough(ശൂന്യം)
 {
-  return RAND_status() != 0;
+  തിരികെ RAND_status() != 0;
 }
 
-static CURLcode ossl_seed(struct Curl_easy *data)
+സ്ഥിതം CURLcode ossl_seed(ഘടന Curl_easy *data)
 {
   /* This might get called before it has been added to a multi handle */
-  if(data->multi && data->multi->ssl_seeded)
-    return CURLE_OK;
+  എങ്കിൽ(data->multi && data->multi->ssl_seeded)
+    തിരികെ CURLE_OK;
 
-  if(rand_enough()) {
+  എങ്കിൽ(rand_enough()) {
     /* OpenSSL 1.1.0+ should return here */
-    if(data->multi)
+    എങ്കിൽ(data->multi)
       data->multi->ssl_seeded = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
   failf(data, "Insufficient randomness");
-  return CURLE_SSL_CONNECT_ERROR;
+  തിരികെ CURLE_SSL_CONNECT_ERROR;
 }
 
 #ifndef SSL_FILETYPE_ENGINE
@@ -832,560 +832,560 @@ static CURLcode ossl_seed(struct Curl_easy *data)
 #ifndef SSL_FILETYPE_PROVIDER
 #define SSL_FILETYPE_PROVIDER 44
 #endif
-static int ossl_do_file_type(const char *type)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_do_file_type(സ്ഥിരം അക്ഷരം *type)
 {
-  if(!type || !type[0])
-    return SSL_FILETYPE_PEM;
-  if(curl_strequal(type, "PEM"))
-    return SSL_FILETYPE_PEM;
-  if(curl_strequal(type, "DER"))
-    return SSL_FILETYPE_ASN1;
-  if(curl_strequal(type, "PROV"))
-    return SSL_FILETYPE_PROVIDER;
-  if(curl_strequal(type, "ENG"))
-    return SSL_FILETYPE_ENGINE;
-  if(curl_strequal(type, "P12"))
-    return SSL_FILETYPE_PKCS12;
-  return -1;
+  എങ്കിൽ(!type || !type[0])
+    തിരികെ SSL_FILETYPE_PEM;
+  എങ്കിൽ(curl_strequal(type, "PEM"))
+    തിരികെ SSL_FILETYPE_PEM;
+  എങ്കിൽ(curl_strequal(type, "DER"))
+    തിരികെ SSL_FILETYPE_ASN1;
+  എങ്കിൽ(curl_strequal(type, "PROV"))
+    തിരികെ SSL_FILETYPE_PROVIDER;
+  എങ്കിൽ(curl_strequal(type, "ENG"))
+    തിരികെ SSL_FILETYPE_ENGINE;
+  എങ്കിൽ(curl_strequal(type, "P12"))
+    തിരികെ SSL_FILETYPE_PKCS12;
+  തിരികെ -1;
 }
 
-#if defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
+#എങ്കിൽ defined(USE_OPENSSL_ENGINE) || defined(OPENSSL_HAS_PROVIDERS)
 /*
  * Supply default password to the engine user interface conversation.
  * The password is passed by OpenSSL engine from ENGINE_load_private_key()
  * last argument to the ui and can be obtained by UI_get0_user_data(ui) here.
  */
-static int ssl_ui_reader(UI *ui, UI_STRING *uis)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ssl_ui_reader(UI *ui, UI_STRING *uis)
 {
-  const char *password;
-  switch(UI_get_string_type(uis)) {
-  case UIT_PROMPT:
-  case UIT_VERIFY:
-    password = (const char *)UI_get0_user_data(ui);
-    if(password && (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
+  സ്ഥിരം അക്ഷരം *password;
+  തിരഞ്ഞെടുപ്പ്(UI_get_string_type(uis)) {
+  അവസ്ഥ UIT_PROMPT:
+  അവസ്ഥ UIT_VERIFY:
+    password = (സ്ഥിരം അക്ഷരം *)UI_get0_user_data(ui);
+    എങ്കിൽ(password && (UI_get_നിവേശം_flags(uis) & UI_നിവേശം_FLAG_DEFAULT_PWD)) {
       UI_set_result(ui, uis, password);
-      return 1;
+      തിരികെ 1;
     }
     FALLTHROUGH();
-  default:
-    break;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return UI_method_get_reader(UI_OpenSSL())(ui, uis);
+  തിരികെ UI_method_get_reader(UI_OpenSSL())(ui, uis);
 }
 
 /*
  * Suppress interactive request for a default password if available.
  */
-static int ssl_ui_writer(UI *ui, UI_STRING *uis)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ssl_ui_writer(UI *ui, UI_STRING *uis)
 {
-  switch(UI_get_string_type(uis)) {
-  case UIT_PROMPT:
-  case UIT_VERIFY:
-    if(UI_get0_user_data(ui) &&
-       (UI_get_input_flags(uis) & UI_INPUT_FLAG_DEFAULT_PWD)) {
-      return 1;
+  തിരഞ്ഞെടുപ്പ്(UI_get_string_type(uis)) {
+  അവസ്ഥ UIT_PROMPT:
+  അവസ്ഥ UIT_VERIFY:
+    എങ്കിൽ(UI_get0_user_data(ui) &&
+       (UI_get_നിവേശം_flags(uis) & UI_നിവേശം_FLAG_DEFAULT_PWD)) {
+      തിരികെ 1;
     }
     FALLTHROUGH();
-  default:
-    break;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return UI_method_get_writer(UI_OpenSSL())(ui, uis);
+  തിരികെ UI_method_get_writer(UI_OpenSSL())(ui, uis);
 }
 
 /*
  * Check if a given string is a PKCS#11 URI
  */
-static bool is_pkcs11_uri(const char *string)
+സ്ഥിതം bool is_pkcs11_uri(സ്ഥിരം അക്ഷരം *string)
 {
-  return string && curl_strnequal(string, "pkcs11:", 7);
+  തിരികെ string && curl_strnequal(string, "pkcs11:", 7);
 }
 
 #endif
 
-static CURLcode ossl_set_engine(struct Curl_easy *data, struct ossl_ctx *octx,
-                                const char *name);
+സ്ഥിതം CURLcode ossl_set_engine(ഘടന Curl_easy *data, ഘടന ossl_ctx *octx,
+                                സ്ഥിരം അക്ഷരം *name);
 #ifdef OPENSSL_HAS_PROVIDERS
-static CURLcode ossl_set_provider(struct Curl_easy *data,
-                                  struct ossl_ctx *octx,
-                                  const char *iname);
+സ്ഥിതം CURLcode ossl_set_provider(ഘടന Curl_easy *data,
+                                  ഘടന ossl_ctx *octx,
+                                  സ്ഥിരം അക്ഷരം *iname);
 #endif
 
-static int use_certificate_blob(SSL_CTX *ctx, const struct curl_blob *blob,
-                                int type, const char *key_passwd)
+സ്ഥിതം പൂർണ്ണസംഖ്യ use_certificate_blob(SSL_CTX *ctx, സ്ഥിരം ഘടന curl_blob *blob,
+                                പൂർണ്ണസംഖ്യ type, സ്ഥിരം അക്ഷരം *താക്കോൽ_passwd)
 {
-  int ret = 0;
-  X509 *x = NULL;
+  പൂർണ്ണസംഖ്യ ret = 0;
+  X509 *x = ശൂന്യ;
   /* the typecast of blob->len is fine since it is guaranteed to never be
      larger than CURL_MAX_INPUT_LENGTH */
-  BIO *in = BIO_new_mem_buf(blob->data, (int)blob->len);
-  if(!in)
-    return CURLE_OUT_OF_MEMORY;
+  BIO *in = BIO_new_mem_buf(blob->data, (പൂർണ്ണസംഖ്യ)blob->len);
+  എങ്കിൽ(!in)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  if(type == SSL_FILETYPE_ASN1) {
+  എങ്കിൽ(type == SSL_FILETYPE_ASN1) {
     /* j = ERR_R_ASN1_LIB; */
-    x = d2i_X509_bio(in, NULL);
+    x = d2i_X509_bio(in, ശൂന്യ);
   }
-  else if(type == SSL_FILETYPE_PEM) {
+  അല്ലെങ്കിൽ എങ്കിൽ(type == SSL_FILETYPE_PEM) {
     /* ERR_R_PEM_LIB; */
-    x = PEM_read_bio_X509(in, NULL, passwd_callback, CURL_UNCONST(key_passwd));
+    x = PEM_read_bio_X509(in, ശൂന്യ, passwd_callback, CURL_UNCONST(താക്കോൽ_passwd));
   }
-  else {
+  അല്ലെങ്കിൽ {
     ret = 0;
-    goto end;
+    പോകുക end;
   }
 
-  if(!x) {
+  എങ്കിൽ(!x) {
     ret = 0;
-    goto end;
+    പോകുക end;
   }
 
   ret = SSL_CTX_use_certificate(ctx, x);
 end:
   X509_free(x);
   BIO_free(in);
-  return ret;
+  തിരികെ ret;
 }
 
-static int use_privatekey_blob(SSL_CTX *ctx, const struct curl_blob *blob,
-                               int type, const char *key_passwd)
+സ്ഥിതം പൂർണ്ണസംഖ്യ use_privatekey_blob(SSL_CTX *ctx, സ്ഥിരം ഘടന curl_blob *blob,
+                               പൂർണ്ണസംഖ്യ type, സ്ഥിരം അക്ഷരം *താക്കോൽ_passwd)
 {
-  int ret = 0;
-  EVP_PKEY *pkey = NULL;
-  BIO *in = BIO_new_mem_buf(blob->data, (int)blob->len);
-  if(!in)
-    return CURLE_OUT_OF_MEMORY;
+  പൂർണ്ണസംഖ്യ ret = 0;
+  EVP_PKEY *pkey = ശൂന്യ;
+  BIO *in = BIO_new_mem_buf(blob->data, (പൂർണ്ണസംഖ്യ)blob->len);
+  എങ്കിൽ(!in)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  if(type == SSL_FILETYPE_PEM)
-    pkey = PEM_read_bio_PrivateKey(in, NULL, passwd_callback,
-                                   CURL_UNCONST(key_passwd));
-  else if(type == SSL_FILETYPE_ASN1)
-    pkey = d2i_PrivateKey_bio(in, NULL);
-  else
-    goto end;
+  എങ്കിൽ(type == SSL_FILETYPE_PEM)
+    pkey = PEM_read_bio_Private_താക്കോൽ(in, ശൂന്യ, passwd_callback,
+                                   CURL_UNCONST(താക്കോൽ_passwd));
+  അല്ലെങ്കിൽ എങ്കിൽ(type == SSL_FILETYPE_ASN1)
+    pkey = d2i_Private_താക്കോൽ_bio(in, ശൂന്യ);
+  അല്ലെങ്കിൽ
+    പോകുക end;
 
-  if(!pkey)
-    goto end;
+  എങ്കിൽ(!pkey)
+    പോകുക end;
 
-  ret = SSL_CTX_use_PrivateKey(ctx, pkey);
+  ret = SSL_CTX_use_Private_താക്കോൽ(ctx, pkey);
   EVP_PKEY_free(pkey);
 end:
   BIO_free(in);
-  return ret;
+  തിരികെ ret;
 }
 
-static int use_certificate_chain_blob(SSL_CTX *ctx,
-                                      const struct curl_blob *blob,
-                                      const char *key_passwd)
+സ്ഥിതം പൂർണ്ണസംഖ്യ use_certificate_chain_blob(SSL_CTX *ctx,
+                                      സ്ഥിരം ഘടന curl_blob *blob,
+                                      സ്ഥിരം അക്ഷരം *താക്കോൽ_passwd)
 {
-  int ret = 0;
-  X509 *x = NULL;
-  BIO *in = BIO_new_mem_buf(blob->data, (int)blob->len);
-  if(!in)
-    return CURLE_OUT_OF_MEMORY;
+  പൂർണ്ണസംഖ്യ ret = 0;
+  X509 *x = ശൂന്യ;
+  BIO *in = BIO_new_mem_buf(blob->data, (പൂർണ്ണസംഖ്യ)blob->len);
+  എങ്കിൽ(!in)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
   ERR_clear_error();
 
-  x = PEM_read_bio_X509_AUX(in, NULL,
-                            passwd_callback, CURL_UNCONST(key_passwd));
-  if(!x)
-    goto end;
+  x = PEM_read_bio_X509_AUX(in, ശൂന്യ,
+                            passwd_callback, CURL_UNCONST(താക്കോൽ_passwd));
+  എങ്കിൽ(!x)
+    പോകുക end;
 
   ret = SSL_CTX_use_certificate(ctx, x);
 
-  if(ERR_peek_error() != 0)
+  എങ്കിൽ(ERR_peek_error() != 0)
     ret = 0;
 
-  if(ret) {
+  എങ്കിൽ(ret) {
     X509 *ca;
     sslerr_t err;
 
-    if(!SSL_CTX_clear_chain_certs(ctx)) {
+    എങ്കിൽ(!SSL_CTX_clear_chain_certs(ctx)) {
       ret = 0;
-      goto end;
+      പോകുക end;
     }
 
-    while((ca = PEM_read_bio_X509(in, NULL, passwd_callback,
-                                  CURL_UNCONST(key_passwd))) != NULL) {
+    ആകുമ്പോൾ((ca = PEM_read_bio_X509(in, ശൂന്യ, passwd_callback,
+                                  CURL_UNCONST(താക്കോൽ_passwd))) != ശൂന്യ) {
 
-      if(!SSL_CTX_add0_chain_cert(ctx, ca)) {
+      എങ്കിൽ(!SSL_CTX_add0_chain_cert(ctx, ca)) {
         X509_free(ca);
         ret = 0;
-        goto end;
+        പോകുക end;
       }
     }
 
     err = ERR_peek_last_error();
-    if((ERR_GET_LIB(err) == ERR_LIB_PEM) &&
-       (ERR_GET_REASON(err) == PEM_R_NO_START_LINE))
+    എങ്കിൽ((ERR_GET_LIB(err) == ERR_LIB_PEM) &&
+       (ERR_GET_REASON(err) == PEM_R_NO_START_വരി))
       ERR_clear_error();
-    else
+    അല്ലെങ്കിൽ
       ret = 0;
   }
 
 end:
   X509_free(x);
   BIO_free(in);
-  return ret;
+  തിരികെ ret;
 }
 
-static int enginecheck(struct Curl_easy *data,
-                       struct ossl_ctx *octx,
-                       const char *key_file,
-                       const char *key_passwd)
+സ്ഥിതം പൂർണ്ണസംഖ്യ enginecheck(ഘടന Curl_easy *data,
+                       ഘടന ossl_ctx *octx,
+                       സ്ഥിരം അക്ഷരം *താക്കോൽ_file,
+                       സ്ഥിരം അക്ഷരം *താക്കോൽ_passwd)
 {
 #ifdef USE_OPENSSL_ENGINE
-  EVP_PKEY *priv_key = NULL;
+  EVP_PKEY *priv_താക്കോൽ = ശൂന്യ;
   SSL_CTX *ctx = octx->ssl_ctx;
 
   /* Implicitly use pkcs11 engine if none was provided and the
    * key_file is a PKCS#11 URI */
-  if(!octx->p.engine && is_pkcs11_uri(key_file) &&
+  എങ്കിൽ(!octx->p.engine && is_pkcs11_uri(താക്കോൽ_file) &&
      ossl_set_engine(data, octx, "pkcs11") != CURLE_OK)
-    return 0;
+    തിരികെ 0;
 
-  if(octx->p.engine) {
+  എങ്കിൽ(octx->p.engine) {
     UI_METHOD *ui_method = UI_create_method("curl user interface");
-    if(!ui_method) {
+    എങ്കിൽ(!ui_method) {
       failf(data, "unable to create " OSSL_PACKAGE " user-interface method");
-      return 0;
+      തിരികെ 0;
     }
     UI_method_set_opener(ui_method, UI_method_get_opener(UI_OpenSSL()));
     UI_method_set_closer(ui_method, UI_method_get_closer(UI_OpenSSL()));
     UI_method_set_reader(ui_method, ssl_ui_reader);
     UI_method_set_writer(ui_method, ssl_ui_writer);
-    priv_key = ENGINE_load_private_key(octx->p.engine, key_file,
+    priv_താക്കോൽ = ENGINE_load_private_താക്കോൽ(octx->p.engine, താക്കോൽ_file,
                                        ui_method,
-                                       CURL_UNCONST(key_passwd));
+                                       CURL_UNCONST(താക്കോൽ_passwd));
     UI_destroy_method(ui_method);
-    if(!priv_key) {
+    എങ്കിൽ(!priv_താക്കോൽ) {
       failf(data, "failed to load private key from crypto engine");
-      return 0;
+      തിരികെ 0;
     }
-    if(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
+    എങ്കിൽ(SSL_CTX_use_Private_താക്കോൽ(ctx, priv_താക്കോൽ) != 1) {
       failf(data, "unable to set private key");
-      EVP_PKEY_free(priv_key);
-      return 0;
+      EVP_PKEY_free(priv_താക്കോൽ);
+      തിരികെ 0;
     }
-    EVP_PKEY_free(priv_key);  /* we do not need the handle any more... */
+    EVP_PKEY_free(priv_താക്കോൽ);  /* we do not need the handle any more... */
   }
-  else {
+  അല്ലെങ്കിൽ {
     failf(data, "crypto engine not set, cannot load private key");
-    return 0;
+    തിരികെ 0;
   }
-  return 1;
-#else
-  (void)octx;
-  (void)key_file;
-  (void)key_passwd;
+  തിരികെ 1;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)octx;
+  (ശൂന്യം)താക്കോൽ_file;
+  (ശൂന്യം)താക്കോൽ_passwd;
   failf(data, "SSL_FILETYPE_ENGINE not supported for private key");
-  return 0;
+  തിരികെ 0;
 #endif
 }
 
-static int providercheck(struct Curl_easy *data,
-                         struct ossl_ctx *octx,
-                         const char *key_file)
+സ്ഥിതം പൂർണ്ണസംഖ്യ providercheck(ഘടന Curl_easy *data,
+                         ഘടന ossl_ctx *octx,
+                         സ്ഥിരം അക്ഷരം *താക്കോൽ_file)
 {
 #ifdef OPENSSL_HAS_PROVIDERS
-  char error_buffer[256];
+  അക്ഷരം error_buffer[256];
   SSL_CTX *ctx = octx->ssl_ctx;
 
   /* Implicitly use pkcs11 provider if none was provided and the
    * key_file is a PKCS#11 URI */
-  if(!octx->p.provider_loaded && is_pkcs11_uri(key_file) &&
+  എങ്കിൽ(!octx->p.provider_loaded && is_pkcs11_uri(താക്കോൽ_file) &&
      ossl_set_provider(data, octx, "pkcs11") != CURLE_OK) {
-    return 0;
+    തിരികെ 0;
   }
 
-  if(octx->p.provider_loaded) {
+  എങ്കിൽ(octx->p.provider_loaded) {
     /* Load the private key from the provider */
-    EVP_PKEY *priv_key = NULL;
-    OSSL_STORE_CTX *store = NULL;
-    OSSL_STORE_INFO *info = NULL;
+    EVP_PKEY *priv_താക്കോൽ = ശൂന്യ;
+    OSSL_STORE_CTX *store = ശൂന്യ;
+    OSSL_STORE_INFO *info = ശൂന്യ;
     UI_METHOD *ui_method = UI_create_method("curl user interface");
-    if(!ui_method) {
+    എങ്കിൽ(!ui_method) {
       failf(data, "unable to create " OSSL_PACKAGE " user-interface method");
-      return 0;
+      തിരികെ 0;
     }
     UI_method_set_opener(ui_method, UI_method_get_opener(UI_OpenSSL()));
     UI_method_set_closer(ui_method, UI_method_get_closer(UI_OpenSSL()));
     UI_method_set_reader(ui_method, ssl_ui_reader);
     UI_method_set_writer(ui_method, ssl_ui_writer);
 
-    store = OSSL_STORE_open_ex(key_file, octx->p.libctx,
-                               octx->p.propq, ui_method, NULL, NULL,
-                               NULL, NULL);
-    if(!store) {
+    store = OSSL_STORE_open_ex(താക്കോൽ_file, octx->p.libctx,
+                               octx->p.propq, ui_method, ശൂന്യ, ശൂന്യ,
+                               ശൂന്യ, ശൂന്യ);
+    എങ്കിൽ(!store) {
       failf(data, "Failed to open OpenSSL store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
+                          വലുപ്പം(error_buffer)));
       UI_destroy_method(ui_method);
-      return 0;
+      തിരികെ 0;
     }
-    if(OSSL_STORE_expect(store, OSSL_STORE_INFO_PKEY) != 1) {
+    എങ്കിൽ(OSSL_STORE_expect(store, OSSL_STORE_INFO_PKEY) != 1) {
       failf(data, "Failed to set store preference. Ignoring the error: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
+                          വലുപ്പം(error_buffer)));
     }
 
     info = OSSL_STORE_load(store);
-    if(info) {
-      int ossl_type = OSSL_STORE_INFO_get_type(info);
+    എങ്കിൽ(info) {
+      പൂർണ്ണസംഖ്യ ossl_type = OSSL_STORE_INFO_get_type(info);
 
-      if(ossl_type == OSSL_STORE_INFO_PKEY)
-        priv_key = OSSL_STORE_INFO_get1_PKEY(info);
+      എങ്കിൽ(ossl_type == OSSL_STORE_INFO_PKEY)
+        priv_താക്കോൽ = OSSL_STORE_INFO_get1_PKEY(info);
       OSSL_STORE_INFO_free(info);
     }
     OSSL_STORE_close(store);
     UI_destroy_method(ui_method);
-    if(!priv_key) {
+    എങ്കിൽ(!priv_താക്കോൽ) {
       failf(data, "No private key found in the openssl store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
 
-    if(SSL_CTX_use_PrivateKey(ctx, priv_key) != 1) {
+    എങ്കിൽ(SSL_CTX_use_Private_താക്കോൽ(ctx, priv_താക്കോൽ) != 1) {
       failf(data, "unable to set private key [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      EVP_PKEY_free(priv_key);
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      EVP_PKEY_free(priv_താക്കോൽ);
+      തിരികെ 0;
     }
-    EVP_PKEY_free(priv_key); /* we do not need the handle any more... */
+    EVP_PKEY_free(priv_താക്കോൽ); /* we do not need the handle any more... */
   }
-  else {
+  അല്ലെങ്കിൽ {
     failf(data, "crypto provider not set, cannot load private key");
-    return 0;
+    തിരികെ 0;
   }
-  return 1;
-#else
-  (void)octx;
-  (void)key_file;
+  തിരികെ 1;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)octx;
+  (ശൂന്യം)താക്കോൽ_file;
   failf(data, "SSL_FILETYPE_PROVIDER not supported for private key");
-  return 0;
+  തിരികെ 0;
 #endif
 }
 
-static int engineload(struct Curl_easy *data,
-                      struct ossl_ctx *octx,
-                      const char *cert_file)
+സ്ഥിതം പൂർണ്ണസംഖ്യ engineload(ഘടന Curl_easy *data,
+                      ഘടന ossl_ctx *octx,
+                      സ്ഥിരം അക്ഷരം *cert_file)
 {
 /* ENGINE_CTRL_GET_CMD_FROM_NAME supported by OpenSSL, LibreSSL <=3.8.3 */
-#if defined(USE_OPENSSL_ENGINE) && defined(ENGINE_CTRL_GET_CMD_FROM_NAME)
-  char error_buffer[256];
+#എങ്കിൽ defined(USE_OPENSSL_ENGINE) && defined(ENGINE_CTRL_GET_CMD_FROM_NAME)
+  അക്ഷരം error_buffer[256];
   SSL_CTX *ctx = octx->ssl_ctx;
 
   /* Implicitly use pkcs11 engine if none was provided and the cert_file is a
    * PKCS#11 URI */
-  if(!octx->p.engine && is_pkcs11_uri(cert_file) &&
+  എങ്കിൽ(!octx->p.engine && is_pkcs11_uri(cert_file) &&
      ossl_set_engine(data, octx, "pkcs11") != CURLE_OK)
-    return 0;
+    തിരികെ 0;
 
-  if(octx->p.engine) {
-    static const char cmd_name[] = "LOAD_CERT_CTRL";
-    struct {
-      const char *cert_id;
+  എങ്കിൽ(octx->p.engine) {
+    സ്ഥിതം സ്ഥിരം അക്ഷരം cmd_name[] = "LOAD_CERT_CTRL";
+    ഘടന {
+      സ്ഥിരം അക്ഷരം *cert_id;
       X509 *cert;
     } params;
 
     params.cert_id = cert_file;
-    params.cert = NULL;
+    params.cert = ശൂന്യ;
 
     /* Does the engine supports LOAD_CERT_CTRL ? */
-    if(!ENGINE_ctrl(octx->p.engine, ENGINE_CTRL_GET_CMD_FROM_NAME,
-                    0, CURL_UNCONST(cmd_name), NULL)) {
+    എങ്കിൽ(!ENGINE_ctrl(octx->p.engine, ENGINE_CTRL_GET_CMD_FROM_NAME,
+                    0, CURL_UNCONST(cmd_name), ശൂന്യ)) {
       failf(data, "SSL engine does not support loading certificates");
-      return 0;
+      തിരികെ 0;
     }
 
     /* Load the certificate from the engine */
-    if(!ENGINE_ctrl_cmd(octx->p.engine, cmd_name, 0, &params, NULL, 1)) {
+    എങ്കിൽ(!ENGINE_ctrl_cmd(octx->p.engine, cmd_name, 0, &params, ശൂന്യ, 1)) {
       failf(data, "SSL engine cannot load client cert with id '%s' [%s]",
             cert_file,
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
 
-    if(!params.cert) {
+    എങ്കിൽ(!params.cert) {
       failf(data, "SSL engine did not initialize the certificate properly.");
-      return 0;
+      തിരികെ 0;
     }
 
-    if(SSL_CTX_use_certificate(ctx, params.cert) != 1) {
+    എങ്കിൽ(SSL_CTX_use_certificate(ctx, params.cert) != 1) {
       failf(data, "unable to set client certificate [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
+                          വലുപ്പം(error_buffer)));
       X509_free(params.cert);
-      return 0;
+      തിരികെ 0;
     }
     X509_free(params.cert); /* we do not need the handle any more... */
   }
-  else {
+  അല്ലെങ്കിൽ {
     failf(data, "crypto engine not set, cannot load certificate");
-    return 0;
+    തിരികെ 0;
   }
-  return 1;
-#else
-  (void)octx;
-  (void)cert_file;
+  തിരികെ 1;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)octx;
+  (ശൂന്യം)cert_file;
   failf(data, "SSL_FILETYPE_ENGINE not supported for certificate");
-  return 0;
+  തിരികെ 0;
 #endif
 }
 
-static int providerload(struct Curl_easy *data,
-                        struct ossl_ctx *octx,
-                        const char *cert_file)
+സ്ഥിതം പൂർണ്ണസംഖ്യ providerload(ഘടന Curl_easy *data,
+                        ഘടന ossl_ctx *octx,
+                        സ്ഥിരം അക്ഷരം *cert_file)
 {
 #ifdef OPENSSL_HAS_PROVIDERS
-  char error_buffer[256];
+  അക്ഷരം error_buffer[256];
   SSL_CTX *ctx = octx->ssl_ctx;
 
   /* Implicitly use pkcs11 provider if none was provided and the cert_file is
    * a PKCS#11 URI */
-  if(!octx->p.provider_loaded && is_pkcs11_uri(cert_file) &&
+  എങ്കിൽ(!octx->p.provider_loaded && is_pkcs11_uri(cert_file) &&
      ossl_set_provider(data, octx, "pkcs11") != CURLE_OK)
-    return 0;
+    തിരികെ 0;
 
-  if(octx->p.provider_loaded) {
+  എങ്കിൽ(octx->p.provider_loaded) {
     /* Load the certificate from the provider */
-    OSSL_STORE_INFO *info = NULL;
-    X509 *cert = NULL;
+    OSSL_STORE_INFO *info = ശൂന്യ;
+    X509 *cert = ശൂന്യ;
     OSSL_STORE_CTX *store =
       OSSL_STORE_open_ex(cert_file, octx->p.libctx,
-                         NULL, NULL, NULL, NULL, NULL, NULL);
-    int rc;
+                         ശൂന്യ, ശൂന്യ, ശൂന്യ, ശൂന്യ, ശൂന്യ, ശൂന്യ);
+    പൂർണ്ണസംഖ്യ rc;
 
-    if(!store) {
+    എങ്കിൽ(!store) {
       failf(data, "Failed to open OpenSSL store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
-    if(OSSL_STORE_expect(store, OSSL_STORE_INFO_CERT) != 1) {
+    എങ്കിൽ(OSSL_STORE_expect(store, OSSL_STORE_INFO_CERT) != 1) {
       failf(data, "Failed to set store preference. Ignoring the error: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
+                          വലുപ്പം(error_buffer)));
     }
 
     info = OSSL_STORE_load(store);
-    if(info) {
-      int ossl_type = OSSL_STORE_INFO_get_type(info);
+    എങ്കിൽ(info) {
+      പൂർണ്ണസംഖ്യ ossl_type = OSSL_STORE_INFO_get_type(info);
 
-      if(ossl_type == OSSL_STORE_INFO_CERT)
+      എങ്കിൽ(ossl_type == OSSL_STORE_INFO_CERT)
         cert = OSSL_STORE_INFO_get1_CERT(info);
       OSSL_STORE_INFO_free(info);
     }
     OSSL_STORE_close(store);
-    if(!cert) {
+    എങ്കിൽ(!cert) {
       failf(data, "No cert found in the openssl store: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
 
     rc = SSL_CTX_use_certificate(ctx, cert);
     X509_free(cert); /* we do not need the handle any more... */
 
-    if(rc != 1) {
+    എങ്കിൽ(rc != 1) {
       failf(data, "unable to set client certificate [%s]",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
     failf(data, "crypto provider not set, cannot load certificate");
-    return 0;
+    തിരികെ 0;
   }
-  return 1;
-#else
-  (void)octx;
-  (void)cert_file;
+  തിരികെ 1;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)octx;
+  (ശൂന്യം)cert_file;
   failf(data, "SSL_FILETYPE_PROVIDER not supported for certificate");
-  return 0;
+  തിരികെ 0;
 #endif
 }
 
-static int pkcs12load(struct Curl_easy *data,
+സ്ഥിതം പൂർണ്ണസംഖ്യ pkcs12load(ഘടന Curl_easy *data,
                       SSL_CTX* ctx,
-                      const struct curl_blob *cert_blob,
-                      const char *cert_file,
-                      const char *key_passwd)
+                      സ്ഥിരം ഘടന curl_blob *cert_blob,
+                      സ്ഥിരം അക്ഷരം *cert_file,
+                      സ്ഥിരം അക്ഷരം *താക്കോൽ_passwd)
 {
-  char error_buffer[256];
-  BIO *cert_bio = NULL;
-  PKCS12 *p12 = NULL;
+  അക്ഷരം error_buffer[256];
+  BIO *cert_bio = ശൂന്യ;
+  PKCS12 *p12 = ശൂന്യ;
   EVP_PKEY *pri;
   X509 *x509;
-  int cert_done = 0;
-  STACK_OF(X509) *ca = NULL;
-  if(cert_blob) {
-    cert_bio = BIO_new_mem_buf(cert_blob->data, (int)cert_blob->len);
-    if(!cert_bio) {
+  പൂർണ്ണസംഖ്യ cert_done = 0;
+  അട്ടി_OF(X509) *ca = ശൂന്യ;
+  എങ്കിൽ(cert_blob) {
+    cert_bio = BIO_new_mem_buf(cert_blob->data, (പൂർണ്ണസംഖ്യ)cert_blob->len);
+    എങ്കിൽ(!cert_bio) {
       failf(data, "BIO_new_mem_buf NULL, " OSSL_PACKAGE " error %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
     cert_bio = BIO_new(BIO_s_file());
-    if(!cert_bio) {
+    എങ്കിൽ(!cert_bio) {
       failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
-      return 0;
+                          വലുപ്പം(error_buffer)));
+      തിരികെ 0;
     }
 
-    if(BIO_read_filename(cert_bio, CURL_UNCONST(cert_file)) <= 0) {
+    എങ്കിൽ(BIO_read_filename(cert_bio, CURL_UNCONST(cert_file)) <= 0) {
       failf(data, "could not open PKCS12 file '%s'", cert_file);
       BIO_free(cert_bio);
-      return 0;
+      തിരികെ 0;
     }
   }
 
-  p12 = d2i_PKCS12_bio(cert_bio, NULL);
+  p12 = d2i_PKCS12_bio(cert_bio, ശൂന്യ);
   BIO_free(cert_bio);
 
-  if(!p12) {
+  എങ്കിൽ(!p12) {
     failf(data, "error reading PKCS12 file '%s'",
           cert_blob ? "(memory blob)" : cert_file);
-    return 0;
+    തിരികെ 0;
   }
 
-  if(!PKCS12_parse(p12, key_passwd, &pri, &x509, &ca)) {
+  എങ്കിൽ(!PKCS12_parse(p12, താക്കോൽ_passwd, &pri, &x509, &ca)) {
     failf(data, "could not parse PKCS12 file, check password, " OSSL_PACKAGE
           " error %s",
-          ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
+          ossl_strerror(ERR_get_error(), error_buffer, വലുപ്പം(error_buffer)));
     PKCS12_free(p12);
-    return 0;
+    തിരികെ 0;
   }
 
   PKCS12_free(p12);
 
-  if(SSL_CTX_use_certificate(ctx, x509) != 1) {
+  എങ്കിൽ(SSL_CTX_use_certificate(ctx, x509) != 1) {
     failf(data, "could not load PKCS12 client certificate, " OSSL_PACKAGE
           " error %s",
-          ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
-    goto fail;
+          ossl_strerror(ERR_get_error(), error_buffer, വലുപ്പം(error_buffer)));
+    പോകുക fail;
   }
 
-  if(SSL_CTX_use_PrivateKey(ctx, pri) != 1) {
+  എങ്കിൽ(SSL_CTX_use_Private_താക്കോൽ(ctx, pri) != 1) {
     failf(data, "unable to use private key from PKCS12 file '%s'", cert_file);
-    goto fail;
+    പോകുക fail;
   }
 
-  if(!SSL_CTX_check_private_key(ctx)) {
+  എങ്കിൽ(!SSL_CTX_check_private_താക്കോൽ(ctx)) {
     failf(data, "private key from PKCS12 file '%s' "
           "does not match certificate in same file", cert_file);
-    goto fail;
+    പോകുക fail;
   }
   /* Set Certificate Verification chain */
-  if(ca) {
-    while(sk_X509_num(ca)) {
+  എങ്കിൽ(ca) {
+    ആകുമ്പോൾ(sk_X509_അക്കം(ca)) {
       /*
        * Note that sk_X509_pop() is used below to make sure the cert is
        * removed from the stack properly before getting passed to
@@ -1393,16 +1393,16 @@ static int pkcs12load(struct Curl_easy *data,
        * we used sk_X509_value() instead, but then we would clean it in the
        * subsequent sk_X509_pop_free() call.
        */
-      X509 *x = sk_X509_pop(ca);
-      if(!SSL_CTX_add_client_CA(ctx, x)) {
+      X509 *x = sk_X509_എടുക്കുക(ca);
+      എങ്കിൽ(!SSL_CTX_add_client_CA(ctx, x)) {
         X509_free(x);
         failf(data, "cannot add certificate to client CA list");
-        goto fail;
+        പോകുക fail;
       }
-      if(!SSL_CTX_add_extra_chain_cert(ctx, x)) {
+      എങ്കിൽ(!SSL_CTX_add_extra_chain_cert(ctx, x)) {
         X509_free(x);
         failf(data, "cannot add certificate to certificate chain");
-        goto fail;
+        പോകുക fail;
       }
     }
   }
@@ -1411,170 +1411,170 @@ static int pkcs12load(struct Curl_easy *data,
 fail:
   EVP_PKEY_free(pri);
   X509_free(x509);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic തള്ളുക
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
-  sk_X509_pop_free(ca, X509_free);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+  sk_X509_എടുക്കുക_free(ca, X509_free);
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic എടുക്കുക
 #endif
-  if(!cert_done)
-    return 0; /* failure! */
-  return 1;
+  എങ്കിൽ(!cert_done)
+    തിരികെ 0; /* failure! */
+  തിരികെ 1;
 }
 
-static CURLcode client_cert(struct Curl_easy *data,
-                            struct ossl_ctx *octx,
-                            char *cert_file,
-                            const struct curl_blob *cert_blob,
-                            const char *cert_type,
-                            char *key_file,
-                            const struct curl_blob *key_blob,
-                            const char *key_type,
-                            char *key_passwd)
+സ്ഥിതം CURLcode client_cert(ഘടന Curl_easy *data,
+                            ഘടന ossl_ctx *octx,
+                            അക്ഷരം *cert_file,
+                            സ്ഥിരം ഘടന curl_blob *cert_blob,
+                            സ്ഥിരം അക്ഷരം *cert_type,
+                            അക്ഷരം *താക്കോൽ_file,
+                            സ്ഥിരം ഘടന curl_blob *താക്കോൽ_blob,
+                            സ്ഥിരം അക്ഷരം *താക്കോൽ_type,
+                            അക്ഷരം *താക്കോൽ_passwd)
 {
-  char error_buffer[256];
+  അക്ഷരം error_buffer[256];
   bool check_privkey = TRUE;
-  int file_type = ossl_do_file_type(cert_type);
+  പൂർണ്ണസംഖ്യ file_type = ossl_do_file_type(cert_type);
   SSL_CTX *ctx = octx->ssl_ctx;
 
-  if(cert_file || cert_blob || (file_type == SSL_FILETYPE_ENGINE) ||
+  എങ്കിൽ(cert_file || cert_blob || (file_type == SSL_FILETYPE_ENGINE) ||
      (file_type == SSL_FILETYPE_PROVIDER)) {
     SSL *ssl;
     X509 *x509;
     bool pcks12_done = FALSE;
-    int cert_use_result;
+    പൂർണ്ണസംഖ്യ cert_use_result;
 
-    if(key_passwd) {
+    എങ്കിൽ(താക്കോൽ_passwd) {
       /* set the password in the callback userdata */
-      SSL_CTX_set_default_passwd_cb_userdata(ctx, key_passwd);
+      SSL_CTX_set_default_passwd_cb_userdata(ctx, താക്കോൽ_passwd);
       /* Set passwd callback: */
       SSL_CTX_set_default_passwd_cb(ctx, passwd_callback);
     }
 
-    switch(file_type) {
-    case SSL_FILETYPE_PEM:
+    തിരഞ്ഞെടുപ്പ്(file_type) {
+    അവസ്ഥ SSL_FILETYPE_PEM:
       /* SSL_CTX_use_certificate_chain_file() only works on PEM files */
       cert_use_result = cert_blob ?
-        use_certificate_chain_blob(ctx, cert_blob, key_passwd) :
+        use_certificate_chain_blob(ctx, cert_blob, താക്കോൽ_passwd) :
         SSL_CTX_use_certificate_chain_file(ctx, cert_file);
-      if(cert_use_result != 1) {
+      എങ്കിൽ(cert_use_result != 1) {
         failf(data,
               "could not load PEM client certificate from %s, " OSSL_PACKAGE
               " error %s, "
               "(no key found, wrong passphrase, or wrong file format?)",
               (cert_blob ? "CURLOPT_SSLCERT_BLOB" : cert_file),
               ossl_strerror(ERR_get_error(), error_buffer,
-                            sizeof(error_buffer)));
-        return CURLE_SSL_CERTPROBLEM;
+                            വലുപ്പം(error_buffer)));
+        തിരികെ CURLE_SSL_CERTPROBLEM;
       }
-      break;
+      നിർത്തുക;
 
-    case SSL_FILETYPE_ASN1:
+    അവസ്ഥ SSL_FILETYPE_ASN1:
       /* SSL_CTX_use_certificate_file() works with either PEM or ASN1, but
          we use the case above for PEM so this can only be performed with
          ASN1 files. */
 
       cert_use_result = cert_blob ?
-        use_certificate_blob(ctx, cert_blob, file_type, key_passwd) :
+        use_certificate_blob(ctx, cert_blob, file_type, താക്കോൽ_passwd) :
       SSL_CTX_use_certificate_file(ctx, cert_file, file_type);
-      if(cert_use_result != 1) {
+      എങ്കിൽ(cert_use_result != 1) {
         failf(data,
               "could not load ASN1 client certificate from %s, " OSSL_PACKAGE
               " error %s, "
               "(no key found, wrong passphrase, or wrong file format?)",
               (cert_blob ? "CURLOPT_SSLCERT_BLOB" : cert_file),
               ossl_strerror(ERR_get_error(), error_buffer,
-                            sizeof(error_buffer)));
-        return CURLE_SSL_CERTPROBLEM;
+                            വലുപ്പം(error_buffer)));
+        തിരികെ CURLE_SSL_CERTPROBLEM;
       }
-      break;
+      നിർത്തുക;
 
-    case SSL_FILETYPE_ENGINE:
-      if(!cert_file || !engineload(data, octx, cert_file))
-        return CURLE_SSL_CERTPROBLEM;
-      break;
+    അവസ്ഥ SSL_FILETYPE_ENGINE:
+      എങ്കിൽ(!cert_file || !engineload(data, octx, cert_file))
+        തിരികെ CURLE_SSL_CERTPROBLEM;
+      നിർത്തുക;
 
-    case SSL_FILETYPE_PROVIDER:
-      if(!cert_file || !providerload(data, octx, cert_file))
-        return CURLE_SSL_CERTPROBLEM;
-      break;
+    അവസ്ഥ SSL_FILETYPE_PROVIDER:
+      എങ്കിൽ(!cert_file || !providerload(data, octx, cert_file))
+        തിരികെ CURLE_SSL_CERTPROBLEM;
+      നിർത്തുക;
 
-    case SSL_FILETYPE_PKCS12:
-      if(!pkcs12load(data, ctx, cert_blob, cert_file, key_passwd))
-        return CURLE_SSL_CERTPROBLEM;
+    അവസ്ഥ SSL_FILETYPE_PKCS12:
+      എങ്കിൽ(!pkcs12load(data, ctx, cert_blob, cert_file, താക്കോൽ_passwd))
+        തിരികെ CURLE_SSL_CERTPROBLEM;
       pcks12_done = TRUE;
-      break;
+      നിർത്തുക;
 
-    default:
+    സ്ഥിരസ്ഥിതി:
       failf(data, "not supported file type '%s' for certificate", cert_type);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
-    if(!key_file && !key_blob) {
-      key_file = cert_file;
-      key_blob = cert_blob;
+    എങ്കിൽ(!താക്കോൽ_file && !താക്കോൽ_blob) {
+      താക്കോൽ_file = cert_file;
+      താക്കോൽ_blob = cert_blob;
     }
-    else
-      file_type = ossl_do_file_type(key_type);
+    അല്ലെങ്കിൽ
+      file_type = ossl_do_file_type(താക്കോൽ_type);
 
-    switch(file_type) {
-    case SSL_FILETYPE_PEM:
-    case SSL_FILETYPE_ASN1:
-      cert_use_result = key_blob ?
-        use_privatekey_blob(ctx, key_blob, file_type, key_passwd) :
-      SSL_CTX_use_PrivateKey_file(ctx, key_file, file_type);
-      if(cert_use_result != 1) {
+    തിരഞ്ഞെടുപ്പ്(file_type) {
+    അവസ്ഥ SSL_FILETYPE_PEM:
+    അവസ്ഥ SSL_FILETYPE_ASN1:
+      cert_use_result = താക്കോൽ_blob ?
+        use_privatekey_blob(ctx, താക്കോൽ_blob, file_type, താക്കോൽ_passwd) :
+      SSL_CTX_use_Private_താക്കോൽ_file(ctx, താക്കോൽ_file, file_type);
+      എങ്കിൽ(cert_use_result != 1) {
         failf(data, "unable to set private key file: '%s' type %s",
-              key_file ? key_file : "(memory blob)",
-              key_type ? key_type : "PEM");
-        return CURLE_BAD_FUNCTION_ARGUMENT;
+              താക്കോൽ_file ? താക്കോൽ_file : "(memory blob)",
+              താക്കോൽ_type ? താക്കോൽ_type : "PEM");
+        തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
       }
-      break;
-    case SSL_FILETYPE_ENGINE:
-      if(!enginecheck(data, octx, key_file, key_passwd))
-        return CURLE_SSL_CERTPROBLEM;
-      break;
+      നിർത്തുക;
+    അവസ്ഥ SSL_FILETYPE_ENGINE:
+      എങ്കിൽ(!enginecheck(data, octx, താക്കോൽ_file, താക്കോൽ_passwd))
+        തിരികെ CURLE_SSL_CERTPROBLEM;
+      നിർത്തുക;
 
-    case SSL_FILETYPE_PROVIDER:
-      if(!providercheck(data, octx, key_file))
-        return CURLE_SSL_CERTPROBLEM;
-      break;
+    അവസ്ഥ SSL_FILETYPE_PROVIDER:
+      എങ്കിൽ(!providercheck(data, octx, താക്കോൽ_file))
+        തിരികെ CURLE_SSL_CERTPROBLEM;
+      നിർത്തുക;
 
-    case SSL_FILETYPE_PKCS12:
-      if(!pcks12_done) {
+    അവസ്ഥ SSL_FILETYPE_PKCS12:
+      എങ്കിൽ(!pcks12_done) {
         failf(data, "file type P12 for private key not supported");
-        return CURLE_SSL_CERTPROBLEM;
+        തിരികെ CURLE_SSL_CERTPROBLEM;
       }
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       failf(data, "not supported file type for private key");
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
     }
 
     ssl = SSL_new(ctx);
-    if(!ssl) {
+    എങ്കിൽ(!ssl) {
       failf(data, "unable to create an SSL structure");
-      return CURLE_OUT_OF_MEMORY;
+      തിരികെ CURLE_OUT_OF_MEMORY;
     }
 
     x509 = SSL_get_certificate(ssl);
 
-    if(x509) {
+    എങ്കിൽ(x509) {
       EVP_PKEY *pktmp = X509_get_pubkey(x509);
       EVP_PKEY_copy_parameters(pktmp, SSL_get_privatekey(ssl));
       EVP_PKEY_free(pktmp);
     }
 
-#if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DEPRECATED_3_0)
+#എങ്കിൽ !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DEPRECATED_3_0)
     {
       /* If RSA is used, do not check the private key if its flags indicate
        * it does not support it. */
-      EVP_PKEY *priv_key = SSL_get_privatekey(ssl);
-      if(EVP_PKEY_id(priv_key) == EVP_PKEY_RSA) {
-        RSA *rsa = EVP_PKEY_get1_RSA(priv_key);
-        if(RSA_flags(rsa) & RSA_METHOD_FLAG_NO_CHECK)
+      EVP_PKEY *priv_താക്കോൽ = SSL_get_privatekey(ssl);
+      എങ്കിൽ(EVP_PKEY_id(priv_താക്കോൽ) == EVP_PKEY_RSA) {
+        RSA *rsa = EVP_PKEY_get1_RSA(priv_താക്കോൽ);
+        എങ്കിൽ(RSA_flags(rsa) & RSA_METHOD_FLAG_NO_CHECK)
           check_privkey = FALSE;
         RSA_free(rsa); /* Decrement reference count */
       }
@@ -1586,39 +1586,39 @@ static CURLcode client_cert(struct Curl_easy *data,
     /* If we are using DSA, we can copy the parameters from
      * the private key */
 
-    if(check_privkey == TRUE) {
+    എങ്കിൽ(check_privkey == TRUE) {
       /* Now we know that a key and cert have been set against
        * the SSL context */
-      if(!SSL_CTX_check_private_key(ctx)) {
+      എങ്കിൽ(!SSL_CTX_check_private_താക്കോൽ(ctx)) {
         failf(data, "Private key does not match the certificate public key");
-        return CURLE_SSL_CERTPROBLEM;
+        തിരികെ CURLE_SSL_CERTPROBLEM;
       }
     }
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #ifdef CURLVERBOSE
 /* returns non-zero on failure */
-static CURLcode x509_name_oneline(const X509_NAME *a, struct dynbuf *d)
+സ്ഥിതം CURLcode x509_name_oneline(സ്ഥിരം X509_NAME *a, ഘടന dynbuf *d)
 {
   BIO *bio_out = BIO_new(BIO_s_mem());
   BUF_MEM *biomem;
-  int rc;
+  പൂർണ്ണസംഖ്യ rc;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(bio_out) {
+  എങ്കിൽ(bio_out) {
     unsigned long flags = XN_FLAG_SEP_SPLUS_SPC |
       (XN_FLAG_ONELINE & ~ASN1_STRFLGS_ESC_MSB & ~XN_FLAG_SPC_EQ);
     curlx_dyn_reset(d);
     rc = X509_NAME_print_ex(bio_out, a, 0, flags);
-    if(rc != -1) {
+    എങ്കിൽ(rc != -1) {
       BIO_get_mem_ptr(bio_out, &biomem);
       result = curlx_dyn_addn(d, biomem->data, biomem->length);
     }
     BIO_free(bio_out);
   }
-  return result;
+  തിരികെ result;
 }
 #endif
 
@@ -1628,30 +1628,30 @@ static CURLcode x509_name_oneline(const X509_NAME *a, struct dynbuf *d)
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-static int ossl_init(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_init(ശൂന്യം)
 {
-  const uint64_t flags =
+  സ്ഥിരം uint64_t flags =
 #ifdef OPENSSL_INIT_ENGINE_ALL_BUILTIN
     /* not present in BoringSSL */
     OPENSSL_INIT_ENGINE_ALL_BUILTIN |
 #endif
 #ifdef CURL_DISABLE_OPENSSL_AUTO_LOAD_CONFIG
     OPENSSL_INIT_NO_LOAD_CONFIG |
-#else
+#അല്ലെങ്കിൽ
     OPENSSL_INIT_LOAD_CONFIG |
 #endif
     0;
-  OPENSSL_init_ssl(flags, NULL);
+  OPENSSL_init_ssl(flags, ശൂന്യ);
 
 #ifndef HAVE_KEYLOG_UPSTREAM
   Curl_tls_keylog_open();
 #endif
 
-  return 1;
+  തിരികെ 1;
 }
 
 /* Global cleanup */
-static void ossl_cleanup(void)
+സ്ഥിതം ശൂന്യം ossl_cleanup(ശൂന്യം)
 {
 #ifndef HAVE_KEYLOG_UPSTREAM
   Curl_tls_keylog_close();
@@ -1660,108 +1660,108 @@ static void ossl_cleanup(void)
 
 /* Selects an OpenSSL crypto engine or provider.
  */
-static CURLcode ossl_set_engine(struct Curl_easy *data, struct ossl_ctx *octx,
-                                const char *name)
+സ്ഥിതം CURLcode ossl_set_engine(ഘടന Curl_easy *data, ഘടന ossl_ctx *octx,
+                                സ്ഥിരം അക്ഷരം *name)
 {
 #ifdef USE_OPENSSL_ENGINE
   CURLcode result = CURLE_SSL_ENGINE_NOTFOUND;
   ENGINE *e = ENGINE_by_id(name);
 
-  if(e) {
+  എങ്കിൽ(e) {
 
-    if(octx->p.engine) {
+    എങ്കിൽ(octx->p.engine) {
       ENGINE_finish(octx->p.engine);
       ENGINE_free(octx->p.engine);
-      octx->p.engine = NULL;
+      octx->p.engine = ശൂന്യ;
     }
-    if(!ENGINE_init(e)) {
-      char buf[256];
+    എങ്കിൽ(!ENGINE_init(e)) {
+      അക്ഷരം buf[256];
 
       ENGINE_free(e);
       failf(data, "Failed to initialize SSL Engine '%s': %s",
-            name, ossl_strerror(ERR_get_error(), buf, sizeof(buf)));
+            name, ossl_strerror(ERR_get_error(), buf, വലുപ്പം(buf)));
       result = CURLE_SSL_ENGINE_INITFAILED;
-      e = NULL;
+      e = ശൂന്യ;
     }
-    else {
+    അല്ലെങ്കിൽ {
       result = CURLE_OK;
     }
     octx->p.engine = e;
-    return result;
+    തിരികെ result;
   }
 #endif
 #ifdef OPENSSL_HAS_PROVIDERS
-  return ossl_set_provider(data, octx, name);
-#else
-  (void)octx;
-  (void)name;
+  തിരികെ ossl_set_provider(data, octx, name);
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)octx;
+  (ശൂന്യം)name;
   failf(data, "OpenSSL engine not found");
-  return CURLE_SSL_ENGINE_NOTFOUND;
+  തിരികെ CURLE_SSL_ENGINE_NOTFOUND;
 #endif
 }
 
 /* Sets engine as default for all SSL operations
  */
-static CURLcode ossl_set_engine_default(struct Curl_easy *data,
-                                        struct ossl_ctx *octx)
+സ്ഥിതം CURLcode ossl_set_engine_default(ഘടന Curl_easy *data,
+                                        ഘടന ossl_ctx *octx)
 {
 #ifdef USE_OPENSSL_ENGINE
-  if(octx->p.engine) {
-    if(ENGINE_set_default(octx->p.engine, ENGINE_METHOD_ALL) > 0) {
+  എങ്കിൽ(octx->p.engine) {
+    എങ്കിൽ(ENGINE_set_default(octx->p.engine, ENGINE_METHOD_ALL) > 0) {
       infof(data, "set default crypto engine '%s'",
             ENGINE_get_id(octx->p.engine));
     }
-    else {
+    അല്ലെങ്കിൽ {
       failf(data, "set default crypto engine '%s' failed",
             ENGINE_get_id(octx->p.engine));
-      return CURLE_SSL_ENGINE_SETFAILED;
+      തിരികെ CURLE_SSL_ENGINE_SETFAILED;
     }
   }
-#else
-  (void)data;
-  (void)octx;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)data;
+  (ശൂന്യം)octx;
 #endif
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /* Return list of OpenSSL crypto engine names.
  */
-static struct curl_slist *ossl_engines_list(struct Curl_easy *data)
+സ്ഥിതം ഘടന curl_slist *ossl_engines_list(ഘടന Curl_easy *data)
 {
-  struct curl_slist *list = NULL;
+  ഘടന curl_slist *list = ശൂന്യ;
 #ifdef USE_OPENSSL_ENGINE
-  struct curl_slist *beg;
+  ഘടന curl_slist *beg;
   ENGINE *e;
 
-  for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e)) {
+  വേണ്ടി(e = ENGINE_get_first(); e; e = ENGINE_get_next(e)) {
     beg = curl_slist_append(list, ENGINE_get_id(e));
-    if(!beg) {
+    എങ്കിൽ(!beg) {
       curl_slist_free_all(list);
-      return NULL;
+      തിരികെ ശൂന്യ;
     }
     list = beg;
   }
 #endif
-  (void)data;
-  return list;
+  (ശൂന്യം)data;
+  തിരികെ list;
 }
 
 #ifdef OPENSSL_HAS_PROVIDERS
 
-static void ossl_provider_cleanup(struct ossl_ctx *octx)
+സ്ഥിതം ശൂന്യം ossl_provider_cleanup(ഘടന ossl_ctx *octx)
 {
-  if(!octx)
-    return;
-  if(octx->p.baseprov) {
+  എങ്കിൽ(!octx)
+    തിരികെ;
+  എങ്കിൽ(octx->p.baseprov) {
     OSSL_PROVIDER_unload(octx->p.baseprov);
-    octx->p.baseprov = NULL;
+    octx->p.baseprov = ശൂന്യ;
   }
-  if(octx->p.provider) {
+  എങ്കിൽ(octx->p.provider) {
     OSSL_PROVIDER_unload(octx->p.provider);
-    octx->p.provider = NULL;
+    octx->p.provider = ശൂന്യ;
   }
   OSSL_LIB_CTX_free(octx->p.libctx);
-  octx->p.libctx = NULL;
+  octx->p.libctx = ശൂന്യ;
   curlx_safefree(octx->p.propq);
   octx->p.provider_loaded = FALSE;
 }
@@ -1776,23 +1776,23 @@ static void ossl_provider_cleanup(struct ossl_ctx *octx)
  *
  * An example provider + property looks like "tpm2:?provider=tpm2".
  */
-static CURLcode ossl_set_provider(struct Curl_easy *data,
-                                  struct ossl_ctx *octx,
-                                  const char *iname)
+സ്ഥിതം CURLcode ossl_set_provider(ഘടന Curl_easy *data,
+                                  ഘടന ossl_ctx *octx,
+                                  സ്ഥിരം അക്ഷരം *iname)
 {
-  char name[MAX_PROVIDER_LEN + 1];
-  struct Curl_str prov;
-  const char *propq = NULL;
+  അക്ഷരം name[MAX_PROVIDER_LEN + 1];
+  ഘടന Curl_str prov;
+  സ്ഥിരം അക്ഷരം *propq = ശൂന്യ;
 
-  if(!iname) {
+  എങ്കിൽ(!iname) {
     /* clear and cleanup provider use */
     ossl_provider_cleanup(octx);
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
-  if(curlx_str_until(&iname, &prov, MAX_PROVIDER_LEN, ':'))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(curlx_str_until(&iname, &prov, MAX_PROVIDER_LEN, ':'))
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  if(!curlx_str_single(&iname, ':'))
+  എങ്കിൽ(!curlx_str_single(&iname, ':'))
     /* there was a colon, get the propq until the end of string */
     propq = iname;
 
@@ -1800,15 +1800,15 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
   memcpy(name, curlx_str(&prov), curlx_strlen(&prov));
   name[curlx_strlen(&prov)] = 0;
 
-  if(!octx->p.libctx) {
+  എങ്കിൽ(!octx->p.libctx) {
     OSSL_LIB_CTX *libctx = OSSL_LIB_CTX_new();
-    if(!libctx)
-      return CURLE_OUT_OF_MEMORY;
-    if(propq) {
+    എങ്കിൽ(!libctx)
+      തിരികെ CURLE_OUT_OF_MEMORY;
+    എങ്കിൽ(propq) {
       octx->p.propq = curlx_strdup(propq);
-      if(!octx->p.propq) {
+      എങ്കിൽ(!octx->p.propq) {
         OSSL_LIB_CTX_free(libctx);
-        return CURLE_OUT_OF_MEMORY;
+        തിരികെ CURLE_OUT_OF_MEMORY;
       }
     }
     octx->p.libctx = libctx;
@@ -1817,194 +1817,194 @@ static CURLcode ossl_set_provider(struct Curl_easy *data,
 #ifndef CURL_DISABLE_OPENSSL_AUTO_LOAD_CONFIG
   /* load the configuration file into the library context before checking the
    * provider availability */
-  if(!OSSL_LIB_CTX_load_config(octx->p.libctx, NULL)) {
+  എങ്കിൽ(!OSSL_LIB_CTX_load_config(octx->p.libctx, ശൂന്യ)) {
     infof(data, "Failed to load default openssl config. Proceeding.");
   }
 #endif
 
-  if(OSSL_PROVIDER_available(octx->p.libctx, name)) {
+  എങ്കിൽ(OSSL_PROVIDER_available(octx->p.libctx, name)) {
     /* already loaded through the configuration - no action needed */
     octx->p.provider_loaded = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   octx->p.provider = OSSL_PROVIDER_try_load(octx->p.libctx, name, 1);
-  if(!octx->p.provider) {
-    char error_buffer[256];
+  എങ്കിൽ(!octx->p.provider) {
+    അക്ഷരം error_buffer[256];
     failf(data, "Failed to initialize provider: %s",
-          ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)));
+          ossl_strerror(ERR_get_error(), error_buffer, വലുപ്പം(error_buffer)));
     ossl_provider_cleanup(octx);
-    return CURLE_SSL_ENGINE_NOTFOUND;
+    തിരികെ CURLE_SSL_ENGINE_NOTFOUND;
   }
 
   /* load the base provider as well */
   octx->p.baseprov = OSSL_PROVIDER_try_load(octx->p.libctx, "base", 1);
-  if(!octx->p.baseprov) {
+  എങ്കിൽ(!octx->p.baseprov) {
     ossl_provider_cleanup(octx);
     failf(data, "Failed to load base");
-    return CURLE_SSL_ENGINE_NOTFOUND;
+    തിരികെ CURLE_SSL_ENGINE_NOTFOUND;
   }
-  else
+  അല്ലെങ്കിൽ
     octx->p.provider_loaded = TRUE;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
-#else /* OPENSSL_HAS_PROVIDERS */
+#അല്ലെങ്കിൽ /* OPENSSL_HAS_PROVIDERS */
 #define ossl_provider_cleanup(x)
 #endif
 
-static CURLcode ossl_shutdown(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_shutdown(ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
                               bool send_shutdown, bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  char buf[1024];
-  int nread = -1, err;
+  അക്ഷരം buf[1024];
+  പൂർണ്ണസംഖ്യ nread = -1, err;
   size_t i;
 
   DEBUGASSERT(octx);
-  if(!octx->ssl || cf->shutdown) {
+  എങ്കിൽ(!octx->ssl || cf->shutdown) {
     *done = TRUE;
-    goto out;
+    പോകുക out;
   }
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
   *done = FALSE;
-  if(!(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
+  എങ്കിൽ(!(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
     /* We have not started the shutdown from our side yet. Check
      * if the server already sent us one. */
     ERR_clear_error();
-    for(i = 0; i < 10; ++i) {
-      nread = SSL_read(octx->ssl, buf, (int)sizeof(buf));
+    വേണ്ടി(i = 0; i < 10; ++i) {
+      nread = SSL_read(octx->ssl, buf, (പൂർണ്ണസംഖ്യ)വലുപ്പം(buf));
       CURL_TRC_CF(data, cf, "SSL shutdown not sent, read -> %d", nread);
-      if(nread <= 0)
-        break;
+      എങ്കിൽ(nread <= 0)
+        നിർത്തുക;
     }
     err = SSL_get_error(octx->ssl, nread);
-    if(!nread && err == SSL_ERROR_ZERO_RETURN) {
-      bool input_pending;
+    എങ്കിൽ(!nread && err == SSL_ERROR_ZERO_RETURN) {
+      bool നിവേശം_pending;
       /* Yes, it did. */
-      if(!send_shutdown) {
+      എങ്കിൽ(!send_shutdown) {
         CURL_TRC_CF(data, cf, "SSL shutdown received, not sending");
         *done = TRUE;
-        goto out;
+        പോകുക out;
       }
-      else if(!cf->next->cft->is_alive(cf->next, data, &input_pending)) {
+      അല്ലെങ്കിൽ എങ്കിൽ(!cf->next->cft->is_alive(cf->next, data, &നിവേശം_pending)) {
         /* Server closed the connection after its closy notify. It
          * seems not interested to see our close notify, so do not
          * send it. We are done. */
         connssl->peer_closed = TRUE;
         CURL_TRC_CF(data, cf, "peer closed connection");
         *done = TRUE;
-        goto out;
+        പോകുക out;
       }
     }
   }
 
   /* SSL should now have started the shutdown from our side. Since it
    * was not complete, we are lacking the close notify from the server. */
-  if(send_shutdown && !(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
-    int rc;
+  എങ്കിൽ(send_shutdown && !(SSL_get_shutdown(octx->ssl) & SSL_SENT_SHUTDOWN)) {
+    പൂർണ്ണസംഖ്യ rc;
     ERR_clear_error();
     CURL_TRC_CF(data, cf, "send SSL close notify");
     rc = SSL_shutdown(octx->ssl);
-    if(rc == 1) {
+    എങ്കിൽ(rc == 1) {
       CURL_TRC_CF(data, cf, "SSL shutdown finished");
       *done = TRUE;
-      goto out;
+      പോകുക out;
     }
-    if(SSL_get_error(octx->ssl, rc) == SSL_ERROR_WANT_WRITE) {
+    എങ്കിൽ(SSL_get_error(octx->ssl, rc) == SSL_ERROR_WANT_WRITE) {
       CURL_TRC_CF(data, cf, "SSL shutdown still wants to send");
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      goto out;
+      പോകുക out;
     }
     /* Having sent the close notify, we use SSL_read() to get the
      * missing close notify from the server. */
   }
 
-  for(i = 0; i < 10; ++i) {
+  വേണ്ടി(i = 0; i < 10; ++i) {
     ERR_clear_error();
-    nread = SSL_read(octx->ssl, buf, (int)sizeof(buf));
+    nread = SSL_read(octx->ssl, buf, (പൂർണ്ണസംഖ്യ)വലുപ്പം(buf));
     CURL_TRC_CF(data, cf, "SSL shutdown read -> %d", nread);
-    if(nread <= 0)
-      break;
+    എങ്കിൽ(nread <= 0)
+      നിർത്തുക;
   }
   err = SSL_get_error(octx->ssl, nread);
-  switch(err) {
-  case SSL_ERROR_ZERO_RETURN: /* no more data */
-    if(SSL_shutdown(octx->ssl) == 1)
+  തിരഞ്ഞെടുപ്പ്(err) {
+  അവസ്ഥ SSL_ERROR_ZERO_RETURN: /* no more data */
+    എങ്കിൽ(SSL_shutdown(octx->ssl) == 1)
       CURL_TRC_CF(data, cf, "SSL shutdown finished");
-    else
+    അല്ലെങ്കിൽ
       CURL_TRC_CF(data, cf, "SSL shutdown not received, but closed");
     *done = TRUE;
-    break;
-  case SSL_ERROR_NONE: /* did not get anything */
-  case SSL_ERROR_WANT_READ:
+    നിർത്തുക;
+  അവസ്ഥ SSL_ERROR_NONE: /* did not get anything */
+  അവസ്ഥ SSL_ERROR_WANT_READ:
     /* SSL has sent its notify and now wants to read the reply
      * from the server. We are not really interested in that. */
     CURL_TRC_CF(data, cf, "SSL shutdown sent, want receive");
     connssl->io_need = CURL_SSL_IO_NEED_RECV;
-    break;
-  case SSL_ERROR_WANT_WRITE:
+    നിർത്തുക;
+  അവസ്ഥ SSL_ERROR_WANT_WRITE:
     CURL_TRC_CF(data, cf, "SSL shutdown send blocked");
     connssl->io_need = CURL_SSL_IO_NEED_SEND;
-    break;
-  default:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     /* Server seems to have closed the connection without sending us
      * a close notify. */
     {
       VERBOSE(unsigned long sslerr = ERR_get_error());
       CURL_TRC_CF(data, cf, "SSL shutdown, ignore recv error: '%s', errno %d",
                   (sslerr ?
-                   ossl_strerror(sslerr, buf, sizeof(buf)) :
+                   ossl_strerror(sslerr, buf, വലുപ്പം(buf)) :
                    SSL_ERROR_to_str(err)),
                   SOCKERRNO);
     }
     *done = TRUE;
     result = CURLE_OK;
-    break;
+    നിർത്തുക;
   }
 
 out:
   cf->shutdown = (result || *done);
-  if(cf->shutdown || (connssl->io_need != CURL_SSL_IO_NEED_NONE))
-    connssl->input_pending = FALSE;
-  return result;
+  എങ്കിൽ(cf->shutdown || (connssl->io_need != CURL_SSL_IO_NEED_NONE))
+    connssl->നിവേശം_pending = FALSE;
+  തിരികെ result;
 }
 
 /* also used by quic-tls */
-void Curl_osslctx_cleanup(struct ossl_ctx *octx)
+ശൂന്യം Curl_osslctx_cleanup(ഘടന ossl_ctx *octx)
 {
   DEBUGASSERT(octx);
-  if(octx->ssl) {
+  എങ്കിൽ(octx->ssl) {
     SSL_free(octx->ssl);
-    octx->ssl = NULL;
+    octx->ssl = ശൂന്യ;
   }
-  if(octx->ssl_ctx) {
+  എങ്കിൽ(octx->ssl_ctx) {
     SSL_CTX_free(octx->ssl_ctx);
-    octx->ssl_ctx = NULL;
+    octx->ssl_ctx = ശൂന്യ;
     octx->x509_store_setup = FALSE;
   }
-  if(octx->bio_method) {
+  എങ്കിൽ(octx->bio_method) {
     ossl_bio_cf_method_free(octx->bio_method);
-    octx->bio_method = NULL;
+    octx->bio_method = ശൂന്യ;
   }
 #ifdef USE_OPENSSL_ENGINE
-  if(octx->p.engine) {
+  എങ്കിൽ(octx->p.engine) {
     ENGINE_finish(octx->p.engine);
     ENGINE_free(octx->p.engine);
-    octx->p.engine = NULL;
+    octx->p.engine = ശൂന്യ;
   }
 #endif
   ossl_provider_cleanup(octx);
 }
 
-static void ossl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം ossl_close(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
-  (void)data;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
+  (ശൂന്യം)data;
   Curl_osslctx_cleanup(octx);
 }
 
@@ -2012,9 +2012,9 @@ static void ossl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
  * This function is called when the 'data' struct is going away. Close
  * down everything and free all resources!
  */
-static void ossl_close_all(struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം ossl_close_all(ഘടന Curl_easy *data)
 {
-  (void)data;
+  (ശൂന്യം)data;
 }
 
 /* ====================================================== */
@@ -2041,113 +2041,113 @@ static void ossl_close_all(struct Curl_easy *data)
 
    This function is now used from ngtcp2 (QUIC) as well.
  */
-static CURLcode ossl_verifyhost(struct Curl_easy *data,
-                                struct connectdata *conn,
-                                struct ssl_peer *peer,
+സ്ഥിതം CURLcode ossl_verifyhost(ഘടന Curl_easy *data,
+                                ഘടന connectdata *conn,
+                                ഘടന ssl_peer *peer,
                                 X509 *server_cert)
 {
   bool matched = FALSE;
-  int target; /* target type, GEN_DNS or GEN_IPADD */
+  പൂർണ്ണസംഖ്യ target; /* target type, GEN_DNS or GEN_IPADD */
   size_t addrlen = 0;
-  STACK_OF(GENERAL_NAME) *altnames;
+  അട്ടി_OF(GENERAL_NAME) *altnames;
 #ifdef USE_IPV6
-  struct in6_addr addr;
-#else
-  struct in_addr addr;
+  ഘടന in6_addr addr;
+#അല്ലെങ്കിൽ
+  ഘടന in_addr addr;
 #endif
   CURLcode result = CURLE_OK;
   bool dNSName = FALSE; /* if a dNSName field exists in the cert */
   bool iPAddress = FALSE; /* if an iPAddress field exists in the cert */
   size_t hostlen = strlen(peer->origin->hostname);
 
-  (void)conn;
-  switch(peer->type) {
-  case CURL_SSL_PEER_IPV4:
-    if(!curlx_inet_pton(AF_INET, peer->origin->hostname, &addr))
-      return CURLE_PEER_FAILED_VERIFICATION;
+  (ശൂന്യം)conn;
+  തിരഞ്ഞെടുപ്പ്(peer->type) {
+  അവസ്ഥ CURL_SSL_PEER_IPV4:
+    എങ്കിൽ(!curlx_inet_pton(AF_INET, peer->origin->hostname, &addr))
+      തിരികെ CURLE_PEER_FAILED_VERIFICATION;
     target = GEN_IPADD;
-    addrlen = sizeof(struct in_addr);
-    break;
+    addrlen = വലുപ്പം(ഘടന in_addr);
+    നിർത്തുക;
 #ifdef USE_IPV6
-  case CURL_SSL_PEER_IPV6:
-    if(!curlx_inet_pton(AF_INET6, peer->origin->hostname, &addr))
-      return CURLE_PEER_FAILED_VERIFICATION;
+  അവസ്ഥ CURL_SSL_PEER_IPV6:
+    എങ്കിൽ(!curlx_inet_pton(AF_INET6, peer->origin->hostname, &addr))
+      തിരികെ CURLE_PEER_FAILED_VERIFICATION;
     target = GEN_IPADD;
-    addrlen = sizeof(struct in6_addr);
-    break;
+    addrlen = വലുപ്പം(ഘടന in6_addr);
+    നിർത്തുക;
 #endif
-  case CURL_SSL_PEER_DNS:
+  അവസ്ഥ CURL_SSL_PEER_DNS:
     target = GEN_DNS;
-    break;
-  default:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     DEBUGASSERT(0);
-    failf(data, "unexpected SSL peer type: %d", (int)peer->type);
-    return CURLE_PEER_FAILED_VERIFICATION;
+    failf(data, "unexpected SSL peer type: %d", (പൂർണ്ണസംഖ്യ)peer->type);
+    തിരികെ CURLE_PEER_FAILED_VERIFICATION;
   }
 
   /* get a "list" of alternative names */
-  altnames = X509_get_ext_d2i(server_cert, NID_subject_alt_name, NULL, NULL);
+  altnames = X509_get_ext_d2i(server_cert, NID_subject_alt_name, ശൂന്യ, ശൂന്യ);
 
-  if(altnames) {
+  എങ്കിൽ(altnames) {
 #ifdef HAVE_BORINGSSL_LIKE
     size_t numalts;
     size_t i;
-#else
-    int numalts;
-    int i;
+#അല്ലെങ്കിൽ
+    പൂർണ്ണസംഖ്യ numalts;
+    പൂർണ്ണസംഖ്യ i;
 #endif
 
     /* get amount of alternatives, RFC2459 claims there MUST be at least
        one, but we do not depend on it... */
-    numalts = sk_GENERAL_NAME_num(altnames);
+    numalts = sk_GENERAL_NAME_അക്കം(altnames);
 
     /* loop through all alternatives - until a dnsmatch */
-    for(i = 0; (i < numalts) && !matched; i++) {
+    വേണ്ടി(i = 0; (i < numalts) && !matched; i++) {
       /* get a handle to alternative name number i */
-      const GENERAL_NAME *check = sk_GENERAL_NAME_value(altnames, i);
+      സ്ഥിരം GENERAL_NAME *check = sk_GENERAL_NAME_മൂല്യം(altnames, i);
 
-      if(check->type == GEN_DNS)
+      എങ്കിൽ(check->type == GEN_DNS)
         dNSName = TRUE;
-      else if(check->type == GEN_IPADD)
+      അല്ലെങ്കിൽ എങ്കിൽ(check->type == GEN_IPADD)
         iPAddress = TRUE;
 
       /* only check alternatives of the same type the target is */
-      if(check->type == target) {
+      എങ്കിൽ(check->type == target) {
         /* get data and length */
-        const char *altptr = (const char *)ASN1_STRING_get0_data(check->d.ia5);
+        സ്ഥിരം അക്ഷരം *altptr = (സ്ഥിരം അക്ഷരം *)ASN1_STRING_get0_data(check->d.ia5);
         size_t altlen = ossl_ASN1_STRING_get_length(check->d.ia5);
 
-        switch(target) {
-        case GEN_DNS: /* name/pattern comparison */
-          if(!memchr(altptr, '\0', altlen) &&
+        തിരഞ്ഞെടുപ്പ്(target) {
+        അവസ്ഥ GEN_DNS: /* name/pattern comparison */
+          എങ്കിൽ(!memchr(altptr, '\0', altlen) &&
              Curl_cert_hostcheck(altptr, altlen,
                                  peer->origin->hostname, hostlen)) {
             matched = TRUE;
             infof(data, "  subjectAltName: \"%s\" matches cert's \"%.*s\"",
-                  peer->origin->user_hostname, (int)altlen, altptr);
+                  peer->origin->user_hostname, (പൂർണ്ണസംഖ്യ)altlen, altptr);
           }
-          break;
+          നിർത്തുക;
 
-        case GEN_IPADD: /* IP address comparison */
+        അവസ്ഥ GEN_IPADD: /* IP address comparison */
           /* compare alternative IP address if the data chunk is the same size
              our server IP address is */
-          if((altlen == addrlen) && !memcmp(altptr, &addr, altlen)) {
+          എങ്കിൽ((altlen == addrlen) && !memcmp(altptr, &addr, altlen)) {
             matched = TRUE;
             infof(data, "  subjectAltName: \"%s\" matches cert's IP address!",
                   peer->origin->user_hostname);
           }
-          break;
+          നിർത്തുക;
         }
       }
     }
     GENERAL_NAMES_free(altnames);
   }
 
-  if(matched)
+  എങ്കിൽ(matched)
     /* an alternative name matched */
     ;
-  else if(dNSName || iPAddress) {
-    const char *tname = (peer->type == CURL_SSL_PEER_DNS) ? "hostname" :
+  അല്ലെങ്കിൽ എങ്കിൽ(dNSName || iPAddress) {
+    സ്ഥിരം അക്ഷരം *tname = (peer->type == CURL_SSL_PEER_DNS) ? "hostname" :
                         (peer->type == CURL_SSL_PEER_IPV4) ?
                         "IPv4 address" : "IPv6 address";
     infof(data, " subjectAltName does not match %s %s", tname,
@@ -2156,19 +2156,19 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
           "target %s '%s'", tname, peer->origin->user_hostname);
     result = CURLE_PEER_FAILED_VERIFICATION;
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* we have to look to the last occurrence of a commonName in the
        distinguished one to get the most significant one. */
-    int i = -1;
-    unsigned char *cn = NULL;
+    പൂർണ്ണസംഖ്യ i = -1;
+    unsigned അക്ഷരം *cn = ശൂന്യ;
     size_t cnlen = 0;
     bool free_cn = FALSE;
 
     /* The following is done because of a bug in 0.9.6b */
-    const X509_NAME *name = X509_get_subject_name(server_cert);
-    if(name) {
-      int j;
-      while((j = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0)
+    സ്ഥിരം X509_NAME *name = X509_get_subject_name(server_cert);
+    എങ്കിൽ(name) {
+      പൂർണ്ണസംഖ്യ j;
+      ആകുമ്പോൾ((j = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0)
         i = j;
     }
 
@@ -2176,31 +2176,31 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
        that we can use for comparison. Doing this we support BMPstring,
        UTF8, etc. */
 
-    if(i >= 0) {
-      const ASN1_STRING *tmp =
+    എങ്കിൽ(i >= 0) {
+      സ്ഥിരം ASN1_STRING *tmp =
         X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
 
       /* In OpenSSL 0.9.7d and earlier, ASN1_STRING_to_UTF8 fails if the input
          is already UTF-8 encoded. We check for this case and copy the raw
          string manually to avoid the problem. This code can be made
          conditional in the future when OpenSSL has been fixed. */
-      if(tmp) {
-        if(ASN1_STRING_type(tmp) == V_ASN1_UTF8STRING) {
+      എങ്കിൽ(tmp) {
+        എങ്കിൽ(ASN1_STRING_type(tmp) == V_ASN1_UTF8STRING) {
           cnlen = ossl_ASN1_STRING_get_length(tmp);
-          cn = (unsigned char *)CURL_UNCONST(ASN1_STRING_get0_data(tmp));
+          cn = (unsigned അക്ഷരം *)CURL_UNCONST(ASN1_STRING_get0_data(tmp));
         }
-        else { /* not a UTF8 name */
-          const int utf8len = ASN1_STRING_to_UTF8(&cn, tmp);
-          if(utf8len < 0)
+        അല്ലെങ്കിൽ { /* not a UTF8 name */
+          സ്ഥിരം പൂർണ്ണസംഖ്യ utf8len = ASN1_STRING_to_UTF8(&cn, tmp);
+          എങ്കിൽ(utf8len < 0)
             cnlen = 0;
-          else
+          അല്ലെങ്കിൽ
             cnlen = (size_t)utf8len;
           free_cn = TRUE;
         }
 
-        if((cnlen == 0) || !cn)
+        എങ്കിൽ((cnlen == 0) || !cn)
           result = CURLE_OUT_OF_MEMORY;
-        else if(memchr(cn, '\0', cnlen)) {
+        അല്ലെങ്കിൽ എങ്കിൽ(memchr(cn, '\0', cnlen)) {
           /* there was a null-terminator before the end of string, this
              cannot match and we return failure! */
           failf(data, "SSL: illegal cert name field");
@@ -2209,140 +2209,140 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
       }
     }
 
-    if(result)
+    എങ്കിൽ(result)
       /* error already detected, pass through */
       ;
-    else if(!cn) {
+    അല്ലെങ്കിൽ എങ്കിൽ(!cn) {
       failf(data, "SSL: unable to obtain common name from peer certificate");
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if(!Curl_cert_hostcheck((const char *)cn, cnlen,
+    അല്ലെങ്കിൽ എങ്കിൽ(!Curl_cert_hostcheck((സ്ഥിരം അക്ഷരം *)cn, cnlen,
                                  peer->origin->hostname, hostlen)) {
       failf(data, "SSL: certificate subject name '%.*s' does not match "
-            "target hostname '%s'", (int)cnlen, cn,
+            "target hostname '%s'", (പൂർണ്ണസംഖ്യ)cnlen, cn,
             peer->origin->user_hostname);
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else {
-      infof(data, " common name: %.*s (matched)", (int)cnlen, cn);
+    അല്ലെങ്കിൽ {
+      infof(data, " common name: %.*s (matched)", (പൂർണ്ണസംഖ്യ)cnlen, cn);
     }
-    if(free_cn)
+    എങ്കിൽ(free_cn)
       OPENSSL_free(cn);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 #ifndef OPENSSL_NO_OCSP
-static CURLcode verifystatus(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             struct ossl_ctx *octx)
+സ്ഥിതം CURLcode verifystatus(ഘടന Curl_cfilter *cf,
+                             ഘടന Curl_easy *data,
+                             ഘടന ossl_ctx *octx)
 {
-  int i, ocsp_status;
+  പൂർണ്ണസംഖ്യ i, ocsp_status;
 #ifdef HAVE_BORINGSSL_LIKE
-  const uint8_t *status;
-#else
-  unsigned char *status;
+  സ്ഥിരം uint8_t *status;
+#അല്ലെങ്കിൽ
+  unsigned അക്ഷരം *status;
 #endif
-  const unsigned char *p;
+  സ്ഥിരം unsigned അക്ഷരം *p;
   CURLcode result = CURLE_OK;
-  OCSP_RESPONSE *rsp = NULL;
-  OCSP_BASICRESP *br = NULL;
-  X509_STORE     *st = NULL;
-  STACK_OF(X509) *ch = NULL;
+  OCSP_RESPONSE *rsp = ശൂന്യ;
+  OCSP_BASICRESP *br = ശൂന്യ;
+  X509_STORE     *st = ശൂന്യ;
+  അട്ടി_OF(X509) *ch = ശൂന്യ;
   X509 *cert;
-  OCSP_CERTID *id = NULL;
-  int cert_status, crl_reason;
+  OCSP_CERTID *id = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ cert_status, crl_reason;
   ASN1_GENERALIZEDTIME *rev, *thisupd, *nextupd;
-  int ret;
+  പൂർണ്ണസംഖ്യ ret;
   long len;
 
-  (void)cf;
+  (ശൂന്യം)cf;
   DEBUGASSERT(octx);
 
   len = (long)SSL_get_tlsext_status_ocsp_resp(octx->ssl, &status);
 
-  if(!status) {
+  എങ്കിൽ(!status) {
     failf(data, "No OCSP response received");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
   p = status;
-  rsp = d2i_OCSP_RESPONSE(NULL, &p, len);
-  if(!rsp) {
+  rsp = d2i_OCSP_RESPONSE(ശൂന്യ, &p, len);
+  എങ്കിൽ(!rsp) {
     failf(data, "Invalid OCSP response");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
   ocsp_status = OCSP_response_status(rsp);
-  if(ocsp_status != OCSP_RESPONSE_STATUS_SUCCESSFUL) {
+  എങ്കിൽ(ocsp_status != OCSP_RESPONSE_STATUS_SUCCESSFUL) {
     failf(data, "Invalid OCSP response status: %s (%d)",
           OCSP_response_status_str(ocsp_status), ocsp_status);
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
   br = OCSP_response_get1_basic(rsp);
-  if(!br) {
+  എങ്കിൽ(!br) {
     failf(data, "Invalid OCSP response");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
-#if !defined(HAVE_BORINGSSL_LIKE) && \
-  !(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL)
+#എങ്കിൽ !defined(HAVE_BORINGSSL_LIKE) && \
+  !(defined(LIBRESSL_VERSION_സംഖ്യ) && LIBRESSL_VERSION_സംഖ്യ < 0x3060000fL)
   ch = SSL_get0_verified_chain(octx->ssl);
-#else
+#അല്ലെങ്കിൽ
   ch = SSL_get_peer_cert_chain(octx->ssl);
 #endif
-  if(!ch) {
+  എങ്കിൽ(!ch) {
     failf(data, "Could not get peer certificate chain");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
   st = SSL_CTX_get_cert_store(octx->ssl_ctx);
 
-  if(OCSP_basic_verify(br, ch, st, 0) <= 0) {
+  എങ്കിൽ(OCSP_basic_verify(br, ch, st, 0) <= 0) {
     failf(data, "OCSP response verification failed");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
   /* Compute the certificate's ID */
   cert = SSL_get1_peer_certificate(octx->ssl);
-  if(!cert) {
+  എങ്കിൽ(!cert) {
     failf(data, "Error getting peer certificate");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
-  for(i = 0; i < (int)sk_X509_num(ch); i++) {
-    X509 *issuer = sk_X509_value(ch, (ossl_valsize_t)i);
-    if(X509_check_issued(issuer, cert) == X509_V_OK) {
+  വേണ്ടി(i = 0; i < (പൂർണ്ണസംഖ്യ)sk_X509_അക്കം(ch); i++) {
+    X509 *issuer = sk_X509_മൂല്യം(ch, (ossl_valsize_t)i);
+    എങ്കിൽ(X509_check_issued(issuer, cert) == X509_V_OK) {
       /* Note to analysis tools: using SHA1 here is fine. The `id`
        * generated is used as a hash lookup key, not as a verifier
        * of the OCSP data itself. This all according to RFC 5019. */
       id = OCSP_cert_to_id(EVP_sha1(), cert, issuer);
-      break;
+      നിർത്തുക;
     }
   }
   X509_free(cert);
 
-  if(!id) {
+  എങ്കിൽ(!id) {
     failf(data, "Error computing OCSP ID");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
   /* Find the single OCSP response corresponding to the certificate ID */
   ret = OCSP_resp_find_status(br, id, &cert_status, &crl_reason, &rev,
                               &thisupd, &nextupd);
   OCSP_CERTID_free(id);
-  if(ret != 1) {
+  എങ്കിൽ(ret != 1) {
     failf(data, "Could not find certificate ID in OCSP response");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
   /* Validate the OCSP response issuing and update times.
@@ -2353,172 +2353,172 @@ static CURLcode verifystatus(struct Curl_cfilter *cf,
    *   our clock and the instance that issued the OCSP response
    * - 4th param: how many seconds in the past `thisupd` may be, with
    *   -1 meaning there is no limit. */
-  if(!OCSP_check_validity(thisupd, nextupd, 300L, -1L)) {
+  എങ്കിൽ(!OCSP_check_validity(thisupd, nextupd, 300L, -1L)) {
     failf(data, "OCSP response has expired");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
   infof(data, "SSL certificate status: %s (%d)",
         OCSP_cert_status_str(cert_status), cert_status);
 
-  switch(cert_status) {
-  case V_OCSP_CERTSTATUS_GOOD:
-    break;
+  തിരഞ്ഞെടുപ്പ്(cert_status) {
+  അവസ്ഥ V_OCSP_CERTSTATUS_GOOD:
+    നിർത്തുക;
 
-  case V_OCSP_CERTSTATUS_REVOKED:
+  അവസ്ഥ V_OCSP_CERTSTATUS_REVOKED:
     result = CURLE_SSL_INVALIDCERTSTATUS;
     failf(data, "SSL certificate revocation reason: %s (%d)",
           OCSP_crl_reason_str(crl_reason), crl_reason);
-    goto end;
+    പോകുക end;
 
-  case V_OCSP_CERTSTATUS_UNKNOWN:
-  default:
+  അവസ്ഥ V_OCSP_CERTSTATUS_UNKNOWN:
+  സ്ഥിരസ്ഥിതി:
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto end;
+    പോകുക end;
   }
 
 end:
-  if(br)
+  എങ്കിൽ(br)
     OCSP_BASICRESP_free(br);
   OCSP_RESPONSE_free(rsp);
 
-  return result;
+  തിരികെ result;
 }
 #endif
 
-static const char *ssl_msg_type(int ssl_ver, int msg)
+സ്ഥിതം സ്ഥിരം അക്ഷരം *ssl_സന്ദേശം_type(പൂർണ്ണസംഖ്യ ssl_ver, പൂർണ്ണസംഖ്യ സന്ദേശം)
 {
-  if(ssl_ver == SSL3_VERSION_MAJOR) {
-    switch(msg) {
-    case SSL3_MT_HELLO_REQUEST:
-      return "Hello request";
-    case SSL3_MT_CLIENT_HELLO:
-      return "Client hello";
-    case SSL3_MT_SERVER_HELLO:
-      return "Server hello";
+  എങ്കിൽ(ssl_ver == SSL3_VERSION_MAJOR) {
+    തിരഞ്ഞെടുപ്പ്(സന്ദേശം) {
+    അവസ്ഥ SSL3_MT_HELLO_REQUEST:
+      തിരികെ "Hello request";
+    അവസ്ഥ SSL3_MT_CLIENT_HELLO:
+      തിരികെ "Client hello";
+    അവസ്ഥ SSL3_MT_SERVER_HELLO:
+      തിരികെ "Server hello";
 #ifdef SSL3_MT_NEWSESSION_TICKET
-    case SSL3_MT_NEWSESSION_TICKET:
-      return "Newsession Ticket";
+    അവസ്ഥ SSL3_MT_NEWSESSION_TICKET:
+      തിരികെ "Newsession Ticket";
 #endif
-    case SSL3_MT_CERTIFICATE:
-      return "Certificate";
-    case SSL3_MT_SERVER_KEY_EXCHANGE:
-      return "Server key exchange";
-    case SSL3_MT_CLIENT_KEY_EXCHANGE:
-      return "Client key exchange";
-    case SSL3_MT_CERTIFICATE_REQUEST:
-      return "Request CERT";
-    case SSL3_MT_SERVER_DONE:
-      return "Server finished";
-    case SSL3_MT_CERTIFICATE_VERIFY:
-      return "CERT verify";
-    case SSL3_MT_FINISHED:
-      return "Finished";
+    അവസ്ഥ SSL3_MT_CERTIFICATE:
+      തിരികെ "Certificate";
+    അവസ്ഥ SSL3_MT_SERVER_താക്കോൽ_EXCHANGE:
+      തിരികെ "Server key exchange";
+    അവസ്ഥ SSL3_MT_CLIENT_താക്കോൽ_EXCHANGE:
+      തിരികെ "Client key exchange";
+    അവസ്ഥ SSL3_MT_CERTIFICATE_REQUEST:
+      തിരികെ "Request CERT";
+    അവസ്ഥ SSL3_MT_SERVER_DONE:
+      തിരികെ "Server finished";
+    അവസ്ഥ SSL3_MT_CERTIFICATE_VERIFY:
+      തിരികെ "CERT verify";
+    അവസ്ഥ SSL3_MT_FINISHED:
+      തിരികെ "Finished";
 #ifdef SSL3_MT_CERTIFICATE_STATUS
-    case SSL3_MT_CERTIFICATE_STATUS:
-      return "Certificate Status";
+    അവസ്ഥ SSL3_MT_CERTIFICATE_STATUS:
+      തിരികെ "Certificate Status";
 #endif
 #ifdef SSL3_MT_ENCRYPTED_EXTENSIONS
-    case SSL3_MT_ENCRYPTED_EXTENSIONS:
-      return "Encrypted Extensions";
+    അവസ്ഥ SSL3_MT_ENCRYPTED_EXTENSIONS:
+      തിരികെ "Encrypted Extensions";
 #endif
 #ifdef SSL3_MT_SUPPLEMENTAL_DATA
-    case SSL3_MT_SUPPLEMENTAL_DATA:
-      return "Supplemental data";
+    അവസ്ഥ SSL3_MT_SUPPLEMENTAL_DATA:
+      തിരികെ "Supplemental data";
 #endif
 #ifdef SSL3_MT_END_OF_EARLY_DATA
-    case SSL3_MT_END_OF_EARLY_DATA:
-      return "End of early data";
+    അവസ്ഥ SSL3_MT_END_OF_EARLY_DATA:
+      തിരികെ "End of early data";
 #endif
-#ifdef SSL3_MT_KEY_UPDATE
-    case SSL3_MT_KEY_UPDATE:
-      return "Key update";
+#ifdef SSL3_MT_താക്കോൽ_UPDATE
+    അവസ്ഥ SSL3_MT_താക്കോൽ_UPDATE:
+      തിരികെ "Key update";
 #endif
 #ifdef SSL3_MT_NEXT_PROTO
-    case SSL3_MT_NEXT_PROTO:
-      return "Next protocol";
+    അവസ്ഥ SSL3_MT_NEXT_PROTO:
+      തിരികെ "Next protocol";
 #endif
 #ifdef SSL3_MT_MESSAGE_HASH
-    case SSL3_MT_MESSAGE_HASH:
-      return "Message hash";
+    അവസ്ഥ SSL3_MT_MESSAGE_HASH:
+      തിരികെ "Message hash";
 #endif
     }
   }
-  return "Unknown";
+  തിരികെ "Unknown";
 }
 
-static const char *tls_rt_type(int type)
+സ്ഥിതം സ്ഥിരം അക്ഷരം *tls_rt_type(പൂർണ്ണസംഖ്യ type)
 {
-  switch(type) {
+  തിരഞ്ഞെടുപ്പ്(type) {
 #ifdef SSL3_RT_HEADER
-  case SSL3_RT_HEADER:
-    return "TLS header";
+  അവസ്ഥ SSL3_RT_HEADER:
+    തിരികെ "TLS header";
 #endif
-  case SSL3_RT_CHANGE_CIPHER_SPEC:
-    return "TLS change cipher";
-  case SSL3_RT_ALERT:
-    return "TLS alert";
-  case SSL3_RT_HANDSHAKE:
-    return "TLS handshake";
-  case SSL3_RT_APPLICATION_DATA:
-    return "TLS app data";
-  default:
-    return "TLS Unknown";
+  അവസ്ഥ SSL3_RT_CHANGE_CIPHER_SPEC:
+    തിരികെ "TLS change cipher";
+  അവസ്ഥ SSL3_RT_ALERT:
+    തിരികെ "TLS alert";
+  അവസ്ഥ SSL3_RT_HANDSHAKE:
+    തിരികെ "TLS handshake";
+  അവസ്ഥ SSL3_RT_APPLICATION_DATA:
+    തിരികെ "TLS app data";
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ "TLS Unknown";
   }
 }
 
 /*
  * Our callback from the SSL/TLS layers.
  */
-static void ossl_trace(int direction, int ssl_ver, int content_type,
-                       const void *buf, size_t len, SSL *ssl,
-                       void *userp)
+സ്ഥിതം ശൂന്യം ossl_trace(പൂർണ്ണസംഖ്യ direction, പൂർണ്ണസംഖ്യ ssl_ver, പൂർണ്ണസംഖ്യ content_type,
+                       സ്ഥിരം ശൂന്യം *buf, size_t len, SSL *ssl,
+                       ശൂന്യം *userp)
 {
-  const char *verstr;
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data = NULL;
-  char unknown[32];
+  സ്ഥിരം അക്ഷരം *verstr;
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന Curl_easy *data = ശൂന്യ;
+  അക്ഷരം unknown[32];
 
-  if(!cf)
-    return;
+  എങ്കിൽ(!cf)
+    തിരികെ;
   data = CF_DATA_CURRENT(cf);
-  if(!data || !data->set.fdebug || (direction && direction != 1))
-    return;
+  എങ്കിൽ(!data || !data->set.fdebug || (direction && direction != 1))
+    തിരികെ;
 
-  switch(ssl_ver) {
+  തിരഞ്ഞെടുപ്പ്(ssl_ver) {
 #ifdef SSL3_VERSION
-  case SSL3_VERSION:
+  അവസ്ഥ SSL3_VERSION:
     verstr = "SSLv3";
-    break;
+    നിർത്തുക;
 #endif
-  case TLS1_VERSION:
+  അവസ്ഥ TLS1_VERSION:
     verstr = "TLSv1.0";
-    break;
+    നിർത്തുക;
 #ifdef TLS1_1_VERSION
-  case TLS1_1_VERSION:
+  അവസ്ഥ TLS1_1_VERSION:
     verstr = "TLSv1.1";
-    break;
+    നിർത്തുക;
 #endif
 #ifdef TLS1_2_VERSION
-  case TLS1_2_VERSION:
+  അവസ്ഥ TLS1_2_VERSION:
     verstr = "TLSv1.2";
-    break;
+    നിർത്തുക;
 #endif
-  case TLS1_3_VERSION:
+  അവസ്ഥ TLS1_3_VERSION:
     verstr = "TLSv1.3";
-    break;
-  default:
-    curl_msnprintf(unknown, sizeof(unknown), "(%x)", (unsigned int)ssl_ver);
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
+    curl_msnprintf(unknown, വലുപ്പം(unknown), "(%x)", (unsigned പൂർണ്ണസംഖ്യ)ssl_ver);
     verstr = unknown;
-    break;
+    നിർത്തുക;
   }
 
   /* Log progress for interesting records only (like Handshake or Alert), skip
    * all raw record headers (content_type == SSL3_RT_HEADER or ssl_ver == 0).
    * For TLS 1.3, skip notification of the decrypted inner Content-Type.
    */
-  if(ssl_ver
+  എങ്കിൽ(ssl_ver
 #ifdef SSL3_RT_HEADER
      && content_type != SSL3_RT_HEADER
 #endif
@@ -2526,11 +2526,11 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
      && content_type != SSL3_RT_INNER_CONTENT_TYPE
 #endif
     ) {
-    const char *msg_name = "Truncated message";
-    const char *tls_rt_name;
-    char ssl_buf[1024];
-    int msg_type = 0;
-    int txt_len;
+    സ്ഥിരം അക്ഷരം *സന്ദേശം_name = "Truncated message";
+    സ്ഥിരം അക്ഷരം *tls_rt_name;
+    അക്ഷരം ssl_buf[1024];
+    പൂർണ്ണസംഖ്യ സന്ദേശം_type = 0;
+    പൂർണ്ണസംഖ്യ txt_len;
 
     /* the info given when the version is zero is not that useful for us */
 
@@ -2540,288 +2540,288 @@ static void ossl_trace(int direction, int ssl_ver, int content_type,
      * always pass-up content-type as 0, but the interesting message-type
      * is at 'buf[0]'.
      */
-    if(ssl_ver == SSL3_VERSION_MAJOR && content_type)
+    എങ്കിൽ(ssl_ver == SSL3_VERSION_MAJOR && content_type)
       tls_rt_name = tls_rt_type(content_type);
-    else
+    അല്ലെങ്കിൽ
       tls_rt_name = "";
 
-    if(content_type == SSL3_RT_CHANGE_CIPHER_SPEC) {
-      if(len) {
-        msg_type = *(const unsigned char *)buf;
-        msg_name = "Change cipher spec";
+    എങ്കിൽ(content_type == SSL3_RT_CHANGE_CIPHER_SPEC) {
+      എങ്കിൽ(len) {
+        സന്ദേശം_type = *(സ്ഥിരം unsigned അക്ഷരം *)buf;
+        സന്ദേശം_name = "Change cipher spec";
       }
     }
-    else if(content_type == SSL3_RT_ALERT) {
-      if(len >= 2) {
-        msg_type =
-          (((const unsigned char *)buf)[0] << 8) +
-           ((const unsigned char *)buf)[1];
-        msg_name = SSL_alert_desc_string_long(msg_type);
+    അല്ലെങ്കിൽ എങ്കിൽ(content_type == SSL3_RT_ALERT) {
+      എങ്കിൽ(len >= 2) {
+        സന്ദേശം_type =
+          (((സ്ഥിരം unsigned അക്ഷരം *)buf)[0] << 8) +
+           ((സ്ഥിരം unsigned അക്ഷരം *)buf)[1];
+        സന്ദേശം_name = SSL_alert_desc_string_long(സന്ദേശം_type);
       }
     }
-    else if(len) {
-      msg_type = *(const unsigned char *)buf;
-      msg_name = ssl_msg_type(ssl_ver, msg_type);
+    അല്ലെങ്കിൽ എങ്കിൽ(len) {
+      സന്ദേശം_type = *(സ്ഥിരം unsigned അക്ഷരം *)buf;
+      സന്ദേശം_name = ssl_സന്ദേശം_type(ssl_ver, സന്ദേശം_type);
     }
 
-    txt_len = curl_msnprintf(ssl_buf, sizeof(ssl_buf),
+    txt_len = curl_msnprintf(ssl_buf, വലുപ്പം(ssl_buf),
                              "%s (%s), %s, %s (%d):\n",
                              verstr, direction ? "OUT" : "IN",
-                             tls_rt_name, msg_name, msg_type);
+                             tls_rt_name, സന്ദേശം_name, സന്ദേശം_type);
     Curl_debug(data, CURLINFO_TEXT, ssl_buf, (size_t)txt_len);
   }
 
   Curl_debug(data, (direction == 1) ? CURLINFO_SSL_DATA_OUT :
-             CURLINFO_SSL_DATA_IN, (const char *)buf, len);
-  (void)ssl;
+             CURLINFO_SSL_DATA_IN, (സ്ഥിരം അക്ഷരം *)buf, len);
+  (ശൂന്യം)ssl;
 }
 
-static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter *cf,
+സ്ഥിതം CURLcode ossl_set_ssl_version_min_max(ഘടന Curl_cfilter *cf,
                                              SSL_CTX *ctx,
-                                             unsigned int ssl_version_min)
+                                             unsigned പൂർണ്ണസംഖ്യ ssl_version_min)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   /* first, TLS min version... */
   long curl_ssl_version_min = (long)ssl_version_min;
   long curl_ssl_version_max;
 
   /* convert curl min SSL version option to OpenSSL constant */
-#if defined(HAVE_BORINGSSL_LIKE) || defined(LIBRESSL_VERSION_NUMBER)
+#എങ്കിൽ defined(HAVE_BORINGSSL_LIKE) || defined(LIBRESSL_VERSION_സംഖ്യ)
   uint16_t ossl_ssl_version_min = 0;
   uint16_t ossl_ssl_version_max = 0;
-#else
+#അല്ലെങ്കിൽ
   long ossl_ssl_version_min = 0;
   long ossl_ssl_version_max = 0;
 #endif
   /* it cannot be default here */
   DEBUGASSERT(curl_ssl_version_min != CURL_SSLVERSION_DEFAULT);
-  switch(curl_ssl_version_min) {
-  case CURL_SSLVERSION_TLSv1: /* TLS 1.x */
-  case CURL_SSLVERSION_TLSv1_0:
+  തിരഞ്ഞെടുപ്പ്(curl_ssl_version_min) {
+  അവസ്ഥ CURL_SSLVERSION_TLSv1: /* TLS 1.x */
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_0:
     ossl_ssl_version_min = TLS1_VERSION;
-    break;
-  case CURL_SSLVERSION_TLSv1_1:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_1:
     ossl_ssl_version_min = TLS1_1_VERSION;
-    break;
-  case CURL_SSLVERSION_TLSv1_2:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_2:
     ossl_ssl_version_min = TLS1_2_VERSION;
-    break;
-  case CURL_SSLVERSION_TLSv1_3:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_3:
     ossl_ssl_version_min = TLS1_3_VERSION;
-    break;
+    നിർത്തുക;
   }
 
   /* ... then, TLS max version */
   curl_ssl_version_max = (long)conn_config->version_max;
 
   /* convert curl max SSL version option to OpenSSL constant */
-  switch(curl_ssl_version_max) {
-  case CURL_SSLVERSION_MAX_TLSv1_0:
+  തിരഞ്ഞെടുപ്പ്(curl_ssl_version_max) {
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_0:
     ossl_ssl_version_max = TLS1_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_1:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_1:
     ossl_ssl_version_max = TLS1_1_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_2:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_2:
     ossl_ssl_version_max = TLS1_2_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_TLSv1_3:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_TLSv1_3:
     ossl_ssl_version_max = TLS1_3_VERSION;
-    break;
-  case CURL_SSLVERSION_MAX_NONE:  /* none selected */
-  case CURL_SSLVERSION_MAX_DEFAULT:  /* max selected */
-  default:
+    നിർത്തുക;
+  അവസ്ഥ CURL_SSLVERSION_MAX_NONE:  /* none selected */
+  അവസ്ഥ CURL_SSLVERSION_MAX_DEFAULT:  /* max selected */
+  സ്ഥിരസ്ഥിതി:
     /* SSL_CTX_set_max_proto_version states that: setting the maximum to 0
        enables protocol versions up to the highest version supported by
        the library */
     ossl_ssl_version_max = 0;
-    break;
+    നിർത്തുക;
   }
 
-  if(!SSL_CTX_set_min_proto_version(ctx, ossl_ssl_version_min) ||
+  എങ്കിൽ(!SSL_CTX_set_min_proto_version(ctx, ossl_ssl_version_min) ||
      !SSL_CTX_set_max_proto_version(ctx, ossl_ssl_version_max))
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-CURLcode Curl_ossl_add_session(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct ossl_ctx *octx,
-                               const char *ssl_peer_key,
+CURLcode Curl_ossl_add_session(ഘടന Curl_cfilter *cf,
+                               ഘടന Curl_easy *data,
+                               ഘടന ossl_ctx *octx,
+                               സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
                                SSL_SESSION *session,
-                               const char *alpn,
-                               unsigned char *quic_tp,
+                               സ്ഥിരം അക്ഷരം *alpn,
+                               unsigned അക്ഷരം *quic_tp,
                                size_t quic_tp_len,
-                               struct Curl_ssl_session **psession)
+                               ഘടന Curl_ssl_session **psession)
 {
-  struct Curl_ssl_session *sc_session = NULL, *sc_dup = NULL;
-  unsigned char *der_session_buf = NULL;
-  unsigned char *qtp_clone = NULL;
+  ഘടന Curl_ssl_session *sc_session = ശൂന്യ, *sc_dup = ശൂന്യ;
+  unsigned അക്ഷരം *der_session_buf = ശൂന്യ;
+  unsigned അക്ഷരം *qtp_clone = ശൂന്യ;
   CURLcode result = CURLE_OK;
 
-  if(psession)
-    *psession = NULL;
-  if(!cf || !data)
-    goto out;
+  എങ്കിൽ(psession)
+    *psession = ശൂന്യ;
+  എങ്കിൽ(!cf || !data)
+    പോകുക out;
 
-  if(Curl_ssl_scache_use(cf, data)) {
+  എങ്കിൽ(Curl_ssl_scache_use(cf, data)) {
     size_t der_session_size;
-    unsigned char *der_session_ptr;
+    unsigned അക്ഷരം *der_session_ptr;
     size_t earlydata_max = 0;
-    int ietf_tls_id = SSL_version(octx->ssl);
+    പൂർണ്ണസംഖ്യ ietf_tls_id = SSL_version(octx->ssl);
 
-    der_session_size = i2d_SSL_SESSION(session, NULL);
-    if(der_session_size == 0) {
+    der_session_size = i2d_SSL_SESSION(session, ശൂന്യ);
+    എങ്കിൽ(der_session_size == 0) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
 
     der_session_buf = der_session_ptr = curlx_malloc(der_session_size);
-    if(!der_session_buf) {
+    എങ്കിൽ(!der_session_buf) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
 
     der_session_size = i2d_SSL_SESSION(session, &der_session_ptr);
-    if(der_session_size == 0) {
+    എങ്കിൽ(der_session_size == 0) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
 
 #ifdef HAVE_OPENSSL_EARLYDATA
     earlydata_max = SSL_SESSION_get_max_early_data(session);
 #endif
-    if(quic_tp && quic_tp_len) {
-      qtp_clone = curlx_memdup0((const char *)quic_tp, quic_tp_len);
-      if(!qtp_clone) {
+    എങ്കിൽ(quic_tp && quic_tp_len) {
+      qtp_clone = curlx_memdup0((സ്ഥിരം അക്ഷരം *)quic_tp, quic_tp_len);
+      എങ്കിൽ(!qtp_clone) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        പോകുക out;
       }
     }
 
     result = Curl_ssl_session_create2(der_session_buf, der_session_size,
                                       ietf_tls_id, alpn,
-                                      (curl_off_t)time(NULL) +
+                                      (curl_off_t)time(ശൂന്യ) +
                                         SSL_SESSION_get_timeout(session),
                                       earlydata_max, qtp_clone, quic_tp_len,
                                       &sc_session);
-    der_session_buf = NULL;  /* took ownership of sdata */
+    der_session_buf = ശൂന്യ;  /* took ownership of sdata */
 #ifdef USE_APPLE_SECTRUST
-    if(!result)
+    എങ്കിൽ(!result)
       sc_session->sectrust_verified = octx->sectrust_verified;
 #endif
-    if(!result && psession &&  /* return a duplicate if asked for and FTP */
+    എങ്കിൽ(!result && psession &&  /* return a duplicate if asked for and FTP */
        (cf->conn->scheme->family == CURLPROTO_FTP)) {
         result = Curl_ssl_session_dup(sc_session, &sc_dup);
     }
-    if(!result) {
-      result = Curl_ssl_scache_put(cf, data, ssl_peer_key, sc_session);
+    എങ്കിൽ(!result) {
+      result = Curl_ssl_scache_put(cf, data, ssl_peer_താക്കോൽ, sc_session);
       /* took ownership of `sc_session` */
-      sc_session = NULL;
+      sc_session = ശൂന്യ;
     }
   }
 
 out:
   curlx_free(der_session_buf);
-  if(!result && psession) {
+  എങ്കിൽ(!result && psession) {
     *psession = sc_dup;
-    sc_dup = NULL;
+    sc_dup = ശൂന്യ;
   }
   Curl_ssl_session_destroy(sc_session);
   Curl_ssl_session_destroy(sc_dup);
-  return result;
+  തിരികെ result;
 }
 
 /* The "new session" callback must return zero if the session can be removed
  * or non-zero if the session has been put into the session cache.
  */
-static int ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_new_session_cb(SSL *ssl, SSL_SESSION *ssl_sessionid)
 {
-  struct Curl_cfilter *cf = (struct Curl_cfilter *)SSL_get_app_data(ssl);
-  if(cf) {
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
-    struct ssl_connect_data *connssl = cf->ctx;
-    struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
-    struct Curl_ssl_session *session = NULL;
-    Curl_ossl_add_session(cf, data, octx, connssl->peer.scache_key,
-                          ssl_sessionid, connssl->negotiated.alpn, NULL,
+  ഘടന Curl_cfilter *cf = (ഘടന Curl_cfilter *)SSL_get_app_data(ssl);
+  എങ്കിൽ(cf) {
+    ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
+    ഘടന ssl_connect_data *connssl = cf->ctx;
+    ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
+    ഘടന Curl_ssl_session *session = ശൂന്യ;
+    Curl_ossl_add_session(cf, data, octx, connssl->peer.scache_താക്കോൽ,
+                          ssl_sessionid, connssl->negotiated.alpn, ശൂന്യ,
                           0, &session);
-    if(session) { /* remember current TLS session */
+    എങ്കിൽ(session) { /* remember current TLS session */
       Curl_ssl_session_destroy(connssl->session);
       connssl->session = session;
     }
   }
-  return 0;
+  തിരികെ 0;
 }
 
-static CURLcode load_cacert_from_memory(X509_STORE *store,
-                                        const struct curl_blob *ca_info_blob)
+സ്ഥിതം CURLcode load_cacert_from_memory(X509_STORE *store,
+                                        സ്ഥിരം ഘടന curl_blob *ca_info_blob)
 {
   /* these need to be freed at the end */
-  BIO *cbio = NULL;
-  STACK_OF(X509_INFO) *inf = NULL;
+  BIO *cbio = ശൂന്യ;
+  അട്ടി_OF(X509_INFO) *inf = ശൂന്യ;
 
   /* everything else is a reference */
-  int i, count = 0;
-  X509_INFO *itmp = NULL;
+  പൂർണ്ണസംഖ്യ i, എണ്ണം = 0;
+  X509_INFO *itmp = ശൂന്യ;
 
-  if(ca_info_blob->len > (size_t)INT_MAX)
-    return CURLE_SSL_CACERT_BADFILE;
+  എങ്കിൽ(ca_info_blob->len > (size_t)INT_MAX)
+    തിരികെ CURLE_SSL_CACERT_BADFILE;
 
-  cbio = BIO_new_mem_buf(ca_info_blob->data, (int)ca_info_blob->len);
-  if(!cbio)
-    return CURLE_OUT_OF_MEMORY;
+  cbio = BIO_new_mem_buf(ca_info_blob->data, (പൂർണ്ണസംഖ്യ)ca_info_blob->len);
+  എങ്കിൽ(!cbio)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  inf = PEM_X509_INFO_read_bio(cbio, NULL, NULL, NULL);
-  if(!inf) {
+  inf = PEM_X509_INFO_read_bio(cbio, ശൂന്യ, ശൂന്യ, ശൂന്യ);
+  എങ്കിൽ(!inf) {
     BIO_free(cbio);
-    return CURLE_SSL_CACERT_BADFILE;
+    തിരികെ CURLE_SSL_CACERT_BADFILE;
   }
 
   /* add each entry from PEM file to x509_store */
-  for(i = 0; i < (int)sk_X509_INFO_num(inf); ++i) {
-    itmp = sk_X509_INFO_value(inf, (ossl_valsize_t)i);
-    if(itmp->x509) {
-      if(X509_STORE_add_cert(store, itmp->x509)) {
-        ++count;
+  വേണ്ടി(i = 0; i < (പൂർണ്ണസംഖ്യ)sk_X509_INFO_അക്കം(inf); ++i) {
+    itmp = sk_X509_INFO_മൂല്യം(inf, (ossl_valsize_t)i);
+    എങ്കിൽ(itmp->x509) {
+      എങ്കിൽ(X509_STORE_add_cert(store, itmp->x509)) {
+        ++എണ്ണം;
       }
-      else {
+      അല്ലെങ്കിൽ {
         /* set count to 0 to return an error */
-        count = 0;
-        break;
+        എണ്ണം = 0;
+        നിർത്തുക;
       }
     }
-    if(itmp->crl) {
-      if(X509_STORE_add_crl(store, itmp->crl)) {
-        ++count;
+    എങ്കിൽ(itmp->crl) {
+      എങ്കിൽ(X509_STORE_add_crl(store, itmp->crl)) {
+        ++എണ്ണം;
       }
-      else {
+      അല്ലെങ്കിൽ {
         /* set count to 0 to return an error */
-        count = 0;
-        break;
+        എണ്ണം = 0;
+        നിർത്തുക;
       }
     }
   }
 
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic തള്ളുക
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
-  sk_X509_INFO_pop_free(inf, X509_INFO_free);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+  sk_X509_INFO_എടുക്കുക_free(inf, X509_INFO_free);
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic എടുക്കുക
 #endif
   BIO_free(cbio);
 
   /* if we did not end up importing anything, treat that as an error */
-  return (count > 0) ? CURLE_OK : CURLE_SSL_CACERT_BADFILE;
+  തിരികെ (എണ്ണം > 0) ? CURLE_OK : CURLE_SSL_CACERT_BADFILE;
 }
 
 #ifdef USE_WIN32_CRYPTO
-static CURLcode ossl_win_load_store(struct Curl_easy *data,
-                                    struct Curl_cfilter *cf,
-                                    const char *win_store,
+സ്ഥിതം CURLcode ossl_win_load_store(ഘടന Curl_easy *data,
+                                    ഘടന Curl_cfilter *cf,
+                                    സ്ഥിരം അക്ഷരം *win_store,
                                     X509_STORE *store,
                                     bool *padded)
 {
@@ -2831,12 +2831,12 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
   *padded = FALSE;
 
   hStore = CertOpenSystemStoreA(0, win_store);
-  if(hStore) {
-    PCCERT_CONTEXT pContext = NULL;
+  എങ്കിൽ(hStore) {
+    PCCERT_CONTEXT pContext = ശൂന്യ;
     /* The array of enhanced key usage OIDs varies per certificate and
        is declared outside of the loop so that rather than malloc/free each
        iteration we can grow it with realloc, when necessary. */
-    CERT_ENHKEY_USAGE *enhkey_usage = NULL;
+    CERT_ENHKEY_USAGE *enhkey_usage = ശൂന്യ;
     DWORD enhkey_usage_size = 0;
     VERBOSE(size_t total = 0);
     VERBOSE(size_t imported = 0);
@@ -2846,46 +2846,46 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
        skipped. 'result' is used to store only hard-fail conditions (such
        as out of memory) that cause an early break. */
     result = CURLE_OK;
-    for(;;) {
+    വേണ്ടി(;;) {
       X509 *x509;
       FILETIME now;
-      BYTE key_usage[2];
+      BYTE താക്കോൽ_usage[2];
       DWORD req_size;
-      const unsigned char *encoded_cert;
+      സ്ഥിരം unsigned അക്ഷരം *encoded_cert;
       pContext = CertEnumCertificatesInStore(hStore, pContext);
-      if(!pContext)
-        break;
+      എങ്കിൽ(!pContext)
+        നിർത്തുക;
 
       VERBOSE(++total);
 
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+#എങ്കിൽ defined(DEBUGBUILD) && defined(CURLVERBOSE)
       {
-        char cert_name[256];
-        if(!CertGetNameStringA(pContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0,
-                               NULL, cert_name, sizeof(cert_name)))
+        അക്ഷരം cert_name[256];
+        എങ്കിൽ(!CertGetNameStringA(pContext, CERT_NAME_SIMPLE_DISPLAY_TYPE, 0,
+                               ശൂന്യ, cert_name, വലുപ്പം(cert_name)))
           infof(data, "SSL: unknown cert name");
-        else
+        അല്ലെങ്കിൽ
           infof(data, "SSL: Checking cert \"%s\"", cert_name);
       }
 #endif
-      encoded_cert = (const unsigned char *)pContext->pbCertEncoded;
-      if(!encoded_cert)
-        continue;
+      encoded_cert = (സ്ഥിരം unsigned അക്ഷരം *)pContext->pbCertEncoded;
+      എങ്കിൽ(!encoded_cert)
+        തുടരുക;
 
       GetSystemTimeAsFileTime(&now);
-      if(CompareFileTime(&pContext->pCertInfo->NotBefore, &now) > 0 ||
+      എങ്കിൽ(CompareFileTime(&pContext->pCertInfo->NotBefore, &now) > 0 ||
          CompareFileTime(&now, &pContext->pCertInfo->NotAfter) > 0)
-        continue;
+        തുടരുക;
 
       /* If key usage exists check for signing attribute */
-      if(CertGetIntendedKeyUsage(pContext->dwCertEncodingType,
+      എങ്കിൽ(Cert_Get_Intended_താക്കോൽ_Usage(pContext->dwCertEncodingType,
                                  pContext->pCertInfo,
-                                 key_usage, sizeof(key_usage))) {
-        if(!(key_usage[0] & CERT_KEY_CERT_SIGN_KEY_USAGE))
-          continue;
+                                 താക്കോൽ_usage, വലുപ്പം(താക്കോൽ_usage))) {
+        എങ്കിൽ(!(താക്കോൽ_usage[0] & CERT_താക്കോൽ_CERT_SIGN_താക്കോൽ_USAGE))
+          തുടരുക;
       }
-      else if(GetLastError())
-        continue;
+      അല്ലെങ്കിൽ എങ്കിൽ(GetLastError())
+        തുടരുക;
 
       /* If enhanced key usage exists check for server auth attribute.
        *
@@ -2895,58 +2895,58 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
        * depending on what is found. For more details see
        * CertGetEnhancedKeyUsage doc.
        */
-      if(CertGetEnhancedKeyUsage(pContext, 0, NULL, &req_size) && req_size) {
-        if(req_size > enhkey_usage_size) {
-          void *tmp = curlx_realloc(enhkey_usage, req_size);
+      എങ്കിൽ(Cert_Get_Enhanced_താക്കോൽ_Usage(pContext, 0, ശൂന്യ, &req_size) && req_size) {
+        എങ്കിൽ(req_size > enhkey_usage_size) {
+          ശൂന്യം *tmp = curlx_realloc(enhkey_usage, req_size);
 
-          if(!tmp) {
+          എങ്കിൽ(!tmp) {
             failf(data, "SSL: Out of memory allocating for OID list");
             result = CURLE_OUT_OF_MEMORY;
-            break;
+            നിർത്തുക;
           }
 
           enhkey_usage = (CERT_ENHKEY_USAGE *)tmp;
           enhkey_usage_size = req_size;
         }
 
-        if(CertGetEnhancedKeyUsage(pContext, 0, enhkey_usage, &req_size)) {
-          if(!enhkey_usage->cUsageIdentifier) {
+        എങ്കിൽ(Cert_Get_Enhanced_താക്കോൽ_Usage(pContext, 0, enhkey_usage, &req_size)) {
+          എങ്കിൽ(!enhkey_usage->cUsageIdentifier) {
             /* "If GetLastError returns CRYPT_E_NOT_FOUND, the certificate
                is good for all uses. If it returns zero, the certificate
                has no valid uses." */
-            if((HRESULT)GetLastError() != CRYPT_E_NOT_FOUND)
-              continue;
+            എങ്കിൽ((HRESULT)GetLastError() != CRYPT_E_NOT_FOUND)
+              തുടരുക;
           }
-          else {
+          അല്ലെങ്കിൽ {
             DWORD i;
             bool found = FALSE;
 
-            for(i = 0; i < enhkey_usage->cUsageIdentifier; ++i) {
-              if(!strcmp("1.3.6.1.5.5.7.3.1" /* OID server auth */,
+            വേണ്ടി(i = 0; i < enhkey_usage->cUsageIdentifier; ++i) {
+              എങ്കിൽ(!strcmp("1.3.6.1.5.5.7.3.1" /* OID server auth */,
                          enhkey_usage->rgpszUsageIdentifier[i])) {
                 found = TRUE;
-                break;
+                നിർത്തുക;
               }
             }
 
-            if(!found)
-              continue;
+            എങ്കിൽ(!found)
+              തുടരുക;
           }
         }
-        else
-          continue;
+        അല്ലെങ്കിൽ
+          തുടരുക;
       }
-      else
-        continue;
+      അല്ലെങ്കിൽ
+        തുടരുക;
 
-      x509 = d2i_X509(NULL, &encoded_cert, (long)pContext->cbCertEncoded);
-      if(!x509)
-        continue;
+      x509 = d2i_X509(ശൂന്യ, &encoded_cert, (long)pContext->cbCertEncoded);
+      എങ്കിൽ(!x509)
+        തുടരുക;
 
       /* Try to import the certificate. This may fail for legitimate reasons
          such as duplicate certificate, which is allowed by MS but not
          OpenSSL. */
-      if(X509_STORE_add_cert(store, x509) == 1) {
+      എങ്കിൽ(X509_STORE_add_cert(store, x509) == 1) {
         VERBOSE(++imported);
 #ifdef DEBUGBUILD
         infof(data, "SSL: Imported cert");
@@ -2964,15 +2964,15 @@ static CURLcode ossl_win_load_store(struct Curl_easy *data,
                 "ossl_win_load_store() found: %zu imported: %zu certs in %s.",
                 total, imported, win_store);
 
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode ossl_windows_load_anchors(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_windows_load_anchors(ഘടന Curl_cfilter *cf,
+                                          ഘടന Curl_easy *data,
                                           X509_STORE *store,
                                           bool *padded)
 {
@@ -2981,7 +2981,7 @@ static CURLcode ossl_windows_load_anchors(struct Curl_cfilter *cf,
      https://stackoverflow.com/questions/9507184/
      https://github.com/d3x0r/SACK/blob/ff15424d3c581b86d40f818532e5a400c516d39d/src/netlib/ssl_layer.c#L1410
      https://datatracker.ietf.org/doc/html/rfc5280 */
-  static const char * const win_stores[] = {
+  സ്ഥിതം സ്ഥിരം അക്ഷരം * സ്ഥിരം win_stores[] = {
     "ROOT",   /* Trusted Root Certification Authorities */
     "CA"      /* Intermediate Certification Authorities */
   };
@@ -2989,122 +2989,122 @@ static CURLcode ossl_windows_load_anchors(struct Curl_cfilter *cf,
   CURLcode result = CURLE_OK;
 
   *padded = FALSE;
-  for(i = 0; i < CURL_ARRAYSIZE(win_stores); ++i) {
+  വേണ്ടി(i = 0; i < CURL_ARRAYSIZE(win_stores); ++i) {
     bool store_added = FALSE;
     result = ossl_win_load_store(data, cf, win_stores[i], store, &store_added);
-    if(result)
-      return result;
-    if(store_added) {
+    എങ്കിൽ(result)
+      തിരികെ result;
+    എങ്കിൽ(store_added) {
       CURL_TRC_CF(data, cf, "added trust anchors from Windows %s store",
                   win_stores[i]);
       *padded = TRUE;
     }
-    else
+    അല്ലെങ്കിൽ
       infof(data, "error importing Windows %s store, continuing anyway",
             win_stores[i]);
   }
-  return result;
+  തിരികെ result;
 }
 
 #endif /* USE_WIN32_CRYPTO */
 
-static CURLcode ossl_load_trust_anchors(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct ossl_ctx *octx,
+സ്ഥിതം CURLcode ossl_load_trust_anchors(ഘടന Curl_cfilter *cf,
+                                        ഘടന Curl_easy *data,
+                                        ഘടന ossl_ctx *octx,
                                         X509_STORE *store)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
-  const char * const ssl_cafile =
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം ssl_cafile =
     /* CURLOPT_CAINFO_BLOB overrides CURLOPT_CAINFO */
-    (conn_config->ca_info_blob ? NULL : conn_config->CAfile);
-  const char * const ssl_capath = conn_config->CApath;
+    (conn_config->ca_info_blob ? ശൂന്യ : conn_config->CAfile);
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം ssl_capath = conn_config->CApath;
   bool have_native_check = FALSE;
 
   octx->store_is_empty = TRUE;
-  if(conn_config->native_ca_store) {
+  എങ്കിൽ(conn_config->native_ca_store) {
 #ifdef USE_WIN32_CRYPTO
     bool added = FALSE;
     result = ossl_windows_load_anchors(cf, data, store, &added);
-    if(result)
-      return result;
-    if(added) {
+    എങ്കിൽ(result)
+      തിരികെ result;
+    എങ്കിൽ(added) {
       infof(data, "  Native: Windows System Stores ROOT+CA");
       octx->store_is_empty = FALSE;
     }
-#elif defined(USE_APPLE_SECTRUST)
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_APPLE_SECTRUST)
     infof(data, "  Native: Apple SecTrust");
     have_native_check = TRUE;
 #endif
   }
 
-  if(conn_config->ca_info_blob) {
+  എങ്കിൽ(conn_config->ca_info_blob) {
     result = load_cacert_from_memory(store, conn_config->ca_info_blob);
-    if(result) {
+    എങ്കിൽ(result) {
       failf(data, "error adding trust anchors from certificate blob: %d",
-            (int)result);
-      return result;
+            (പൂർണ്ണസംഖ്യ)result);
+      തിരികെ result;
     }
     infof(data, "  CA Blob from configuration");
     octx->store_is_empty = FALSE;
   }
 
-  if(ssl_cafile || ssl_capath) {
+  എങ്കിൽ(ssl_cafile || ssl_capath) {
 #ifdef HAVE_OPENSSL3
     /* OpenSSL 3.0.0 has deprecated SSL_CTX_load_verify_locations */
-    if(ssl_cafile) {
-      if(!X509_STORE_load_file(store, ssl_cafile)) {
-        if(octx->store_is_empty && !have_native_check) {
+    എങ്കിൽ(ssl_cafile) {
+      എങ്കിൽ(!X509_STORE_load_file(store, ssl_cafile)) {
+        എങ്കിൽ(octx->store_is_empty && !have_native_check) {
           /* Fail if we insist on successfully verifying the server. */
           failf(data, "error adding trust anchors from file: %s", ssl_cafile);
-          return CURLE_SSL_CACERT_BADFILE;
+          തിരികെ CURLE_SSL_CACERT_BADFILE;
         }
-        else
+        അല്ലെങ്കിൽ
           infof(data, "error setting certificate file, continuing anyway");
       }
       infof(data, "  CAfile: %s", ssl_cafile);
       octx->store_is_empty = FALSE;
     }
-    if(ssl_capath) {
-      if(!X509_STORE_load_path(store, ssl_capath)) {
-        if(octx->store_is_empty && !have_native_check) {
+    എങ്കിൽ(ssl_capath) {
+      എങ്കിൽ(!X509_STORE_load_path(store, ssl_capath)) {
+        എങ്കിൽ(octx->store_is_empty && !have_native_check) {
           /* Fail if we insist on successfully verifying the server. */
           failf(data, "error adding trust anchors from path: %s", ssl_capath);
-          return CURLE_SSL_CACERT_BADFILE;
+          തിരികെ CURLE_SSL_CACERT_BADFILE;
         }
-        else
+        അല്ലെങ്കിൽ
           infof(data, "error setting certificate path, continuing anyway");
       }
       infof(data, "  CApath: %s", ssl_capath);
       octx->store_is_empty = FALSE;
     }
-#else
+#അല്ലെങ്കിൽ
     /* tell OpenSSL where to find CA certificates that are used to verify the
        server's certificate. */
-    if(!X509_STORE_load_locations(store, ssl_cafile, ssl_capath)) {
-      if(octx->store_is_empty && !have_native_check) {
+    എങ്കിൽ(!X509_STORE_load_locations(store, ssl_cafile, ssl_capath)) {
+      എങ്കിൽ(octx->store_is_empty && !have_native_check) {
         /* Fail if we insist on successfully verifying the server. */
         failf(data, "error adding trust anchors from locations:"
               "  CAfile: %s CApath: %s",
               ssl_cafile ? ssl_cafile : "none",
               ssl_capath ? ssl_capath : "none");
-        return CURLE_SSL_CACERT_BADFILE;
+        തിരികെ CURLE_SSL_CACERT_BADFILE;
       }
-      else {
+      അല്ലെങ്കിൽ {
         infof(data, "error setting certificate verify locations,"
               " continuing anyway");
       }
     }
-    if(ssl_cafile)
+    എങ്കിൽ(ssl_cafile)
       infof(data, "  CAfile: %s", ssl_cafile);
-    if(ssl_capath)
+    എങ്കിൽ(ssl_capath)
       infof(data, "  CApath: %s", ssl_capath);
     octx->store_is_empty = FALSE;
 #endif
   }
 
 #ifdef CURL_CA_FALLBACK
-  if(octx->store_is_empty) {
+  എങ്കിൽ(octx->store_is_empty) {
     /* verifying the peer without any CA certificates does not
        work so use OpenSSL's built-in default as fallback */
     X509_STORE_set_default_paths(store);
@@ -3112,53 +3112,53 @@ static CURLcode ossl_load_trust_anchors(struct Curl_cfilter *cf,
     octx->store_is_empty = FALSE;
   }
 #endif
-  if(octx->store_is_empty && !have_native_check)
+  എങ്കിൽ(octx->store_is_empty && !have_native_check)
     infof(data, "  no trust anchors configured");
 
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data,
-                                         struct ossl_ctx *octx,
+സ്ഥിതം CURLcode ossl_populate_x509_store(ഘടന Curl_cfilter *cf,
+                                         ഘടന Curl_easy *data,
+                                         ഘടന ossl_ctx *octx,
                                          X509_STORE *store)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
-  X509_LOOKUP *lookup = NULL;
-  const char * const ssl_crlfile = conn_config->CRLfile;
+  X509_LOOKUP *lookup = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം ssl_crlfile = conn_config->CRLfile;
   unsigned long x509flags = 0;
 
   CURL_TRC_CF(data, cf, "configuring OpenSSL's x509 trust store");
-  if(!store)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!store)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  if(!conn_config->verifypeer) {
+  എങ്കിൽ(!conn_config->verifypeer) {
     infof(data, "SSL Trust: peer verification disabled");
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   infof(data, "SSL Trust Anchors:");
   result = ossl_load_trust_anchors(cf, data, octx, store);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   /* Does not make sense to load a CRL file without peer verification */
 #ifdef USE_APPLE_SECTRUST
-  if(ssl_crlfile && conn_config->native_ca_store) {
+  എങ്കിൽ(ssl_crlfile && conn_config->native_ca_store) {
     failf(data, "openssl: CRL file not supported with native CA store; "
           "the platform verifier has no CRL attachment API");
-    return CURLE_NOT_BUILT_IN;
+    തിരികെ CURLE_NOT_BUILT_IN;
   }
 #endif
-  if(ssl_crlfile) {
+  എങ്കിൽ(ssl_crlfile) {
     /* tell OpenSSL where to find CRL file that is used to check certificate
      * revocation */
     lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
-    if(!lookup ||
+    എങ്കിൽ(!lookup ||
        (!X509_load_crl_file(lookup, ssl_crlfile, X509_FILETYPE_PEM))) {
       failf(data, "error loading CRL file: %s", ssl_crlfile);
-      return CURLE_SSL_CRL_BADFILE;
+      തിരികെ CURLE_SSL_CRL_BADFILE;
     }
     x509flags = X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL;
     infof(data, " CRLfile: %s", ssl_crlfile);
@@ -3172,7 +3172,7 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
    */
   x509flags |= X509_V_FLAG_TRUSTED_FIRST;
 
-  if(!conn_config->no_partialchain && !ssl_crlfile) {
+  എങ്കിൽ(!conn_config->no_partialchain && !ssl_crlfile) {
     /* Have intermediate certificates in the trust store be treated as
        trust-anchors, in the same way as self-signed root CA certificates are.
        This allows users to verify servers using the intermediate cert only,
@@ -3182,31 +3182,31 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
        cannot do partial chains with a CRL check. */
     x509flags |= X509_V_FLAG_PARTIAL_CHAIN;
   }
-  (void)X509_STORE_set_flags(store, x509flags);
+  (ശൂന്യം)X509_STORE_set_flags(store, x509flags);
 
-  return result;
+  തിരികെ result;
 }
 
 /* key to use at `multi->proto_hash` */
-#define MPROTO_OSSL_X509_KEY  "tls:ossl:x509:share"
+#define MPROTO_OSSL_X509_താക്കോൽ  "tls:ossl:x509:share"
 
-struct ossl_x509_share {
-  char *CAfile;         /* CAfile path used to generate X509 store */
-  char *CApath;         /* CApath path used to generate X509 store */
+ഘടന ossl_x509_share {
+  അക്ഷരം *CAfile;         /* CAfile path used to generate X509 store */
+  അക്ഷരം *CApath;         /* CApath path used to generate X509 store */
   X509_STORE *store;    /* cached X509 store or NULL if none */
-  struct curltime time; /* when the cached store was created */
+  ഘടന curltime time; /* when the cached store was created */
   BIT(store_is_empty);  /* no certs/paths/blobs are in the store */
   BIT(no_partialchain); /* keep partial chain state */
 };
 
-static void oss_x509_share_free(const void *key, size_t key_len, void *p)
+സ്ഥിതം ശൂന്യം oss_x509_share_free(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_len, ശൂന്യം *p)
 {
-  struct ossl_x509_share *share = p;
-  DEBUGASSERT(key_len == CURL_CSTRLEN(MPROTO_OSSL_X509_KEY));
-  DEBUGASSERT(!memcmp(MPROTO_OSSL_X509_KEY, key, key_len));
-  (void)key;
-  (void)key_len;
-  if(share->store) {
+  ഘടന ossl_x509_share *share = p;
+  DEBUGASSERT(താക്കോൽ_len == CURL_CSTRLEN(MPROTO_OSSL_X509_താക്കോൽ));
+  DEBUGASSERT(!memcmp(MPROTO_OSSL_X509_താക്കോൽ, താക്കോൽ, താക്കോൽ_len));
+  (ശൂന്യം)താക്കോൽ;
+  (ശൂന്യം)താക്കോൽ_len;
+  എങ്കിൽ(share->store) {
     X509_STORE_free(share->store);
   }
   curlx_free(share->CAfile);
@@ -3214,118 +3214,118 @@ static void oss_x509_share_free(const void *key, size_t key_len, void *p)
   curlx_free(share);
 }
 
-static bool ossl_cached_x509_store_expired(struct Curl_easy *data,
-                                           const struct ossl_x509_share *mb)
+സ്ഥിതം bool ossl_cached_x509_store_expired(ഘടന Curl_easy *data,
+                                           സ്ഥിരം ഘടന ossl_x509_share *mb)
 {
-  if(data->set.ssl_ca_cache_timeout < 0)
-    return FALSE;
-  else {
+  എങ്കിൽ(data->set.ssl_ca_cache_timeout < 0)
+    തിരികെ FALSE;
+  അല്ലെങ്കിൽ {
     timediff_t elapsed_ms = curlx_ptimediff_ms(Curl_pgrs_now(data), &mb->time);
     timediff_t timeout_ms = data->set.ssl_ca_cache_timeout * (timediff_t)1000;
 
-    return elapsed_ms >= timeout_ms;
+    തിരികെ elapsed_ms >= timeout_ms;
   }
 }
 
-static bool ossl_cached_x509_store_different(struct Curl_cfilter *cf,
-                                             const struct Curl_easy *data,
-                                             const struct ossl_x509_share *mb)
+സ്ഥിതം bool ossl_cached_x509_store_different(ഘടന Curl_cfilter *cf,
+                                             സ്ഥിരം ഘടന Curl_easy *data,
+                                             സ്ഥിരം ഘടന ossl_x509_share *mb)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  (void)data;
-  if(mb->no_partialchain != conn_config->no_partialchain)
-    return TRUE;
-  if(!mb->CAfile || !conn_config->CAfile) {
-    if(mb->CAfile != conn_config->CAfile)
-      return TRUE;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  (ശൂന്യം)data;
+  എങ്കിൽ(mb->no_partialchain != conn_config->no_partialchain)
+    തിരികെ TRUE;
+  എങ്കിൽ(!mb->CAfile || !conn_config->CAfile) {
+    എങ്കിൽ(mb->CAfile != conn_config->CAfile)
+      തിരികെ TRUE;
   }
-  else if(strcmp(mb->CAfile, conn_config->CAfile))
-    return TRUE;
+  അല്ലെങ്കിൽ എങ്കിൽ(strcmp(mb->CAfile, conn_config->CAfile))
+    തിരികെ TRUE;
 
-  if(!mb->CApath || !conn_config->CApath) {
-    if(mb->CApath != conn_config->CApath)
-      return TRUE;
+  എങ്കിൽ(!mb->CApath || !conn_config->CApath) {
+    എങ്കിൽ(mb->CApath != conn_config->CApath)
+      തിരികെ TRUE;
   }
-  else if(strcmp(mb->CApath, conn_config->CApath))
-    return TRUE;
+  അല്ലെങ്കിൽ എങ്കിൽ(strcmp(mb->CApath, conn_config->CApath))
+    തിരികെ TRUE;
 
-  return FALSE;
+  തിരികെ FALSE;
 }
 
-static X509_STORE *ossl_get_cached_x509_store(struct Curl_cfilter *cf,
-                                              struct Curl_easy *data,
+സ്ഥിതം X509_STORE *ossl_get_cached_x509_store(ഘടന Curl_cfilter *cf,
+                                              ഘടന Curl_easy *data,
                                               bool *pempty)
 {
-  struct Curl_multi *multi = data->multi;
-  struct ossl_x509_share *share;
-  X509_STORE *store = NULL;
+  ഘടന Curl_multi *multi = data->multi;
+  ഘടന ossl_x509_share *share;
+  X509_STORE *store = ശൂന്യ;
 
   DEBUGASSERT(multi);
   *pempty = TRUE;
   share = multi ? Curl_hash_pick(&multi->proto_hash,
-                                 MPROTO_OSSL_X509_KEY,
-                                 CURL_CSTRLEN(MPROTO_OSSL_X509_KEY)) : NULL;
-  if(share && share->store &&
+                                 MPROTO_OSSL_X509_താക്കോൽ,
+                                 CURL_CSTRLEN(MPROTO_OSSL_X509_താക്കോൽ)) : ശൂന്യ;
+  എങ്കിൽ(share && share->store &&
      !ossl_cached_x509_store_expired(data, share) &&
      !ossl_cached_x509_store_different(cf, data, share)) {
     store = share->store;
     *pempty = (bool)share->store_is_empty;
   }
 
-  return store;
+  തിരികെ store;
 }
 
-static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+സ്ഥിതം ശൂന്യം ossl_set_cached_x509_store(ഘടന Curl_cfilter *cf,
+                                       ഘടന Curl_easy *data,
                                        X509_STORE *store,
                                        bool is_empty)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_multi *multi = data->multi;
-  struct ossl_x509_share *share;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_multi *multi = data->multi;
+  ഘടന ossl_x509_share *share;
 
   DEBUGASSERT(multi);
-  if(!multi)
-    return;
+  എങ്കിൽ(!multi)
+    തിരികെ;
   share = Curl_hash_pick(&multi->proto_hash,
-                         MPROTO_OSSL_X509_KEY,
-                         CURL_CSTRLEN(MPROTO_OSSL_X509_KEY));
+                         MPROTO_OSSL_X509_താക്കോൽ,
+                         CURL_CSTRLEN(MPROTO_OSSL_X509_താക്കോൽ));
 
-  if(!share) {
-    share = curlx_calloc(1, sizeof(*share));
-    if(!share)
-      return;
-    if(!Curl_hash_add2(&multi->proto_hash,
-                       MPROTO_OSSL_X509_KEY,
-                       CURL_CSTRLEN(MPROTO_OSSL_X509_KEY),
+  എങ്കിൽ(!share) {
+    share = curlx_calloc(1, വലുപ്പം(*share));
+    എങ്കിൽ(!share)
+      തിരികെ;
+    എങ്കിൽ(!Curl_hash_add2(&multi->proto_hash,
+                       MPROTO_OSSL_X509_താക്കോൽ,
+                       CURL_CSTRLEN(MPROTO_OSSL_X509_താക്കോൽ),
                        share, oss_x509_share_free)) {
       curlx_free(share);
-      return;
+      തിരികെ;
     }
   }
 
-  if(X509_STORE_up_ref(store)) {
-    char *CAfile = NULL;
-    char *CApath = NULL;
+  എങ്കിൽ(X509_STORE_up_ref(store)) {
+    അക്ഷരം *CAfile = ശൂന്യ;
+    അക്ഷരം *CApath = ശൂന്യ;
 
-    if(conn_config->CAfile) {
+    എങ്കിൽ(conn_config->CAfile) {
       CAfile = curlx_strdup(conn_config->CAfile);
-      if(!CAfile) {
+      എങ്കിൽ(!CAfile) {
         X509_STORE_free(store);
-        return;
+        തിരികെ;
       }
     }
 
-    if(conn_config->CApath) {
+    എങ്കിൽ(conn_config->CApath) {
       CApath = curlx_strdup(conn_config->CApath);
-      if(!CApath) {
+      എങ്കിൽ(!CApath) {
         curlx_free(CAfile);
         X509_STORE_free(store);
-        return;
+        തിരികെ;
       }
     }
 
-    if(share->store) {
+    എങ്കിൽ(share->store) {
       X509_STORE_free(share->store);
       curlx_free(share->CAfile);
       curlx_free(share->CApath);
@@ -3344,15 +3344,15 @@ static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
 /* CApath certificates loaded under a provider libctx can outlive that libctx
    when the store is shared with the multi handle. */
 #define USING_PROVIDER(octx) octx->p.libctx
-#else
+#അല്ലെങ്കിൽ
 #define USING_PROVIDER(x) 0
 #endif
 
-CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx)
+CURLcode Curl_ssl_setup_x509_store(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data,
+                                   ഘടന ossl_ctx *octx)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
   X509_STORE *cached_store;
   bool cache_criteria_met, is_empty;
@@ -3370,51 +3370,51 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
   ERR_set_mark();
 
   cached_store = ossl_get_cached_x509_store(cf, data, &is_empty);
-  if(cached_store && cache_criteria_met && X509_STORE_up_ref(cached_store)) {
+  എങ്കിൽ(cached_store && cache_criteria_met && X509_STORE_up_ref(cached_store)) {
     SSL_CTX_set_cert_store(octx->ssl_ctx, cached_store);
     octx->store_is_empty = is_empty;
   }
-  else {
+  അല്ലെങ്കിൽ {
     X509_STORE *store = SSL_CTX_get_cert_store(octx->ssl_ctx);
 
     result = ossl_populate_x509_store(cf, data, octx, store);
-    if(result == CURLE_OK && cache_criteria_met) {
+    എങ്കിൽ(result == CURLE_OK && cache_criteria_met) {
       ossl_set_cached_x509_store(cf, data, store, (bool)octx->store_is_empty);
     }
   }
 
-  ERR_pop_to_mark();
+  ERR_എടുക്കുക_to_mark();
 
-  return result;
+  തിരികെ result;
 }
 
-static bool ossl_apply_session(
-  struct ossl_ctx *octx,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct alpn_spec *alpns,
+സ്ഥിതം bool ossl_apply_session(
+  ഘടന ossl_ctx *octx,
+  ഘടന Curl_cfilter *cf,
+  ഘടന Curl_easy *data,
+  ഘടന alpn_spec *alpns,
   Curl_ossl_init_session_reuse_cb *sess_reuse_cb,
-  struct Curl_ssl_session *scs)
+  ഘടന Curl_ssl_session *scs)
 {
-  struct ssl_filter_config *conn_cfg = Curl_ssl_cf_get_filter_config(cf);
-  const unsigned char *der_sessionid = scs->sdata;
+  ഘടന ssl_filter_config *conn_cfg = Curl_ssl_cf_get_filter_config(cf);
+  സ്ഥിരം unsigned അക്ഷരം *der_sessionid = scs->sdata;
   size_t der_sessionid_size = scs->sdata_len;
-  SSL_SESSION *ssl_session = NULL;
+  SSL_SESSION *ssl_session = ശൂന്യ;
 
   /* If OpenSSL does not accept the session from the cache, this
    * is not an error. We continue without it. */
-  ssl_session = d2i_SSL_SESSION(NULL, &der_sessionid,
+  ssl_session = d2i_SSL_SESSION(ശൂന്യ, &der_sessionid,
                                 (long)der_sessionid_size);
-  if(ssl_session) {
-    if(!SSL_set_session(octx->ssl, ssl_session)) {
-      VERBOSE(char error_buffer[256]);
+  എങ്കിൽ(ssl_session) {
+    എങ്കിൽ(!SSL_set_session(octx->ssl, ssl_session)) {
+      VERBOSE(അക്ഷരം error_buffer[256]);
       infof(data, "SSL: SSL_set_session not accepted, "
             "continuing without: %s",
             ossl_strerror(ERR_get_error(), error_buffer,
-                          sizeof(error_buffer)));
+                          വലുപ്പം(error_buffer)));
     }
-    else {
-      if(conn_cfg->verifypeer &&
+    അല്ലെങ്കിൽ {
+      എങ്കിൽ(conn_cfg->verifypeer &&
          (SSL_get_verify_result(octx->ssl) != X509_V_OK)
 #ifdef USE_APPLE_SECTRUST
          /* if sectrust is used and verified the session before */
@@ -3422,10 +3422,10 @@ static bool ossl_apply_session(
 #endif
         ) {
         /* Session was from unverified connection, cannot reuse here */
-        SSL_set_session(octx->ssl, NULL);
+        SSL_set_session(octx->ssl, ശൂന്യ);
         infof(data, "SSL session not peer verified, not reusing");
       }
-      else {
+      അല്ലെങ്കിൽ {
         infof(data, "SSL reusing session with ALPN '%s'",
               scs->alpn ? scs->alpn : "-");
         octx->reused_session = TRUE;
@@ -3435,190 +3435,190 @@ static bool ossl_apply_session(
         infof(data, "SSL verify result: %lx",
               (unsigned long)SSL_get_verify_result(octx->ssl));
 #ifdef HAVE_OPENSSL_EARLYDATA
-        if(conn_cfg->earlydata && scs->alpn &&
+        എങ്കിൽ(conn_cfg->earlydata && scs->alpn &&
            SSL_SESSION_get_max_early_data(ssl_session) &&
            !cf->conn->bits.connect_only &&
            (SSL_version(octx->ssl) == TLS1_3_VERSION)) {
           bool do_early_data = FALSE;
-          if(sess_reuse_cb)
-            (void)sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
-          if(do_early_data) {
+          എങ്കിൽ(sess_reuse_cb)
+            (ശൂന്യം)sess_reuse_cb(cf, data, alpns, scs, &do_early_data);
+          എങ്കിൽ(do_early_data) {
             /* We only try the ALPN protocol the session used before,
              * otherwise we might send early data for the wrong protocol */
             Curl_alpn_restrict_to(alpns, scs->alpn);
           }
         }
-#else
-        (void)alpns;
-        (void)conn_cfg;
-        (void)sess_reuse_cb;
+#അല്ലെങ്കിൽ
+        (ശൂന്യം)alpns;
+        (ശൂന്യം)conn_cfg;
+        (ശൂന്യം)sess_reuse_cb;
 #endif
       }
     }
     SSL_SESSION_free(ssl_session);
   }
-  else {
+  അല്ലെങ്കിൽ {
     infof(data, "SSL session not accepted by OpenSSL, continuing without");
   }
-  return (bool)octx->reused_session;
+  തിരികെ (bool)octx->reused_session;
 }
 
-static CURLcode ossl_init_session_and_alpns(
-  struct ossl_ctx *octx,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct ssl_peer *peer,
-  const struct alpn_spec *alpns_requested,
+സ്ഥിതം CURLcode ossl_init_session_and_alpns(
+  ഘടന ossl_ctx *octx,
+  ഘടന Curl_cfilter *cf,
+  ഘടന Curl_easy *data,
+  ഘടന ssl_peer *peer,
+  സ്ഥിരം ഘടന alpn_spec *alpns_requested,
   Curl_ossl_init_session_reuse_cb *sess_reuse_cb)
 {
-  struct ssl_filter_config *conn_cfg = Curl_ssl_cf_get_filter_config(cf);
-  struct alpn_spec alpns;
+  ഘടന ssl_filter_config *conn_cfg = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന alpn_spec alpns;
   CURLcode result;
 
   Curl_alpn_copy(&alpns, alpns_requested);
 
   octx->reused_session = FALSE;
 
-  if((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
+  എങ്കിൽ((cf->sockindex == SECONDARYSOCKET) && !(cf->cft->flags & CF_TYPE_PROXY)) {
     /* FTP is a bitch. On TLS secured transfers, it is a common server
      * option to require the client to use the SAME TLS session as on
      * the control connection or it fails the request. See #22225. */
-    struct Curl_ssl_session *scs =
+    ഘടന Curl_ssl_session *scs =
       Curl_ssl_get_cf_session(data, cf->cft, FIRSTSOCKET);
-    if(scs) {
-      if(ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs))
+    എങ്കിൽ(scs) {
+      എങ്കിൽ(ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs))
         CURL_TRC_CF(data, cf, "applied SSL session from control connection");
     }
   }
 
-  if(!octx->reused_session &&
+  എങ്കിൽ(!octx->reused_session &&
      Curl_ssl_scache_use(cf, data) && !conn_cfg->verifystatus) {
-    struct Curl_ssl_session *scs = NULL;
+    ഘടന Curl_ssl_session *scs = ശൂന്യ;
 
-    result = Curl_ssl_scache_take(cf, data, peer->scache_key, &scs);
-    if(!result && scs && scs->sdata && scs->sdata_len) {
-      (void)ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs);
+    result = Curl_ssl_scache_take(cf, data, peer->scache_താക്കോൽ, &scs);
+    എങ്കിൽ(!result && scs && scs->sdata && scs->sdata_len) {
+      (ശൂന്യം)ossl_apply_session(octx, cf, data, &alpns, sess_reuse_cb, scs);
     }
-    Curl_ssl_scache_return(cf, data, peer->scache_key, scs);
+    Curl_ssl_scache_return(cf, data, peer->scache_താക്കോൽ, scs);
   }
 
-  if(alpns.count) {
-    struct alpn_proto_buf proto;
-    memset(&proto, 0, sizeof(proto));
+  എങ്കിൽ(alpns.എണ്ണം) {
+    ഘടന alpn_proto_buf proto;
+    memset(&proto, 0, വലുപ്പം(proto));
     result = Curl_alpn_to_proto_buf(&proto, &alpns);
-    if(result) {
+    എങ്കിൽ(result) {
       failf(data, "Error determining ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
-    if(SSL_set_alpn_protos(octx->ssl, proto.data, proto.len)) {
+    എങ്കിൽ(SSL_set_alpn_protos(octx->ssl, proto.data, proto.len)) {
       failf(data, "Error setting ALPN");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
-static CURLcode ossl_init_ech(struct ossl_ctx *octx,
-                              struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              struct ssl_peer *peer)
+സ്ഥിതം CURLcode ossl_init_ech(ഘടന ossl_ctx *octx,
+                              ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
+                              ഘടന ssl_peer *peer)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  int trying_ech_now = 0;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  പൂർണ്ണസംഖ്യ trying_ech_now = 0;
 
-  if(!Curl_ssl_ech_enabled(cf))
-    return CURLE_OK;
+  എങ്കിൽ(!Curl_ssl_ech_enabled(cf))
+    തിരികെ CURLE_OK;
 
-  if(conn_config->ech == CURLECH_GREASE) {
+  എങ്കിൽ(conn_config->ech == CURLECH_GREASE) {
     infof(data, "ECH: will GREASE ClientHello");
 #ifdef HAVE_BORINGSSL_LIKE
     SSL_set_enable_ech_grease(octx->ssl, 1);
-#else
+#അല്ലെങ്കിൽ
     SSL_set_options(octx->ssl, SSL_OP_ECH_GREASE);
 #endif
   }
-  else if(conn_config->ech && conn_config->ech_config) {
+  അല്ലെങ്കിൽ എങ്കിൽ(conn_config->ech && conn_config->ech_config) {
 #ifdef HAVE_BORINGSSL_LIKE
     uint8_t *ech_config;
     size_t ech_config_len = 0;
     CURLcode result;
 
-    if(!conn_config->ech_config[0]) {
+    എങ്കിൽ(!conn_config->ech_config[0]) {
       infof(data, "ECH: ECHConfig from command line empty");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
     ech_config_len = 2 * strlen(conn_config->ech_config);
     result = curlx_base64_decode(conn_config->ech_config,
                                  &ech_config, &ech_config_len);
-    if(result || !ech_config) {
+    എങ്കിൽ(result || !ech_config) {
       infof(data, "ECH: cannot base64 decode ECHConfig from command line");
-      if(conn_config->ech == CURLECH_HARD)
-        return result;
+      എങ്കിൽ(conn_config->ech == CURLECH_HARD)
+        തിരികെ result;
     }
-    if(SSL_set1_ech_config_list(octx->ssl, ech_config, ech_config_len) != 1) {
+    എങ്കിൽ(SSL_set1_ech_config_list(octx->ssl, ech_config, ech_config_len) != 1) {
       infof(data, "ECH: SSL_ECH_set1_ech_config_list failed");
-      if(conn_config->ech == CURLECH_HARD) {
+      എങ്കിൽ(conn_config->ech == CURLECH_HARD) {
         curlx_free(ech_config);
-        return CURLE_SSL_CONNECT_ERROR;
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
       }
     }
     curlx_free(ech_config);
     trying_ech_now = 1;
-#else
+#അല്ലെങ്കിൽ
     size_t ech_config_len = 0;
-    if(!conn_config->ech_config[0]) {
+    എങ്കിൽ(!conn_config->ech_config[0]) {
       infof(data, "ECH: ECHConfig from command line empty");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
     ech_config_len = strlen(conn_config->ech_config);
-    if(SSL_set1_ech_config_list(octx->ssl,
-                                (const uint8_t *)conn_config->ech_config,
+    എങ്കിൽ(SSL_set1_ech_config_list(octx->ssl,
+                                (സ്ഥിരം uint8_t *)conn_config->ech_config,
                                 ech_config_len) != 1) {
       infof(data, "ECH: SSL_ECH_set1_ech_config_list failed");
-      if(conn_config->ech == CURLECH_HARD)
-        return CURLE_SSL_CONNECT_ERROR;
+      എങ്കിൽ(conn_config->ech == CURLECH_HARD)
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
-    else
+    അല്ലെങ്കിൽ
       trying_ech_now = 1;
 #endif /* HAVE_BORINGSSL_LIKE */
     infof(data, "ECH: ECHConfig from command line");
   }
-  else {
-    const struct Curl_https_rrinfo *rinfo =
+  അല്ലെങ്കിൽ {
+    സ്ഥിരം ഘടന Curl_https_rrinfo *rinfo =
       Curl_conn_dns_get_https(data, cf->sockindex, peer->origin);
 
-    if(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
-      const unsigned char *ecl = rinfo->echconfiglist;
+    എങ്കിൽ(Curl_httpsrr_is_for_peer(peer->origin, rinfo) && rinfo->echconfiglist) {
+      സ്ഥിരം unsigned അക്ഷരം *ecl = rinfo->echconfiglist;
       size_t elen = rinfo->echconfiglist_len;
 
       infof(data, "ECH: ECHConfig from HTTPS RR");
-      if(SSL_set1_ech_config_list(octx->ssl, ecl, elen) != 1) {
+      എങ്കിൽ(SSL_set1_ech_config_list(octx->ssl, ecl, elen) != 1) {
         infof(data, "ECH: SSL_set1_ech_config_list failed");
-        if(conn_config->ech == CURLECH_HARD)
-          return CURLE_SSL_CONNECT_ERROR;
+        എങ്കിൽ(conn_config->ech == CURLECH_HARD)
+          തിരികെ CURLE_SSL_CONNECT_ERROR;
       }
-      else {
+      അല്ലെങ്കിൽ {
         trying_ech_now = 1;
         infof(data, "ECH: imported ECHConfigList of length %zu", elen);
       }
     }
-    else {
+    അല്ലെങ്കിൽ {
       infof(data, "ECH: requested but no ECHConfig available");
-      if(conn_config->ech == CURLECH_HARD)
-        return CURLE_SSL_CONNECT_ERROR;
+      എങ്കിൽ(conn_config->ech == CURLECH_HARD)
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 #ifdef HAVE_BORINGSSL_LIKE
-  (void)peer;
-  if(trying_ech_now && conn_config->ech_public) {
+  (ശൂന്യം)peer;
+  എങ്കിൽ(trying_ech_now && conn_config->ech_public) {
     infof(data, "ECH: setting public_name not supported with BoringSSL");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
-#else
-  if(trying_ech_now && conn_config->ech_public) {
-    int ret;
+#അല്ലെങ്കിൽ
+  എങ്കിൽ(trying_ech_now && conn_config->ech_public) {
+    പൂർണ്ണസംഖ്യ ret;
     infof(data, "ECH: inner: '%s', outer: '%s'",
           peer->origin->hostname ? peer->origin->hostname : "NULL",
           conn_config->ech_public);
@@ -3626,159 +3626,159 @@ static CURLcode ossl_init_ech(struct ossl_ctx *octx,
                                     peer->origin->hostname,
                                     conn_config->ech_public,
                                     0 /* do send outer */);
-    if(ret != 1) {
+    എങ്കിൽ(ret != 1) {
       infof(data, "ECH: rv failed to set server name(s) %d [ERROR]", ret);
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 #endif /* HAVE_BORINGSSL_LIKE */
-  if(trying_ech_now &&
+  എങ്കിൽ(trying_ech_now &&
      SSL_set_min_proto_version(octx->ssl, TLS1_3_VERSION) != 1) {
     infof(data, "ECH: cannot force TLSv1.3 [ERROR]");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 #endif /* else HAVE_SSL_SET1_ECH_CONFIG_LIST */
 
-static CURLcode ossl_init_ssl(struct ossl_ctx *octx,
-                              struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              struct ssl_peer *peer,
-                              const struct alpn_spec *alpns_requested,
-                              void *ssl_user_data,
+സ്ഥിതം CURLcode ossl_init_ssl(ഘടന ossl_ctx *octx,
+                              ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
+                              ഘടന ssl_peer *peer,
+                              സ്ഥിരം ഘടന alpn_spec *alpns_requested,
+                              ശൂന്യം *ssl_user_data,
                               Curl_ossl_init_session_reuse_cb *sess_reuse_cb)
 {
   /* Let's make an SSL structure */
-  if(octx->ssl)
+  എങ്കിൽ(octx->ssl)
     SSL_free(octx->ssl);
   octx->ssl = SSL_new(octx->ssl_ctx);
-  if(!octx->ssl) {
+  എങ്കിൽ(!octx->ssl) {
     failf(data, "SSL: could not create a context (handle)");
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
   SSL_set_app_data(octx->ssl, ssl_user_data);
 
 #ifndef OPENSSL_NO_OCSP
-  if(Curl_ssl_cf_get_filter_config(cf)->verifystatus)
+  എങ്കിൽ(Curl_ssl_cf_get_filter_config(cf)->verifystatus)
     SSL_set_tlsext_status_type(octx->ssl, TLSEXT_STATUSTYPE_ocsp);
 #endif
 
   SSL_set_connect_state(octx->ssl);
 
-  if(peer->sni) {
-    if(!SSL_set_tlsext_host_name(octx->ssl, peer->sni)) {
+  എങ്കിൽ(peer->sni) {
+    എങ്കിൽ(!SSL_set_tlsext_host_name(octx->ssl, peer->sni)) {
       failf(data, "Failed set SNI");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
   }
 
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
   {
     CURLcode result = ossl_init_ech(octx, cf, data, peer);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 #endif /* HAVE_SSL_SET1_ECH_CONFIG_LIST */
 
-  return ossl_init_session_and_alpns(octx, cf, data, peer,
+  തിരികെ ossl_init_session_and_alpns(octx, cf, data, peer,
                                      alpns_requested, sess_reuse_cb);
 }
 
-static CURLcode ossl_init_method(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct ssl_peer *peer,
-                                 const SSL_METHOD **pmethod,
-                                 unsigned int *pssl_version_min)
+സ്ഥിതം CURLcode ossl_init_method(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 ഘടന ssl_peer *peer,
+                                 സ്ഥിരം SSL_METHOD **pmethod,
+                                 unsigned പൂർണ്ണസംഖ്യ *pssl_version_min)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
 
-  *pmethod = NULL;
+  *pmethod = ശൂന്യ;
   *pssl_version_min = conn_config->version;
   DEBUGASSERT(conn_config->version != CURL_SSLVERSION_DEFAULT);
-  switch(peer->transport) {
-  case TRNSPRT_TCP:
+  തിരഞ്ഞെടുപ്പ്(peer->transport) {
+  അവസ്ഥ TRNSPRT_TCP:
     /* check to see if we have been told to use an explicit SSL/TLS version */
-    switch(*pssl_version_min) {
-    case CURL_SSLVERSION_TLSv1:
-    case CURL_SSLVERSION_TLSv1_0:
-    case CURL_SSLVERSION_TLSv1_1:
-    case CURL_SSLVERSION_TLSv1_2:
-    case CURL_SSLVERSION_TLSv1_3:
+    തിരഞ്ഞെടുപ്പ്(*pssl_version_min) {
+    അവസ്ഥ CURL_SSLVERSION_TLSv1:
+    അവസ്ഥ CURL_SSLVERSION_TLSv1_0:
+    അവസ്ഥ CURL_SSLVERSION_TLSv1_1:
+    അവസ്ഥ CURL_SSLVERSION_TLSv1_2:
+    അവസ്ഥ CURL_SSLVERSION_TLSv1_3:
       /* it is handled later with the context options */
       *pmethod = TLS_client_method();
-      break;
-    case CURL_SSLVERSION_SSLv2:
+      നിർത്തുക;
+    അവസ്ഥ CURL_SSLVERSION_SSLv2:
       failf(data, "No SSLv2 support");
-      return CURLE_NOT_BUILT_IN;
-    case CURL_SSLVERSION_SSLv3:
+      തിരികെ CURLE_NOT_BUILT_IN;
+    അവസ്ഥ CURL_SSLVERSION_SSLv3:
       failf(data, "No SSLv3 support");
-      return CURLE_NOT_BUILT_IN;
-    default:
+      തിരികെ CURLE_NOT_BUILT_IN;
+    സ്ഥിരസ്ഥിതി:
       failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
-    break;
-  case TRNSPRT_QUIC:
+    നിർത്തുക;
+  അവസ്ഥ TRNSPRT_QUIC:
     *pssl_version_min = CURL_SSLVERSION_TLSv1_3;
-    if(conn_config->version_max &&
+    എങ്കിൽ(conn_config->version_max &&
        (conn_config->version_max != CURL_SSLVERSION_MAX_DEFAULT) &&
        (conn_config->version_max != CURL_SSLVERSION_MAX_TLSv1_3)) {
       failf(data, "QUIC needs at least TLS version 1.3");
-      return CURLE_SSL_CONNECT_ERROR;
+      തിരികെ CURLE_SSL_CONNECT_ERROR;
     }
 
     *pmethod = TLS_method();
-    break;
-  default:
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
     failf(data, "unsupported transport %d in SSL init", peer->transport);
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
-  return *pmethod ? CURLE_OK : CURLE_SSL_CONNECT_ERROR;
+  തിരികെ *pmethod ? CURLE_OK : CURLE_SSL_CONNECT_ERROR;
 }
 
-CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_ossl_ctx_init(ഘടന ossl_ctx *octx,
+                            ഘടന Curl_cfilter *cf,
+                            ഘടന Curl_easy *data,
+                            ഘടന ssl_peer *peer,
+                            സ്ഥിരം ഘടന alpn_spec *alpns_requested,
                             Curl_ossl_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
+                            ശൂന്യം *cb_user_data,
                             Curl_ossl_new_session_cb *cb_new_session,
-                            void *ssl_user_data,
+                            ശൂന്യം *ssl_user_data,
                             Curl_ossl_init_session_reuse_cb *sess_reuse_cb)
 {
   CURLcode result = CURLE_OK;
-  const char *ciphers;
-  const SSL_METHOD *req_method = NULL;
+  സ്ഥിരം അക്ഷരം *ciphers;
+  സ്ഥിരം SSL_METHOD *req_method = ശൂന്യ;
   ctx_option_t ctx_options = 0;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  char * const ssl_cert = conn_config->clientcert;
-  const struct curl_blob *ssl_cert_blob = conn_config->cert_blob;
-  const char * const ssl_cert_type = conn_config->cert_type;
-  unsigned int ssl_version_min = CURL_SSLVERSION_DEFAULT;
-  char error_buffer[256];
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
+  അക്ഷരം * സ്ഥിരം ssl_cert = conn_config->clientcert;
+  സ്ഥിരം ഘടന curl_blob *ssl_cert_blob = conn_config->cert_blob;
+  സ്ഥിരം അക്ഷരം * സ്ഥിരം ssl_cert_type = conn_config->cert_type;
+  unsigned പൂർണ്ണസംഖ്യ ssl_version_min = CURL_SSLVERSION_DEFAULT;
+  അക്ഷരം error_buffer[256];
 
   /* Make funny stuff to get random input */
   result = ossl_seed(data);
-  if(!result) {
-    if(CURL_EASY_STR(data, STRING_SSL_ENGINE))
+  എങ്കിൽ(!result) {
+    എങ്കിൽ(CURL_EASY_STR(data, STRING_SSL_ENGINE))
       result = ossl_set_engine(data, octx,
                                CURL_EASY_STR(data, STRING_SSL_ENGINE));
-    if(!result && data->set.engine_default)
+    എങ്കിൽ(!result && data->set.engine_default)
       result = ossl_set_engine_default(data, octx);
   }
 
-  if(!result) {
+  എങ്കിൽ(!result) {
     ssl_config->certverifyresult = !X509_V_OK;
     result = ossl_init_method(cf, data, peer, &req_method, &ssl_version_min);
   }
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
   DEBUGASSERT(req_method);
 
   DEBUGASSERT(!octx->ssl_ctx);
@@ -3789,25 +3789,25 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #endif
     SSL_CTX_new(req_method);
 
-  if(!octx->ssl_ctx) {
+  എങ്കിൽ(!octx->ssl_ctx) {
     failf(data, "SSL: could not create a context: %s",
-          ossl_strerror(ERR_peek_error(), error_buffer, sizeof(error_buffer)));
-    return CURLE_OUT_OF_MEMORY;
+          ossl_strerror(ERR_peek_error(), error_buffer, വലുപ്പം(error_buffer)));
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
-  if(cb_setup) {
+  എങ്കിൽ(cb_setup) {
     result = cb_setup(cf, data, cb_user_data);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
-  if(data->set.fdebug && data->set.verbose &&
+  എങ്കിൽ(data->set.fdebug && data->set.verbose &&
      (peer->transport != TRNSPRT_QUIC)) {
     /* the SSL trace callback is only used for verbose logging;
      * QUIC connections use a different TLS record format that
      * ossl_trace cannot handle */
-    SSL_CTX_set_msg_callback(octx->ssl_ctx, ossl_trace);
-    SSL_CTX_set_msg_callback_arg(octx->ssl_ctx, cf);
+    SSL_CTX_set_സന്ദേശം_callback(octx->ssl_ctx, ossl_trace);
+    SSL_CTX_set_സന്ദേശം_callback_arg(octx->ssl_ctx, cf);
   }
 
   /* OpenSSL contains code to work around lots of bugs and flaws in various
@@ -3852,34 +3852,34 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 
   /* unless the user explicitly asks to allow the protocol vulnerability we
      use the workaround */
-  if(!conn_config->enable_beast)
-    ctx_options &= ~(ctx_option_t)SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+  എങ്കിൽ(!conn_config->enable_beast)
+    ctx_options &= ~(ctx_option_t)SSL_OP_DONT_തിരുകുക_EMPTY_FRAGMENTS;
 
   DEBUGASSERT(ssl_version_min != CURL_SSLVERSION_DEFAULT);
-  switch(ssl_version_min) {
-  case CURL_SSLVERSION_SSLv2:
-  case CURL_SSLVERSION_SSLv3:
-    return CURLE_NOT_BUILT_IN;
+  തിരഞ്ഞെടുപ്പ്(ssl_version_min) {
+  അവസ്ഥ CURL_SSLVERSION_SSLv2:
+  അവസ്ഥ CURL_SSLVERSION_SSLv3:
+    തിരികെ CURLE_NOT_BUILT_IN;
 
     /* "--tlsv<x.y>" options mean TLS >= version <x.y> */
-  case CURL_SSLVERSION_TLSv1:   /* TLS >= version 1.0 */
-  case CURL_SSLVERSION_TLSv1_0: /* TLS >= version 1.0 */
-  case CURL_SSLVERSION_TLSv1_1: /* TLS >= version 1.1 */
-  case CURL_SSLVERSION_TLSv1_2: /* TLS >= version 1.2 */
-  case CURL_SSLVERSION_TLSv1_3: /* TLS >= version 1.3 */
+  അവസ്ഥ CURL_SSLVERSION_TLSv1:   /* TLS >= version 1.0 */
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_0: /* TLS >= version 1.0 */
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_1: /* TLS >= version 1.1 */
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_2: /* TLS >= version 1.2 */
+  അവസ്ഥ CURL_SSLVERSION_TLSv1_3: /* TLS >= version 1.3 */
     /* asking for any TLS version as the minimum, means no SSL versions
        allowed */
     ctx_options |= SSL_OP_NO_SSLv2;
     ctx_options |= SSL_OP_NO_SSLv3;
 
     result = ossl_set_ssl_version_min_max(cf, octx->ssl_ctx, ssl_version_min);
-    if(result)
-      return result;
-    break;
+    എങ്കിൽ(result)
+      തിരികെ result;
+    നിർത്തുക;
 
-  default:
+  സ്ഥിരസ്ഥിതി:
     failf(data, "Unrecognized parameter passed via CURLOPT_SSLVERSION");
-    return CURLE_SSL_CONNECT_ERROR;
+    തിരികെ CURLE_SSL_CONNECT_ERROR;
   }
 
   SSL_CTX_set_options(octx->ssl_ctx, ctx_options);
@@ -3902,41 +3902,41 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   SSL_CTX_set_mode(octx->ssl_ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
   ciphers = conn_config->cipher_list;
-  if(!ciphers && (peer->transport != TRNSPRT_QUIC))
-    ciphers = NULL;
-  if(ciphers && (ssl_version_min < CURL_SSLVERSION_TLSv1_3)) {
-    if(!SSL_CTX_set_cipher_list(octx->ssl_ctx, ciphers)) {
+  എങ്കിൽ(!ciphers && (peer->transport != TRNSPRT_QUIC))
+    ciphers = ശൂന്യ;
+  എങ്കിൽ(ciphers && (ssl_version_min < CURL_SSLVERSION_TLSv1_3)) {
+    എങ്കിൽ(!SSL_CTX_set_cipher_list(octx->ssl_ctx, ciphers)) {
       failf(data, "failed setting cipher list: %s", ciphers);
-      return CURLE_SSL_CIPHER;
+      തിരികെ CURLE_SSL_CIPHER;
     }
     infof(data, "Cipher selection: %s", ciphers);
   }
 
 #ifdef HAVE_SSL_CTX_SET_CIPHERSUITES
   {
-    const char *ciphers13 = conn_config->cipher_list13;
-    if(ciphers13 &&
+    സ്ഥിരം അക്ഷരം *ciphers13 = conn_config->cipher_list13;
+    എങ്കിൽ(ciphers13 &&
        (!conn_config->version_max ||
         (conn_config->version_max == CURL_SSLVERSION_MAX_DEFAULT) ||
         (conn_config->version_max >= CURL_SSLVERSION_MAX_TLSv1_3))) {
-      if(!SSL_CTX_set_ciphersuites(octx->ssl_ctx, ciphers13)) {
+      എങ്കിൽ(!SSL_CTX_set_ciphersuites(octx->ssl_ctx, ciphers13)) {
         failf(data, "failed setting TLS 1.3 cipher suite: %s", ciphers13);
-        return CURLE_SSL_CIPHER;
+        തിരികെ CURLE_SSL_CIPHER;
       }
       infof(data, "TLS 1.3 cipher selection: %s", ciphers13);
     }
   }
 #endif
 
-  if(ssl_cert || ssl_cert_blob || ssl_cert_type) {
+  എങ്കിൽ(ssl_cert || ssl_cert_blob || ssl_cert_type) {
     result = client_cert(data, octx,
                          ssl_cert, ssl_cert_blob, ssl_cert_type,
-                         conn_config->key, conn_config->key_blob,
-                         conn_config->key_type,
-                         conn_config->key_passwd);
-    if(result)
+                         conn_config->താക്കോൽ, conn_config->താക്കോൽ_blob,
+                         conn_config->താക്കോൽ_type,
+                         conn_config->താക്കോൽ_passwd);
+    എങ്കിൽ(result)
       /* failf() is already done in client_cert() */
-      return result;
+      തിരികെ result;
   }
 
 #ifdef HAVE_SSL_CTX_SET_POST_HANDSHAKE_AUTH
@@ -3945,16 +3945,16 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #endif
 
   {
-    const char *curves = conn_config->curves;
-    if(curves) {
+    സ്ഥിരം അക്ഷരം *curves = conn_config->curves;
+    എങ്കിൽ(curves) {
 #ifdef HAVE_BORINGSSL_LIKE
 #define OSSL_CURVE_CAST(x) (x)
-#else
-#define OSSL_CURVE_CAST(x) (char *)CURL_UNCONST(x)
+#അല്ലെങ്കിൽ
+#define OSSL_CURVE_CAST(x) (അക്ഷരം *)CURL_UNCONST(x)
 #endif
-      if(!SSL_CTX_set1_curves_list(octx->ssl_ctx, OSSL_CURVE_CAST(curves))) {
+      എങ്കിൽ(!SSL_CTX_set1_curves_list(octx->ssl_ctx, OSSL_CURVE_CAST(curves))) {
         failf(data, "failed setting curves list: '%s'", curves);
-        return CURLE_SSL_CIPHER;
+        തിരികെ CURLE_SSL_CIPHER;
       }
     }
   }
@@ -3962,13 +3962,13 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #ifdef HAVE_SSL_CTX_SET1_SIGALGS
 #define OSSL_SIGALG_CAST(x) OSSL_CURVE_CAST(x)
   {
-    const char *signature_algorithms = conn_config->signature_algorithms;
-    if(signature_algorithms) {
-      if(!SSL_CTX_set1_sigalgs_list(octx->ssl_ctx,
+    സ്ഥിരം അക്ഷരം *signature_algorithms = conn_config->signature_algorithms;
+    എങ്കിൽ(signature_algorithms) {
+      എങ്കിൽ(!SSL_CTX_set1_sigalgs_list(octx->ssl_ctx,
                                     OSSL_SIGALG_CAST(signature_algorithms))) {
         failf(data, "failed setting signature algorithms: '%s'",
               signature_algorithms);
-        return CURLE_SSL_CIPHER;
+        തിരികെ CURLE_SSL_CIPHER;
       }
     }
   }
@@ -3978,16 +3978,16 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
    * to NONE, we allow the connect to complete, regardless of the outcome.
    * We then explicitly check the result and may try alternatives like
    * Apple's SecTrust for verification. */
-  SSL_CTX_set_verify(octx->ssl_ctx, SSL_VERIFY_NONE, NULL);
+  SSL_CTX_set_verify(octx->ssl_ctx, SSL_VERIFY_NONE, ശൂന്യ);
 
   /* Enable logging of secrets to the file specified in env SSLKEYLOGFILE. */
-#if !defined(HAVE_KEYLOG_UPSTREAM) && defined(HAVE_KEYLOG_CALLBACK)
-  if(Curl_tls_keylog_enabled()) {
+#എങ്കിൽ !defined(HAVE_KEYLOG_UPSTREAM) && defined(HAVE_KEYLOG_CALLBACK)
+  എങ്കിൽ(Curl_tls_keylog_enabled()) {
     SSL_CTX_set_keylog_callback(octx->ssl_ctx, ossl_keylog_callback);
   }
 #endif
 
-  if(cb_new_session) {
+  എങ്കിൽ(cb_new_session) {
     /* Enable the session cache because it is a prerequisite for the
      * "new session" callback. Use the "external storage" mode to prevent
      * OpenSSL from creating an internal session cache.
@@ -3999,57 +3999,57 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
   }
 
   /* give application a chance to interfere with SSL set up. */
-  if(data->set.ssl_fsslctx) {
-    struct Curl_mapi_guard guard;
+  എങ്കിൽ(data->set.ssl_fsslctx) {
+    ഘടന Curl_mapi_guard guard;
     /* When a user callback is installed to modify the SSL_CTX,
      * we need to do the full initialization before calling it.
      * See: #11800 */
-    if(!octx->x509_store_setup) {
+    എങ്കിൽ(!octx->x509_store_setup) {
       result = Curl_ssl_setup_x509_store(cf, data, octx);
-      if(result)
-        return result;
+      എങ്കിൽ(result)
+        തിരികെ result;
       octx->x509_store_setup = TRUE;
     }
     CURL_CBAPI_START(&guard, data, easy_fsslctx);
     result = (*data->set.ssl_fsslctx)(data, octx->ssl_ctx,
                                       data->set.ssl_fsslctxp);
     CURL_CBAPI_END(&guard);
-    if(result) {
+    എങ്കിൽ(result) {
       failf(data, "error signaled by SSL ctx callback");
-      return result;
+      തിരികെ result;
     }
   }
 
-  return ossl_init_ssl(octx, cf, data, peer, alpns_requested,
+  തിരികെ ossl_init_ssl(octx, cf, data, peer, alpns_requested,
                        ssl_user_data, sess_reuse_cb);
 }
 
-static CURLcode ossl_on_session_reuse(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct alpn_spec *alpns,
-                                      struct Curl_ssl_session *scs,
+സ്ഥിതം CURLcode ossl_on_session_reuse(ഘടന Curl_cfilter *cf,
+                                      ഘടന Curl_easy *data,
+                                      ഘടന alpn_spec *alpns,
+                                      ഘടന Curl_ssl_session *scs,
                                       bool *do_early_data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
 
   connssl->earlydata_max = scs->earlydata_max;
 
-  return Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
+  തിരികെ Curl_on_session_reuse(cf, data, alpns, scs, do_early_data,
                                connssl->earlydata_max);
 }
 
-void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx)
+ശൂന്യം Curl_ossl_report_handshake(ഘടന Curl_easy *data, ഘടന ossl_ctx *octx)
 {
 #ifdef CURLVERBOSE
-  if(Curl_trc_is_verbose(data)) {
-    int psigtype_nid = NID_undef;
-    const char *negotiated_group_name = NULL;
+  എങ്കിൽ(Curl_trc_is_verbose(data)) {
+    പൂർണ്ണസംഖ്യ psigtype_nid = NID_undef;
+    സ്ഥിരം അക്ഷരം *negotiated_group_name = ശൂന്യ;
 
 #ifdef HAVE_OPENSSL3
     SSL_get_peer_signature_type_nid(octx->ssl, &psigtype_nid);
-#if OPENSSL_VERSION_NUMBER >= 0x30200000L
+#എങ്കിൽ OPENSSL_VERSION_സംഖ്യ >= 0x30200000L
     negotiated_group_name = SSL_get0_group_name(octx->ssl);
-#else
+#അല്ലെങ്കിൽ
     negotiated_group_name =
       OBJ_nid2sn(SSL_get_negotiated_group(octx->ssl) & 0x0000FFFF);
 #endif
@@ -4062,17 +4062,17 @@ void Curl_ossl_report_handshake(struct Curl_easy *data, struct ossl_ctx *octx)
           negotiated_group_name ? negotiated_group_name : "[blank]",
           OBJ_nid2sn(psigtype_nid));
   }
-#else
-  (void)data;
-  (void)octx;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)data;
+  (ശൂന്യം)octx;
 #endif /* CURLVERBOSE */
 }
 
-static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+സ്ഥിതം CURLcode ossl_connect_step1(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
   BIO *bio;
   CURLcode result;
 
@@ -4081,18 +4081,18 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
   DEBUGASSERT(connssl->peer.origin);
 
   result = Curl_ossl_ctx_init(octx, cf, data, &connssl->peer,
-                              connssl->alpn, NULL, NULL,
+                              connssl->alpn, ശൂന്യ, ശൂന്യ,
                               ossl_new_session_cb, cf,
                               ossl_on_session_reuse);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   octx->bio_method = ossl_bio_cf_method_create();
-  if(!octx->bio_method)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!octx->bio_method)
+    തിരികെ CURLE_OUT_OF_MEMORY;
   bio = BIO_new(octx->bio_method);
-  if(!bio)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!bio)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
   BIO_set_data(bio, cf);
 #ifdef HAVE_SSL_SET0_WBIO
@@ -4104,66 +4104,66 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
   BIO_up_ref(bio);
   SSL_set0_rbio(octx->ssl, bio);
   SSL_set0_wbio(octx->ssl, bio);
-#else
+#അല്ലെങ്കിൽ
   SSL_set_bio(octx->ssl, bio, bio);
 #endif
 
-  if(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
-    struct alpn_proto_buf proto;
-    memset(&proto, 0, sizeof(proto));
+  എങ്കിൽ(connssl->alpn && (connssl->state != ssl_connection_deferred)) {
+    ഘടന alpn_proto_buf proto;
+    memset(&proto, 0, വലുപ്പം(proto));
     Curl_alpn_to_proto_str(&proto, connssl->alpn);
     infof(data, VTLS_INFOF_ALPN_OFFER_1STR, proto.data);
   }
 
   connssl->connecting_state = ssl_connect_2;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
 /* If we have retry configs, then trace those out */
-static int ossl_trace_ech_retry_configs(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data, SSL *ssl,
-                                        int reason)
+സ്ഥിതം പൂർണ്ണസംഖ്യ ossl_trace_ech_retry_configs(ഘടന Curl_cfilter *cf,
+                                        ഘടന Curl_easy *data, SSL *ssl,
+                                        പൂർണ്ണസംഖ്യ reason)
 {
   CURLcode result = CURLE_OK;
   size_t rcl = 0;
-  int rv = 1;
+  പൂർണ്ണസംഖ്യ rv = 1;
 #ifndef HAVE_BORINGSSL_LIKE
-  char *inner = NULL;
-  uint8_t *rcs = NULL;
-  char *outer = NULL;
-#else
-  const char *inner = NULL;
-  const uint8_t *rcs = NULL;
-  const char *outer = NULL;
+  അക്ഷരം *inner = ശൂന്യ;
+  uint8_t *rcs = ശൂന്യ;
+  അക്ഷരം *outer = ശൂന്യ;
+#അല്ലെങ്കിൽ
+  സ്ഥിരം അക്ഷരം *inner = ശൂന്യ;
+  സ്ഥിരം uint8_t *rcs = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *outer = ശൂന്യ;
   size_t out_name_len = 0;
-  int servername_type = 0;
+  പൂർണ്ണസംഖ്യ servername_type = 0;
 #endif
-  NOVERBOSE((void)reason);
+  NOVERBOSE((ശൂന്യം)reason);
 
   /* nothing to trace if not doing ECH */
-  if(!Curl_ssl_ech_enabled(cf))
-    return rv;
+  എങ്കിൽ(!Curl_ssl_ech_enabled(cf))
+    തിരികെ rv;
 #ifndef HAVE_BORINGSSL_LIKE
   rv = SSL_ech_get1_retry_config(ssl, &rcs, &rcl);
-#else
+#അല്ലെങ്കിൽ
   SSL_get0_ech_retry_configs(ssl, &rcs, &rcl);
-  rv = (int)rcl;
+  rv = (പൂർണ്ണസംഖ്യ)rcl;
 #endif
 
-  if(rv && rcs) {
-    char *b64str = NULL;
+  എങ്കിൽ(rv && rcs) {
+    അക്ഷരം *b64str = ശൂന്യ;
     size_t blen = 0;
 
     result = curlx_base64_encode(rcs, rcl, &b64str, &blen);
-    if(!result && b64str) {
+    എങ്കിൽ(!result && b64str) {
       infof(data, "ECH: retry_configs %s", b64str);
       curlx_free(b64str);
 #ifndef HAVE_BORINGSSL_LIKE
       rv = SSL_ech_get1_status(ssl, &inner, &outer);
       infof(data, "ECH: retry_configs for %s from %s, %d %d",
             inner ? inner : "NULL", outer ? outer : "NULL", reason, rv);
-#else
+#അല്ലെങ്കിൽ
       rv = SSL_ech_accepted(ssl);
       servername_type = SSL_get_servername_type(ssl);
       inner = SSL_get_servername(ssl, servername_type);
@@ -4173,25 +4173,25 @@ static int ossl_trace_ech_retry_configs(struct Curl_cfilter *cf,
 #endif
     }
   }
-  else
+  അല്ലെങ്കിൽ
     infof(data, "ECH: no retry_configs (rv = %d)", rv);
 #ifndef HAVE_BORINGSSL_LIKE
   OPENSSL_free(inner);
   OPENSSL_free(rcs);
   OPENSSL_free(outer);
 #endif
-  return rv;
+  തിരികെ rv;
 }
 
 #endif
 
-static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+സ്ഥിതം CURLcode ossl_connect_step2(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  int err;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
+  ഘടന ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
+  പൂർണ്ണസംഖ്യ err;
 
   DEBUGASSERT(connssl->connecting_state == ssl_connect_2);
   DEBUGASSERT(octx);
@@ -4200,62 +4200,62 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
 
   err = SSL_connect(octx->ssl);
 
-  if(!octx->x509_store_setup) {
+  എങ്കിൽ(!octx->x509_store_setup) {
     /* After having send off the ClientHello, we prepare the x509
      * store to verify the coming certificate from the server */
     CURLcode result = Curl_ssl_setup_x509_store(cf, data, octx);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
     octx->x509_store_setup = TRUE;
   }
 
-#if !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
+#എങ്കിൽ !defined(HAVE_KEYLOG_UPSTREAM) && !defined(HAVE_KEYLOG_CALLBACK)
   /* If key logging is enabled, wait for the handshake to complete and then
    * proceed with logging secrets (for TLS 1.2 or older).
    */
-  if(Curl_tls_keylog_enabled() && !octx->keylog_done)
+  എങ്കിൽ(Curl_tls_keylog_enabled() && !octx->keylog_done)
     ossl_log_tls12_secret(octx->ssl, &octx->keylog_done);
 #endif
 
   /* 1  is fine
      0  is "not successful but was shut down controlled"
      <0 is "handshake was not successful, because a fatal error occurred" */
-  if(err != 1) {
-    int detail = SSL_get_error(octx->ssl, err);
+  എങ്കിൽ(err != 1) {
+    പൂർണ്ണസംഖ്യ detail = SSL_get_error(octx->ssl, err);
     CURL_TRC_CF(data, cf, "SSL_connect() -> err=%d, detail=%d", err, detail);
 
-    if(detail == SSL_ERROR_WANT_READ) {
+    എങ്കിൽ(detail == SSL_ERROR_WANT_READ) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want recv");
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      return CURLE_AGAIN;
+      തിരികെ CURLE_AGAIN;
     }
-    if(detail == SSL_ERROR_WANT_WRITE) {
+    എങ്കിൽ(detail == SSL_ERROR_WANT_WRITE) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want send");
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
-      return CURLE_AGAIN;
+      തിരികെ CURLE_AGAIN;
     }
 #ifdef SSL_ERROR_WANT_ASYNC
-    if(detail == SSL_ERROR_WANT_ASYNC) {
+    എങ്കിൽ(detail == SSL_ERROR_WANT_ASYNC) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want async");
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
-      return CURLE_AGAIN;
+      തിരികെ CURLE_AGAIN;
     }
 #endif
 #ifdef SSL_ERROR_WANT_RETRY_VERIFY
-    if(detail == SSL_ERROR_WANT_RETRY_VERIFY) {
+    എങ്കിൽ(detail == SSL_ERROR_WANT_RETRY_VERIFY) {
       CURL_TRC_CF(data, cf, "SSL_connect() -> want retry_verify");
       Curl_xfer_pause_recv(data, TRUE);
-      return CURLE_AGAIN;
+      തിരികെ CURLE_AGAIN;
     }
 #endif
-    else {
+    അല്ലെങ്കിൽ {
       /* untreated error */
       sslerr_t errdetail;
-      char error_buffer[256] = "";
+      അക്ഷരം error_buffer[256] = "";
       CURLcode result;
       long lerr;
-      int lib;
-      int reason;
+      പൂർണ്ണസംഖ്യ lib;
+      പൂർണ്ണസംഖ്യ reason;
 
       /* the connection failed, we are not waiting for anything else. */
       connssl->connecting_state = ssl_connect_2;
@@ -4268,7 +4268,7 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
       lib = ERR_GET_LIB(errdetail);
       reason = ERR_GET_REASON(errdetail);
 
-      if((lib == ERR_LIB_SSL) &&
+      എങ്കിൽ((lib == ERR_LIB_SSL) &&
          ((reason == SSL_R_CERTIFICATE_VERIFY_FAILED)
 /* Missing from OpenSSL 4+ OPENSSL_NO_DEPRECATED_3_0 builds */
 #ifdef SSL_R_SSLV3_ALERT_CERTIFICATE_EXPIRED
@@ -4278,31 +4278,31 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
         result = CURLE_PEER_FAILED_VERIFICATION;
 
         lerr = SSL_get_verify_result(octx->ssl);
-        if(lerr != X509_V_OK) {
+        എങ്കിൽ(lerr != X509_V_OK) {
           ssl_config->certverifyresult = lerr;
           failf(data, "SSL certificate problem: %s",
                 X509_verify_cert_error_string(lerr));
         }
-        else
+        അല്ലെങ്കിൽ
           failf(data, "%s", "SSL certificate verification failed");
       }
 #ifdef SSL_R_TLSV13_ALERT_CERTIFICATE_REQUIRED
       /* SSL_R_TLSV13_ALERT_CERTIFICATE_REQUIRED is only available on
          OpenSSL version above v1.1.1, not AWS-LC, BoringSSL, or LibreSSL */
-      else if((lib == ERR_LIB_SSL) &&
+      അല്ലെങ്കിൽ എങ്കിൽ((lib == ERR_LIB_SSL) &&
               (reason == SSL_R_TLSV13_ALERT_CERTIFICATE_REQUIRED)) {
         /* If client certificate is required, communicate the
            error to client */
         result = CURLE_SSL_CLIENTCERT;
         failf(data, "TLS cert problem: %s",
-              ossl_strerror(errdetail, error_buffer, sizeof(error_buffer)));
+              ossl_strerror(errdetail, error_buffer, വലുപ്പം(error_buffer)));
       }
 #endif
 #ifdef HAVE_SSL_SET1_ECH_CONFIG_LIST
-      else if((lib == ERR_LIB_SSL) &&
+      അല്ലെങ്കിൽ എങ്കിൽ((lib == ERR_LIB_SSL) &&
 #ifndef HAVE_BORINGSSL_LIKE
               (reason == SSL_R_ECH_REQUIRED)) {
-#else
+#അല്ലെങ്കിൽ
               (reason == SSL_R_ECH_REJECTED)) {
 #endif /* HAVE_BORINGSSL_LIKE */
 
@@ -4311,13 +4311,13 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
 
         result = CURLE_ECH_REQUIRED;
         failf(data, "ECH: rejected, %s",
-              ossl_strerror(errdetail, error_buffer, sizeof(error_buffer)));
+              ossl_strerror(errdetail, error_buffer, വലുപ്പം(error_buffer)));
       }
 #endif
-      else {
+      അല്ലെങ്കിൽ {
         result = CURLE_SSL_CONNECT_ERROR;
         failf(data, "TLS connect error: %s",
-              ossl_strerror(errdetail, error_buffer, sizeof(error_buffer)));
+              ossl_strerror(errdetail, error_buffer, വലുപ്പം(error_buffer)));
       }
 
       /* detail is already set to the SSL error above */
@@ -4326,71 +4326,71 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
        * (RST connection, etc.), OpenSSL gives no explanation whatsoever and
        * the SO_ERROR is also lost.
        */
-      if(result == CURLE_SSL_CONNECT_ERROR && errdetail == 0) {
-        char extramsg[80] = "";
-        int sockerr = SOCKERRNO;
+      എങ്കിൽ(result == CURLE_SSL_CONNECT_ERROR && errdetail == 0) {
+        അക്ഷരം extramsg[80] = "";
+        പൂർണ്ണസംഖ്യ sockerr = SOCKERRNO;
 
-        if(sockerr && detail == SSL_ERROR_SYSCALL)
-          curlx_strerror(sockerr, extramsg, sizeof(extramsg));
+        എങ്കിൽ(sockerr && detail == SSL_ERROR_SYSCALL)
+          curlx_strerror(sockerr, extramsg, വലുപ്പം(extramsg));
         failf(data, OSSL_PACKAGE " SSL_connect: %s in connection to %s:%d ",
               extramsg[0] ? extramsg : SSL_ERROR_to_str(detail),
               connssl->peer.origin->hostname, connssl->peer.origin->port);
       }
 
-      return result;
+      തിരികെ result;
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* we connected fine, we are not waiting for anything else. */
     connssl->connecting_state = ssl_connect_3;
     Curl_ossl_report_handshake(data, octx);
 
-#if defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
-    if(Curl_ssl_ech_enabled(cf)) {
-      struct ssl_filter_config *conn_config =
+#എങ്കിൽ defined(HAVE_SSL_SET1_ECH_CONFIG_LIST) && !defined(HAVE_BORINGSSL_LIKE)
+    എങ്കിൽ(Curl_ssl_ech_enabled(cf)) {
+      ഘടന ssl_filter_config *conn_config =
         Curl_ssl_cf_get_filter_config(cf);
-      char *inner = NULL, *outer = NULL;
-      int rv;
-      VERBOSE(const char *status);
+      അക്ഷരം *inner = ശൂന്യ, *outer = ശൂന്യ;
+      പൂർണ്ണസംഖ്യ rv;
+      VERBOSE(സ്ഥിരം അക്ഷരം *status);
 
       rv = SSL_ech_get1_status(octx->ssl, &inner, &outer);
-      switch(rv) {
-      case SSL_ECH_STATUS_SUCCESS:
+      തിരഞ്ഞെടുപ്പ്(rv) {
+      അവസ്ഥ SSL_ECH_STATUS_SUCCESS:
         VERBOSE(status = "succeeded");
-        break;
-      case SSL_ECH_STATUS_GREASE_ECH:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_GREASE_ECH:
         VERBOSE(status = "sent GREASE, got retry-configs");
-        break;
-      case SSL_ECH_STATUS_GREASE:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_GREASE:
         VERBOSE(status = "sent GREASE");
-        break;
-      case SSL_ECH_STATUS_NOT_TRIED:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_NOT_TRIED:
         VERBOSE(status = "not attempted");
-        break;
-      case SSL_ECH_STATUS_NOT_CONFIGURED:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_NOT_CONFIGURED:
         VERBOSE(status = "not configured");
-        break;
-      case SSL_ECH_STATUS_BACKEND:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_BACKEND:
         VERBOSE(status = "backend (unexpected)");
-        break;
-      case SSL_ECH_STATUS_FAILED:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_FAILED:
         VERBOSE(status = "failed");
-        break;
-      case SSL_ECH_STATUS_BAD_CALL:
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_BAD_CALL:
         VERBOSE(status = "bad call (unexpected)");
-        break;
-      case SSL_ECH_STATUS_BAD_NAME: {
-        if(!conn_config->verifypeer && !conn_config->verifyhost &&
+        നിർത്തുക;
+      അവസ്ഥ SSL_ECH_STATUS_BAD_NAME: {
+        എങ്കിൽ(!conn_config->verifypeer && !conn_config->verifyhost &&
            inner && !strcmp(inner, connssl->peer.origin->hostname)) {
           VERBOSE(status = "bad name (tolerated without peer verification)");
           rv = SSL_ECH_STATUS_SUCCESS;
         }
-        else {
+        അല്ലെങ്കിൽ {
           VERBOSE(status = "bad name (unexpected)");
         }
-        break;
+        നിർത്തുക;
       }
-      default:
+      സ്ഥിരസ്ഥിതി:
         VERBOSE(status = "unexpected status");
         infof(data, "ECH: unexpected status %d", rv);
       }
@@ -4400,16 +4400,16 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
             (outer ? outer : "NULL"));
       OPENSSL_free(inner);
       OPENSSL_free(outer);
-      if(rv == SSL_ECH_STATUS_GREASE_ECH) {
+      എങ്കിൽ(rv == SSL_ECH_STATUS_GREASE_ECH) {
         /* trace retry_configs if we got some */
         ossl_trace_ech_retry_configs(cf, data, octx->ssl, 0);
       }
-      if(rv != SSL_ECH_STATUS_SUCCESS && (conn_config->ech == CURLECH_HARD)) {
+      എങ്കിൽ(rv != SSL_ECH_STATUS_SUCCESS && (conn_config->ech == CURLECH_HARD)) {
         infof(data, "ECH: ech-hard failed");
-        return CURLE_SSL_CONNECT_ERROR;
+        തിരികെ CURLE_SSL_CONNECT_ERROR;
       }
     }
-    else {
+    അല്ലെങ്കിൽ {
       infof(data, "ECH: result: status is not attempted");
     }
 #endif /* HAVE_SSL_SET1_ECH_CONFIG_LIST && !HAVE_BORINGSSL_LIKE */
@@ -4417,15 +4417,15 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
     /* Sets data and len to negotiated protocol, len is 0 if no protocol was
      * negotiated
      */
-    if(connssl->alpn) {
-      const unsigned char *neg_protocol;
-      unsigned int len;
+    എങ്കിൽ(connssl->alpn) {
+      സ്ഥിരം unsigned അക്ഷരം *neg_protocol;
+      unsigned പൂർണ്ണസംഖ്യ len;
       SSL_get0_alpn_selected(octx->ssl, &neg_protocol, &len);
 
-      return Curl_alpn_set_negotiated(cf, data, connssl, neg_protocol, len);
+      തിരികെ Curl_alpn_set_negotiated(cf, data, connssl, neg_protocol, len);
     }
 
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 }
 
@@ -4433,33 +4433,33 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter *cf,
  * Heavily modified from:
  * https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning#OpenSSL
  */
-static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy *data, X509 *cert,
-                                         const char *pinnedpubkey)
+സ്ഥിതം CURLcode ossl_pkp_pin_peer_pubkey(ഘടന Curl_easy *data, X509 *cert,
+                                         സ്ഥിരം അക്ഷരം *pinnedpubkey)
 {
   /* Scratch */
-  int len1 = 0, len2 = 0;
-  unsigned char *buff1 = NULL, *temp = NULL;
+  പൂർണ്ണസംഖ്യ len1 = 0, len2 = 0;
+  unsigned അക്ഷരം *buff1 = ശൂന്യ, *temp = ശൂന്യ;
 
   /* Result is returned to caller */
   CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
+  എങ്കിൽ(!pinnedpubkey)
+    തിരികെ CURLE_OK;
 
-  if(!cert)
-    return result;
+  എങ്കിൽ(!cert)
+    തിരികെ result;
 
-  do {
+  ചെയ്യുക {
     /* Get the subjectPublicKeyInfo */
     /* https://groups.google.com/group/mailing.openssl.users/browse_thread/thread/d61858dae102c6c7 */
-    len1 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), NULL);
-    if(len1 < 1)
-      break; /* failed */
+    len1 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), ശൂന്യ);
+    എങ്കിൽ(len1 < 1)
+      നിർത്തുക; /* failed */
 
     buff1 = temp = curlx_malloc(len1);
-    if(!buff1)
-      break; /* failed */
+    എങ്കിൽ(!buff1)
+      നിർത്തുക; /* failed */
 
     /* https://docs.openssl.org/master/man3/d2i_X509/ */
     len2 = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), &temp);
@@ -4469,154 +4469,154 @@ static CURLcode ossl_pkp_pin_peer_pubkey(struct Curl_easy *data, X509 *cert,
      * sized the buffer. it is pretty weak since they should always be the
      * same, but it gives us something to test.
      */
-    if((len1 != len2) || !temp || ((temp - buff1) != len1))
-      break; /* failed */
+    എങ്കിൽ((len1 != len2) || !temp || ((temp - buff1) != len1))
+      നിർത്തുക; /* failed */
 
     /* End Gyrations */
 
     /* The one good exit point */
     result = Curl_pin_peer_pubkey(data, pinnedpubkey, buff1, len1);
-  } while(0);
+  } ആകുമ്പോൾ(0);
 
-  if(buff1)
+  എങ്കിൽ(buff1)
     curlx_free(buff1);
 
-  return result;
+  തിരികെ result;
 }
 
 #ifdef CURLVERBOSE
-#if !defined(HAVE_BORINGSSL_LIKE) && \
-  !(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL)
-static void infof_certstack(struct Curl_easy *data, const SSL *ssl)
+#എങ്കിൽ !defined(HAVE_BORINGSSL_LIKE) && \
+  !(defined(LIBRESSL_VERSION_സംഖ്യ) && LIBRESSL_VERSION_സംഖ്യ < 0x3060000fL)
+സ്ഥിതം ശൂന്യം infof_certstack(ഘടന Curl_easy *data, സ്ഥിരം SSL *ssl)
 {
-  STACK_OF(X509) *certstack;
+  അട്ടി_OF(X509) *certstack;
   long verify_result;
-  int num_cert_levels;
-  int cert_level;
+  പൂർണ്ണസംഖ്യ അക്കം_cert_levels;
+  പൂർണ്ണസംഖ്യ cert_level;
 
-  if(!Curl_trc_is_verbose(data))
-    return;
+  എങ്കിൽ(!Curl_trc_is_verbose(data))
+    തിരികെ;
 
   verify_result = SSL_get_verify_result(ssl);
-  if(verify_result != X509_V_OK)
+  എങ്കിൽ(verify_result != X509_V_OK)
     certstack = SSL_get_peer_cert_chain(ssl);
-  else
+  അല്ലെങ്കിൽ
     certstack = SSL_get0_verified_chain(ssl);
-  if(!certstack)
-    return;
-  num_cert_levels = sk_X509_num(certstack);
+  എങ്കിൽ(!certstack)
+    തിരികെ;
+  അക്കം_cert_levels = sk_X509_അക്കം(certstack);
 
-  for(cert_level = 0; cert_level < num_cert_levels; cert_level++) {
-    char cert_algorithm[80] = "";
-    char group_name_final[80] = "";
-    const X509_ALGOR *palg_cert = NULL;
-    const ASN1_OBJECT *paobj_cert = NULL;
+  വേണ്ടി(cert_level = 0; cert_level < അക്കം_cert_levels; cert_level++) {
+    അക്ഷരം cert_algorithm[80] = "";
+    അക്ഷരം group_name_final[80] = "";
+    സ്ഥിരം X509_ALGOR *palg_cert = ശൂന്യ;
+    സ്ഥിരം ASN1_OBJECT *paobj_cert = ശൂന്യ;
     X509 *current_cert;
     EVP_PKEY *current_pkey;
-    int key_bits;
-    int key_sec_bits;
-    int get_group_name;
-    const char *type_name;
+    പൂർണ്ണസംഖ്യ താക്കോൽ_bits;
+    പൂർണ്ണസംഖ്യ താക്കോൽ_sec_bits;
+    പൂർണ്ണസംഖ്യ get_group_name;
+    സ്ഥിരം അക്ഷരം *type_name;
 
-    current_cert = sk_X509_value(certstack, cert_level);
-    if(!current_cert)
-      continue;
+    current_cert = sk_X509_മൂല്യം(certstack, cert_level);
+    എങ്കിൽ(!current_cert)
+      തുടരുക;
 
     current_pkey = X509_get0_pubkey(current_cert);
-    if(!current_pkey)
-      continue;
+    എങ്കിൽ(!current_pkey)
+      തുടരുക;
 
-    X509_get0_signature(NULL, &palg_cert, current_cert);
-    X509_ALGOR_get0(&paobj_cert, NULL, NULL, palg_cert);
-    OBJ_obj2txt(cert_algorithm, sizeof(cert_algorithm), paobj_cert, 0);
+    X509_get0_signature(ശൂന്യ, &palg_cert, current_cert);
+    X509_ALGOR_get0(&paobj_cert, ശൂന്യ, ശൂന്യ, palg_cert);
+    OBJ_obj2txt(cert_algorithm, വലുപ്പം(cert_algorithm), paobj_cert, 0);
 
-    key_bits = EVP_PKEY_bits(current_pkey);
+    താക്കോൽ_bits = EVP_PKEY_bits(current_pkey);
 #ifndef HAVE_OPENSSL3
 #define EVP_PKEY_get_security_bits EVP_PKEY_security_bits
 #endif
-    key_sec_bits = EVP_PKEY_get_security_bits(current_pkey);
+    താക്കോൽ_sec_bits = EVP_PKEY_get_security_bits(current_pkey);
 #ifdef HAVE_OPENSSL3
     {
-      char group_name[80] = "";
+      അക്ഷരം group_name[80] = "";
       get_group_name = EVP_PKEY_get_group_name(current_pkey, group_name,
-                                               sizeof(group_name), NULL);
-      curl_msnprintf(group_name_final, sizeof(group_name_final), "/%s",
+                                               വലുപ്പം(group_name), ശൂന്യ);
+      curl_msnprintf(group_name_final, വലുപ്പം(group_name_final), "/%s",
                      group_name);
     }
     type_name = EVP_PKEY_get0_type_name(current_pkey);
-#else
+#അല്ലെങ്കിൽ
     get_group_name = 0;
-    type_name = NULL;
+    type_name = ശൂന്യ;
 #endif
 
     infof(data, "  Certificate level %d: "
           "Public key type %s%s (%d/%d Bits/secBits), signed using %s",
           cert_level, type_name ? type_name : "?",
           get_group_name == 0 ? "" : group_name_final,
-          key_bits, key_sec_bits, cert_algorithm);
+          താക്കോൽ_bits, താക്കോൽ_sec_bits, cert_algorithm);
   }
 }
-#else
+#അല്ലെങ്കിൽ
 #define infof_certstack(data, ssl)
 #endif
 #endif /* CURLVERBOSE */
 
-static CURLcode ossl_check_issuer(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_check_issuer(ഘടന Curl_cfilter *cf,
+                                  ഘടന Curl_easy *data,
                                   X509 *server_cert)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  X509 *issuer = NULL;
-  BIO *fp = NULL;
-  char err_buf[256] = "";
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  X509 *issuer = ശൂന്യ;
+  BIO *fp = ശൂന്യ;
+  അക്ഷരം err_buf[256] = "";
   bool verify_enabled = (conn_config->verifypeer || conn_config->verifyhost);
   CURLcode result = CURLE_OK;
 
   /* e.g. match issuer name with provided issuer certificate */
-  if(conn_config->issuercert_blob) {
+  എങ്കിൽ(conn_config->issuercert_blob) {
     fp = BIO_new_mem_buf(conn_config->issuercert_blob->data,
-                         (int)conn_config->issuercert_blob->len);
-    if(!fp) {
+                         (പൂർണ്ണസംഖ്യ)conn_config->issuercert_blob->len);
+    എങ്കിൽ(!fp) {
       failf(data, "BIO_new_mem_buf NULL, " OSSL_PACKAGE " error %s",
-            ossl_strerror(ERR_get_error(), err_buf, sizeof(err_buf)));
+            ossl_strerror(ERR_get_error(), err_buf, വലുപ്പം(err_buf)));
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
   }
-  else if(conn_config->issuercert) {
+  അല്ലെങ്കിൽ എങ്കിൽ(conn_config->issuercert) {
     fp = BIO_new(BIO_s_file());
-    if(!fp) {
+    എങ്കിൽ(!fp) {
       failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
-            ossl_strerror(ERR_get_error(), err_buf, sizeof(err_buf)));
+            ossl_strerror(ERR_get_error(), err_buf, വലുപ്പം(err_buf)));
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
 
-    if(BIO_read_filename(fp, conn_config->issuercert) <= 0) {
-      if(verify_enabled)
+    എങ്കിൽ(BIO_read_filename(fp, conn_config->issuercert) <= 0) {
+      എങ്കിൽ(verify_enabled)
         failf(data, "SSL: Unable to open issuer cert (%s)",
               conn_config->issuercert);
       result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      പോകുക out;
     }
   }
 
-  if(fp) {
-    issuer = PEM_read_bio_X509(fp, NULL, ZERO_NULL, NULL);
-    if(!issuer) {
-      if(verify_enabled)
+  എങ്കിൽ(fp) {
+    issuer = PEM_read_bio_X509(fp, ശൂന്യ, ZERO_NULL, ശൂന്യ);
+    എങ്കിൽ(!issuer) {
+      എങ്കിൽ(verify_enabled)
         failf(data, "SSL: Unable to read issuer cert (%s)",
               conn_config->issuercert);
       result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      പോകുക out;
     }
 
-    if(X509_check_issued(issuer, server_cert) != X509_V_OK) {
-      if(verify_enabled)
+    എങ്കിൽ(X509_check_issued(issuer, server_cert) != X509_V_OK) {
+      എങ്കിൽ(verify_enabled)
         failf(data, "SSL: Certificate issuer check failed (%s)",
               conn_config->issuercert);
       result = CURLE_SSL_ISSUER_ERROR;
-      goto out;
+      പോകുക out;
     }
 
     infof(data, " SSL certificate issuer check ok (%s)",
@@ -4624,18 +4624,18 @@ static CURLcode ossl_check_issuer(struct Curl_cfilter *cf,
   }
 
 out:
-  if(fp)
+  എങ്കിൽ(fp)
     BIO_free(fp);
-  if(issuer)
+  എങ്കിൽ(issuer)
     X509_free(issuer);
-  return result;
+  തിരികെ result;
 }
 
-static const char *pinned(struct Curl_cfilter *cf,
-                          struct Curl_easy *data)
+സ്ഥിതം സ്ഥിരം അക്ഷരം *pinned(ഘടന Curl_cfilter *cf,
+                          ഘടന Curl_easy *data)
 {
-  (void)cf;
-  return
+  (ശൂന്യം)cf;
+  തിരികെ
 #ifndef CURL_DISABLE_PROXY
     Curl_ssl_cf_is_proxy(cf) ?
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY_PROXY) :
@@ -4643,43 +4643,43 @@ static const char *pinned(struct Curl_cfilter *cf,
     CURL_EASY_STR(data, STRING_SSL_PINNEDPUBLICKEY);
 }
 
-static CURLcode ossl_check_pinned_key(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_check_pinned_താക്കോൽ(ഘടന Curl_cfilter *cf,
+                                      ഘടന Curl_easy *data,
                                       X509 *server_cert)
 {
   CURLcode result = CURLE_OK;
-  const char *ptr = pinned(cf, data);
-  if(ptr) {
+  സ്ഥിരം അക്ഷരം *ptr = pinned(cf, data);
+  എങ്കിൽ(ptr) {
     result = ossl_pkp_pin_peer_pubkey(data, server_cert, ptr);
-    if(result)
+    എങ്കിൽ(result)
       failf(data, "SSL: public key does not match pinned public key");
   }
-  return result;
+  തിരികെ result;
 }
 
 #ifdef CURLVERBOSE
 #define MAX_CERT_NAME_LENGTH 2048
-static CURLcode ossl_infof_cert(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_infof_cert(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data,
                                 X509 *server_cert)
 {
-  BIO *mem = NULL;
-  struct dynbuf dname;
-  char err_buf[256] = "";
-  char *buf;
+  BIO *mem = ശൂന്യ;
+  ഘടന dynbuf dname;
+  അക്ഷരം err_buf[256] = "";
+  അക്ഷരം *buf;
   long len;
   CURLcode result = CURLE_OK;
 
-  if(!Curl_trc_is_verbose(data))
-    return CURLE_OK;
+  എങ്കിൽ(!Curl_trc_is_verbose(data))
+    തിരികെ CURLE_OK;
 
   curlx_dyn_init(&dname, MAX_CERT_NAME_LENGTH);
   mem = BIO_new(BIO_s_mem());
-  if(!mem) {
+  എങ്കിൽ(!mem) {
     failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
-          ossl_strerror(ERR_get_error(), err_buf, sizeof(err_buf)));
+          ossl_strerror(ERR_get_error(), err_buf, വലുപ്പം(err_buf)));
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
   infof(data, "%s certificate:", Curl_ssl_cf_is_proxy(cf) ?
@@ -4689,169 +4689,169 @@ static CURLcode ossl_infof_cert(struct Curl_cfilter *cf,
   infof(data, "  subject: %s", result ? "[NONE]" : curlx_dyn_ptr(&dname));
 
   ASN1_TIME_print(mem, X509_get0_notBefore(server_cert));
-  len = BIO_get_mem_data(mem, (char **)&buf);
-  infof(data, "  start date: %.*s", (int)len, buf);
-  (void)BIO_reset(mem);
+  len = BIO_get_mem_data(mem, (അക്ഷരം **)&buf);
+  infof(data, "  start date: %.*s", (പൂർണ്ണസംഖ്യ)len, buf);
+  (ശൂന്യം)BIO_reset(mem);
 
   ASN1_TIME_print(mem, X509_get0_notAfter(server_cert));
-  len = BIO_get_mem_data(mem, (char **)&buf);
-  infof(data, "  expire date: %.*s", (int)len, buf);
-  (void)BIO_reset(mem);
+  len = BIO_get_mem_data(mem, (അക്ഷരം **)&buf);
+  infof(data, "  expire date: %.*s", (പൂർണ്ണസംഖ്യ)len, buf);
+  (ശൂന്യം)BIO_reset(mem);
 
   result = x509_name_oneline(X509_get_issuer_name(server_cert), &dname);
-  if(result) /* should be only fatal stuff like OOM */
-    goto out;
+  എങ്കിൽ(result) /* should be only fatal stuff like OOM */
+    പോകുക out;
   infof(data, "  issuer: %s", curlx_dyn_ptr(&dname));
 
 out:
   BIO_free(mem);
   curlx_dyn_free(&dname);
-  return result;
+  തിരികെ result;
 }
 #endif /* CURLVERBOSE */
 
 #ifdef USE_APPLE_SECTRUST
-struct ossl_certs_ctx {
-  STACK_OF(X509) *sk;
-  size_t num_certs;
-  unsigned char *last_der;
+ഘടന ossl_certs_ctx {
+  അട്ടി_OF(X509) *sk;
+  size_t അക്കം_certs;
+  unsigned അക്ഷരം *last_der;
 };
 
-static CURLcode ossl_chain_get_der(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   void *user_data,
+സ്ഥിതം CURLcode ossl_chain_get_der(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data,
+                                   ശൂന്യം *user_data,
                                    size_t i,
-                                   unsigned char **pder,
+                                   unsigned അക്ഷരം **pder,
                                    size_t *pder_len)
 {
-  struct ossl_certs_ctx *chain = user_data;
+  ഘടന ossl_certs_ctx *chain = user_data;
   X509 *cert;
-  int der_len;
+  പൂർണ്ണസംഖ്യ der_len;
 
   OPENSSL_free(chain->last_der);
-  chain->last_der = NULL;
+  chain->last_der = ശൂന്യ;
 
-  (void)cf;
-  (void)data;
+  (ശൂന്യം)cf;
+  (ശൂന്യം)data;
   *pder_len = 0;
-  *pder = NULL;
+  *pder = ശൂന്യ;
 
-  if(i >= chain->num_certs)
-    return CURLE_TOO_LARGE;
-  cert = sk_X509_value(chain->sk, (int)i);
-  if(!cert)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(i >= chain->അക്കം_certs)
+    തിരികെ CURLE_TOO_LARGE;
+  cert = sk_X509_മൂല്യം(chain->sk, (പൂർണ്ണസംഖ്യ)i);
+  എങ്കിൽ(!cert)
+    തിരികെ CURLE_FAILED_INIT;
   der_len = i2d_X509(cert, pder);
-  if(der_len < 0)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(der_len < 0)
+    തിരികെ CURLE_FAILED_INIT;
   chain->last_der = *pder;
   *pder_len = (size_t)der_len;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode ossl_apple_verify(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ossl_ctx *octx,
-                                  struct ssl_peer *peer)
+സ്ഥിതം CURLcode ossl_apple_verify(ഘടന Curl_cfilter *cf,
+                                  ഘടന Curl_easy *data,
+                                  ഘടന ossl_ctx *octx,
+                                  ഘടന ssl_peer *peer)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct ossl_certs_ctx chain;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന ossl_certs_ctx chain;
   CURLcode result;
 
   octx->sectrust_verified = FALSE;
-  memset(&chain, 0, sizeof(chain));
+  memset(&chain, 0, വലുപ്പം(chain));
   chain.sk = SSL_get_peer_cert_chain(octx->ssl);
-  chain.num_certs = chain.sk ? sk_X509_num(chain.sk) : 0;
+  chain.അക്കം_certs = chain.sk ? sk_X509_അക്കം(chain.sk) : 0;
 
-  if(!chain.num_certs &&
+  എങ്കിൽ(!chain.അക്കം_certs &&
      (conn_config->verifypeer || conn_config->verifyhost)) {
-    if(!octx->reused_session) {
+    എങ്കിൽ(!octx->reused_session) {
       failf(data, "SSL: could not get peer certificate chain");
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else {
+    അല്ലെങ്കിൽ {
       /* When session was reused, there is no peer cert chain.
        * We trust it if it came from a SecTrust verified TLS. */
       CURL_TRC_CF(data, cf, "session reused, sectrust_session=%d",
                   octx->sectrust_session);
       octx->sectrust_verified = (bool)octx->sectrust_session;
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
 #ifdef HAVE_BORINGSSL_LIKE
-    const uint8_t *ocsp_data = NULL;
-#else
-    unsigned char *ocsp_data = NULL;
+    സ്ഥിരം uint8_t *ocsp_data = ശൂന്യ;
+#അല്ലെങ്കിൽ
+    unsigned അക്ഷരം *ocsp_data = ശൂന്യ;
 #endif
     long ocsp_len = 0;
     bool ocsp_required = (!octx->reused_session && conn_config->verifystatus);
-    if(!octx->reused_session)
+    എങ്കിൽ(!octx->reused_session)
       ocsp_len = (long)SSL_get_tlsext_status_ocsp_resp(octx->ssl, &ocsp_data);
     /* SSL_get_tlsext_status_ocsp_resp() returns the length of the OCSP
        response data or -1 if there is no OCSP response data.
        AWS-LC breaks the API and returns 0 when there is no data. */
-    if(ocsp_len <= 0) {
+    എങ്കിൽ(ocsp_len <= 0) {
       ocsp_len = 0; /* no data available */
-      ocsp_data = NULL;
+      ocsp_data = ശൂന്യ;
     }
 
-    result = Curl_vtls_apple_verify(cf, data, peer, chain.num_certs,
+    result = Curl_vtls_apple_verify(cf, data, peer, chain.അക്കം_certs,
                                     ossl_chain_get_der, &chain,
                                     ocsp_data, ocsp_len,
                                     ocsp_required);
     OPENSSL_free(chain.last_der);
-    chain.last_der = NULL;
+    chain.last_der = ശൂന്യ;
   }
   octx->sectrust_verified = !result;
-  return result;
+  തിരികെ result;
 }
 #endif /* USE_APPLE_SECTRUST */
 
-CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
-                                   struct ossl_ctx *octx,
-                                   struct ssl_peer *peer)
+CURLcode Curl_ossl_check_peer_cert(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data,
+                                   ഘടന ossl_ctx *octx,
+                                   ഘടന ssl_peer *peer)
 {
-  struct connectdata *conn = cf->conn;
-  struct ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന connectdata *conn = cf->conn;
+  ഘടന ssl_easy_config *ssl_config = Curl_ssl_cf_get_easy_config(cf, data);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
   long ossl_verify;
   X509 *server_cert;
   bool verified = FALSE;
 
-  if(data->set.ssl.certinfo && !octx->reused_session) {
+  എങ്കിൽ(data->set.ssl.certinfo && !octx->reused_session) {
     /* asked to gather certificate info. Reused sessions do not have cert
        chains */
     result = ossl_certchain(data, octx->ssl);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
   server_cert = SSL_get1_peer_certificate(octx->ssl);
-  if(!server_cert) {
+  എങ്കിൽ(!server_cert) {
     /* no verification at all, this maybe acceptable */
-    if(!(conn_config->verifypeer || conn_config->verifyhost) &&
+    എങ്കിൽ(!(conn_config->verifypeer || conn_config->verifyhost) &&
        !pinned(cf, data))
-      goto out;
+      പോകുക out;
 
     failf(data, "SSL: could not get peer certificate");
     result = CURLE_PEER_FAILED_VERIFICATION;
-    goto out;
+    പോകുക out;
   }
 
 #ifdef CURLVERBOSE
   result = ossl_infof_cert(cf, data, server_cert);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
   infof_certstack(data, octx->ssl);
 #endif
 
-  if(conn_config->verifyhost) {
+  എങ്കിൽ(conn_config->verifyhost) {
     result = ossl_verifyhost(data, conn, peer, server_cert);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
   /* `verifyhost` is either OK or not requested from here on */
 
@@ -4860,18 +4860,18 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   infof(data, "OpenSSL verify result: %lx", (unsigned long)ossl_verify);
 
   verified = (ossl_verify == X509_V_OK);
-  if(verified)
+  എങ്കിൽ(verified)
     infof(data, "SSL certificate verified via OpenSSL.");
 
 #ifdef USE_APPLE_SECTRUST
-  if(!verified && conn_config->verifypeer && conn_config->native_ca_store) {
+  എങ്കിൽ(!verified && conn_config->verifypeer && conn_config->native_ca_store) {
     /* we verify using Apple SecTrust *unless* OpenSSL already verified.
      * This may happen if the application intercepted the OpenSSL callback
      * and installed its own. */
     result = ossl_apple_verify(cf, data, octx, peer);
-    if(result && (result != CURLE_PEER_FAILED_VERIFICATION))
-      goto out; /* unexpected error */
-    if(octx->sectrust_verified) {
+    എങ്കിൽ(result && (result != CURLE_PEER_FAILED_VERIFICATION))
+      പോകുക out; /* unexpected error */
+    എങ്കിൽ(octx->sectrust_verified) {
       infof(data, "SSL certificate verified via Apple SecTrust.");
       ssl_config->certverifyresult = X509_V_OK;
       verified = TRUE;
@@ -4879,47 +4879,47 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   }
 #endif
 
-  if(!verified) {
+  എങ്കിൽ(!verified) {
     /* no trust established, report the OpenSSL status */
-    if(conn_config->verifypeer) {
+    എങ്കിൽ(conn_config->verifypeer) {
       failf(data, "SSL certificate OpenSSL verify result: %s (%ld)",
             X509_verify_cert_error_string(ossl_verify), ossl_verify);
       result = CURLE_PEER_FAILED_VERIFICATION;
-      goto out;
+      പോകുക out;
     }
     infof(data, " SSL certificate verification failed, continuing anyway!");
   }
 
 #ifndef OPENSSL_NO_OCSP
-  if(conn_config->verifystatus &&
+  എങ്കിൽ(conn_config->verifystatus &&
 #ifdef USE_APPLE_SECTRUST
     /* When SecTrust did the verify and has the capability, no need. */
      !(octx->sectrust_verified && Curl_vtls_apple_verifies_ocsp(cf, data)) &&
 #endif
      !octx->reused_session) {
     result = verifystatus(cf, data, octx);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 #endif
 
   result = ossl_check_issuer(cf, data, server_cert);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
-  result = ossl_check_pinned_key(cf, data, server_cert);
+  result = ossl_check_pinned_താക്കോൽ(cf, data, server_cert);
 
 out:
   X509_free(server_cert);
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode ossl_connect_step3(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+സ്ഥിതം CURLcode ossl_connect_step3(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
 
   DEBUGASSERT(connssl->connecting_state == ssl_connect_3);
 
@@ -4931,81 +4931,81 @@ static CURLcode ossl_connect_step3(struct Curl_cfilter *cf,
    */
 
   result = Curl_ossl_check_peer_cert(cf, data, octx, &connssl->peer);
-  if(result)
+  എങ്കിൽ(result)
     /* on error, remove sessions we might have in the pool */
-    Curl_ssl_scache_remove_all(cf, data, connssl->peer.scache_key);
+    Curl_ssl_scache_remove_all(cf, data, connssl->peer.scache_താക്കോൽ);
 
-  return result;
+  തിരികെ result;
 }
 
 #ifdef HAVE_OPENSSL_EARLYDATA
-static CURLcode ossl_send_earlydata(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data)
+സ്ഥിതം CURLcode ossl_send_earlydata(ഘടന Curl_cfilter *cf,
+                                    ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  const unsigned char *buf;
+  സ്ഥിരം unsigned അക്ഷരം *buf;
   size_t blen, nwritten;
-  int rc;
+  പൂർണ്ണസംഖ്യ rc;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sending);
   octx->io_result = CURLE_OK;
-  while(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
+  ആകുമ്പോൾ(Curl_bufq_peek(&connssl->earlydata, &buf, &blen)) {
     nwritten = 0;
     rc = SSL_write_early_data(octx->ssl, buf, blen, &nwritten);
     CURL_TRC_CF(data, cf, "SSL_write_early_data(len=%zu) -> %d, %zu",
                 blen, rc, nwritten);
-    if(rc <= 0) {
+    എങ്കിൽ(rc <= 0) {
       long sslerror;
-      char error_buffer[256];
-      int err = SSL_get_error(octx->ssl, rc);
+      അക്ഷരം error_buffer[256];
+      പൂർണ്ണസംഖ്യ err = SSL_get_error(octx->ssl, rc);
 
-      switch(err) {
-      case SSL_ERROR_WANT_READ:
+      തിരഞ്ഞെടുപ്പ്(err) {
+      അവസ്ഥ SSL_ERROR_WANT_READ:
         connssl->io_need = CURL_SSL_IO_NEED_RECV;
         result = CURLE_AGAIN;
-        goto out;
-      case SSL_ERROR_WANT_WRITE:
+        പോകുക out;
+      അവസ്ഥ SSL_ERROR_WANT_WRITE:
         connssl->io_need = CURL_SSL_IO_NEED_SEND;
         result = CURLE_AGAIN;
-        goto out;
-      case SSL_ERROR_SYSCALL: {
-        int sockerr = SOCKERRNO;
+        പോകുക out;
+      അവസ്ഥ SSL_ERROR_SYSCALL: {
+        പൂർണ്ണസംഖ്യ sockerr = SOCKERRNO;
 
-        if(octx->io_result == CURLE_AGAIN) {
+        എങ്കിൽ(octx->io_result == CURLE_AGAIN) {
           result = CURLE_AGAIN;
-          goto out;
+          പോകുക out;
         }
         sslerror = ERR_get_error();
-        if(sslerror)
-          ossl_strerror(sslerror, error_buffer, sizeof(error_buffer));
-        else if(sockerr)
-          curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-        else
-          curl_msnprintf(error_buffer, sizeof(error_buffer), "%s",
+        എങ്കിൽ(sslerror)
+          ossl_strerror(sslerror, error_buffer, വലുപ്പം(error_buffer));
+        അല്ലെങ്കിൽ എങ്കിൽ(sockerr)
+          curlx_strerror(sockerr, error_buffer, വലുപ്പം(error_buffer));
+        അല്ലെങ്കിൽ
+          curl_msnprintf(error_buffer, വലുപ്പം(error_buffer), "%s",
                          SSL_ERROR_to_str(err));
 
         failf(data, OSSL_PACKAGE " SSL_write:early_data: %s, errno %d",
               error_buffer, sockerr);
         result = CURLE_SEND_ERROR;
-        goto out;
+        പോകുക out;
       }
-      case SSL_ERROR_SSL: {
+      അവസ്ഥ SSL_ERROR_SSL: {
         /*  A failure in the SSL library occurred, usually a protocol error.
             The OpenSSL error queue contains more information on the error. */
         sslerror = ERR_get_error();
         failf(data, "SSL_write_early_data() error: %s",
-              ossl_strerror(sslerror, error_buffer, sizeof(error_buffer)));
+              ossl_strerror(sslerror, error_buffer, വലുപ്പം(error_buffer)));
         result = CURLE_SEND_ERROR;
-        goto out;
+        പോകുക out;
       }
-      default:
+      സ്ഥിരസ്ഥിതി:
         /* a true error */
         failf(data, OSSL_PACKAGE " SSL_write_early_data: %s, errno %d",
               SSL_ERROR_to_str(err), SOCKERRNO);
         result = CURLE_SEND_ERROR;
-        goto out;
+        പോകുക out;
       }
     }
     Curl_bufq_skip(&connssl->earlydata, nwritten);
@@ -5013,49 +5013,49 @@ static CURLcode ossl_send_earlydata(struct Curl_cfilter *cf,
   /* sent everything there was */
   infof(data, "SSL sending %zu bytes of early data", connssl->earlydata_skip);
 out:
-  return result;
+  തിരികെ result;
 }
 #endif /* HAVE_OPENSSL_EARLYDATA */
 
-static CURLcode ossl_connect(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_connect(ഘടന Curl_cfilter *cf,
+                             ഘടന Curl_easy *data,
                              bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct ssl_connect_data *connssl = cf->ctx;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
 
   /* check if the connection has already been established */
-  if(ssl_connection_complete == connssl->state) {
+  എങ്കിൽ(ssl_connection_complete == connssl->state) {
     *done = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   *done = FALSE;
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
 
-  if(connssl->connecting_state == ssl_connect_1) {
-    if(Curl_ssl_need_httpsrr(cf) &&
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_1) {
+    എങ്കിൽ(Curl_ssl_need_httpsrr(cf) &&
        !Curl_conn_dns_resolved_https(data, cf->sockindex,
                                      connssl->peer.peer)) {
       CURL_TRC_CF(data, cf, "need HTTPS-RR, delaying connect");
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
     CURL_TRC_CF(data, cf, "ossl_connect, step1");
     result = ossl_connect_step1(cf, data);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
-  if(connssl->connecting_state == ssl_connect_2) {
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_2) {
     CURL_TRC_CF(data, cf, "ossl_connect, step2");
 #ifdef HAVE_OPENSSL_EARLYDATA
-    if(connssl->earlydata_state == ssl_earlydata_await) {
-      goto out;
+    എങ്കിൽ(connssl->earlydata_state == ssl_earlydata_await) {
+      പോകുക out;
     }
-    else if(connssl->earlydata_state == ssl_earlydata_sending) {
+    അല്ലെങ്കിൽ എങ്കിൽ(connssl->earlydata_state == ssl_earlydata_sending) {
       result = ossl_send_earlydata(cf, data);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
       connssl->earlydata_state = ssl_earlydata_sent;
     }
 #endif
@@ -5063,19 +5063,19 @@ static CURLcode ossl_connect(struct Curl_cfilter *cf,
                 (connssl->earlydata_state == ssl_earlydata_sent));
 
     result = ossl_connect_step2(cf, data);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
-  if(connssl->connecting_state == ssl_connect_3) {
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_3) {
     CURL_TRC_CF(data, cf, "ossl_connect, step3");
     result = ossl_connect_step3(cf, data);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
     connssl->connecting_state = ssl_connect_done;
 #ifdef HAVE_OPENSSL_EARLYDATA
-    if(connssl->earlydata_state > ssl_earlydata_none) {
-      struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+    എങ്കിൽ(connssl->earlydata_state > ssl_earlydata_none) {
+      ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
       /* We should be in this state by now */
       DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_sent);
       connssl->earlydata_state =
@@ -5085,143 +5085,143 @@ static CURLcode ossl_connect(struct Curl_cfilter *cf,
 #endif
   }
 
-  if(connssl->connecting_state == ssl_connect_done) {
+  എങ്കിൽ(connssl->connecting_state == ssl_connect_done) {
     CURL_TRC_CF(data, cf, "ossl_connect, done");
     connssl->state = ssl_connection_complete;
   }
 
 out:
-  if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result == CURLE_AGAIN) {
     *done = FALSE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
   *done = ((connssl->state == ssl_connection_complete) ||
            (connssl->state == ssl_connection_deferred));
-  return result;
+  തിരികെ result;
 }
 
-static bool ossl_data_pending(struct Curl_cfilter *cf,
-                              const struct Curl_easy *data)
+സ്ഥിതം bool ossl_data_pending(ഘടന Curl_cfilter *cf,
+                              സ്ഥിരം ഘടന Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  (void)data;
-  return (bool)connssl->input_pending;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  (ശൂന്യം)data;
+  തിരികെ (bool)connssl->നിവേശം_pending;
 }
 
-static CURLcode ossl_send(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,
-                          const void *mem,
+സ്ഥിതം CURLcode ossl_send(ഘടന Curl_cfilter *cf,
+                          ഘടന Curl_easy *data,
+                          സ്ഥിരം ശൂന്യം *mem,
                           size_t len,
                           size_t *pnwritten)
 {
   /* SSL_write() is said to return 'int' while write() and send() returns
      'size_t' */
-  int err;
-  char error_buffer[256];
+  പൂർണ്ണസംഖ്യ err;
+  അക്ഷരം error_buffer[256];
   sslerr_t sslerror;
-  int memlen;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  പൂർണ്ണസംഖ്യ memlen;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  int nwritten;
+  പൂർണ്ണസംഖ്യ nwritten;
 
   DEBUGASSERT(octx);
   *pnwritten = 0;
   ERR_clear_error();
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  memlen = (len > (size_t)INT_MAX) ? INT_MAX : (int)len;
-  if(octx->blocked_ssl_write_len && (octx->blocked_ssl_write_len != memlen)) {
+  memlen = (len > (size_t)INT_MAX) ? INT_MAX : (പൂർണ്ണസംഖ്യ)len;
+  എങ്കിൽ(octx->blocked_ssl_write_len && (octx->blocked_ssl_write_len != memlen)) {
     /* The previous SSL_write() call was blocked, using that length.
      * We need to use that again or OpenSSL freaks out. A shorter
      * length should not happen and is a bug in libcurl. */
-    if(octx->blocked_ssl_write_len > memlen) {
+    എങ്കിൽ(octx->blocked_ssl_write_len > memlen) {
       DEBUGASSERT(0);
-      return CURLE_BAD_FUNCTION_ARGUMENT;
+      തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
     }
     memlen = octx->blocked_ssl_write_len;
   }
   octx->blocked_ssl_write_len = 0;
   nwritten = SSL_write(octx->ssl, mem, memlen);
 
-  if(nwritten > 0) {
-    if(nwritten > memlen) {
+  എങ്കിൽ(nwritten > 0) {
+    എങ്കിൽ(nwritten > memlen) {
       failf(data, "SSL_write(len=%d) returned %d", memlen, nwritten);
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
     *pnwritten = (size_t)nwritten;
   }
-  else {
+  അല്ലെങ്കിൽ {
     err = SSL_get_error(octx->ssl, nwritten);
 
-    switch(err) {
-    case SSL_ERROR_WANT_READ:
+    തിരഞ്ഞെടുപ്പ്(err) {
+    അവസ്ഥ SSL_ERROR_WANT_READ:
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
       octx->blocked_ssl_write_len = memlen;
       result = CURLE_AGAIN;
-      goto out;
-    case SSL_ERROR_WANT_WRITE:
+      പോകുക out;
+    അവസ്ഥ SSL_ERROR_WANT_WRITE:
       result = CURLE_AGAIN;
       octx->blocked_ssl_write_len = memlen;
-      goto out;
-    case SSL_ERROR_SYSCALL: {
-      int sockerr = SOCKERRNO;
+      പോകുക out;
+    അവസ്ഥ SSL_ERROR_SYSCALL: {
+      പൂർണ്ണസംഖ്യ sockerr = SOCKERRNO;
 
-      if(octx->io_result == CURLE_AGAIN) {
+      എങ്കിൽ(octx->io_result == CURLE_AGAIN) {
         octx->blocked_ssl_write_len = memlen;
         result = CURLE_AGAIN;
-        goto out;
+        പോകുക out;
       }
       sslerror = ERR_get_error();
-      if(sslerror)
-        ossl_strerror(sslerror, error_buffer, sizeof(error_buffer));
-      else if(sockerr)
-        curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-      else
-        curl_msnprintf(error_buffer, sizeof(error_buffer), "%s",
+      എങ്കിൽ(sslerror)
+        ossl_strerror(sslerror, error_buffer, വലുപ്പം(error_buffer));
+      അല്ലെങ്കിൽ എങ്കിൽ(sockerr)
+        curlx_strerror(sockerr, error_buffer, വലുപ്പം(error_buffer));
+      അല്ലെങ്കിൽ
+        curl_msnprintf(error_buffer, വലുപ്പം(error_buffer), "%s",
                        SSL_ERROR_to_str(err));
 
       failf(data, OSSL_PACKAGE " SSL_write: %s, errno %d",
             error_buffer, sockerr);
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
-    case SSL_ERROR_SSL: {
+    അവസ്ഥ SSL_ERROR_SSL: {
       /*  A failure in the SSL library occurred, usually a protocol error.
           The OpenSSL error queue contains more information on the error. */
       sslerror = ERR_get_error();
       failf(data, "SSL_write() error: %s",
-            ossl_strerror(sslerror, error_buffer, sizeof(error_buffer)));
+            ossl_strerror(sslerror, error_buffer, വലുപ്പം(error_buffer)));
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
-    default:
+    സ്ഥിരസ്ഥിതി:
       /* a true error */
       failf(data, OSSL_PACKAGE " SSL_write: %s, errno %d",
             SSL_ERROR_to_str(err), SOCKERRNO);
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
   }
 
 out:
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode ossl_recv(struct Curl_cfilter *cf,
-                          struct Curl_easy *data,   /* transfer */
-                          char *buf,                /* store read data here */
+സ്ഥിതം CURLcode ossl_recv(ഘടന Curl_cfilter *cf,
+                          ഘടന Curl_easy *data,   /* transfer */
+                          അക്ഷരം *buf,                /* store read data here */
                           size_t buffersize,        /* max amount to read */
                           size_t *pnread)
 {
-  char error_buffer[256];
+  അക്ഷരം error_buffer[256];
   unsigned long sslerror;
-  int buffsize;
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  പൂർണ്ണസംഖ്യ buffsize;
+  ഘടന ssl_connect_data *connssl = cf->ctx;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
   CURLcode result = CURLE_OK;
-  int nread;
+  പൂർണ്ണസംഖ്യ nread;
 
   DEBUGASSERT(octx);
 
@@ -5229,341 +5229,341 @@ static CURLcode ossl_recv(struct Curl_cfilter *cf,
   ERR_clear_error();
 
   connssl->io_need = CURL_SSL_IO_NEED_NONE;
-  buffsize = (buffersize > (size_t)INT_MAX) ? INT_MAX : (int)buffersize;
+  buffsize = (buffersize > (size_t)INT_MAX) ? INT_MAX : (പൂർണ്ണസംഖ്യ)buffersize;
   nread = SSL_read(octx->ssl, buf, buffsize);
 
-  if(nread > 0)
+  എങ്കിൽ(nread > 0)
     *pnread = (size_t)nread;
-  else {
+  അല്ലെങ്കിൽ {
     /* failed SSL_read */
-    int err = SSL_get_error(octx->ssl, nread);
+    പൂർണ്ണസംഖ്യ err = SSL_get_error(octx->ssl, nread);
 
-    switch(err) {
-    case SSL_ERROR_NONE: /* this is not an error */
-      break;
-    case SSL_ERROR_ZERO_RETURN: /* no more data */
+    തിരഞ്ഞെടുപ്പ്(err) {
+    അവസ്ഥ SSL_ERROR_NONE: /* this is not an error */
+      നിർത്തുക;
+    അവസ്ഥ SSL_ERROR_ZERO_RETURN: /* no more data */
       /* close_notify alert */
-      if(cf->sockindex == FIRSTSOCKET)
+      എങ്കിൽ(cf->sockindex == FIRSTSOCKET)
         /* mark the connection for close if it is indeed the control
            connection */
         CURL_TRC_CF(data, cf, "TLS close_notify");
-      break;
-    case SSL_ERROR_WANT_READ:
+      നിർത്തുക;
+    അവസ്ഥ SSL_ERROR_WANT_READ:
       connssl->io_need = CURL_SSL_IO_NEED_RECV;
       result = CURLE_AGAIN;
-      goto out;
-    case SSL_ERROR_WANT_WRITE:
+      പോകുക out;
+    അവസ്ഥ SSL_ERROR_WANT_WRITE:
       connssl->io_need = CURL_SSL_IO_NEED_SEND;
       result = CURLE_AGAIN;
-      goto out;
-    default:
+      പോകുക out;
+    സ്ഥിരസ്ഥിതി:
       /* openssl/ssl.h for SSL_ERROR_SYSCALL says "look at error stack/return
          value/errno" */
       /* https://docs.openssl.org/master/man3/ERR_get_error/ */
-      if(octx->io_result == CURLE_AGAIN) {
+      എങ്കിൽ(octx->io_result == CURLE_AGAIN) {
         result = CURLE_AGAIN;
-        goto out;
+        പോകുക out;
       }
       sslerror = ERR_get_error();
-      if((nread < 0) || sslerror) {
+      എങ്കിൽ((nread < 0) || sslerror) {
         /* If the return code was negative or there actually is an error in the
            queue */
-        int sockerr = SOCKERRNO;
-        if(sslerror)
-          ossl_strerror(sslerror, error_buffer, sizeof(error_buffer));
-        else if(sockerr && err == SSL_ERROR_SYSCALL)
-          curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-        else
-          curl_msnprintf(error_buffer, sizeof(error_buffer), "%s",
+        പൂർണ്ണസംഖ്യ sockerr = SOCKERRNO;
+        എങ്കിൽ(sslerror)
+          ossl_strerror(sslerror, error_buffer, വലുപ്പം(error_buffer));
+        അല്ലെങ്കിൽ എങ്കിൽ(sockerr && err == SSL_ERROR_SYSCALL)
+          curlx_strerror(sockerr, error_buffer, വലുപ്പം(error_buffer));
+        അല്ലെങ്കിൽ
+          curl_msnprintf(error_buffer, വലുപ്പം(error_buffer), "%s",
                          SSL_ERROR_to_str(err));
         failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d",
               error_buffer, sockerr);
         result = CURLE_RECV_ERROR;
-        goto out;
+        പോകുക out;
       }
-      else if(err == SSL_ERROR_SYSCALL) {
-        if(octx->io_result) {
+      അല്ലെങ്കിൽ എങ്കിൽ(err == SSL_ERROR_SYSCALL) {
+        എങ്കിൽ(octx->io_result) {
           /* logging handling in underlying filter already */
           result = octx->io_result;
         }
-        else if(connssl->peer_closed) {
+        അല്ലെങ്കിൽ എങ്കിൽ(connssl->peer_closed) {
           failf(data, "Connection closed abruptly");
           result = CURLE_RECV_ERROR;
         }
-        else {
+        അല്ലെങ്കിൽ {
           /* We should no longer get here nowadays, but handle
            * the error in case of some weirdness in the OSSL stack */
-          int sockerr = SOCKERRNO;
-          if(sockerr)
-            curlx_strerror(sockerr, error_buffer, sizeof(error_buffer));
-          else {
-            curl_msnprintf(error_buffer, sizeof(error_buffer),
+          പൂർണ്ണസംഖ്യ sockerr = SOCKERRNO;
+          എങ്കിൽ(sockerr)
+            curlx_strerror(sockerr, error_buffer, വലുപ്പം(error_buffer));
+          അല്ലെങ്കിൽ {
+            curl_msnprintf(error_buffer, വലുപ്പം(error_buffer),
                            "Connection closed abruptly");
           }
           failf(data, OSSL_PACKAGE " SSL_read: %s, errno %d",
                 error_buffer, sockerr);
           result = CURLE_RECV_ERROR;
         }
-        goto out;
+        പോകുക out;
       }
     }
   }
 
 out:
-  if((!result && !*pnread) || (result == CURLE_AGAIN)) {
+  എങ്കിൽ((!result && !*pnread) || (result == CURLE_AGAIN)) {
     /* This happens when:
      * - we read an EOF
      * - OpenSSLs buffers are empty, there is no more data
      * - OpenSSL read is blocked on writing something first
      * - an incomplete TLS packet is buffered that cannot be read
      *   until more data arrives */
-    connssl->input_pending = FALSE;
+    connssl->നിവേശം_pending = FALSE;
   }
   CURL_TRC_CF(data, cf, "ossl_recv(len=%zu) -> %d, %zu (in_pending=%d)",
-              buffersize, (int)result, *pnread, connssl->input_pending);
-  return result;
+              buffersize, (പൂർണ്ണസംഖ്യ)result, *pnread, connssl->നിവേശം_pending);
+  തിരികെ result;
 }
 
-static CURLcode ossl_get_channel_binding(struct Curl_easy *data,
+സ്ഥിതം CURLcode ossl_get_channel_binding(ഘടന Curl_easy *data,
                                          int8_t sockindex,
-                                         struct dynbuf *binding)
+                                         ഘടന dynbuf *binding)
 {
   X509 *cert;
-  int mdnid;
+  പൂർണ്ണസംഖ്യ mdnid;
   bool no_digest_acceptable = FALSE;
-  const EVP_MD *algo_type = NULL;
-  const char *algo_name = NULL;
-  unsigned int length;
-  unsigned char buf[EVP_MAX_MD_SIZE];
+  സ്ഥിരം EVP_MD *algo_type = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *algo_name = ശൂന്യ;
+  unsigned പൂർണ്ണസംഖ്യ length;
+  unsigned അക്ഷരം buf[EVP_MAX_MD_SIZE];
 
-  static const char prefix[] = "tls-server-end-point:";
-  struct connectdata *conn = data->conn;
-  struct Curl_cfilter *cf = conn->cfilter[sockindex];
-  struct ossl_ctx *octx = NULL;
+  സ്ഥിതം സ്ഥിരം അക്ഷരം prefix[] = "tls-server-end-point:";
+  ഘടന connectdata *conn = data->conn;
+  ഘടന Curl_cfilter *cf = conn->cfilter[sockindex];
+  ഘടന ossl_ctx *octx = ശൂന്യ;
   CURLcode result = CURLE_OK;
 
-  do {
-    const struct Curl_cftype *cft = cf->cft;
-    struct ssl_connect_data *connssl = cf->ctx;
+  ചെയ്യുക {
+    സ്ഥിരം ഘടന Curl_cftype *cft = cf->cft;
+    ഘടന ssl_connect_data *connssl = cf->ctx;
 
-    if(cft->name && !strcmp(cft->name, "SSL")) {
-      octx = (struct ossl_ctx *)connssl->backend;
-      break;
+    എങ്കിൽ(cft->name && !strcmp(cft->name, "SSL")) {
+      octx = (ഘടന ossl_ctx *)connssl->backend;
+      നിർത്തുക;
     }
 
     cf = cf->next;
-  } while(cf);
+  } ആകുമ്പോൾ(cf);
 
-  if(!octx) {
+  എങ്കിൽ(!octx) {
     failf(data, "Failed to find the SSL filter");
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   cert = SSL_get1_peer_certificate(octx->ssl);
-  if(!cert)
+  എങ്കിൽ(!cert)
     /* No server certificate, do not do channel binding */
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
 
 #ifdef HAVE_OPENSSL3
   {
-    int pknid, secbits;
+    പൂർണ്ണസംഖ്യ pknid, secbits;
     uint32_t flags;
     EVP_PKEY *pkey = X509_get0_pubkey(cert);
 
-    if(!X509_get_signature_info(cert, &mdnid, &pknid, &secbits, &flags)) {
+    എങ്കിൽ(!X509_get_signature_info(cert, &mdnid, &pknid, &secbits, &flags)) {
       failf(data, "certificate signature algorithm not recognized");
       result = CURLE_SSL_INVALIDCERTSTATUS;
-      goto out;
+      പോകുക out;
     }
 
-    if(mdnid != NID_undef) {
-      if(mdnid == NID_md5 || mdnid == NID_sha1) {
+    എങ്കിൽ(mdnid != NID_undef) {
+      എങ്കിൽ(mdnid == NID_md5 || mdnid == NID_sha1) {
         algo_type = EVP_sha256();
       }
-      else
+      അല്ലെങ്കിൽ
         algo_type = EVP_get_digestbynid(mdnid);
     }
-    else if(pkey && !EVP_PKEY_is_a(pkey, OBJ_nid2sn(pknid))) {
+    അല്ലെങ്കിൽ എങ്കിൽ(pkey && !EVP_PKEY_is_a(pkey, OBJ_nid2sn(pknid))) {
       /* The cert's pkey is different from the algorithm used to sign
        * the certificate. Since the reported `mdnid` is undefined, there
        * is no digest algorithm available here. This happens in PQC
        * and is accepted, resulting in no addition to the binding. */
       no_digest_acceptable = TRUE;
     }
-    else if(pkey) {
+    അല്ലെങ്കിൽ എങ്കിൽ(pkey) {
       /* cert's pkey type is the same as the cert signer (or same family).
        * Ask for the mandatory/advisory digest algorithm for the pkey.
        */
-      char mdname[128] = "";
-      int rc = EVP_PKEY_get_default_digest_name(pkey, mdname, sizeof(mdname));
+      അക്ഷരം mdname[128] = "";
+      പൂർണ്ണസംഖ്യ rc = EVP_PKEY_get_default_digest_name(pkey, mdname, വലുപ്പം(mdname));
       bool md_is_undef = !strcmp(mdname, "UNDEF");
 
-      if(rc == 2 && md_is_undef) {
+      എങ്കിൽ(rc == 2 && md_is_undef) {
         /* OpenSSL declares "undef" the *mandatory* digest for this key.
          * This is some PQC shit, accept it, no addition to binding. */
         no_digest_acceptable = TRUE;
       }
-      else if(rc > 0 && mdname[0] != '\0' && !md_is_undef) {
+      അല്ലെങ്കിൽ എങ്കിൽ(rc > 0 && mdname[0] != '\0' && !md_is_undef) {
         infof(data, "Digest algorithm : %s%s (derived from public key)"
               ", but unavailable",
               mdname, rc == 2 ? " [mandatory]" : " [advisory]");
       }
     }
   }
-#else /* HAVE_OPENSSL3 */
+#അല്ലെങ്കിൽ /* HAVE_OPENSSL3 */
 
-  if(!OBJ_find_sigid_algs(X509_get_signature_nid(cert), &mdnid, NULL)) {
+  എങ്കിൽ(!OBJ_find_sigid_algs(X509_get_signature_nid(cert), &mdnid, ശൂന്യ)) {
     failf(data,
           "Unable to find digest NID for certificate signature algorithm");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto out;
+    പോകുക out;
   }
 
   /* https://datatracker.ietf.org/doc/html/rfc5929#section-4.1 */
-  if(mdnid == NID_md5 || mdnid == NID_sha1) {
+  എങ്കിൽ(mdnid == NID_md5 || mdnid == NID_sha1) {
     algo_type = EVP_sha256();
   }
-  else {
+  അല്ലെങ്കിൽ {
     algo_type = EVP_get_digestbynid(mdnid);
-    if(!algo_type) {
+    എങ്കിൽ(!algo_type) {
       algo_name = OBJ_nid2sn(mdnid);
       failf(data, "Could not find digest algorithm %s (NID %d)",
             algo_name ? algo_name : "(null)", mdnid);
       result = CURLE_SSL_INVALIDCERTSTATUS;
-      goto out;
+      പോകുക out;
     }
   }
 
 #endif /* HAVE_OPENSSL3, else */
 
-  if(!algo_type) {
-    if(no_digest_acceptable) {
+  എങ്കിൽ(!algo_type) {
+    എങ്കിൽ(no_digest_acceptable) {
       infof(data, "certificate exposes no signing digest algorithm, "
             "nothing to add to channel binding");
       result = CURLE_OK;
-      goto out;
+      പോകുക out;
     }
     /* unacceptable, something is wrong, fail */
     algo_name = OBJ_nid2sn(mdnid);
     failf(data, "Unable to find digest algorithm %s (NID %d) "
           "for channel binding", algo_name ? algo_name : "(null)", mdnid);
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto out;
+    പോകുക out;
   }
 
-  if(!X509_digest(cert, algo_type, buf, &length)) {
+  എങ്കിൽ(!X509_digest(cert, algo_type, buf, &length)) {
     failf(data, "X509_digest() failed for channel binding");
     result = CURLE_SSL_INVALIDCERTSTATUS;
-    goto out;
+    പോകുക out;
   }
 
   /* Append "tls-server-end-point:" */
   result = curlx_dyn_addn(binding, prefix, CURL_CSTRLEN(prefix));
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /* Append digest */
   result = curlx_dyn_addn(binding, buf, length);
 
 out:
   X509_free(cert);
-  return result;
+  തിരികെ result;
 }
 
-size_t Curl_ossl_version(char *buffer, size_t size)
+size_t Curl_ossl_version(അക്ഷരം *buffer, size_t size)
 {
-#ifdef LIBRESSL_VERSION_NUMBER
-  char *p;
-  size_t count;
-  const char *ver = OpenSSL_version(OPENSSL_VERSION);
-  static const char expected[] = OSSL_PACKAGE " "; /* ie "LibreSSL " */
-  if(curl_strnequal(ver, expected, CURL_CSTRLEN(expected))) {
+#ifdef LIBRESSL_VERSION_സംഖ്യ
+  അക്ഷരം *p;
+  size_t എണ്ണം;
+  സ്ഥിരം അക്ഷരം *ver = OpenSSL_version(OPENSSL_VERSION);
+  സ്ഥിതം സ്ഥിരം അക്ഷരം expected[] = OSSL_PACKAGE " "; /* ie "LibreSSL " */
+  എങ്കിൽ(curl_strnequal(ver, expected, CURL_CSTRLEN(expected))) {
     ver += CURL_CSTRLEN(expected);
   }
-  count = curl_msnprintf(buffer, size, "%s/%s", OSSL_PACKAGE, ver);
-  for(p = buffer; *p; ++p) {
-    if(ISBLANK(*p))
+  എണ്ണം = curl_msnprintf(buffer, size, "%s/%s", OSSL_PACKAGE, ver);
+  വേണ്ടി(p = buffer; *p; ++p) {
+    എങ്കിൽ(ISBLANK(*p))
       *p = '_';
   }
-  return count;
-#elif defined(OPENSSL_IS_AWSLC)
-  return curl_msnprintf(buffer, size, "%s/%s",
-                        OSSL_PACKAGE, AWSLC_VERSION_NUMBER_STRING);
-#elif defined(OPENSSL_IS_BORINGSSL)
+  തിരികെ എണ്ണം;
+#അല്ലെങ്കിലെങ്കിൽ defined(OPENSSL_IS_AWSLC)
+  തിരികെ curl_msnprintf(buffer, size, "%s/%s",
+                        OSSL_PACKAGE, AWSLC_VERSION_സംഖ്യ_STRING);
+#അല്ലെങ്കിലെങ്കിൽ defined(OPENSSL_IS_BORINGSSL)
 #ifdef CURL_BORINGSSL_VERSION
-  return curl_msnprintf(buffer, size, "%s/%s",
+  തിരികെ curl_msnprintf(buffer, size, "%s/%s",
                         OSSL_PACKAGE, CURL_BORINGSSL_VERSION);
-#else
-  return curl_msnprintf(buffer, size, OSSL_PACKAGE);
+#അല്ലെങ്കിൽ
+  തിരികെ curl_msnprintf(buffer, size, OSSL_PACKAGE);
 #endif
-#else /* OpenSSL 3+ */
-  return curl_msnprintf(buffer, size, "%s/%s",
+#അല്ലെങ്കിൽ /* OpenSSL 3+ */
+  തിരികെ curl_msnprintf(buffer, size, "%s/%s",
                         OSSL_PACKAGE, OpenSSL_version(OPENSSL_VERSION_STRING));
 #endif
 }
 
 /* can be called with data == NULL */
-static CURLcode ossl_random(struct Curl_easy *data,
-                            unsigned char *entropy, size_t length)
+സ്ഥിതം CURLcode ossl_random(ഘടന Curl_easy *data,
+                            unsigned അക്ഷരം *entropy, size_t length)
 {
-  int rc;
-  if(data) {
-    if(ossl_seed(data)) /* Initiate the seed if not already done */
-      return CURLE_FAILED_INIT; /* could not seed for some reason */
+  പൂർണ്ണസംഖ്യ rc;
+  എങ്കിൽ(data) {
+    എങ്കിൽ(ossl_seed(data)) /* Initiate the seed if not already done */
+      തിരികെ CURLE_FAILED_INIT; /* could not seed for some reason */
   }
-  else {
-    if(!rand_enough())
-      return CURLE_FAILED_INIT;
+  അല്ലെങ്കിൽ {
+    എങ്കിൽ(!rand_enough())
+      തിരികെ CURLE_FAILED_INIT;
   }
   /* RAND_bytes() returns 1 on success, 0 otherwise. */
   rc = RAND_bytes(entropy, (ossl_valsize_t)curlx_uztosi(length));
-  return rc == 1 ? CURLE_OK : CURLE_FAILED_INIT;
+  തിരികെ rc == 1 ? CURLE_OK : CURLE_FAILED_INIT;
 }
 
-static CURLcode ossl_sha256sum(const unsigned char *input,
+സ്ഥിതം CURLcode ossl_sha256sum(സ്ഥിരം unsigned അക്ഷരം *നിവേശം,
                                size_t len,
-                               unsigned char *sha256sum /* output */,
+                               unsigned അക്ഷരം *sha256sum /* output */,
                                size_t unused)
 {
   CURLcode result = CURLE_OK;
   EVP_MD_CTX *mdctx;
-  (void)unused;
+  (ശൂന്യം)unused;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx)
-    return CURLE_OUT_OF_MEMORY;
-  if(!EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
+  എങ്കിൽ(!mdctx)
+    തിരികെ CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!EVP_DigestInit_ex(mdctx, EVP_sha256(), ശൂന്യ)) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
-  if(!EVP_DigestUpdate(mdctx, input, len) ||
-     !EVP_DigestFinal_ex(mdctx, sha256sum, NULL))
+  എങ്കിൽ(!EVP_DigestUpdate(mdctx, നിവേശം, len) ||
+     !EVP_DigestFinal_ex(mdctx, sha256sum, ശൂന്യ))
     result = CURLE_BAD_FUNCTION_ARGUMENT;
 out:
   EVP_MD_CTX_free(mdctx);
-  return result;
+  തിരികെ result;
 }
 
-static bool ossl_cert_status_request(void)
+സ്ഥിതം bool ossl_cert_status_request(ശൂന്യം)
 {
 #ifndef OPENSSL_NO_OCSP
-  return TRUE;
-#else
-  return FALSE;
+  തിരികെ TRUE;
+#അല്ലെങ്കിൽ
+  തിരികെ FALSE;
 #endif
 }
 
-static void *ossl_get_internals(struct ssl_connect_data *connssl,
+സ്ഥിതം ശൂന്യം *ossl_get_internals(ഘടന ssl_connect_data *connssl,
                                 CURLINFO info)
 {
   /* Legacy: CURLINFO_TLS_SESSION must return an SSL_CTX pointer. */
-  struct ossl_ctx *octx = (struct ossl_ctx *)connssl->backend;
+  ഘടന ossl_ctx *octx = (ഘടന ossl_ctx *)connssl->backend;
   DEBUGASSERT(octx);
-  return info == CURLINFO_TLS_SESSION ?
-    (void *)octx->ssl_ctx : (void *)octx->ssl;
+  തിരികെ info == CURLINFO_TLS_SESSION ?
+    (ശൂന്യം *)octx->ssl_ctx : (ശൂന്യം *)octx->ssl;
 }
 
-const struct Curl_ssl Curl_ssl_openssl = {
+സ്ഥിരം ഘടന Curl_ssl Curl_ssl_openssl = {
   { CURLSSLBACKEND_OPENSSL, "openssl" }, /* info */
 
   SSLSUPP_CA_PATH |
@@ -5588,7 +5588,7 @@ const struct Curl_ssl Curl_ssl_openssl = {
   SSLSUPP_SSL_EC_CURVES |
   SSLSUPP_CRLFILE,
 
-  sizeof(struct ossl_ctx),
+  വലുപ്പം(ഘടന ossl_ctx),
 
   ossl_init,                /* init */
   ossl_cleanup,             /* cleanup */

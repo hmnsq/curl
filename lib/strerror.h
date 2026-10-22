@@ -23,10 +23,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_WINDOWS_SSPI
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen);
+സ്ഥിരം അക്ഷരം *Curl_sspi_strerror(SECURITY_STATUS err, അക്ഷരം *buf, size_t buflen);
 #endif
 
 #endif /* HEADER_CURL_STRERROR_H */

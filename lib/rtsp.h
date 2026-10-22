@@ -24,9 +24,9 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_RTSP
-CURLcode Curl_rtsp_parseheader(struct Curl_easy *data, const char *header);
-extern const struct Curl_protocol Curl_protocol_rtsp;
-#else
+CURLcode Curl_rtsp_parseheader(ഘടന Curl_easy *data, സ്ഥിരം അക്ഷരം *header);
+ബാഹ്യ സ്ഥിരം ഘടന Curl_protocol Curl_protocol_rtsp;
+#അല്ലെങ്കിൽ
 #define Curl_rtsp_parseheader(x, y) CURLE_NOT_BUILT_IN
 #endif
 

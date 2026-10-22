@@ -22,43 +22,43 @@
  *
  ***************************************************************************/
 
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#എങ്കിൽ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>  /* for htons() */
+#അന്തര്ഭാവ <arpa/inet.h>  /* for htons() */
 #endif
 
-#include <curl/curl.h>
-#include "urldata.h"
-#include "curlx/dynbuf.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "vquic/capsule.h"
+#അന്തര്ഭാവ <curl/curl.h>
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "curlx/dynbuf.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "bufq.h"
+#അന്തര്ഭാവ "vquic/capsule.h"
 
 
 /**
  * Convert 64-bit value from network byte order to host byte order
  */
-static uint64_t capsule_ntohll(uint64_t value)
+സ്ഥിതം uint64_t capsule_ntohll(uint64_t മൂല്യം)
 {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-  return value;
-#elif (defined(__GNUC__) || defined(__clang__)) && \
+#എങ്കിൽ defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+  തിരികെ മൂല്യം;
+#അല്ലെങ്കിലെങ്കിൽ (defined(__GNUC__) || defined(__clang__)) && \
   defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-  return __builtin_bswap64(value);
-#else
-  union {
+  തിരികെ __builtin_bswap64(മൂല്യം);
+#അല്ലെങ്കിൽ
+  സംഘം {
     uint64_t u64;
     uint32_t u32[2];
   } src, dst;
 
-  src.u64 = value;
+  src.u64 = മൂല്യം;
   dst.u32[0] = ntohl(src.u32[1]);
   dst.u32[1] = ntohl(src.u32[0]);
-  return dst.u64;
+  തിരികെ dst.u64;
 #endif
 }
 
@@ -68,75 +68,75 @@ static uint64_t capsule_ntohll(uint64_t value)
  * @param value Value to encode (must be <= 0x3FFFFFFFFFFFFFFF)
  * @return Number of bytes written
  */
-static size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t value)
+സ്ഥിതം size_t capsule_encode_varint_buf(uint8_t *buf, uint64_t മൂല്യം)
 {
-  DEBUGASSERT(value <= 0x3FFFFFFFFFFFFFFF);
+  DEBUGASSERT(മൂല്യം <= 0x3FFFFFFFFFFFFFFF);
 
-  if(value <= 0x3F) {
-    buf[0] = (uint8_t)value;
-    return 1;
+  എങ്കിൽ(മൂല്യം <= 0x3F) {
+    buf[0] = (uint8_t)മൂല്യം;
+    തിരികെ 1;
   }
-  else if(value <= 0x3FFF) {
-    uint16_t encoded = (uint16_t)value & 0x3FFF;
+  അല്ലെങ്കിൽ എങ്കിൽ(മൂല്യം <= 0x3FFF) {
+    uint16_t encoded = (uint16_t)മൂല്യം & 0x3FFF;
     encoded = ntohs(encoded | 0x4000);
     memcpy(buf, &encoded, 2);
-    return 2;
+    തിരികെ 2;
   }
-  else if(value <= 0x3FFFFFFF) {
-    uint32_t encoded = (uint32_t)value & 0x3FFFFFFF;
+  അല്ലെങ്കിൽ എങ്കിൽ(മൂല്യം <= 0x3FFFFFFF) {
+    uint32_t encoded = (uint32_t)മൂല്യം & 0x3FFFFFFF;
     encoded = ntohl(encoded | 0x80000000);
     memcpy(buf, &encoded, 4);
-    return 4;
+    തിരികെ 4;
   }
-  else {
-    uint64_t encoded = (uint64_t)value & 0x3FFFFFFFFFFFFFFF;
+  അല്ലെങ്കിൽ {
+    uint64_t encoded = (uint64_t)മൂല്യം & 0x3FFFFFFFFFFFFFFF;
     encoded = capsule_ntohll(encoded | 0xC000000000000000);
     memcpy(buf, &encoded, 8);
-    return 8;
+    തിരികെ 8;
   }
 }
 
-static CURLcode capsule_peek_u8(struct bufq *recvbufq,
+സ്ഥിതം CURLcode capsule_peek_u8(ഘടന bufq *recvbufq,
                                 size_t offset,
                                 uint8_t *pbyte)
 {
-  const unsigned char *peek = NULL;
+  സ്ഥിരം unsigned അക്ഷരം *peek = ശൂന്യ;
   size_t peeklen = 0;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
-    return CURLE_AGAIN;
+  എങ്കിൽ(!Curl_bufq_peek_at(recvbufq, offset, &peek, &peeklen) || !peeklen)
+    തിരികെ CURLE_AGAIN;
   *pbyte = peek[0];
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode capsule_decode_varint_at(struct bufq *recvbufq,
+സ്ഥിതം CURLcode capsule_decode_varint_at(ഘടന bufq *recvbufq,
                                          size_t offset,
                                          uint64_t *pvalue,
                                          size_t *pconsumed)
 {
   uint8_t first_byte, byte;
-  uint64_t value;
+  uint64_t മൂല്യം;
   size_t nbytes;
   size_t i;
   CURLcode result;
 
   result = capsule_peek_u8(recvbufq, offset, &first_byte);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   nbytes = (size_t)1 << (first_byte >> 6); /* 1, 2, 4 or 8 bytes */
-  value = first_byte & 0x3F;
+  മൂല്യം = first_byte & 0x3F;
 
-  for(i = 1; i < nbytes; ++i) {
+  വേണ്ടി(i = 1; i < nbytes; ++i) {
     result = capsule_peek_u8(recvbufq, offset + i, &byte);
-    if(result)
-      return result;
-    value = (value << 8) | byte;
+    എങ്കിൽ(result)
+      തിരികെ result;
+    മൂല്യം = (മൂല്യം << 8) | byte;
   }
 
-  *pvalue = value;
+  *pvalue = മൂല്യം;
   *pconsumed = nbytes;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /**
@@ -155,153 +155,153 @@ UNITTEST size_t capsule_encap_udp_hdr(uint8_t *hdr, size_t hdrlen,
 {
   size_t off = 0;
   DEBUGASSERT(hdrlen >= HTTP_CAPSULE_HEADER_MAX_SIZE);
-  if(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
-    return 0;
+  എങ്കിൽ(hdrlen < HTTP_CAPSULE_HEADER_MAX_SIZE)
+    തിരികെ 0;
   hdr[off++] = 0; /* capsule type: HTTP Datagram */
   off += capsule_encode_varint_buf(hdr + off, (uint64_t)payload_len + 1);
   hdr[off++] = 0; /* context ID */
-  return off;
+  തിരികെ off;
 }
 
-CURLcode Curl_capsule_encap_udp_datagram(struct bufq *q,
-                                         const void *buf, size_t blen)
+CURLcode Curl_capsule_encap_udp_datagram(ഘടന bufq *q,
+                                         സ്ഥിരം ശൂന്യം *buf, size_t blen)
 {
   CURLcode result;
   uint8_t hdr[HTTP_CAPSULE_HEADER_MAX_SIZE];
   size_t hdr_len, nwritten;
 
-  hdr_len = capsule_encap_udp_hdr(hdr, sizeof(hdr), blen);
+  hdr_len = capsule_encap_udp_hdr(hdr, വലുപ്പം(hdr), blen);
   DEBUGASSERT(hdr_len);
-  if(!hdr_len)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!hdr_len)
+    തിരികെ CURLE_FAILED_INIT;
 
   result = Curl_bufq_write(q, hdr, hdr_len, &nwritten);
-  if(!result && (nwritten != hdr_len))
-    return CURLE_WRITE_ERROR;
-  if(!result) {
+  എങ്കിൽ(!result && (nwritten != hdr_len))
+    തിരികെ CURLE_WRITE_ERROR;
+  എങ്കിൽ(!result) {
     result = Curl_bufq_write(q, buf, blen, &nwritten);
-    if(!result && (nwritten != blen))
-      return CURLE_WRITE_ERROR;
+    എങ്കിൽ(!result && (nwritten != blen))
+      തിരികെ CURLE_WRITE_ERROR;
   }
-  if(result == CURLE_AGAIN)
-    return CURLE_WRITE_ERROR;
-  return result;
+  എങ്കിൽ(result == CURLE_AGAIN)
+    തിരികെ CURLE_WRITE_ERROR;
+  തിരികെ result;
 }
 
-size_t Curl_capsule_process_udp_raw(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct bufq *recvbufq,
-                                    unsigned char *buf, size_t len,
+size_t Curl_capsule_process_udp_raw(ഘടന Curl_cfilter *cf,
+                                    ഘടന Curl_easy *data,
+                                    ഘടന bufq *recvbufq,
+                                    unsigned അക്ഷരം *buf, size_t len,
                                     CURLcode *err)
 {
-  const unsigned char *context_id, *capsule_type;
+  സ്ഥിരം unsigned അക്ഷരം *context_id, *capsule_type;
   size_t read_size, varint_len;
   uint64_t capsule_length;
   size_t offset, payload_len;
   size_t bytes_read = 0;
   CURLcode result = CURLE_OK;
 
-  if(!len) {
+  എങ്കിൽ(!len) {
     *err = CURLE_BAD_FUNCTION_ARGUMENT;
-    return 0;
+    തിരികെ 0;
   }
 
-  if(Curl_bufq_is_empty(recvbufq)) {
+  എങ്കിൽ(Curl_bufq_is_empty(recvbufq)) {
     *err = CURLE_AGAIN;
-    return 0;
+    തിരികെ 0;
   }
 
-  if(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
+  എങ്കിൽ(!Curl_bufq_peek(recvbufq, &capsule_type, &read_size) || !read_size) {
     *err = CURLE_AGAIN;
-    return 0;
+    തിരികെ 0;
   }
 
-  if(capsule_type[0]) {
+  എങ്കിൽ(capsule_type[0]) {
     infof(data, "Error! Invalid capsule type: %d", capsule_type[0]);
     Curl_bufq_skip(recvbufq, 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
 
   offset = 1;
   result = capsule_decode_varint_at(recvbufq, offset, &capsule_length,
                                     &varint_len);
-  if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result == CURLE_AGAIN) {
     *err = CURLE_AGAIN;
-    return 0;
+    തിരികെ 0;
   }
-  else if(result) {
+  അല്ലെങ്കിൽ എങ്കിൽ(result) {
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
   offset += varint_len;
 
-  if(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
+  എങ്കിൽ(!Curl_bufq_peek_at(recvbufq, offset, &context_id, &read_size) ||
      !read_size) {
     *err = CURLE_AGAIN;
-    return 0;
+    തിരികെ 0;
   }
 
-  if(*context_id) {
+  എങ്കിൽ(*context_id) {
     infof(data, "Error! Invalid context ID: %02x", *context_id);
     Curl_bufq_skip(recvbufq, offset + 1);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
   offset += 1;
 
-  if(!capsule_length) {
+  എങ്കിൽ(!capsule_length) {
     infof(data, "Error! Invalid capsule length: 0");
     Curl_bufq_skip(recvbufq, offset);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
-  if(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
+  എങ്കിൽ(capsule_length - 1 > (uint64_t)(SIZE_MAX - offset)) {
     infof(data, "Error! Capsule length too large: %" CURL_FORMAT_CURL_OFF_T,
           (curl_off_t)capsule_length);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
   payload_len = (size_t)(capsule_length - 1);
 
-  if(payload_len > len) {
+  എങ്കിൽ(payload_len > len) {
     infof(data, "UDP payload does not fit destination buffer: %zu > %zu",
           payload_len, len);
     Curl_bufq_skip(recvbufq, offset + payload_len);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
 
-  if(Curl_bufq_len(recvbufq) < offset + payload_len) {
-    if(Curl_bufq_is_full(recvbufq)) {
+  എങ്കിൽ(Curl_bufq_len(recvbufq) < offset + payload_len) {
+    എങ്കിൽ(Curl_bufq_is_full(recvbufq)) {
       infof(data, "Error! Capsule does not fit the receive buffer: %zu",
             payload_len);
       *err = CURLE_RECV_ERROR;
-      return 0;
+      തിരികെ 0;
     }
     *err = CURLE_AGAIN;
-    return 0;
+    തിരികെ 0;
   }
 
   Curl_bufq_skip(recvbufq, offset);
-  if(!payload_len) {
+  എങ്കിൽ(!payload_len) {
     *err = CURLE_OK;
-    return 0;
+    തിരികെ 0;
   }
   result = Curl_bufq_read(recvbufq, buf, payload_len, &bytes_read);
-  if(result || (bytes_read != payload_len)) {
+  എങ്കിൽ(result || (bytes_read != payload_len)) {
     infof(data, "Error! Read less than expected %zu %zu",
           payload_len, bytes_read);
     *err = CURLE_RECV_ERROR;
-    return 0;
+    തിരികെ 0;
   }
 
-  if(cf && data) {
+  എങ്കിൽ(cf && data) {
     CURL_TRC_CF(data, cf, "Processed UDP capsule raw: size=%zu "
                 "length_left %zu", payload_len, Curl_bufq_len(recvbufq));
   }
   *err = CURLE_OK;
-  return bytes_read;
+  തിരികെ bytes_read;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

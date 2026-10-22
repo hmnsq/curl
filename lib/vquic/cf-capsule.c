@@ -21,226 +21,226 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
+#എങ്കിൽ !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
 
-#include "urldata.h"
-#include "cfilters.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "select.h"
-#include "vquic/capsule.h"
-#include "vquic/cf-capsule.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "bufq.h"
+#അന്തര്ഭാവ "select.h"
+#അന്തര്ഭാവ "vquic/capsule.h"
+#അന്തര്ഭാവ "vquic/cf-capsule.h"
 
 /* send/recv buffer: 4 chunks of 16KB = 64KB, enough for large datagrams */
 #define CAPSULE_RECV_CHUNKS    4
 #define CAPSULE_SEND_CHUNKS    4
 #define CAPSULE_CHUNK_SIZE     (16 * 1024)
 
-struct cf_capsule_ctx {
-  struct bufq recvbuf;
-  struct bufq sendbuf;
+ഘടന cf_capsule_ctx {
+  ഘടന bufq recvbuf;
+  ഘടന bufq sendbuf;
 };
 
-static void cf_capsule_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം cf_capsule_destroy(ഘടന Curl_cfilter *cf,
+                               ഘടന Curl_easy *data)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
+  (ശൂന്യം)data;
+  എങ്കിൽ(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_safefree(ctx);
   }
 }
 
-static CURLcode cf_capsule_connect(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data,
+സ്ഥിതം CURLcode cf_capsule_connect(ഘടന Curl_cfilter *cf,
+                                   ഘടന Curl_easy *data,
                                    bool *done)
 {
-  if(cf->connected) {
+  എങ്കിൽ(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
-  if(cf->next) {
+  എങ്കിൽ(cf->next) {
     CURLcode result = cf->next->cft->do_connect(cf->next, data, done);
-    if(!result && *done)
+    എങ്കിൽ(!result && *done)
       cf->connected = TRUE;
-    return result;
+    തിരികെ result;
   }
   *done = FALSE;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode cf_capsule_flush(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data)
+സ്ഥിതം CURLcode cf_capsule_flush(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
   size_t nwritten;
 
-  if(Curl_bufq_is_empty(&ctx->sendbuf))
-    return CURLE_OK;
+  എങ്കിൽ(Curl_bufq_is_empty(&ctx->sendbuf))
+    തിരികെ CURLE_OK;
 
-  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, NULL, 0,
+  result = Curl_cf_send_bufq(cf->next, data, &ctx->sendbuf, ശൂന്യ, 0,
                              &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result == CURLE_AGAIN) {
       CURL_TRC_CF(data, cf, "flush send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->sendbuf));
     }
-    return result;
+    തിരികെ result;
   }
-  return Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
+  തിരികെ Curl_bufq_is_empty(&ctx->sendbuf) ? CURLE_OK : CURLE_AGAIN;
 }
 
-static CURLcode cf_capsule_send(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const uint8_t *buf, size_t len,
+സ്ഥിതം CURLcode cf_capsule_send(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data,
+                                സ്ഥിരം uint8_t *buf, size_t len,
                                 bool eos, size_t *pnwritten)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
   CURLcode result;
 
-  (void)eos;
+  (ശൂന്യം)eos;
   *pnwritten = 0;
 
-  if(Curl_bufq_is_full(&ctx->sendbuf)) {
+  എങ്കിൽ(Curl_bufq_is_full(&ctx->sendbuf)) {
     result = cf_capsule_flush(cf, data);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
   /* encapsulate new payload into a capsule */
   result = Curl_capsule_encap_udp_datagram(&ctx->sendbuf, buf, len);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   result = cf_capsule_flush(cf, data);
-  if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result == CURLE_AGAIN) {
     /* Could not send it (or all), report success nevertheless as we
      * have the payload buffered now and will flush it later. */
     result = CURLE_OK;
   }
 
-  if(!result)
+  എങ്കിൽ(!result)
     *pnwritten = len;
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode cf_capsule_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+സ്ഥിതം CURLcode cf_capsule_recv(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data,
+                                അക്ഷരം *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
   CURLcode result;
   size_t nread;
 
   *pnread = 0;
 
   /* fill our receive buffer from the filter below */
-  while(!Curl_bufq_is_full(&ctx->recvbuf)) {
+  ആകുമ്പോൾ(!Curl_bufq_is_full(&ctx->recvbuf)) {
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->recvbuf, 0, &nread);
-    if(result == CURLE_AGAIN)
-      break;
-    if(result)
-      return result;
-    if(!nread)
-      break;
+    എങ്കിൽ(result == CURLE_AGAIN)
+      നിർത്തുക;
+    എങ്കിൽ(result)
+      തിരികെ result;
+    എങ്കിൽ(!nread)
+      നിർത്തുക;
   }
 
   /* try to extract a complete capsule datagram */
   *pnread = Curl_capsule_process_udp_raw(cf, data, &ctx->recvbuf,
-                                         (unsigned char *)buf, len,
+                                         (unsigned അക്ഷരം *)buf, len,
                                          &result);
-  return result;
+  തിരികെ result;
 }
 
-static bool cf_capsule_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+സ്ഥിതം bool cf_capsule_data_pending(ഘടന Curl_cfilter *cf,
+                                    സ്ഥിരം ഘടന Curl_easy *data)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
 
-  if(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+  എങ്കിൽ(ctx && !Curl_bufq_is_empty(&ctx->recvbuf))
+    തിരികെ TRUE;
+  തിരികെ cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-static CURLcode cf_capsule_cntrl(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int event, int arg1, void *arg2)
+സ്ഥിതം CURLcode cf_capsule_cntrl(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 പൂർണ്ണസംഖ്യ event, പൂർണ്ണസംഖ്യ arg1, ശൂന്യം *arg2)
 {
   CURLcode result = CURLE_OK;
 
-  (void)arg1;
-  (void)arg2;
-  switch(event) {
-  case CF_CTRL_FLUSH:
+  (ശൂന്യം)arg1;
+  (ശൂന്യം)arg2;
+  തിരഞ്ഞെടുപ്പ്(event) {
+  അവസ്ഥ CF_CTRL_FLUSH:
     result = cf_capsule_flush(cf, data);
-    break;
-  default:
-    break;
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode cf_capsule_query(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 int query, int *pres1, void *pres2)
+സ്ഥിതം CURLcode cf_capsule_query(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 പൂർണ്ണസംഖ്യ query, പൂർണ്ണസംഖ്യ *pres1, ശൂന്യം *pres2)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
 
-  (void)pres2;
-  switch(query) {
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  (ശൂന്യം)pres2;
+  തിരഞ്ഞെടുപ്പ്(query) {
+  അവസ്ഥ CF_QUERY_NEED_FLUSH: {
+    എങ്കിൽ(!Curl_bufq_is_empty(&ctx->sendbuf)) {
       *pres1 = TRUE;
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
-    break;
+    നിർത്തുക;
   }
-  default:
-    break;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return cf->next ?
+  തിരികെ cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_capsule_adjust_pollset(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data,
-                                          struct easy_pollset *ps)
+സ്ഥിതം CURLcode cf_capsule_adjust_pollset(ഘടന Curl_cfilter *cf,
+                                          ഘടന Curl_easy *data,
+                                          ഘടന easy_pollset *ps)
 {
-  struct cf_capsule_ctx *ctx = cf->ctx;
+  ഘടന cf_capsule_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->sendbuf)) {
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->sendbuf)) {
     curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
-    if(sock != CURL_SOCKET_BAD)
-      return Curl_pollset_add_out(data, ps, sock);
+    എങ്കിൽ(sock != CURL_SOCKET_BAD)
+      തിരികെ Curl_pollset_add_out(data, ps, sock);
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode cf_capsule_shutdown(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data, bool *done)
+സ്ഥിതം CURLcode cf_capsule_shutdown(ഘടന Curl_cfilter *cf,
+                                    ഘടന Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected || cf->shutdown) {
+  എങ്കിൽ(!cf->connected || cf->shutdown) {
     *done = TRUE;
   }
-  else {
+  അല്ലെങ്കിൽ {
     result = cf_capsule_flush(cf, data);
     *done = !result;
-    if(result == CURLE_AGAIN)
+    എങ്കിൽ(result == CURLE_AGAIN)
       result = CURLE_OK;
   }
-  return result;
+  തിരികെ result;
 }
 
-struct Curl_cftype Curl_cft_capsule = {
+ഘടന Curl_cftype Curl_cft_capsule = {
   "CAPSULE",
   0,
   0,
@@ -257,21 +257,21 @@ struct Curl_cftype Curl_cft_capsule = {
   cf_capsule_query,
 };
 
-static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode cf_capsule_create(ഘടന Curl_cfilter **pcf,
+                                  ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_capsule_ctx *ctx;
+  ഘടന Curl_cfilter *cf = ശൂന്യ;
+  ഘടന cf_capsule_ctx *ctx;
   CURLcode result;
 
-  (void)data;
-  (void)conn;
-  *pcf = NULL;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  (ശൂന്യം)data;
+  (ശൂന്യം)conn;
+  *pcf = ശൂന്യ;
+  ctx = curlx_calloc(1, വലുപ്പം(*ctx));
+  എങ്കിൽ(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
   Curl_bufq_init2(&ctx->recvbuf, CAPSULE_CHUNK_SIZE, CAPSULE_RECV_CHUNKS,
@@ -282,25 +282,25 @@ static CURLcode cf_capsule_create(struct Curl_cfilter **pcf,
   result = Curl_cf_create(&cf, &Curl_cft_capsule, ctx);
 
 out:
-  *pcf = (!result) ? cf : NULL;
-  if(result && ctx) {
+  *pcf = (!result) ? cf : ശൂന്യ;
+  എങ്കിൽ(result && ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     Curl_bufq_free(&ctx->sendbuf);
     curlx_free(ctx);
   }
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_cf_capsule_insert_after(struct Curl_cfilter *cf_at,
-                                      struct Curl_easy *data)
+CURLcode Curl_cf_capsule_തിരുകുക_after(ഘടന Curl_cfilter *cf_at,
+                                      ഘടന Curl_easy *data)
 {
-  struct Curl_cfilter *cf;
+  ഘടന Curl_cfilter *cf;
   CURLcode result;
 
   result = cf_capsule_create(&cf, data, cf_at->conn);
-  if(!result)
-    Curl_conn_cf_insert_after(cf_at, cf);
-  return result;
+  എങ്കിൽ(!result)
+    Curl_conn_cf_തിരുകുക_after(cf_at, cf);
+  തിരികെ result;
 }
 
 #endif /* !CURL_DISABLE_PROXY && !CURL_DISABLE_HTTP */

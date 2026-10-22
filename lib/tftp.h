@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_TFTP
-extern const struct Curl_protocol Curl_protocol_tftp;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_protocol Curl_protocol_tftp;
 #endif
 
 #define TFTP_BLKSIZE_MIN 8

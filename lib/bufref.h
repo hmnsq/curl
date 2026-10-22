@@ -27,23 +27,23 @@
 /*
  * Generic buffer reference.
  */
-struct bufref {
-  void (*dtor)(void *);         /* Associated destructor. */
-  const unsigned char *ptr;     /* Referenced data buffer. */
+ഘടന bufref {
+  ശൂന്യം (*dtor)(ശൂന്യം *);         /* Associated destructor. */
+  സ്ഥിരം unsigned അക്ഷരം *ptr;     /* Referenced data buffer. */
   size_t len;                   /* The data size in bytes. */
 #ifdef DEBUGBUILD
-  int signature;                /* Detect API use mistakes. */
+  പൂർണ്ണസംഖ്യ signature;                /* Detect API use mistakes. */
 #endif
 };
 
-void Curl_bufref_init(struct bufref *br);
-void Curl_bufref_set(struct bufref *br, const void *ptr, size_t len,
-                     void (*dtor)(void *));
-const char *Curl_bufref_ptr(const struct bufref *br);
-const unsigned char *Curl_bufref_uptr(const struct bufref *br);
-size_t Curl_bufref_len(const struct bufref *br);
-CURLcode Curl_bufref_memdup0(struct bufref *br, const void *ptr, size_t len);
-void Curl_bufref_free(struct bufref *br);
+ശൂന്യം Curl_bufref_init(ഘടന bufref *br);
+ശൂന്യം Curl_bufref_set(ഘടന bufref *br, സ്ഥിരം ശൂന്യം *ptr, size_t len,
+                     ശൂന്യം (*dtor)(ശൂന്യം *));
+സ്ഥിരം അക്ഷരം *Curl_bufref_ptr(സ്ഥിരം ഘടന bufref *br);
+സ്ഥിരം unsigned അക്ഷരം *Curl_bufref_uptr(സ്ഥിരം ഘടന bufref *br);
+size_t Curl_bufref_len(സ്ഥിരം ഘടന bufref *br);
+CURLcode Curl_bufref_memdup0(ഘടന bufref *br, സ്ഥിരം ശൂന്യം *ptr, size_t len);
+ശൂന്യം Curl_bufref_free(ഘടന bufref *br);
 
 /* return a strdup() version of the buffer */
 #define Curl_bufref_dup(x) curlx_strdup(Curl_bufref_ptr(x))

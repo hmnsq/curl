@@ -21,72 +21,72 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#അന്തര്ഭാവ <sys/ioctl.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+#അന്തര്ഭാവ <fcntl.h>
 #endif
 
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#അന്തര്ഭാവ <in.h>
+#അന്തര്ഭാവ <inet.h>
 #endif
 
-#include "curlx/nonblock.h"
+#അന്തര്ഭാവ "curlx/nonblock.h"
 
 /*
  * curlx_nonblock() set the given socket to either blocking or non-blocking
  * mode based on the 'nonblock' boolean argument. This function is highly
  * portable.
  */
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */)
+പൂർണ്ണസംഖ്യ curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   പൂർണ്ണസംഖ്യ nonblock   /* TRUE or FALSE */)
 {
 #ifdef HAVE_FCNTL_O_NONBLOCK
   /* most recent Unix versions */
-  int flags;
+  പൂർണ്ണസംഖ്യ flags;
   flags = sfcntl(sockfd, F_GETFL, 0);
-  if(flags < 0)
-    return -1;
+  എങ്കിൽ(flags < 0)
+    തിരികെ -1;
   /* Check if the current file status flags have already satisfied
    * the request, if so, it is no need to call fcntl() to replicate it.
    */
-  if(!!(flags & O_NONBLOCK) == !!nonblock)
-    return 0;
-  if(nonblock)
+  എങ്കിൽ(!!(flags & O_NONBLOCK) == !!nonblock)
+    തിരികെ 0;
+  എങ്കിൽ(nonblock)
     flags |= O_NONBLOCK;
-  else
+  അല്ലെങ്കിൽ
     flags &= ~O_NONBLOCK;
-  return sfcntl(sockfd, F_SETFL, flags);
+  തിരികെ sfcntl(sockfd, F_SETFL, flags);
 
-#elif defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
+#അല്ലെങ്കിലെങ്കിൽ defined(HAVE_IOCTLSOCKET_CAMEL_FIONBIO)
 
   /* Amiga */
   long flags = nonblock ? 1L : 0L;
-  return IoctlSocket(sockfd, FIONBIO, (char *)&flags);
+  തിരികെ IoctlSocket(sockfd, FIONBIO, (അക്ഷരം *)&flags);
 
-#elif defined(HAVE_IOCTL_FIONBIO)
+#അല്ലെങ്കിലെങ്കിൽ defined(HAVE_IOCTL_FIONBIO)
 
   /* older Unix versions */
-  int flags = nonblock ? 1 : 0;
-  return ioctl(sockfd, FIONBIO, &flags);
+  പൂർണ്ണസംഖ്യ flags = nonblock ? 1 : 0;
+  തിരികെ ioctl(sockfd, FIONBIO, &flags);
 
-#elif defined(HAVE_IOCTLSOCKET_FIONBIO)
+#അല്ലെങ്കിലെങ്കിൽ defined(HAVE_IOCTLSOCKET_FIONBIO)
 
   /* Windows */
   unsigned long flags = nonblock ? 1UL : 0UL;
-  return ioctlsocket(sockfd, (long)FIONBIO, &flags);
+  തിരികെ ioctlsocket(sockfd, (long)FIONBIO, &flags);
 
-#elif defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
+#അല്ലെങ്കിലെങ്കിൽ defined(HAVE_SETSOCKOPT_SO_NONBLOCK)
 
   /* Orbis OS */
   long b = nonblock ? 1L : 0L;
-  return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
+  തിരികെ setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, വലുപ്പം(b));
 
-#else
+#അല്ലെങ്കിൽ
 #error "no non-blocking method was found/used/set"
 #endif
 }

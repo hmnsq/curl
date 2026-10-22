@@ -24,17 +24,17 @@
  *
  ***************************************************************************/
 
-CURLcode curlx_base64_encode(const uint8_t *inputbuff, size_t insize,
-                             char **outptr, size_t *outlen);
-CURLcode curlx_base64url_encode(const uint8_t *inputbuff, size_t insize,
-                                char **outptr, size_t *outlen);
-CURLcode curlx_base64_decode(const char *src,
+CURLcode curlx_base64_encode(സ്ഥിരം uint8_t *inputbuff, size_t insize,
+                             അക്ഷരം **outptr, size_t *outlen);
+CURLcode curlx_base64url_encode(സ്ഥിരം uint8_t *inputbuff, size_t insize,
+                                അക്ഷരം **outptr, size_t *outlen);
+CURLcode curlx_base64_decode(സ്ഥിരം അക്ഷരം *src,
                              uint8_t **outptr, size_t *outlen);
 
-extern const char curlx_base64encdec[];
+ബാഹ്യ സ്ഥിരം അക്ഷരം curlx_base64encdec[];
 
 /* maximum input length acceptable to base64 encode, here to catch and prevent
    mistakes */
-#define CURL_MAX_BASE64_INPUT 16000000
+#define CURL_MAX_BASE64_നിവേശം 16000000
 
 #endif /* HEADER_CURL_BASE64_H */

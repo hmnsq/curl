@@ -23,93 +23,93 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_GNUTLS
 
-#include <gnutls/gnutls.h>
+#അന്തര്ഭാവ <gnutls/gnutls.h>
 
-#include "curlx/timeval.h"
+#അന്തര്ഭാവ "curlx/timeval.h"
 
-struct Curl_easy;
-struct Curl_cfilter;
-struct alpn_spec;
-struct ssl_filter_config;
-struct ssl_easy_config;
-struct ssl_peer;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+ഘടന Curl_easy;
+ഘടന Curl_cfilter;
+ഘടന alpn_spec;
+ഘടന ssl_filter_config;
+ഘടന ssl_easy_config;
+ഘടന ssl_peer;
+ഘടന ssl_connect_data;
+ഘടന Curl_ssl_session;
 
-struct gtls_shared_creds {
+ഘടന gtls_shared_creds {
   gnutls_certificate_credentials_t creds;
-  char *CAfile; /* CAfile path used to generate X509 store */
-  struct curltime time; /* when the shared creds was created */
+  അക്ഷരം *CAfile; /* CAfile path used to generate X509 store */
+  ഘടന curltime time; /* when the shared creds was created */
   size_t refcount;
   BIT(trust_setup); /* x509 anchors + CRLs have been set up */
 };
 
-CURLcode Curl_gtls_shared_creds_create(struct Curl_easy *data,
-                                       struct gtls_shared_creds **pcreds);
-CURLcode Curl_gtls_shared_creds_up_ref(struct gtls_shared_creds *creds);
-void Curl_gtls_shared_creds_free(struct gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_create(ഘടന Curl_easy *data,
+                                       ഘടന gtls_shared_creds **pcreds);
+CURLcode Curl_gtls_shared_creds_up_ref(ഘടന gtls_shared_creds *creds);
+ശൂന്യം Curl_gtls_shared_creds_free(ഘടന gtls_shared_creds **pcreds);
 
-struct gtls_ctx {
+ഘടന gtls_ctx {
   gnutls_session_t session;
-  struct gtls_shared_creds *shared_creds;
+  ഘടന gtls_shared_creds *shared_creds;
   CURLcode io_result; /* result of last IO cfilter operation */
   BIT(sent_shutdown);
 };
 
-size_t Curl_gtls_version(char *buffer, size_t size);
+size_t Curl_gtls_version(അക്ഷരം *buffer, size_t size);
 
-typedef CURLcode Curl_gtls_ctx_setup_cb(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        void *user_data);
+തരനിർവചനം CURLcode Curl_gtls_ctx_setup_cb(ഘടന Curl_cfilter *cf,
+                                        ഘടന Curl_easy *data,
+                                        ശൂന്യം *user_data);
 
-typedef CURLcode Curl_gtls_init_session_reuse_cb(struct Curl_cfilter *cf,
-                                                 struct Curl_easy *data,
-                                                 struct alpn_spec *alpns,
-                                                 struct Curl_ssl_session *scs,
+തരനിർവചനം CURLcode Curl_gtls_init_session_reuse_cb(ഘടന Curl_cfilter *cf,
+                                                 ഘടന Curl_easy *data,
+                                                 ഘടന alpn_spec *alpns,
+                                                 ഘടന Curl_ssl_session *scs,
                                                  bool *do_early_data);
 
-CURLcode Curl_gtls_ctx_init(struct gtls_ctx *gctx,
-                            struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            struct ssl_peer *peer,
-                            const struct alpn_spec *alpns_requested,
+CURLcode Curl_gtls_ctx_init(ഘടന gtls_ctx *gctx,
+                            ഘടന Curl_cfilter *cf,
+                            ഘടന Curl_easy *data,
+                            ഘടന ssl_peer *peer,
+                            സ്ഥിരം ഘടന alpn_spec *alpns_requested,
                             Curl_gtls_ctx_setup_cb *cb_setup,
-                            void *cb_user_data,
-                            void *ssl_user_data,
+                            ശൂന്യം *cb_user_data,
+                            ശൂന്യം *ssl_user_data,
                             Curl_gtls_init_session_reuse_cb *sess_reuse_cb);
 
-CURLcode Curl_gtls_client_trust_setup(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct gtls_ctx *gtls);
+CURLcode Curl_gtls_client_trust_setup(ഘടന Curl_cfilter *cf,
+                                      ഘടന Curl_easy *data,
+                                      ഘടന gtls_ctx *gtls);
 
-CURLcode Curl_gtls_verifyserver(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+CURLcode Curl_gtls_verifyserver(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data,
                                 gnutls_session_t session,
-                                struct ssl_filter_config *config,
-                                struct ssl_easy_config *ssl_config,
-                                struct ssl_peer *peer,
-                                const char *pinned_key);
+                                ഘടന ssl_filter_config *config,
+                                ഘടന ssl_easy_config *ssl_config,
+                                ഘടന ssl_peer *peer,
+                                സ്ഥിരം അക്ഷരം *pinned_താക്കോൽ);
 
 /* Extract TLS session and place in cache, if configured. Return
  * a copy of the session if desired. */
-CURLcode Curl_gtls_cache_session(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_gtls_cache_session(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
                                  gnutls_session_t session,
                                  curl_off_t valid_until,
-                                 const char *alpn,
-                                 unsigned char *quic_tp,
+                                 സ്ഥിരം അക്ഷരം *alpn,
+                                 unsigned അക്ഷരം *quic_tp,
                                  size_t quic_tp_len,
-                                 struct Curl_ssl_session **psession);
+                                 ഘടന Curl_ssl_session **psession);
 
 /* Report properties of a successful handshake */
-void Curl_gtls_report_handshake(struct Curl_easy *data, struct gtls_ctx *gctx);
+ശൂന്യം Curl_gtls_report_handshake(ഘടന Curl_easy *data, ഘടന gtls_ctx *gctx);
 
-extern const struct Curl_ssl Curl_ssl_gnutls;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_ssl Curl_ssl_gnutls;
 
 #endif /* USE_GNUTLS */
 #endif /* HEADER_CURL_GTLS_H */

@@ -21,207 +21,207 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_STRERROR_R
-#  if (!defined(HAVE_POSIX_STRERROR_R) && \
+#  എങ്കിൽ (!defined(HAVE_POSIX_STRERROR_R) && \
        !defined(HAVE_GLIBC_STRERROR_R)) || \
       (defined(HAVE_POSIX_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R))
 #    error "strerror_r MUST be either POSIX, glibc style"
 #  endif
 #endif
 
-#include "curlx/winapi.h"
-#include "curlx/snprintf.h"
-#include "curlx/strerr.h"
-#include "curlx/strcopy.h"
+#അന്തര്ഭാവ "curlx/winapi.h"
+#അന്തര്ഭാവ "curlx/snprintf.h"
+#അന്തര്ഭാവ "curlx/strerr.h"
+#അന്തര്ഭാവ "curlx/strcopy.h"
 
 #ifdef USE_WINSOCK
 /* This is a helper function for curlx_strerror that converts Winsock error
  * codes (WSAGetLastError) to error messages.
  * Returns NULL if no error message was found for error code.
  */
-static const char *get_winsock_error(int err, char *buf, size_t len)
+സ്ഥിതം സ്ഥിരം അക്ഷരം *get_winsock_error(പൂർണ്ണസംഖ്യ err, അക്ഷരം *buf, size_t len)
 {
-  VERBOSE(const char *p);
+  VERBOSE(സ്ഥിരം അക്ഷരം *p);
 
-  if(!len)
-    return NULL;
+  എങ്കിൽ(!len)
+    തിരികെ ശൂന്യ;
 
   *buf = '\0';
 
 #ifndef CURLVERBOSE
-  (void)err;
-  return NULL;
-#else
-  switch(err) {
-  case WSAEINTR:
+  (ശൂന്യം)err;
+  തിരികെ ശൂന്യ;
+#അല്ലെങ്കിൽ
+  തിരഞ്ഞെടുപ്പ്(err) {
+  അവസ്ഥ WSAEINTR:
     p = "Call interrupted";
-    break;
-  case WSAEBADF:
+    നിർത്തുക;
+  അവസ്ഥ WSAEBADF:
     p = "Bad file";
-    break;
-  case WSAEACCES:
+    നിർത്തുക;
+  അവസ്ഥ WSAEACCES:
     p = "Bad access";
-    break;
-  case WSAEFAULT:
+    നിർത്തുക;
+  അവസ്ഥ WSAEFAULT:
     p = "Bad argument";
-    break;
-  case WSAEINVAL:
+    നിർത്തുക;
+  അവസ്ഥ WSAEINVAL:
     p = "Invalid arguments";
-    break;
-  case WSAEMFILE:
+    നിർത്തുക;
+  അവസ്ഥ WSAEMFILE:
     p = "Out of file descriptors";
-    break;
-  case WSAEWOULDBLOCK:
+    നിർത്തുക;
+  അവസ്ഥ WSAEWOULDBLOCK:
     p = "Call would block";
-    break;
-  case WSAEINPROGRESS:
-  case WSAEALREADY:
+    നിർത്തുക;
+  അവസ്ഥ WSAEINPROGRESS:
+  അവസ്ഥ WSAEALREADY:
     p = "Blocking call in progress";
-    break;
-  case WSAENOTSOCK:
+    നിർത്തുക;
+  അവസ്ഥ WSAENOTSOCK:
     p = "Descriptor is not a socket";
-    break;
-  case WSAEDESTADDRREQ:
+    നിർത്തുക;
+  അവസ്ഥ WSAEDESTADDRREQ:
     p = "Need destination address";
-    break;
-  case WSAEMSGSIZE:
+    നിർത്തുക;
+  അവസ്ഥ WSAEMSGSIZE:
     p = "Bad message size";
-    break;
-  case WSAEPROTOTYPE:
+    നിർത്തുക;
+  അവസ്ഥ WSAEPROTOTYPE:
     p = "Bad protocol";
-    break;
-  case WSAENOPROTOOPT:
+    നിർത്തുക;
+  അവസ്ഥ WSAENOPROTOOPT:
     p = "Protocol option is unsupported";
-    break;
-  case WSAEPROTONOSUPPORT:
+    നിർത്തുക;
+  അവസ്ഥ WSAEPROTONOSUPPORT:
     p = "Protocol is unsupported";
-    break;
-  case WSAESOCKTNOSUPPORT:
+    നിർത്തുക;
+  അവസ്ഥ WSAESOCKTNOSUPPORT:
     p = "Socket is unsupported";
-    break;
-  case WSAEOPNOTSUPP:
+    നിർത്തുക;
+  അവസ്ഥ WSAEOPNOTSUPP:
     p = "Operation not supported";
-    break;
-  case WSAEAFNOSUPPORT:
+    നിർത്തുക;
+  അവസ്ഥ WSAEAFNOSUPPORT:
     p = "Address family not supported";
-    break;
-  case WSAEPFNOSUPPORT:
+    നിർത്തുക;
+  അവസ്ഥ WSAEPFNOSUPPORT:
     p = "Protocol family not supported";
-    break;
-  case WSAEADDRINUSE:
+    നിർത്തുക;
+  അവസ്ഥ WSAEADDRINUSE:
     p = "Address already in use";
-    break;
-  case WSAEADDRNOTAVAIL:
+    നിർത്തുക;
+  അവസ്ഥ WSAEADDRNOTAVAIL:
     p = "Address not available";
-    break;
-  case WSAENETDOWN:
+    നിർത്തുക;
+  അവസ്ഥ WSAENETDOWN:
     p = "Network down";
-    break;
-  case WSAENETUNREACH:
+    നിർത്തുക;
+  അവസ്ഥ WSAENETUNREACH:
     p = "Network unreachable";
-    break;
-  case WSAENETRESET:
+    നിർത്തുക;
+  അവസ്ഥ WSAENETRESET:
     p = "Network has been reset";
-    break;
-  case WSAECONNABORTED:
+    നിർത്തുക;
+  അവസ്ഥ WSAECONNABORTED:
     p = "Connection was aborted";
-    break;
-  case WSAECONNRESET:
+    നിർത്തുക;
+  അവസ്ഥ WSAECONNRESET:
     p = "Connection was reset";
-    break;
-  case WSAENOBUFS:
+    നിർത്തുക;
+  അവസ്ഥ WSAENOBUFS:
     p = "No buffer space";
-    break;
-  case WSAEISCONN:
+    നിർത്തുക;
+  അവസ്ഥ WSAEISCONN:
     p = "Socket is already connected";
-    break;
-  case WSAENOTCONN:
+    നിർത്തുക;
+  അവസ്ഥ WSAENOTCONN:
     p = "Socket is not connected";
-    break;
-  case WSAESHUTDOWN:
+    നിർത്തുക;
+  അവസ്ഥ WSAESHUTDOWN:
     p = "Socket has been shut down";
-    break;
-  case WSAETOOMANYREFS:
+    നിർത്തുക;
+  അവസ്ഥ WSAETOOMANYREFS:
     p = "Too many references";
-    break;
-  case WSAETIMEDOUT:
+    നിർത്തുക;
+  അവസ്ഥ WSAETIMEDOUT:
     p = "Timed out";
-    break;
-  case WSAECONNREFUSED:
+    നിർത്തുക;
+  അവസ്ഥ WSAECONNREFUSED:
     p = "Connection refused";
-    break;
-  case WSAELOOP:
+    നിർത്തുക;
+  അവസ്ഥ WSAELOOP:
     p = "Loop??";
-    break;
-  case WSAENAMETOOLONG:
+    നിർത്തുക;
+  അവസ്ഥ WSAENAMETOOLONG:
     p = "Name too long";
-    break;
-  case WSAEHOSTDOWN:
+    നിർത്തുക;
+  അവസ്ഥ WSAEHOSTDOWN:
     p = "Host down";
-    break;
-  case WSAEHOSTUNREACH:
+    നിർത്തുക;
+  അവസ്ഥ WSAEHOSTUNREACH:
     p = "Host unreachable";
-    break;
-  case WSAENOTEMPTY:
+    നിർത്തുക;
+  അവസ്ഥ WSAENOTEMPTY:
     p = "Not empty";
-    break;
-  case WSAEPROCLIM:
+    നിർത്തുക;
+  അവസ്ഥ WSAEPROCLIM:
     p = "Process limit reached";
-    break;
-  case WSAEUSERS:
+    നിർത്തുക;
+  അവസ്ഥ WSAEUSERS:
     p = "Too many users";
-    break;
-  case WSAEDQUOT:
+    നിർത്തുക;
+  അവസ്ഥ WSAEDQUOT:
     p = "Bad quota";
-    break;
-  case WSAESTALE:
+    നിർത്തുക;
+  അവസ്ഥ WSAESTALE:
     p = "Something is stale";
-    break;
-  case WSAEREMOTE:
+    നിർത്തുക;
+  അവസ്ഥ WSAEREMOTE:
     p = "Remote error";
-    break;
-  case WSAEDISCON:
+    നിർത്തുക;
+  അവസ്ഥ WSAEDISCON:
     p = "Disconnected";
-    break;
+    നിർത്തുക;
     /* Extended Winsock errors */
-  case WSASYSNOTREADY:
+  അവസ്ഥ WSASYSNOTREADY:
     p = "Winsock library is not ready";
-    break;
-  case WSANOTINITIALISED:
+    നിർത്തുക;
+  അവസ്ഥ WSANOTINITIALISED:
     p = "Winsock library not initialized";
-    break;
-  case WSAVERNOTSUPPORTED:
+    നിർത്തുക;
+  അവസ്ഥ WSAVERNOTSUPPORTED:
     p = "Winsock version not supported";
-    break;
+    നിർത്തുക;
 
     /* getXbyY() errors (already handled in herrmsg):
      * Authoritative Answer: Host not found */
-  case WSAHOST_NOT_FOUND:
+  അവസ്ഥ WSAHOST_NOT_FOUND:
     p = "Host not found";
-    break;
+    നിർത്തുക;
 
     /* Non-Authoritative: Host not found, or SERVERFAIL */
-  case WSATRY_AGAIN:
+  അവസ്ഥ WSATRY_AGAIN:
     p = "Host not found, try again";
-    break;
+    നിർത്തുക;
 
     /* Non recoverable errors, FORMERR, REFUSED, NOTIMP */
-  case WSANO_RECOVERY:
+  അവസ്ഥ WSANO_RECOVERY:
     p = "Unrecoverable error in call to nameserver";
-    break;
+    നിർത്തുക;
 
     /* Valid name, no data record of requested type */
-  case WSANO_DATA:
+  അവസ്ഥ WSANO_DATA:
     p = "No data record of requested type";
-    break;
+    നിർത്തുക;
 
-  default:
-    return NULL;
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ ശൂന്യ;
   }
   curlx_strcopy(buf, len, p, strlen(p));
-  return buf;
+  തിരികെ buf;
 #endif
 }
 #endif /* USE_WINSOCK */
@@ -245,16 +245,16 @@ static const char *get_winsock_error(int err, char *buf, size_t len)
  * Call Curl_sspi_strerror if the error code is definitely Windows SSPI.
  * Call curlx_winapi_strerror if the error code is definitely Windows API.
  */
-const char *curlx_strerror(int err, char *buf, size_t buflen)
+സ്ഥിരം അക്ഷരം *curlx_strerror(പൂർണ്ണസംഖ്യ err, അക്ഷരം *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  char *p;
+  പൂർണ്ണസംഖ്യ old_errno = errno;
+  അക്ഷരം *p;
 
-  if(!buflen)
-    return NULL;
+  എങ്കിൽ(!buflen)
+    തിരികെ ശൂന്യ;
 
 #ifndef _WIN32
   DEBUGASSERT(err >= 0);
@@ -263,46 +263,46 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
   *buf = '\0';
 
 #ifdef _WIN32
-  if((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
+  എങ്കിൽ((strerror_s(buf, buflen, err) || !strcmp(buf, "Unknown error")) &&
 #ifdef USE_WINSOCK
      !get_winsock_error(err, buf, buflen) &&
 #endif
      !curlx_get_winapi_error((DWORD)err, buf, buflen))
-    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned int)err);
-#else /* !_WIN32 */
+    SNPRINTF(buf, buflen, "Unknown error %d (%#x)", err, (unsigned പൂർണ്ണസംഖ്യ)err);
+#അല്ലെങ്കിൽ /* !_WIN32 */
 
-#if defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
+#എങ്കിൽ defined(HAVE_STRERROR_R) && defined(HAVE_POSIX_STRERROR_R)
   /*
    * The POSIX-style strerror_r() may set errno to ERANGE if insufficient
    * storage is supplied via 'strerrbuf' and 'buflen' to hold the generated
    * message string, or EINVAL if 'errnum' is not a valid error number.
    */
-  if(strerror_r(err, buf, buflen) &&
-     buflen > sizeof("Unknown error ") + 20) {
-    if(buf[0] == '\0')
+  എങ്കിൽ(strerror_r(err, buf, buflen) &&
+     buflen > വലുപ്പം("Unknown error ") + 20) {
+    എങ്കിൽ(buf[0] == '\0')
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#elif defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
+#അല്ലെങ്കിലെങ്കിൽ defined(HAVE_STRERROR_R) && defined(HAVE_GLIBC_STRERROR_R)
   /*
    * The glibc-style strerror_r() only *might* use the buffer we pass to
    * the function, but it always returns the error message as a pointer,
    * so we must copy that string unconditionally (if non-NULL).
    */
   {
-    char buffer[256];
-    const char *msg = strerror_r(err, buffer, sizeof(buffer));
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    അക്ഷരം buffer[256];
+    സ്ഥിരം അക്ഷരം *സന്ദേശം = strerror_r(err, buffer, വലുപ്പം(buffer));
+    എങ്കിൽ(സന്ദേശം && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", സന്ദേശം);
+    അല്ലെങ്കിൽ എങ്കിൽ(buflen > വലുപ്പം("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
-#else
+#അല്ലെങ്കിൽ
   {
     /* !checksrc! disable BANNEDFUNC 1 */
-    const char *msg = strerror(err);
-    if(msg && buflen > 1)
-      SNPRINTF(buf, buflen, "%s", msg);
-    else if(buflen > sizeof("Unknown error ") + 20)
+    സ്ഥിരം അക്ഷരം *സന്ദേശം = strerror(err);
+    എങ്കിൽ(സന്ദേശം && buflen > 1)
+      SNPRINTF(buf, buflen, "%s", സന്ദേശം);
+    അല്ലെങ്കിൽ എങ്കിൽ(buflen > വലുപ്പം("Unknown error ") + 20)
       SNPRINTF(buf, buflen, "Unknown error %d", err);
   }
 #endif
@@ -311,19 +311,19 @@ const char *curlx_strerror(int err, char *buf, size_t buflen)
 
   /* strip trailing '\r\n' or '\n'. */
   p = strrchr(buf, '\n');
-  if(p && (p - buf) >= 2)
+  എങ്കിൽ(p && (p - buf) >= 2)
     *p = '\0';
   p = strrchr(buf, '\r');
-  if(p && (p - buf) >= 1)
+  എങ്കിൽ(p && (p - buf) >= 1)
     *p = '\0';
 
-  if(errno != old_errno)
+  എങ്കിൽ(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  എങ്കിൽ(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  തിരികെ buf;
 }

@@ -23,13 +23,13 @@
  * RFC2104 Keyed-Hashing for Message Authentication
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
+#എങ്കിൽ (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) ||    \
   !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_SSL)
 
-#include "curl_hmac.h"
+#അന്തര്ഭാവ "curl_hmac.h"
 
 /*
  * Generic HMAC algorithm.
@@ -39,88 +39,88 @@
  * initialization.
  */
 
-static const unsigned char hmac_ipad = 0x36;
-static const unsigned char hmac_opad = 0x5C;
+സ്ഥിതം സ്ഥിരം unsigned അക്ഷരം hmac_ipad = 0x36;
+സ്ഥിതം സ്ഥിരം unsigned അക്ഷരം hmac_opad = 0x5C;
 
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params *hashparams,
-                                    const unsigned char *key,
-                                    unsigned int keylen)
+ഘടന HMAC_context *Curl_HMAC_init(സ്ഥിരം ഘടന HMAC_params *hashparams,
+                                    സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ,
+                                    unsigned പൂർണ്ണസംഖ്യ keylen)
 {
   size_t i;
-  struct HMAC_context *ctxt;
-  unsigned char *hkey;
-  unsigned char b;
+  ഘടന HMAC_context *ctxt;
+  unsigned അക്ഷരം *hkey;
+  unsigned അക്ഷരം b;
 
   /* Create HMAC context. */
-  i = sizeof(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
+  i = വലുപ്പം(*ctxt) + (2 * hashparams->ctxtsize) + hashparams->resultlen;
   ctxt = curlx_malloc(i);
 
-  if(!ctxt)
-    return ctxt;
+  എങ്കിൽ(!ctxt)
+    തിരികെ ctxt;
 
   ctxt->hash = hashparams;
-  ctxt->hashctxt1 = (void *)(ctxt + 1);
-  ctxt->hashctxt2 = (void *)((char *)ctxt->hashctxt1 + hashparams->ctxtsize);
+  ctxt->hashctxt1 = (ശൂന്യം *)(ctxt + 1);
+  ctxt->hashctxt2 = (ശൂന്യം *)((അക്ഷരം *)ctxt->hashctxt1 + hashparams->ctxtsize);
 
   /* If the key is too long, replace it by its hash digest. */
-  if(keylen > hashparams->maxkeylen) {
-    if(hashparams->hinit(ctxt->hashctxt1))
-      goto fail;
-    hashparams->hupdate(ctxt->hashctxt1, key, keylen);
-    hkey = (unsigned char *)ctxt->hashctxt2 + hashparams->ctxtsize;
+  എങ്കിൽ(keylen > hashparams->maxkeylen) {
+    എങ്കിൽ(hashparams->hinit(ctxt->hashctxt1))
+      പോകുക fail;
+    hashparams->hupdate(ctxt->hashctxt1, താക്കോൽ, keylen);
+    hkey = (unsigned അക്ഷരം *)ctxt->hashctxt2 + hashparams->ctxtsize;
     hashparams->hfinal(hkey, ctxt->hashctxt1);
-    key = hkey;
+    താക്കോൽ = hkey;
     keylen = hashparams->resultlen;
   }
 
   /* Prime the two hash contexts with the modified key. */
-  if(hashparams->hinit(ctxt->hashctxt1) ||
+  എങ്കിൽ(hashparams->hinit(ctxt->hashctxt1) ||
      hashparams->hinit(ctxt->hashctxt2))
-    goto fail;
+    പോകുക fail;
 
-  for(i = 0; i < keylen; i++) {
-    b = (unsigned char)(*key ^ hmac_ipad);
+  വേണ്ടി(i = 0; i < keylen; i++) {
+    b = (unsigned അക്ഷരം)(*താക്കോൽ ^ hmac_ipad);
     hashparams->hupdate(ctxt->hashctxt1, &b, 1);
-    b = (unsigned char)(*key++ ^ hmac_opad);
+    b = (unsigned അക്ഷരം)(*താക്കോൽ++ ^ hmac_opad);
     hashparams->hupdate(ctxt->hashctxt2, &b, 1);
   }
 
-  for(; i < hashparams->maxkeylen; i++) {
+  വേണ്ടി(; i < hashparams->maxkeylen; i++) {
     hashparams->hupdate(ctxt->hashctxt1, &hmac_ipad, 1);
     hashparams->hupdate(ctxt->hashctxt2, &hmac_opad, 1);
   }
 
   /* Done, return pointer to HMAC context. */
-  return ctxt;
+  തിരികെ ctxt;
 
 fail:
   curlx_free(ctxt);
-  return NULL;
+  തിരികെ ശൂന്യ;
 }
 
-void Curl_HMAC_update(struct HMAC_context *ctxt,
-                      const unsigned char *data,
-                      unsigned int len)
+ശൂന്യം Curl_HMAC_update(ഘടന HMAC_context *ctxt,
+                      സ്ഥിരം unsigned അക്ഷരം *data,
+                      unsigned പൂർണ്ണസംഖ്യ len)
 {
   /* Update first hash calculation. */
   ctxt->hash->hupdate(ctxt->hashctxt1, data, len);
 }
 
-int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
+പൂർണ്ണസംഖ്യ Curl_HMAC_final(ഘടന HMAC_context *ctxt, unsigned അക്ഷരം *output)
 {
-  const struct HMAC_params *hashparams = ctxt->hash;
+  സ്ഥിരം ഘടന HMAC_params *hashparams = ctxt->hash;
 
   /* Do not get output if called with a null parameter: only release
      storage. */
 
-  if(!output)
-    output = (unsigned char *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
+  എങ്കിൽ(!output)
+    output = (unsigned അക്ഷരം *)ctxt->hashctxt2 + ctxt->hash->ctxtsize;
 
   hashparams->hfinal(output, ctxt->hashctxt1);
   hashparams->hupdate(ctxt->hashctxt2, output, hashparams->resultlen);
   hashparams->hfinal(output, ctxt->hashctxt2);
   curlx_free(ctxt);
-  return 0;
+  തിരികെ 0;
 }
 
 /*
@@ -140,31 +140,31 @@ int Curl_HMAC_final(struct HMAC_context *ctxt, unsigned char *output)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_hmacit(const struct HMAC_params *hashparams,
-                     const unsigned char *key, const size_t keylen,
-                     const unsigned char *data, size_t datalen,
-                     unsigned char *output)
+CURLcode Curl_hmacit(സ്ഥിരം ഘടന HMAC_params *hashparams,
+                     സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ, സ്ഥിരം size_t keylen,
+                     സ്ഥിരം unsigned അക്ഷരം *data, size_t datalen,
+                     unsigned അക്ഷരം *output)
 {
-  struct HMAC_context *ctxt;
-  if(keylen > UINT_MAX) /* unlikely to ever happen */
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  ctxt = Curl_HMAC_init(hashparams, key, curlx_uztoui(keylen));
+  ഘടന HMAC_context *ctxt;
+  എങ്കിൽ(keylen > UINT_MAX) /* unlikely to ever happen */
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
+  ctxt = Curl_HMAC_init(hashparams, താക്കോൽ, curlx_uztoui(keylen));
 
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!ctxt)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
   /* Update the digest with the given challenge */
-  do {
-    unsigned int ilen = (unsigned int)CURLMIN(datalen, UINT_MAX);
+  ചെയ്യുക {
+    unsigned പൂർണ്ണസംഖ്യ ilen = (unsigned പൂർണ്ണസംഖ്യ)CURLMIN(datalen, UINT_MAX);
     Curl_HMAC_update(ctxt, data, ilen);
     datalen -= ilen;
     data += ilen;
-  } while(datalen);
+  } ആകുമ്പോൾ(datalen);
 
   /* Finalise the digest */
   Curl_HMAC_final(ctxt, output);
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #endif /* Using NTLM (without SSPI) or AWS */

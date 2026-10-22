@@ -23,19 +23,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if defined(HAVE_SIGACTION) && !defined(USE_SO_NOSIGPIPE)
-#include <signal.h>
+#എങ്കിൽ defined(HAVE_SIGACTION) && !defined(USE_SO_NOSIGPIPE)
+#അന്തര്ഭാവ <signal.h>
 
-struct Curl_sigpipe_ctx {
-  struct sigaction old_pipe_act;
+ഘടന Curl_sigpipe_ctx {
+  ഘടന sigaction old_pipe_act;
   BIT(no_signal);
 };
 
-static CURL_INLINE void sigpipe_init(struct Curl_sigpipe_ctx *ig)
+സ്ഥിതം CURL_INLINE ശൂന്യം sigpipe_init(ഘടന Curl_sigpipe_ctx *ig)
 {
-  memset(ig, 0, sizeof(*ig));
+  memset(ig, 0, വലുപ്പം(*ig));
   ig->no_signal = TRUE;
 }
 
@@ -44,16 +44,16 @@ static CURL_INLINE void sigpipe_init(struct Curl_sigpipe_ctx *ig)
  * internals, and then sigpipe_restore() will restore the situation when we
  * return from libcurl again.
  */
-static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
-                                       struct Curl_sigpipe_ctx *ig)
+സ്ഥിതം CURL_INLINE ശൂന്യം sigpipe_ignore(ഘടന Curl_easy *data,
+                                       ഘടന Curl_sigpipe_ctx *ig)
 {
   /* get a local copy of no_signal because the Curl_easy might not be
      around when we restore */
   ig->no_signal = data->set.no_signal;
-  if(!data->set.no_signal) {
-    struct sigaction action;
+  എങ്കിൽ(!data->set.no_signal) {
+    ഘടന sigaction action;
     /* first, extract the existing situation */
-    sigaction(SIGPIPE, NULL, &ig->old_pipe_act);
+    sigaction(SIGPIPE, ശൂന്യ, &ig->old_pipe_act);
     action = ig->old_pipe_act;
     /* ignore this signal */
     action.sa_handler = SIG_IGN;
@@ -61,7 +61,7 @@ static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
     /* clear SA_SIGINFO flag since we are using sa_handler */
     action.sa_flags &= ~SA_SIGINFO;
 #endif
-    sigaction(SIGPIPE, &action, NULL);
+    sigaction(SIGPIPE, &action, ശൂന്യ);
   }
 }
 
@@ -70,30 +70,30 @@ static CURL_INLINE void sigpipe_ignore(struct Curl_easy *data,
  * and SIGPIPE handling. It MUST only be called after a corresponding
  * sigpipe_ignore() was used.
  */
-static CURL_INLINE void sigpipe_restore(struct Curl_sigpipe_ctx *ig)
+സ്ഥിതം CURL_INLINE ശൂന്യം sigpipe_restore(ഘടന Curl_sigpipe_ctx *ig)
 {
-  if(!ig->no_signal)
+  എങ്കിൽ(!ig->no_signal)
     /* restore the outside state */
-    sigaction(SIGPIPE, &ig->old_pipe_act, NULL);
+    sigaction(SIGPIPE, &ig->old_pipe_act, ശൂന്യ);
 }
 
-static CURL_INLINE void sigpipe_apply(struct Curl_easy *data,
-                                      struct Curl_sigpipe_ctx *ig)
+സ്ഥിതം CURL_INLINE ശൂന്യം sigpipe_apply(ഘടന Curl_easy *data,
+                                      ഘടന Curl_sigpipe_ctx *ig)
 {
-  if(data && (data->set.no_signal != ig->no_signal)) {
+  എങ്കിൽ(data && (data->set.no_signal != ig->no_signal)) {
     sigpipe_restore(ig);
     sigpipe_ignore(data, ig);
   }
 }
 
-#else /* !HAVE_SIGACTION || USE_SO_NOSIGPIPE */
+#അല്ലെങ്കിൽ /* !HAVE_SIGACTION || USE_SO_NOSIGPIPE */
 /* for systems without sigaction or where SO_NOSIGPIPE is used. */
-#define sigpipe_ignore(x, y) do { (void)(x); (void)(y); } while(0)
-#define sigpipe_apply(x, y)  do { (void)(x); (void)(y); } while(0)
-#define sigpipe_init(x)      do { (void)(x); } while(0)
-#define sigpipe_restore(x)   do { (void)(x); } while(0)
+#define sigpipe_ignore(x, y) ചെയ്യുക { (ശൂന്യം)(x); (ശൂന്യം)(y); } ആകുമ്പോൾ(0)
+#define sigpipe_apply(x, y)  ചെയ്യുക { (ശൂന്യം)(x); (ശൂന്യം)(y); } ആകുമ്പോൾ(0)
+#define sigpipe_init(x)      ചെയ്യുക { (ശൂന്യം)(x); } ആകുമ്പോൾ(0)
+#define sigpipe_restore(x)   ചെയ്യുക { (ശൂന്യം)(x); } ആകുമ്പോൾ(0)
 
-struct Curl_sigpipe_ctx {
+ഘടന Curl_sigpipe_ctx {
   bool dummy;
 };
 

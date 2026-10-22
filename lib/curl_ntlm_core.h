@@ -23,48 +23,48 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
-struct ntlmdata;
+ഘടന ntlmdata;
 
 /* Helpers to generate function byte arguments in little endian order */
-#define SHORTPAIR(x)   ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff))
-#define LONGQUARTET(x) ((int)((x) & 0xff)), ((int)(((x) >> 8) & 0xff)), \
-  ((int)(((x) >> 16) & 0xff)), ((int)(((x) >> 24) & 0xff))
+#define SHORTPAIR(x)   ((പൂർണ്ണസംഖ്യ)((x) & 0xff)), ((പൂർണ്ണസംഖ്യ)(((x) >> 8) & 0xff))
+#define LONGQUARTET(x) ((പൂർണ്ണസംഖ്യ)((x) & 0xff)), ((പൂർണ്ണസംഖ്യ)(((x) >> 8) & 0xff)), \
+  ((പൂർണ്ണസംഖ്യ)(((x) >> 16) & 0xff)), ((പൂർണ്ണസംഖ്യ)(((x) >> 24) & 0xff))
 
-void Curl_ntlm_core_lm_resp(const unsigned char *keys,
-                            const unsigned char *plaintext,
-                            unsigned char *results);
+ശൂന്യം Curl_ntlm_core_lm_resp(സ്ഥിരം unsigned അക്ഷരം *താക്കോലുകൾ,
+                            സ്ഥിരം unsigned അക്ഷരം *plaintext,
+                            unsigned അക്ഷരം *results);
 
-CURLcode Curl_ntlm_core_mk_lm_hash(const char *password,
-                                   unsigned char *lmbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_lm_hash(സ്ഥിരം അക്ഷരം *password,
+                                   unsigned അക്ഷരം *lmbuffer /* 21 bytes */);
 
-CURLcode Curl_ntlm_core_mk_nt_hash(const char *password,
-                                   unsigned char *ntbuffer /* 21 bytes */);
+CURLcode Curl_ntlm_core_mk_nt_hash(സ്ഥിരം അക്ഷരം *password,
+                                   unsigned അക്ഷരം *ntbuffer /* 21 bytes */);
 
 #ifndef USE_WINDOWS_SSPI
 
-CURLcode Curl_hmac_md5(const unsigned char *key, unsigned int keylen,
-                       const unsigned char *data, unsigned int datalen,
-                       unsigned char *output);
+CURLcode Curl_hmac_md5(സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ, unsigned പൂർണ്ണസംഖ്യ keylen,
+                       സ്ഥിരം unsigned അക്ഷരം *data, unsigned പൂർണ്ണസംഖ്യ datalen,
+                       unsigned അക്ഷരം *output);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_hash(const char *user, size_t userlen,
-                                       const char *domain, size_t domlen,
-                                       unsigned char *ntlmhash,
-                                       unsigned char *ntlmv2hash);
+CURLcode Curl_ntlm_core_mk_ntlmv2_hash(സ്ഥിരം അക്ഷരം *user, size_t userlen,
+                                       സ്ഥിരം അക്ഷരം *domain, size_t domlen,
+                                       unsigned അക്ഷരം *ntlmhash,
+                                       unsigned അക്ഷരം *ntlmv2hash);
 
-CURLcode Curl_ntlm_core_mk_ntlmv2_resp(const unsigned char *ntlmv2hash,
-                                       const unsigned char *challenge_client,
-                                       const struct ntlmdata *ntlm,
-                                       unsigned char **ntresp,
-                                       unsigned int *ntresp_len);
+CURLcode Curl_ntlm_core_mk_ntlmv2_resp(സ്ഥിരം unsigned അക്ഷരം *ntlmv2hash,
+                                       സ്ഥിരം unsigned അക്ഷരം *challenge_client,
+                                       സ്ഥിരം ഘടന ntlmdata *ntlm,
+                                       unsigned അക്ഷരം **ntresp,
+                                       unsigned പൂർണ്ണസംഖ്യ *ntresp_len);
 
-CURLcode Curl_ntlm_core_mk_lmv2_resp(const unsigned char *ntlmv2hash,
-                                     const unsigned char *challenge_client,
-                                     const unsigned char *challenge_server,
-                                     unsigned char *lmresp);
+CURLcode Curl_ntlm_core_mk_lmv2_resp(സ്ഥിരം unsigned അക്ഷരം *ntlmv2hash,
+                                     സ്ഥിരം unsigned അക്ഷരം *challenge_client,
+                                     സ്ഥിരം unsigned അക്ഷരം *challenge_server,
+                                     unsigned അക്ഷരം *lmresp);
 
 #endif /* !USE_WINDOWS_SSPI */
 

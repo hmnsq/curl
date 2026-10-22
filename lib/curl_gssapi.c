@@ -21,18 +21,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_GSSAPI
 
-#include "curl_gssapi.h"
-#include "curl_trc.h"
-#include "curlx/strcopy.h"
+#അന്തര്ഭാവ "curl_gssapi.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "curlx/strcopy.h"
 
 #ifdef DEBUGBUILD
-#if defined(HAVE_GSSGNU) || !defined(_WIN32)
+#എങ്കിൽ defined(HAVE_GSSGNU) || !defined(_WIN32)
 #define Curl_gss_alloc malloc  /* freed via the GSS API gss_release_buffer() */
-#define Curl_gss_free  free    /* pair of the above */
+#define Curl_gss_free  സ്വതന്ത്രം    /* pair of the above */
 #define CURL_GSS_STUB
 /* For correctness this would be required for all platforms, not only Windows,
    but, as of v1.22.1, MIT Kerberos uses a special allocator only for Windows,
@@ -40,9 +40,9 @@
    because GSS headers are not versioned, and there is also no other macro to
    indicate 1.18+ vs. previous versions. On Windows we can use 'GSS_S_BAD_MIC'.
  */
-#elif defined(_WIN32) && defined(GSS_S_BAD_MIC) /* MIT Kerberos 1.15+ */
+#അല്ലെങ്കിലെങ്കിൽ defined(_WIN32) && defined(GSS_S_BAD_MIC) /* MIT Kerberos 1.15+ */
 /* MIT Kerberos 1.10+ (Windows), 1.18+ (all platforms), missing from GNU GSS */
-#include <gssapi/gssapi_alloc.h>
+#അന്തര്ഭാവ <gssapi/gssapi_alloc.h>
 #define Curl_gss_alloc gssalloc_malloc
 #define Curl_gss_free  gssalloc_free
 #define CURL_GSS_STUB
@@ -51,12 +51,12 @@
 
 #ifdef __GNUC__
 #define CURL_ALIGN8  __attribute__((aligned(8)))
-#else
+#അല്ലെങ്കിൽ
 #define CURL_ALIGN8
 #endif
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic push
+#എങ്കിൽ defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#pragma GCC diagnostic തള്ളുക
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -68,7 +68,7 @@ gss_OID_desc Curl_krb5_mech_oid CURL_ALIGN8 = {
 };
 
 #ifdef CURL_GSS_STUB
-enum min_err_code {
+എണ്ണൽ min_err_code {
   STUB_GSS_OK = 0,
   STUB_GSS_NO_MEMORY,
   STUB_GSS_INVALID_ARGS,
@@ -84,169 +84,169 @@ enum min_err_code {
  *   gss_unwrap()
  *   gss_wrap()
  */
-struct stub_gss_ctx_id_t_desc {
-  enum { STUB_GSS_NONE, STUB_GSS_KRB5, STUB_GSS_NTLM1, STUB_GSS_NTLM3 } sent;
-  int have_krb5;
-  int have_ntlm;
+ഘടന stub_gss_ctx_id_t_desc {
+  എണ്ണൽ { STUB_GSS_NONE, STUB_GSS_KRB5, STUB_GSS_NTLM1, STUB_GSS_NTLM3 } sent;
+  പൂർണ്ണസംഖ്യ have_krb5;
+  പൂർണ്ണസംഖ്യ have_ntlm;
   OM_uint32 flags;
-  char creds[250];
+  അക്ഷരം creds[250];
 };
 
 /* Stub credential: tracks which mechanisms are allowed */
-struct stub_gss_cred_id_t_desc {
-  int allow_krb5;
-  int allow_ntlm;
+ഘടന stub_gss_cred_id_t_desc {
+  പൂർണ്ണസംഖ്യ allow_krb5;
+  പൂർണ്ണസംഖ്യ allow_ntlm;
 };
 
-static OM_uint32 stub_gss_init_sec_context(
+സ്ഥിതം OM_uint32 stub_gss_init_sec_context(
   OM_uint32 *min,
   gss_cred_id_t initiator_cred_handle,
-  struct stub_gss_ctx_id_t_desc **context,
+  ഘടന stub_gss_ctx_id_t_desc **context,
   gss_name_t target_name,
-  const gss_OID mech_type,
+  സ്ഥിരം gss_OID mech_type,
   OM_uint32 req_flags,
   OM_uint32 time_req,
-  const gss_channel_bindings_t input_chan_bindings,
-  gss_buffer_desc *input_token,
+  സ്ഥിരം gss_channel_bindings_t നിവേശം_chan_bindings,
+  gss_buffer_desc *നിവേശം_token,
   gss_OID *actual_mech_type,
   gss_buffer_desc *output_token,
   OM_uint32 *ret_flags,
   OM_uint32 *time_rec)
 {
-  struct stub_gss_ctx_id_t_desc *ctx = NULL;
+  ഘടന stub_gss_ctx_id_t_desc *ctx = ശൂന്യ;
 
   /* The token will be encoded in base64 */
-  size_t length = sizeof(ctx->creds) * 3 / 4;
+  size_t length = വലുപ്പം(ctx->creds) * 3 / 4;
   size_t used = 0;
-  char *token = NULL;
-  const char *creds = NULL;
+  അക്ഷരം *token = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *creds = ശൂന്യ;
 
-  (void)mech_type;
-  (void)time_req;
-  (void)input_chan_bindings;
-  (void)actual_mech_type;
+  (ശൂന്യം)mech_type;
+  (ശൂന്യം)time_req;
+  (ശൂന്യം)നിവേശം_chan_bindings;
+  (ശൂന്യം)actual_mech_type;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
   *min = 0;
 
-  if(!context || !target_name || !output_token) {
+  എങ്കിൽ(!context || !target_name || !output_token) {
     *min = STUB_GSS_INVALID_ARGS;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   creds = getenv("CURL_STUB_GSS_CREDS");
-  if(!creds || strlen(creds) >= sizeof(ctx->creds)) {
+  എങ്കിൽ(!creds || strlen(creds) >= വലുപ്പം(ctx->creds)) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   ctx = *context;
-  if(ctx && strcmp(ctx->creds, creds)) {
+  എങ്കിൽ(ctx && strcmp(ctx->creds, creds)) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   output_token->length = 0;
-  output_token->value = NULL;
+  output_token->മൂല്യം = ശൂന്യ;
 
-  if(input_token && input_token->length) {
-    if(!ctx) {
+  എങ്കിൽ(നിവേശം_token && നിവേശം_token->length) {
+    എങ്കിൽ(!ctx) {
       *min = STUB_GSS_INVALID_CTX;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
     /* Server response, either D (RA==) or C (Qw==) */
-    if(((char *)input_token->value)[0] == 'D') {
+    എങ്കിൽ(((അക്ഷരം *)നിവേശം_token->മൂല്യം)[0] == 'D') {
       /* Done */
-      switch(ctx->sent) {
-      case STUB_GSS_KRB5:
-      case STUB_GSS_NTLM3:
-        if(ret_flags)
+      തിരഞ്ഞെടുപ്പ്(ctx->sent) {
+      അവസ്ഥ STUB_GSS_KRB5:
+      അവസ്ഥ STUB_GSS_NTLM3:
+        എങ്കിൽ(ret_flags)
           *ret_flags = ctx->flags;
-        if(time_rec)
+        എങ്കിൽ(time_rec)
           *time_rec = GSS_C_INDEFINITE;
-        return GSS_S_COMPLETE;
-      default:
+        തിരികെ GSS_S_COMPLETE;
+      സ്ഥിരസ്ഥിതി:
         *min = STUB_GSS_SERVER_ERR;
-        return GSS_S_FAILURE;
+        തിരികെ GSS_S_FAILURE;
       }
     }
 
-    if(((char *)input_token->value)[0] != 'C') {
+    എങ്കിൽ(((അക്ഷരം *)നിവേശം_token->മൂല്യം)[0] != 'C') {
       /* We only support Done or Continue */
       *min = STUB_GSS_SERVER_ERR;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
     /* Continue */
-    switch(ctx->sent) {
-    case STUB_GSS_KRB5:
+    തിരഞ്ഞെടുപ്പ്(ctx->sent) {
+    അവസ്ഥ STUB_GSS_KRB5:
       /* We sent KRB5 and it failed, let's try NTLM */
-      if(ctx->have_ntlm) {
+      എങ്കിൽ(ctx->have_ntlm) {
         ctx->sent = STUB_GSS_NTLM1;
-        break;
+        നിർത്തുക;
       }
-      else {
+      അല്ലെങ്കിൽ {
         *min = STUB_GSS_SERVER_ERR;
-        return GSS_S_FAILURE;
+        തിരികെ GSS_S_FAILURE;
       }
-    case STUB_GSS_NTLM1:
+    അവസ്ഥ STUB_GSS_NTLM1:
       ctx->sent = STUB_GSS_NTLM3;
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       *min = STUB_GSS_SERVER_ERR;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
   }
-  else {
-    if(ctx) {
+  അല്ലെങ്കിൽ {
+    എങ്കിൽ(ctx) {
       *min = STUB_GSS_INVALID_CTX;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
-    ctx = curlx_calloc(1, sizeof(*ctx));
-    if(!ctx) {
+    ctx = curlx_calloc(1, വലുപ്പം(*ctx));
+    എങ്കിൽ(!ctx) {
       *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
-    if(strstr(creds, "KRB5"))
+    എങ്കിൽ(strstr(creds, "KRB5"))
       ctx->have_krb5 = 1;
 
-    if(strstr(creds, "NTLM"))
+    എങ്കിൽ(strstr(creds, "NTLM"))
       ctx->have_ntlm = 1;
 
     /* If a credential restricts allowed mechs, honour it */
-    if(initiator_cred_handle != GSS_C_NO_CREDENTIAL) {
-      struct stub_gss_cred_id_t_desc *cred =
-        (struct stub_gss_cred_id_t_desc *)initiator_cred_handle;
-      if(!cred->allow_krb5)
+    എങ്കിൽ(initiator_cred_handle != GSS_C_NO_CREDENTIAL) {
+      ഘടന stub_gss_cred_id_t_desc *cred =
+        (ഘടന stub_gss_cred_id_t_desc *)initiator_cred_handle;
+      എങ്കിൽ(!cred->allow_krb5)
         ctx->have_krb5 = 0;
-      if(!cred->allow_ntlm)
+      എങ്കിൽ(!cred->allow_ntlm)
         ctx->have_ntlm = 0;
     }
 
-    if(ctx->have_krb5)
+    എങ്കിൽ(ctx->have_krb5)
       ctx->sent = STUB_GSS_KRB5;
-    else if(ctx->have_ntlm)
+    അല്ലെങ്കിൽ എങ്കിൽ(ctx->have_ntlm)
       ctx->sent = STUB_GSS_NTLM1;
-    else {
+    അല്ലെങ്കിൽ {
       curlx_free(ctx);
       *min = STUB_GSS_NO_MECH;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
-    curlx_strcopy(ctx->creds, sizeof(ctx->creds), creds, strlen(creds));
+    curlx_strcopy(ctx->creds, വലുപ്പം(ctx->creds), creds, strlen(creds));
     ctx->flags = req_flags;
   }
 
   token = Curl_gss_alloc(length);
-  if(!token) {
+  എങ്കിൽ(!token) {
     curlx_free(ctx);
     *min = STUB_GSS_NO_MEMORY;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   {
@@ -256,34 +256,34 @@ static OM_uint32 stub_gss_init_sec_context(
     OM_uint32 major_status;
     major_status = gss_display_name(&minor_status, target_name,
                                     &target_desc, &name_type);
-    if(GSS_ERROR(major_status)) {
+    എങ്കിൽ(GSS_ERROR(major_status)) {
       Curl_gss_free(token);
       curlx_free(ctx);
       *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
-    if(strlen(creds) + target_desc.length + 5 >= sizeof(ctx->creds)) {
+    എങ്കിൽ(strlen(creds) + target_desc.length + 5 >= വലുപ്പം(ctx->creds)) {
       Curl_gss_free(token);
       curlx_free(ctx);
       *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
 
     /* Token format: creds:target:type:padding */
     used = curl_msnprintf(token, length, "%s:%.*s:%d:", creds,
-                          (int)target_desc.length,
-                          (const char *)target_desc.value,
-                          (int)ctx->sent);
+                          (പൂർണ്ണസംഖ്യ)target_desc.length,
+                          (സ്ഥിരം അക്ഷരം *)target_desc.മൂല്യം,
+                          (പൂർണ്ണസംഖ്യ)ctx->sent);
 
     gss_release_buffer(&minor_status, &target_desc);
   }
 
-  if(used >= length) {
+  എങ്കിൽ(used >= length) {
     Curl_gss_free(token);
     curlx_free(ctx);
     *min = STUB_GSS_NO_MEMORY;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   /* Overwrite null-terminator */
@@ -291,84 +291,84 @@ static OM_uint32 stub_gss_init_sec_context(
 
   *context = ctx;
 
-  output_token->value = token;
+  output_token->മൂല്യം = token;
   output_token->length = length;
 
-  return GSS_S_CONTINUE_NEEDED;
+  തിരികെ GSS_S_CONTINUE_NEEDED;
 }
 
-static OM_uint32 stub_gss_delete_sec_context(
+സ്ഥിതം OM_uint32 stub_gss_delete_sec_context(
   OM_uint32 *min,
-  struct stub_gss_ctx_id_t_desc **context,
+  ഘടന stub_gss_ctx_id_t_desc **context,
   gss_buffer_t output_token)
 {
-  (void)output_token;
+  (ശൂന്യം)output_token;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
-  if(!context) {
+  എങ്കിൽ(!context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
-  if(!*context) {
+  എങ്കിൽ(!*context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   curlx_safefree(*context);
   *min = 0;
 
-  return GSS_S_COMPLETE;
+  തിരികെ GSS_S_COMPLETE;
 }
 
 /* NTLMSSP OID: 1.3.6.1.4.1.311.2.2.10 */
-static gss_OID_desc stub_ntlmssp_oid = {
+സ്ഥിതം gss_OID_desc stub_ntlmssp_oid = {
   10, CURL_UNCONST("\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a")
 };
 
-static OM_uint32 stub_gss_inquire_context(
+സ്ഥിതം OM_uint32 stub_gss_inquire_context(
   OM_uint32 *min,
-  struct stub_gss_ctx_id_t_desc *context,
+  ഘടന stub_gss_ctx_id_t_desc *context,
   gss_name_t *src_name,
   gss_name_t *targ_name,
   OM_uint32 *lifetime_rec,
   gss_OID *mech_type,
   OM_uint32 *ctx_flags,
-  int *locally_initiated,
-  int *open_context)
+  പൂർണ്ണസംഖ്യ *locally_initiated,
+  പൂർണ്ണസംഖ്യ *open_context)
 {
-  (void)src_name;
-  (void)targ_name;
-  (void)lifetime_rec;
-  (void)ctx_flags;
-  (void)locally_initiated;
-  (void)open_context;
+  (ശൂന്യം)src_name;
+  (ശൂന്യം)targ_name;
+  (ശൂന്യം)lifetime_rec;
+  (ശൂന്യം)ctx_flags;
+  (ശൂന്യം)locally_initiated;
+  (ശൂന്യം)open_context;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
-  if(!context) {
+  എങ്കിൽ(!context) {
     *min = STUB_GSS_INVALID_CTX;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   *min = 0;
-  if(mech_type) {
-    switch(context->sent) {
-    case STUB_GSS_NTLM1:
-    case STUB_GSS_NTLM3:
+  എങ്കിൽ(mech_type) {
+    തിരഞ്ഞെടുപ്പ്(context->sent) {
+    അവസ്ഥ STUB_GSS_NTLM1:
+    അവസ്ഥ STUB_GSS_NTLM3:
       *mech_type = &stub_ntlmssp_oid;
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       *mech_type = (gss_OID)&Curl_krb5_mech_oid;
-      break;
+      നിർത്തുക;
     }
   }
 
-  return GSS_S_COMPLETE;
+  തിരികെ GSS_S_COMPLETE;
 }
-static OM_uint32 stub_gss_acquire_cred(
+സ്ഥിതം OM_uint32 stub_gss_acquire_cred(
   OM_uint32 *min,
   gss_name_t desired_name,
   OM_uint32 time_req,
@@ -378,91 +378,91 @@ static OM_uint32 stub_gss_acquire_cred(
   gss_OID_set *actual_mechs,
   OM_uint32 *time_rec)
 {
-  (void)desired_name;
-  (void)time_req;
-  (void)desired_mechs;
-  (void)cred_usage;
-  (void)actual_mechs;
-  (void)time_rec;
+  (ശൂന്യം)desired_name;
+  (ശൂന്യം)time_req;
+  (ശൂന്യം)desired_mechs;
+  (ശൂന്യം)cred_usage;
+  (ശൂന്യം)actual_mechs;
+  (ശൂന്യം)time_rec;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
   *min = 0;
   /* Allocate a stub credential that initially allows all mechanisms */
-  if(output_cred_handle) {
-    struct stub_gss_cred_id_t_desc *cred =
-      curlx_calloc(1, sizeof(*cred));
-    if(!cred) {
+  എങ്കിൽ(output_cred_handle) {
+    ഘടന stub_gss_cred_id_t_desc *cred =
+      curlx_calloc(1, വലുപ്പം(*cred));
+    എങ്കിൽ(!cred) {
       *min = STUB_GSS_NO_MEMORY;
-      return GSS_S_FAILURE;
+      തിരികെ GSS_S_FAILURE;
     }
     cred->allow_krb5 = 1;
     cred->allow_ntlm = 1;
     *output_cred_handle = (gss_cred_id_t)cred;
   }
-  return GSS_S_COMPLETE;
+  തിരികെ GSS_S_COMPLETE;
 }
 
-static OM_uint32 stub_gss_indicate_mechs(
+സ്ഥിതം OM_uint32 stub_gss_indicate_mechs(
   OM_uint32 *min,
   gss_OID_set *mech_set)
 {
-  const char *creds;
+  സ്ഥിരം അക്ഷരം *creds;
   OM_uint32 major;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
   *min = 0;
   creds = getenv("CURL_STUB_GSS_CREDS");
-  if(!creds) {
+  എങ്കിൽ(!creds) {
     *min = STUB_GSS_INVALID_CREDS;
-    return GSS_S_FAILURE;
+    തിരികെ GSS_S_FAILURE;
   }
 
   major = gss_create_empty_oid_set(min, mech_set);
-  if(GSS_ERROR(major))
-    return major;
+  എങ്കിൽ(GSS_ERROR(major))
+    തിരികെ major;
 
   /* Always include Kerberos */
   gss_add_oid_set_member(min, (gss_OID)&Curl_krb5_mech_oid, mech_set);
 
   /* Include NTLM if the stub creds contain NTLM */
-  if(strstr(creds, "NTLM"))
+  എങ്കിൽ(strstr(creds, "NTLM"))
     gss_add_oid_set_member(min, &stub_ntlmssp_oid, mech_set);
 
-  return GSS_S_COMPLETE;
+  തിരികെ GSS_S_COMPLETE;
 }
 
 #ifdef HAVE_GSS_SET_NEG_MECHS  /* MIT Kerberos 1.8+ (2010-03-02),
                                   missing from Apple GSS, GNU GSS */
-static OM_uint32 stub_gss_set_neg_mechs(OM_uint32 *min,
+സ്ഥിതം OM_uint32 stub_gss_set_neg_mechs(OM_uint32 *min,
                                         gss_cred_id_t cred_handle,
-                                        const gss_OID_set mech_set)
+                                        സ്ഥിരം gss_OID_set mech_set)
 {
-  struct stub_gss_cred_id_t_desc *cred;
+  ഘടന stub_gss_cred_id_t_desc *cred;
   size_t i;
-  int found_krb5 = 0;
-  int found_ntlm = 0;
+  പൂർണ്ണസംഖ്യ found_krb5 = 0;
+  പൂർണ്ണസംഖ്യ found_ntlm = 0;
 
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
   *min = 0;
-  if(cred_handle == GSS_C_NO_CREDENTIAL)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(cred_handle == GSS_C_NO_CREDENTIAL)
+    തിരികെ GSS_S_FAILURE;
 
-  cred = (struct stub_gss_cred_id_t_desc *)cred_handle;
+  cred = (ഘടന stub_gss_cred_id_t_desc *)cred_handle;
 
   /* Determine which mechs are in the allowed set */
-  if(mech_set) {
-    for(i = 0; i < mech_set->count; i++) {
+  എങ്കിൽ(mech_set) {
+    വേണ്ടി(i = 0; i < mech_set->എണ്ണം; i++) {
       gss_OID oid = &mech_set->elements[i];
-      if(oid->length == Curl_krb5_mech_oid.length &&
+      എങ്കിൽ(oid->length == Curl_krb5_mech_oid.length &&
          !memcmp(oid->elements, Curl_krb5_mech_oid.elements, oid->length))
         found_krb5 = 1;
-      if(oid->length == stub_ntlmssp_oid.length &&
+      എങ്കിൽ(oid->length == stub_ntlmssp_oid.length &&
          !memcmp(oid->elements, stub_ntlmssp_oid.elements, oid->length))
         found_ntlm = 1;
     }
@@ -470,87 +470,87 @@ static OM_uint32 stub_gss_set_neg_mechs(OM_uint32 *min,
 
   cred->allow_krb5 = found_krb5;
   cred->allow_ntlm = found_ntlm;
-  return GSS_S_COMPLETE;
+  തിരികെ GSS_S_COMPLETE;
 }
 #endif /* HAVE_GSS_SET_NEG_MECHS */
 
-static OM_uint32 stub_gss_release_cred(
+സ്ഥിതം OM_uint32 stub_gss_release_cred(
   OM_uint32 *min,
   gss_cred_id_t *cred_handle)
 {
-  if(!min)
-    return GSS_S_FAILURE;
+  എങ്കിൽ(!min)
+    തിരികെ GSS_S_FAILURE;
 
   *min = 0;
-  if(cred_handle && *cred_handle != GSS_C_NO_CREDENTIAL) {
+  എങ്കിൽ(cred_handle && *cred_handle != GSS_C_NO_CREDENTIAL) {
     curlx_free(*cred_handle);
     *cred_handle = GSS_C_NO_CREDENTIAL;
   }
-  return GSS_S_COMPLETE;
+  തിരികെ GSS_S_COMPLETE;
 }
 
 #endif /* CURL_GSS_STUB */
 
-OM_uint32 Curl_gss_init_sec_context(struct Curl_easy *data,
+OM_uint32 Curl_gss_init_sec_context(ഘടന Curl_easy *data,
                                     OM_uint32 *minor_status,
                                     gss_ctx_id_t *context,
                                     gss_name_t target_name,
                                     gss_OID mech_type,
-                                    gss_channel_bindings_t input_chan_bindings,
-                                    gss_buffer_t input_token,
+                                    gss_channel_bindings_t നിവേശം_chan_bindings,
+                                    gss_buffer_t നിവേശം_token,
                                     gss_buffer_t output_token,
-                                    const bool mutual_auth,
+                                    സ്ഥിരം bool mutual_auth,
                                     OM_uint32 *ret_flags,
                                     gss_cred_id_t cred_handle)
 {
   OM_uint32 req_flags = GSS_C_REPLAY_FLAG;
 
-  if(mutual_auth)
+  എങ്കിൽ(mutual_auth)
     req_flags |= GSS_C_MUTUAL_FLAG;
 
-  if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_POLICY_FLAG) {
+  എങ്കിൽ(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_POLICY_FLAG) {
 #ifdef GSS_C_DELEG_POLICY_FLAG  /* MIT Kerberos 1.7+ (2009-06-02), Apple GSS,
                                    missing from GNU GSS */
     req_flags |= GSS_C_DELEG_POLICY_FLAG;
-#else
+#അല്ലെങ്കിൽ
     infof(data, "WARNING: support for CURLGSSAPI_DELEGATION_POLICY_FLAG not "
           "compiled in");
 #endif
   }
 
-  if(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
+  എങ്കിൽ(data->set.gssapi_delegation & CURLGSSAPI_DELEGATION_FLAG)
     req_flags |= GSS_C_DELEG_FLAG;
 
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_init_sec_context(minor_status,
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_init_sec_context(minor_status,
                                      cred_handle,
-                                     (struct stub_gss_ctx_id_t_desc **)context,
+                                     (ഘടന stub_gss_ctx_id_t_desc **)context,
                                      target_name,
                                      mech_type,
                                      req_flags,
                                      0, /* time_req */
-                                     input_chan_bindings,
-                                     input_token,
-                                     NULL, /* actual_mech_type */
+                                     നിവേശം_chan_bindings,
+                                     നിവേശം_token,
+                                     ശൂന്യ, /* actual_mech_type */
                                      output_token,
                                      ret_flags,
-                                     NULL /* time_rec */);
+                                     ശൂന്യ /* time_rec */);
 #endif /* CURL_GSS_STUB */
 
-  return gss_init_sec_context(minor_status,
+  തിരികെ gss_init_sec_context(minor_status,
                               cred_handle,
                               context,
                               target_name,
                               mech_type,
                               req_flags,
                               0, /* time_req */
-                              input_chan_bindings,
-                              input_token,
-                              NULL, /* actual_mech_type */
+                              നിവേശം_chan_bindings,
+                              നിവേശം_token,
+                              ശൂന്യ, /* actual_mech_type */
                               output_token,
                               ret_flags,
-                              NULL /* time_rec */);
+                              ശൂന്യ /* time_rec */);
 }
 
 OM_uint32 Curl_gss_delete_sec_context(OM_uint32 *min,
@@ -558,13 +558,13 @@ OM_uint32 Curl_gss_delete_sec_context(OM_uint32 *min,
                                       gss_buffer_t output_token)
 {
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_delete_sec_context(min,
-                                     (struct stub_gss_ctx_id_t_desc **)context,
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_delete_sec_context(min,
+                                     (ഘടന stub_gss_ctx_id_t_desc **)context,
                                      output_token);
 #endif /* CURL_GSS_STUB */
 
-  return gss_delete_sec_context(min, context, output_token);
+  തിരികെ gss_delete_sec_context(min, context, output_token);
 }
 
 OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_status,
@@ -572,16 +572,16 @@ OM_uint32 Curl_gss_inquire_context(OM_uint32 *minor_status,
                                    gss_OID *mech_type)
 {
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_inquire_context(minor_status,
-                             (struct stub_gss_ctx_id_t_desc *)context,
-                             NULL, NULL, NULL, mech_type,
-                             NULL, NULL, NULL);
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_inquire_context(minor_status,
+                             (ഘടന stub_gss_ctx_id_t_desc *)context,
+                             ശൂന്യ, ശൂന്യ, ശൂന്യ, mech_type,
+                             ശൂന്യ, ശൂന്യ, ശൂന്യ);
 #endif /* CURL_GSS_STUB */
 
-  return gss_inquire_context(minor_status, context,
-                             NULL, NULL, NULL, mech_type,
-                             NULL, NULL, NULL);
+  തിരികെ gss_inquire_context(minor_status, context,
+                             ശൂന്യ, ശൂന്യ, ശൂന്യ, mech_type,
+                             ശൂന്യ, ശൂന്യ, ശൂന്യ);
 }
 
 OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_status,
@@ -594,13 +594,13 @@ OM_uint32 Curl_gss_acquire_cred(OM_uint32 *minor_status,
                                 OM_uint32 *time_rec)
 {
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_acquire_cred(minor_status, desired_name, time_req,
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_acquire_cred(minor_status, desired_name, time_req,
                                  desired_mechs, cred_usage,
                                  output_cred_handle, actual_mechs, time_rec);
 #endif /* CURL_GSS_STUB */
 
-  return gss_acquire_cred(minor_status, desired_name, time_req,
+  തിരികെ gss_acquire_cred(minor_status, desired_name, time_req,
                           desired_mechs, cred_usage,
                           output_cred_handle, actual_mechs, time_rec);
 }
@@ -609,24 +609,24 @@ OM_uint32 Curl_gss_indicate_mechs(OM_uint32 *minor_status,
                                   gss_OID_set *mech_set)
 {
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_indicate_mechs(minor_status, mech_set);
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_indicate_mechs(minor_status, mech_set);
 #endif /* CURL_GSS_STUB */
 
-  return gss_indicate_mechs(minor_status, mech_set);
+  തിരികെ gss_indicate_mechs(minor_status, mech_set);
 }
 
 #ifdef HAVE_GSS_SET_NEG_MECHS
 OM_uint32 Curl_gss_set_neg_mechs(OM_uint32 *minor_status,
                                  gss_cred_id_t cred_handle,
-                                 const gss_OID_set mech_set)
+                                 സ്ഥിരം gss_OID_set mech_set)
 {
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_set_neg_mechs(minor_status, cred_handle, mech_set);
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_set_neg_mechs(minor_status, cred_handle, mech_set);
 #endif /* CURL_GSS_STUB */
 
-  return gss_set_neg_mechs(minor_status, cred_handle, mech_set);
+  തിരികെ gss_set_neg_mechs(minor_status, cred_handle, mech_set);
 }
 #endif /* HAVE_GSS_SET_NEG_MECHS */
 
@@ -634,41 +634,41 @@ OM_uint32 Curl_gss_release_cred(OM_uint32 *minor_status,
                                 gss_cred_id_t *cred_handle)
 {
 #ifdef CURL_GSS_STUB
-  if(getenv("CURL_STUB_GSS_CREDS"))
-    return stub_gss_release_cred(minor_status, cred_handle);
+  എങ്കിൽ(getenv("CURL_STUB_GSS_CREDS"))
+    തിരികെ stub_gss_release_cred(minor_status, cred_handle);
 #endif /* CURL_GSS_STUB */
 
-  return gss_release_cred(minor_status, cred_handle);
+  തിരികെ gss_release_cred(minor_status, cred_handle);
 }
 
 #ifdef CURLVERBOSE
 #define GSS_LOG_BUFFER_LEN 1024
-static size_t display_gss_error(OM_uint32 status, int type,
-                                char *buf, size_t len)
+സ്ഥിതം size_t display_gss_error(OM_uint32 status, പൂർണ്ണസംഖ്യ type,
+                                അക്ഷരം *buf, size_t len)
 {
   OM_uint32 maj_stat;
   OM_uint32 min_stat;
-  OM_uint32 msg_ctx = 0;
+  OM_uint32 സന്ദേശം_ctx = 0;
   gss_buffer_desc status_string = GSS_C_EMPTY_BUFFER;
 
-  do {
+  ചെയ്യുക {
     maj_stat = gss_display_status(&min_stat,
                                   status,
                                   type,
                                   GSS_C_NO_OID,
-                                  &msg_ctx,
+                                  &സന്ദേശം_ctx,
                                   &status_string);
-    if(maj_stat == GSS_S_COMPLETE && status_string.length > 0) {
-      if(GSS_LOG_BUFFER_LEN > len + status_string.length + 3) {
+    എങ്കിൽ(maj_stat == GSS_S_COMPLETE && status_string.length > 0) {
+      എങ്കിൽ(GSS_LOG_BUFFER_LEN > len + status_string.length + 3) {
         len += curl_msnprintf(buf + len, GSS_LOG_BUFFER_LEN - len,
-                              "%.*s. ", (int)status_string.length,
-                              (char *)status_string.value);
+                              "%.*s. ", (പൂർണ്ണസംഖ്യ)status_string.length,
+                              (അക്ഷരം *)status_string.മൂല്യം);
       }
     }
     gss_release_buffer(&min_stat, &status_string);
-  } while(!GSS_ERROR(maj_stat) && msg_ctx);
+  } ആകുമ്പോൾ(!GSS_ERROR(maj_stat) && സന്ദേശം_ctx);
 
-  return len;
+  തിരികെ len;
 }
 
 /*
@@ -683,13 +683,13 @@ static size_t display_gss_error(OM_uint32 status, int type,
  * major   [in] - The major status code.
  * minor   [in] - The minor status code.
  */
-void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
+ശൂന്യം Curl_gss_log_error(ഘടന Curl_easy *data, സ്ഥിരം അക്ഷരം *prefix,
                         OM_uint32 major, OM_uint32 minor)
 {
-  char buf[GSS_LOG_BUFFER_LEN] = "";
+  അക്ഷരം buf[GSS_LOG_BUFFER_LEN] = "";
   size_t len = 0;
 
-  if(major != GSS_S_FAILURE)
+  എങ്കിൽ(major != GSS_S_FAILURE)
     len = display_gss_error(major, GSS_C_GSS_CODE, buf, len);
 
   display_gss_error(minor, GSS_C_MECH_CODE, buf, len);
@@ -698,8 +698,8 @@ void Curl_gss_log_error(struct Curl_easy *data, const char *prefix,
 }
 #endif /* CURLVERBOSE */
 
-#if defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
-#pragma GCC diagnostic pop
+#എങ്കിൽ defined(CURL_HAVE_DIAG) && defined(__APPLE__) && !defined(HAVE_GSSAPPLE)
+#pragma GCC diagnostic എടുക്കുക
 #endif
 
 #endif /* HAVE_GSSAPI */

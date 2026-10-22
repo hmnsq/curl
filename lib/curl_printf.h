@@ -29,9 +29,9 @@
 #define MERR_TOO_LARGE 2
 
 /* Lower-case digits. */
-extern const unsigned char Curl_ldigits[];
+ബാഹ്യ സ്ഥിരം unsigned അക്ഷരം Curl_ldigits[];
 
 /* Upper-case digits. */
-extern const unsigned char Curl_udigits[];
+ബാഹ്യ സ്ഥിരം unsigned അക്ഷരം Curl_udigits[];
 
 #endif /* HEADER_CURL_PRINTF_H */

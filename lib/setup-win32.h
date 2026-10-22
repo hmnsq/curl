@@ -37,11 +37,11 @@
 #  define HAVE_NETINET_IN_H
 #  define HAVE_NETDB_H
 #  define HAVE_ARPA_INET_H
-#  define SOCKET int
+#  define SOCKET പൂർണ്ണസംഖ്യ
 /* ---------------------------------------------------------------- */
 /*               BSD-style lwIP TCP/IP stack SPECIFIC               */
 /* ---------------------------------------------------------------- */
-#elif defined(USE_LWIPSOCK)
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_LWIPSOCK)
   /* Define to use BSD-style lwIP TCP/IP stack. */
   /* #define USE_LWIPSOCK 1 */
 #  undef HAVE_GETHOSTNAME
@@ -50,14 +50,14 @@
 #  undef LWIP_POSIX_SOCKETS_IO_NAMES
 #  define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #  undef RECV_TYPE_ARG1
-#  define RECV_TYPE_ARG1 int
+#  define RECV_TYPE_ARG1 പൂർണ്ണസംഖ്യ
 #  undef RECV_TYPE_ARG3
 #  define RECV_TYPE_ARG3 size_t
 #  undef SEND_TYPE_ARG1
-#  define SEND_TYPE_ARG1 int
+#  define SEND_TYPE_ARG1 പൂർണ്ണസംഖ്യ
 #  undef SEND_TYPE_ARG3
 #  define SEND_TYPE_ARG3 size_t
-#elif defined(_WIN32)
+#അല്ലെങ്കിലെങ്കിൽ defined(_WIN32)
 #  define USE_WINSOCK 2
 #  include <winsock2.h>
 #  include <ws2tcpip.h>
@@ -72,10 +72,10 @@
  * __CYGWIN__ is defined.
  */
 #ifdef _WIN32
-#  if defined(UNICODE) && !defined(_UNICODE)
+#  എങ്കിൽ defined(UNICODE) && !defined(_UNICODE)
 #    error "UNICODE is defined but _UNICODE is not defined"
 #  endif
-#  if defined(_UNICODE) && !defined(UNICODE)
+#  എങ്കിൽ defined(_UNICODE) && !defined(UNICODE)
 #    error "_UNICODE is defined but UNICODE is not defined"
 #  endif
 #  include <windows.h>

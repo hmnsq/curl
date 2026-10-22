@@ -21,38 +21,38 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_SSL
 
-#include "urldata.h"
-#include "cfilters.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "cfilters.h"
 
-#include "vtls/vtls.h" /* generic SSL protos etc */
-#include "vtls/vtls_int.h"
-#include "vtls/vtls_scache.h"
-#include "vtls/vtls_spack.h"
+#അന്തര്ഭാവ "vtls/vtls.h" /* generic SSL protos etc */
+#അന്തര്ഭാവ "vtls/vtls_int.h"
+#അന്തര്ഭാവ "vtls/vtls_scache.h"
+#അന്തര്ഭാവ "vtls/vtls_spack.h"
 
-#include "strcase.h"
-#include "url.h"
-#include "llist.h"
-#include "curl_share.h"
-#include "curl_threads.h"
-#include "curl_trc.h"
-#include "curl_sha256.h"
-#include "rand.h"
-#include "curlx/strdup.h"
+#അന്തര്ഭാവ "strcase.h"
+#അന്തര്ഭാവ "url.h"
+#അന്തര്ഭാവ "llist.h"
+#അന്തര്ഭാവ "curl_share.h"
+#അന്തര്ഭാവ "curl_threads.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "curl_sha256.h"
+#അന്തര്ഭാവ "rand.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
 
 /* a peer+tls-config we cache sessions for */
-struct Curl_ssl_scache_peer {
-  char *ssl_peer_key;      /* id for peer + relevant TLS configuration */
-  char *clientcert;
-  char *key_passwd;
-  struct Curl_llist sessions;
-  void *sobj;              /* object instance or NULL */
+ഘടന Curl_ssl_scache_peer {
+  അക്ഷരം *ssl_peer_താക്കോൽ;      /* id for peer + relevant TLS configuration */
+  അക്ഷരം *clientcert;
+  അക്ഷരം *താക്കോൽ_passwd;
+  ഘടന Curl_llist sessions;
+  ശൂന്യം *sobj;              /* object instance or NULL */
   Curl_ssl_scache_obj_dtor *sobj_free; /* free `sobj` callback */
-  unsigned char key_salt[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
-  unsigned char key_hmac[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
+  unsigned അക്ഷരം താക്കോൽ_salt[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
+  unsigned അക്ഷരം താക്കോൽ_hmac[CURL_SHA256_DIGEST_LENGTH]; /* for entry export */
   size_t max_sessions;
   long age;                /* a number, the higher the more recent */
   BIT(hmac_set);           /* if key_salt and key_hmac are present */
@@ -64,308 +64,308 @@ struct Curl_ssl_scache_peer {
 #define GOOD_SCACHE(x) ((x) && (x)->magic == CURL_SCACHE_MAGIC)
 
 /* Prefix the length to keep field boundaries unambiguous. */
-static CURLcode cf_ssl_peer_key_add_string(struct dynbuf *buf,
-                                           const char *name,
-                                           const char *value)
+സ്ഥിതം CURLcode cf_ssl_peer_താക്കോൽ_add_string(ഘടന dynbuf *buf,
+                                           സ്ഥിരം അക്ഷരം *name,
+                                           സ്ഥിരം അക്ഷരം *മൂല്യം)
 {
-  return curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(value), value);
+  തിരികെ curlx_dyn_addf(buf, ":%s-%zu:%s", name, strlen(മൂല്യം), മൂല്യം);
 }
 
-static CURLcode cf_ssl_peer_key_add_path(struct dynbuf *buf,
-                                         const char *name,
-                                         const char *path,
+സ്ഥിതം CURLcode cf_ssl_peer_താക്കോൽ_add_path(ഘടന dynbuf *buf,
+                                         സ്ഥിരം അക്ഷരം *name,
+                                         സ്ഥിരം അക്ഷരം *path,
                                          bool *is_local)
 {
-  if(path && path[0]) {
+  എങ്കിൽ(path && path[0]) {
     /* We try to add absolute paths, so that the session key can stay valid
      * when used in another process with different CWD. When a path does not
      * exist, this does not work. Then, we add the path as is. */
 #ifdef _WIN32
-    char *abspath = _fullpath(NULL, path, 0);
-    if(abspath) {
-      CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
+    അക്ഷരം *abspath = _fullpath(ശൂന്യ, path, 0);
+    എങ്കിൽ(abspath) {
+      CURLcode result = cf_ssl_peer_താക്കോൽ_add_string(buf, name, abspath);
       /* !checksrc! disable BANNEDFUNC 1 */
-      free(abspath); /* allocated by CRT, use system free() */
-      return result;
+      സ്വതന്ത്രം(abspath); /* allocated by CRT, use system free() */
+      തിരികെ result;
     }
     *is_local = TRUE;
-#elif defined(HAVE_REALPATH)
-    if(path[0] != '/') {
-      char *abspath = realpath(path, NULL);
-      if(abspath) {
-        CURLcode result = cf_ssl_peer_key_add_string(buf, name, abspath);
+#അല്ലെങ്കിലെങ്കിൽ defined(HAVE_REALPATH)
+    എങ്കിൽ(path[0] != '/') {
+      അക്ഷരം *abspath = realpath(path, ശൂന്യ);
+      എങ്കിൽ(abspath) {
+        CURLcode result = cf_ssl_peer_താക്കോൽ_add_string(buf, name, abspath);
         /* !checksrc! disable BANNEDFUNC 1 */
-        free(abspath); /* allocated by libc, free without memdebug */
-        return result;
+        സ്വതന്ത്രം(abspath); /* allocated by libc, free without memdebug */
+        തിരികെ result;
       }
       *is_local = TRUE;
     }
 #endif
-    return cf_ssl_peer_key_add_string(buf, name, path);
+    തിരികെ cf_ssl_peer_താക്കോൽ_add_string(buf, name, path);
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode cf_ssl_peer_key_add_hash(struct dynbuf *buf,
-                                         const char *name,
-                                         struct curl_blob *blob)
+സ്ഥിതം CURLcode cf_ssl_peer_താക്കോൽ_add_hash(ഘടന dynbuf *buf,
+                                         സ്ഥിരം അക്ഷരം *name,
+                                         ഘടന curl_blob *blob)
 {
   CURLcode result = CURLE_OK;
-  if(blob && blob->len) {
-    unsigned char hash[CURL_SHA256_DIGEST_LENGTH];
+  എങ്കിൽ(blob && blob->len) {
+    unsigned അക്ഷരം hash[CURL_SHA256_DIGEST_LENGTH];
     size_t i;
 
     result = curlx_dyn_addf(buf, ":%s-", name);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
     result = Curl_sha256it(hash, blob->data, blob->len);
-    if(result)
-      goto out;
-    for(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
+    എങ്കിൽ(result)
+      പോകുക out;
+    വേണ്ടി(i = 0; i < CURL_SHA256_DIGEST_LENGTH; ++i) {
       result = curlx_dyn_addf(buf, "%02x", hash[i]);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
     }
   }
 out:
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode cf_ssl_peer_key_add_mtls(struct dynbuf *buf,
-                                         struct ssl_filter_config *ssl,
+സ്ഥിതം CURLcode cf_ssl_peer_താക്കോൽ_add_mtls(ഘടന dynbuf *buf,
+                                         ഘടന ssl_filter_config *ssl,
                                          bool *is_local)
 {
   CURLcode result = CURLE_OK;
-  if(ssl->clientcert && ssl->clientcert[0]) {
-    result = cf_ssl_peer_key_add_path(buf, "CCERT", ssl->clientcert, is_local);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->clientcert && ssl->clientcert[0]) {
+    result = cf_ssl_peer_താക്കോൽ_add_path(buf, "CCERT", ssl->clientcert, is_local);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->key && ssl->key[0]) {
-    result = cf_ssl_peer_key_add_path(buf, "KEY", ssl->key, is_local);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->താക്കോൽ && ssl->താക്കോൽ[0]) {
+    result = cf_ssl_peer_താക്കോൽ_add_path(buf, "KEY", ssl->താക്കോൽ, is_local);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->key_blob) {
-    result = cf_ssl_peer_key_add_hash(buf, "KEYBlob", ssl->key_blob);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->താക്കോൽ_blob) {
+    result = cf_ssl_peer_താക്കോൽ_add_hash(buf, "KEYBlob", ssl->താക്കോൽ_blob);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->cert_type && ssl->cert_type[0]) {
+  എങ്കിൽ(ssl->cert_type && ssl->cert_type[0]) {
     size_t i;
     result = curlx_dyn_addf(buf, ":CT-%zu:", strlen(ssl->cert_type));
-    for(i = 0; !result && ssl->cert_type[i]; i++) {
-      char c = Curl_raw_toupper(ssl->cert_type[i]);
+    വേണ്ടി(i = 0; !result && ssl->cert_type[i]; i++) {
+      അക്ഷരം c = Curl_raw_toupper(ssl->cert_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->key_type && ssl->key_type[0]) {
+  എങ്കിൽ(ssl->താക്കോൽ_type && ssl->താക്കോൽ_type[0]) {
     size_t i;
-    result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->key_type));
-    for(i = 0; !result && ssl->key_type[i]; i++) {
-      char c = Curl_raw_toupper(ssl->key_type[i]);
+    result = curlx_dyn_addf(buf, ":KT-%zu:", strlen(ssl->താക്കോൽ_type));
+    വേണ്ടി(i = 0; !result && ssl->താക്കോൽ_type[i]; i++) {
+      അക്ഷരം c = Curl_raw_toupper(ssl->താക്കോൽ_type[i]);
       result = curlx_dyn_addn(buf, &c, 1);
     }
   }
 out:
-  return result;
+  തിരികെ result;
 }
 
 #define CURL_SSLS_LOCAL_SUFFIX     ":L"
 #define CURL_SSLS_GLOBAL_SUFFIX    ":G"
 
-static bool cf_ssl_peer_key_is_global(const char *peer_key)
+സ്ഥിതം bool cf_ssl_peer_താക്കോൽ_is_global(സ്ഥിരം അക്ഷരം *peer_താക്കോൽ)
 {
-  size_t len = peer_key ? strlen(peer_key) : 0;
-  return (len > 2) &&
-         (peer_key[len - 1] == 'G') &&
-         (peer_key[len - 2] == ':');
+  size_t len = peer_താക്കോൽ ? strlen(peer_താക്കോൽ) : 0;
+  തിരികെ (len > 2) &&
+         (peer_താക്കോൽ[len - 1] == 'G') &&
+         (peer_താക്കോൽ[len - 2] == ':');
 }
 
-static CURLcode ssl_peer_key_add_transport(struct dynbuf *buf,
+സ്ഥിതം CURLcode ssl_peer_താക്കോൽ_add_transport(ഘടന dynbuf *buf,
                                            uint8_t transport)
 {
-  switch(transport) {
-  case TRNSPRT_TCP:
-    return CURLE_OK;
-  case TRNSPRT_UDP:
-    return curlx_dyn_add(buf, ":UDP");
-  case TRNSPRT_QUIC:
-    return curlx_dyn_add(buf, ":QUIC");
-  case TRNSPRT_UNIX:
-    return curlx_dyn_add(buf, ":UNIX");
-  default:
-    return curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
+  തിരഞ്ഞെടുപ്പ്(transport) {
+  അവസ്ഥ TRNSPRT_TCP:
+    തിരികെ CURLE_OK;
+  അവസ്ഥ TRNSPRT_UDP:
+    തിരികെ curlx_dyn_add(buf, ":UDP");
+  അവസ്ഥ TRNSPRT_QUIC:
+    തിരികെ curlx_dyn_add(buf, ":QUIC");
+  അവസ്ഥ TRNSPRT_UNIX:
+    തിരികെ curlx_dyn_add(buf, ":UNIX");
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ curlx_dyn_addf(buf, ":TRNSPRT-%d", transport);
   }
 }
 
-static CURLcode ssl_peer_key_add_vrfy(struct dynbuf *buf,
-                                      struct ssl_filter_config *ssl,
-                                      const struct ssl_peer *peer)
+സ്ഥിതം CURLcode ssl_peer_താക്കോൽ_add_vrfy(ഘടന dynbuf *buf,
+                                      ഘടന ssl_filter_config *ssl,
+                                      സ്ഥിരം ഘടന ssl_peer *peer)
 {
   CURLcode result;
 
-  if(!ssl->verifypeer) {
+  എങ്കിൽ(!ssl->verifypeer) {
     result = curlx_dyn_add(buf, ":NO-VRFY-PEER");
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
-  if(!ssl->verifyhost) {
+  എങ്കിൽ(!ssl->verifyhost) {
     result = curlx_dyn_add(buf, ":NO-VRFY-HOST");
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
-  if(ssl->verifystatus) {
+  എങ്കിൽ(ssl->verifystatus) {
     result = curlx_dyn_add(buf, ":VRFY-STATUS");
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
-  if((!ssl->verifypeer || !ssl->verifyhost) &&
+  എങ്കിൽ((!ssl->verifypeer || !ssl->verifyhost) &&
      peer->peer && !Curl_peer_equal(peer->origin, peer->peer)) {
-    result = cf_ssl_peer_key_add_string(buf, "CHOST", peer->peer->hostname);
-    if(!result)
+    result = cf_ssl_peer_താക്കോൽ_add_string(buf, "CHOST", peer->peer->hostname);
+    എങ്കിൽ(!result)
       result = curlx_dyn_addf(buf, ":CPORT-%u", peer->peer->port);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode ssl_peer_key_build(struct ssl_filter_config *ssl,
-                                   const struct ssl_peer *peer,
-                                   const char *tls_id,
-                                   char **ppeer_key)
+സ്ഥിതം CURLcode ssl_peer_താക്കോൽ_build(ഘടന ssl_filter_config *ssl,
+                                   സ്ഥിരം ഘടന ssl_peer *peer,
+                                   സ്ഥിരം അക്ഷരം *tls_id,
+                                   അക്ഷരം **ppeer_താക്കോൽ)
 {
-  struct dynbuf buf;
-  size_t key_len;
+  ഘടന dynbuf buf;
+  size_t താക്കോൽ_len;
   bool is_local = FALSE;
   CURLcode result;
 
-  *ppeer_key = NULL;
+  *ppeer_താക്കോൽ = ശൂന്യ;
   curlx_dyn_init(&buf, 10 * 1024);
 
   result = curlx_dyn_addf(&buf, "%s:%s:%d:KEY-V3",
                           peer->origin->scheme->name,
                           peer->origin->hostname, peer->origin->port);
-  if(result)
-    goto out;
-  result = ssl_peer_key_add_transport(&buf, peer->transport);
-  if(result)
-    goto out;
-  result = ssl_peer_key_add_vrfy(&buf, ssl, peer);
-  if(result)
-    goto out;
-  if(ssl->version || ssl->version_max) {
+  എങ്കിൽ(result)
+    പോകുക out;
+  result = ssl_peer_താക്കോൽ_add_transport(&buf, peer->transport);
+  എങ്കിൽ(result)
+    പോകുക out;
+  result = ssl_peer_താക്കോൽ_add_vrfy(&buf, ssl, peer);
+  എങ്കിൽ(result)
+    പോകുക out;
+  എങ്കിൽ(ssl->version || ssl->version_max) {
     result = curlx_dyn_addf(&buf, ":TLSVER-%d-%u", ssl->version,
                             (ssl->version_max >> 16));
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->ssl_options) {
+  എങ്കിൽ(ssl->ssl_options) {
     result = curlx_dyn_addf(&buf, ":TLSOPT-%x", ssl->ssl_options);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->cipher_list) {
-    result = cf_ssl_peer_key_add_string(&buf, "CIPHER", ssl->cipher_list);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->cipher_list) {
+    result = cf_ssl_peer_താക്കോൽ_add_string(&buf, "CIPHER", ssl->cipher_list);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->cipher_list13) {
-    result = cf_ssl_peer_key_add_string(&buf, "CIPHER13", ssl->cipher_list13);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->cipher_list13) {
+    result = cf_ssl_peer_താക്കോൽ_add_string(&buf, "CIPHER13", ssl->cipher_list13);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->curves) {
-    result = cf_ssl_peer_key_add_string(&buf, "CURVES", ssl->curves);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->curves) {
+    result = cf_ssl_peer_താക്കോൽ_add_string(&buf, "CURVES", ssl->curves);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->signature_algorithms) {
-    result = cf_ssl_peer_key_add_string(&buf, "SIGALGS",
+  എങ്കിൽ(ssl->signature_algorithms) {
+    result = cf_ssl_peer_താക്കോൽ_add_string(&buf, "SIGALGS",
                                         ssl->signature_algorithms);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->verifypeer) {
-    result = cf_ssl_peer_key_add_path(&buf, "CA", ssl->CAfile, &is_local);
-    if(!result)
-      result = cf_ssl_peer_key_add_path(&buf, "CApath",
+  എങ്കിൽ(ssl->verifypeer) {
+    result = cf_ssl_peer_താക്കോൽ_add_path(&buf, "CA", ssl->CAfile, &is_local);
+    എങ്കിൽ(!result)
+      result = cf_ssl_peer_താക്കോൽ_add_path(&buf, "CApath",
                                         ssl->CApath, &is_local);
-    if(!result && ssl->native_ca_store)
+    എങ്കിൽ(!result && ssl->native_ca_store)
       result = curlx_dyn_add(&buf, ":NATIVE-CA");
-    if(!result)
-      result = cf_ssl_peer_key_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
-    if(result)
-      goto out;
-    result = cf_ssl_peer_key_add_path(&buf, "Issuer", ssl->issuercert,
+    എങ്കിൽ(!result)
+      result = cf_ssl_peer_താക്കോൽ_add_path(&buf, "CRL", ssl->CRLfile, &is_local);
+    എങ്കിൽ(result)
+      പോകുക out;
+    result = cf_ssl_peer_താക്കോൽ_add_path(&buf, "Issuer", ssl->issuercert,
                                       &is_local);
-    if(result)
-      goto out;
-    if(ssl->ca_info_blob) {
-      result = cf_ssl_peer_key_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
-      if(result)
-        goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
+    എങ്കിൽ(ssl->ca_info_blob) {
+      result = cf_ssl_peer_താക്കോൽ_add_hash(&buf, "CAInfoBlob", ssl->ca_info_blob);
+      എങ്കിൽ(result)
+        പോകുക out;
     }
-    if(ssl->issuercert_blob) {
-      result = cf_ssl_peer_key_add_hash(&buf, "IssuerBlob",
+    എങ്കിൽ(ssl->issuercert_blob) {
+      result = cf_ssl_peer_താക്കോൽ_add_hash(&buf, "IssuerBlob",
                                         ssl->issuercert_blob);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
     }
   }
-  if(ssl->cert_blob) {
-    result = cf_ssl_peer_key_add_hash(&buf, "CertBlob", ssl->cert_blob);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->cert_blob) {
+    result = cf_ssl_peer_താക്കോൽ_add_hash(&buf, "CertBlob", ssl->cert_blob);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  if(ssl->pinned_key && ssl->pinned_key[0]) {
-    result = cf_ssl_peer_key_add_string(&buf, "Pinned", ssl->pinned_key);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl->pinned_താക്കോൽ && ssl->pinned_താക്കോൽ[0]) {
+    result = cf_ssl_peer_താക്കോൽ_add_string(&buf, "Pinned", ssl->pinned_താക്കോൽ);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
-  result = cf_ssl_peer_key_add_mtls(&buf, ssl, &is_local);
-  if(result)
-    goto out;
+  result = cf_ssl_peer_താക്കോൽ_add_mtls(&buf, ssl, &is_local);
+  എങ്കിൽ(result)
+    പോകുക out;
 
-  if(!tls_id || !tls_id[0]) {
+  എങ്കിൽ(!tls_id || !tls_id[0]) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
-  result = cf_ssl_peer_key_add_string(&buf, "IMPL", tls_id);
-  if(result)
-    goto out;
+  result = cf_ssl_peer_താക്കോൽ_add_string(&buf, "IMPL", tls_id);
+  എങ്കിൽ(result)
+    പോകുക out;
 
   result = curlx_dyn_addf(&buf, is_local ?
                           CURL_SSLS_LOCAL_SUFFIX : CURL_SSLS_GLOBAL_SUFFIX);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
-  *ppeer_key = curlx_dyn_take(&buf, &key_len);
+  *ppeer_താക്കോൽ = curlx_dyn_take(&buf, &താക്കോൽ_len);
   /* we added printable char, and dynbuf always null-terminates, no need
    * to track length */
 
 out:
   curlx_dyn_free(&buf);
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
-                                struct ssl_filter_config *sslc,
-                                const char *tls_id,
-                                char **ppeer_key)
+CURLcode Curl_ssl_peer_താക്കോൽ_make(സ്ഥിരം ഘടന ssl_peer *peer,
+                                ഘടന ssl_filter_config *sslc,
+                                സ്ഥിരം അക്ഷരം *tls_id,
+                                അക്ഷരം **ppeer_താക്കോൽ)
 {
-  return ssl_peer_key_build(sslc, peer, tls_id, ppeer_key);
+  തിരികെ ssl_peer_താക്കോൽ_build(sslc, peer, tls_id, ppeer_താക്കോൽ);
 }
 
-struct Curl_ssl_scache {
-  unsigned int magic;
-  struct Curl_ssl_scache_peer *peers;
-  size_t peer_count;
-  int default_lifetime_secs;
+ഘടന Curl_ssl_scache {
+  unsigned പൂർണ്ണസംഖ്യ magic;
+  ഘടന Curl_ssl_scache_peer *peers;
+  size_t peer_എണ്ണം;
+  പൂർണ്ണസംഖ്യ default_lifetime_secs;
   long age;
 #ifdef USE_MUTEX
   curl_mutex_t mutex;
@@ -374,62 +374,62 @@ struct Curl_ssl_scache {
   BIT(is_locked);
 };
 
-static struct Curl_ssl_scache *cf_ssl_scache_get(struct Curl_easy *data)
+സ്ഥിതം ഘടന Curl_ssl_scache *cf_ssl_scache_get(ഘടന Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = NULL;
+  ഘടന Curl_ssl_scache *scache = ശൂന്യ;
   /* If a share is present, its ssl_scache has preference over the multi */
-  if(data->share && data->share->ssl_scache)
+  എങ്കിൽ(data->share && data->share->ssl_scache)
     scache = data->share->ssl_scache;
-  else if(data->multi && data->multi->ssl_scache)
+  അല്ലെങ്കിൽ എങ്കിൽ(data->multi && data->multi->ssl_scache)
     scache = data->multi->ssl_scache;
-  if(scache && !GOOD_SCACHE(scache)) {
+  എങ്കിൽ(scache && !GOOD_SCACHE(scache)) {
     failf(data, "transfer would use an invalid scache at %p, denied",
-          (void *)scache);
+          (ശൂന്യം *)scache);
     DEBUGASSERT(0);
-    return NULL;
+    തിരികെ ശൂന്യ;
   }
-  return scache;
+  തിരികെ scache;
 }
 
-static void cf_ssl_scache_session_ldestroy(void *udata, void *obj)
+സ്ഥിതം ശൂന്യം cf_ssl_scache_session_ldestroy(ശൂന്യം *udata, ശൂന്യം *obj)
 {
-  struct Curl_ssl_session *s = obj;
-  (void)udata;
+  ഘടന Curl_ssl_session *s = obj;
+  (ശൂന്യം)udata;
   curlx_free(s->sdata);
   curlx_free(s->quic_tp);
   curlx_free(s->alpn);
   curlx_free(s);
 }
 
-CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create(ശൂന്യം *sdata, size_t sdata_len,
+                                 പൂർണ്ണസംഖ്യ ietf_tls_id, സ്ഥിരം അക്ഷരം *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
-                                 struct Curl_ssl_session **psession)
+                                 ഘടന Curl_ssl_session **psession)
 {
-  return Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
+  തിരികെ Curl_ssl_session_create2(sdata, sdata_len, ietf_tls_id, alpn,
                                   valid_until, earlydata_max,
-                                  NULL, 0, psession);
+                                  ശൂന്യ, 0, psession);
 }
 
-CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+CURLcode Curl_ssl_session_create2(ശൂന്യം *sdata, size_t sdata_len,
+                                  പൂർണ്ണസംഖ്യ ietf_tls_id, സ്ഥിരം അക്ഷരം *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
-                                  unsigned char *quic_tp, size_t quic_tp_len,
-                                  struct Curl_ssl_session **psession)
+                                  unsigned അക്ഷരം *quic_tp, size_t quic_tp_len,
+                                  ഘടന Curl_ssl_session **psession)
 {
-  struct Curl_ssl_session *s;
+  ഘടന Curl_ssl_session *s;
 
-  if(!sdata || !sdata_len) {
+  എങ്കിൽ(!sdata || !sdata_len) {
     curlx_free(sdata);
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  *psession = NULL;
-  s = curlx_calloc(1, sizeof(*s));
-  if(!s) {
+  *psession = ശൂന്യ;
+  s = curlx_calloc(1, വലുപ്പം(*s));
+  എങ്കിൽ(!s) {
     curlx_free(sdata);
     curlx_free(quic_tp);
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
   s->ietf_tls_id = ietf_tls_id;
@@ -439,223 +439,223 @@ CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
   s->sdata_len = sdata_len;
   s->quic_tp = quic_tp;
   s->quic_tp_len = quic_tp_len;
-  if(alpn) {
+  എങ്കിൽ(alpn) {
     s->alpn = curlx_strdup(alpn);
-    if(!s->alpn) {
-      cf_ssl_scache_session_ldestroy(NULL, s);
-      return CURLE_OUT_OF_MEMORY;
+    എങ്കിൽ(!s->alpn) {
+      cf_ssl_scache_session_ldestroy(ശൂന്യ, s);
+      തിരികെ CURLE_OUT_OF_MEMORY;
     }
   }
   *psession = s;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-void Curl_ssl_session_destroy(struct Curl_ssl_session *s)
+ശൂന്യം Curl_ssl_session_destroy(ഘടന Curl_ssl_session *s)
 {
-  if(s) {
+  എങ്കിൽ(s) {
     /* if in the list, the list destructor takes care of it */
-    if(Curl_node_llist(&s->list))
-      Curl_node_remove(&s->list);
-    else {
-      cf_ssl_scache_session_ldestroy(NULL, s);
+    എങ്കിൽ(Curl_കണ്ണി_llist(&s->list))
+      Curl_കണ്ണി_remove(&s->list);
+    അല്ലെങ്കിൽ {
+      cf_ssl_scache_session_ldestroy(ശൂന്യ, s);
     }
   }
 }
 
-CURLcode Curl_ssl_session_dup(struct Curl_ssl_session *src,
-                              struct Curl_ssl_session **pdest)
+CURLcode Curl_ssl_session_dup(ഘടന Curl_ssl_session *src,
+                              ഘടന Curl_ssl_session **pdest)
 {
-  struct Curl_ssl_session *dest = NULL;
+  ഘടന Curl_ssl_session *dest = ശൂന്യ;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  if(!src || !pdest)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  *pdest = NULL;
+  എങ്കിൽ(!src || !pdest)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
+  *pdest = ശൂന്യ;
 
-  dest = curlx_calloc(1, sizeof(*dest));
-  if(!dest)
-    goto out;
+  dest = curlx_calloc(1, വലുപ്പം(*dest));
+  എങ്കിൽ(!dest)
+    പോകുക out;
 
   dest->ietf_tls_id = src->ietf_tls_id;
   dest->valid_until = src->valid_until;
   dest->earlydata_max = src->earlydata_max;
   dest->sectrust_verified = src->sectrust_verified;
-  if(src->sdata_len) {
+  എങ്കിൽ(src->sdata_len) {
     dest->sdata = curlx_memdup(src->sdata, src->sdata_len);
-    if(!dest->sdata)
-      goto out;
+    എങ്കിൽ(!dest->sdata)
+      പോകുക out;
     dest->sdata_len = src->sdata_len;
   }
-  if(src->quic_tp_len) {
+  എങ്കിൽ(src->quic_tp_len) {
     dest->quic_tp = curlx_memdup(src->quic_tp, src->quic_tp_len);
-    if(!dest->quic_tp)
-      goto out;
+    എങ്കിൽ(!dest->quic_tp)
+      പോകുക out;
     dest->quic_tp_len = src->quic_tp_len;
   }
-  if(src->alpn) {
+  എങ്കിൽ(src->alpn) {
     dest->alpn = curlx_strdup(src->alpn);
-    if(!dest->alpn)
-      goto out;
+    എങ്കിൽ(!dest->alpn)
+      പോകുക out;
   }
   result = CURLE_OK;
 
 out:
-  if(!result)
+  എങ്കിൽ(!result)
     *pdest = dest;
-  else {
-    *pdest = NULL;
-    if(dest)
+  അല്ലെങ്കിൽ {
+    *pdest = ശൂന്യ;
+    എങ്കിൽ(dest)
       Curl_ssl_session_destroy(dest);
   }
-  return result;
+  തിരികെ result;
 }
 
-static void cf_ssl_scache_clear_peer(struct Curl_ssl_scache_peer *peer)
+സ്ഥിതം ശൂന്യം cf_ssl_scache_clear_peer(ഘടന Curl_ssl_scache_peer *peer)
 {
-  Curl_llist_destroy(&peer->sessions, NULL);
-  if(peer->sobj) {
+  Curl_llist_destroy(&peer->sessions, ശൂന്യ);
+  എങ്കിൽ(peer->sobj) {
     DEBUGASSERT(peer->sobj_free);
-    if(peer->sobj_free)
+    എങ്കിൽ(peer->sobj_free)
       peer->sobj_free(peer->sobj);
-    peer->sobj = NULL;
+    peer->sobj = ശൂന്യ;
   }
-  peer->sobj_free = NULL;
+  peer->sobj_free = ശൂന്യ;
   curlx_safefree(peer->clientcert);
-  curlx_safefree(peer->key_passwd);
-  curlx_safefree(peer->ssl_peer_key);
+  curlx_safefree(peer->താക്കോൽ_passwd);
+  curlx_safefree(peer->ssl_peer_താക്കോൽ);
   peer->age = 0;
   peer->hmac_set = FALSE;
 }
 
-static void cf_ssl_scache_peer_set_obj(struct Curl_ssl_scache_peer *peer,
-                                       void *sobj,
+സ്ഥിതം ശൂന്യം cf_ssl_scache_peer_set_obj(ഘടന Curl_ssl_scache_peer *peer,
+                                       ശൂന്യം *sobj,
                                        Curl_ssl_scache_obj_dtor *sobj_free)
 {
   DEBUGASSERT(peer);
-  if(peer->sobj_free) {
+  എങ്കിൽ(peer->sobj_free) {
     peer->sobj_free(peer->sobj);
   }
   peer->sobj = sobj;
   peer->sobj_free = sobj_free;
 }
 
-static void cf_ssl_cache_peer_update(struct Curl_ssl_scache_peer *peer)
+സ്ഥിതം ശൂന്യം cf_ssl_cache_peer_update(ഘടന Curl_ssl_scache_peer *peer)
 {
   /* The sessions of this peer are exportable if
    * - it has no confidential information
    * - its peer key is not yet known, because sessions were
    *   imported using only the salt+hmac
    * - the peer key is global, e.g. carrying no relative paths */
-  peer->exportable = (!peer->clientcert && !peer->key_passwd &&
-                      (!peer->ssl_peer_key ||
-                       cf_ssl_peer_key_is_global(peer->ssl_peer_key)));
+  peer->exportable = (!peer->clientcert && !peer->താക്കോൽ_passwd &&
+                      (!peer->ssl_peer_താക്കോൽ ||
+                       cf_ssl_peer_താക്കോൽ_is_global(peer->ssl_peer_താക്കോൽ)));
 }
 
-static CURLcode cf_ssl_scache_peer_init(struct Curl_ssl_scache_peer *peer,
-                                        const char *ssl_peer_key,
-                                        const char *clientcert,
-                                        const char *key_passwd,
-                                        const unsigned char *salt,
-                                        const unsigned char *hmac)
+സ്ഥിതം CURLcode cf_ssl_scache_peer_init(ഘടന Curl_ssl_scache_peer *peer,
+                                        സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                                        സ്ഥിരം അക്ഷരം *clientcert,
+                                        സ്ഥിരം അക്ഷരം *താക്കോൽ_passwd,
+                                        സ്ഥിരം unsigned അക്ഷരം *salt,
+                                        സ്ഥിരം unsigned അക്ഷരം *hmac)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  DEBUGASSERT(!peer->ssl_peer_key);
-  if(ssl_peer_key) {
-    peer->ssl_peer_key = curlx_strdup(ssl_peer_key);
-    if(!peer->ssl_peer_key)
-      goto out;
+  DEBUGASSERT(!peer->ssl_peer_താക്കോൽ);
+  എങ്കിൽ(ssl_peer_താക്കോൽ) {
+    peer->ssl_peer_താക്കോൽ = curlx_strdup(ssl_peer_താക്കോൽ);
+    എങ്കിൽ(!peer->ssl_peer_താക്കോൽ)
+      പോകുക out;
     peer->hmac_set = FALSE;
   }
-  else if(salt && hmac) {
-    memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
-    memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
+  അല്ലെങ്കിൽ എങ്കിൽ(salt && hmac) {
+    memcpy(peer->താക്കോൽ_salt, salt, വലുപ്പം(peer->താക്കോൽ_salt));
+    memcpy(peer->താക്കോൽ_hmac, hmac, വലുപ്പം(peer->താക്കോൽ_hmac));
     peer->hmac_set = TRUE;
   }
-  else {
+  അല്ലെങ്കിൽ {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    പോകുക out;
   }
-  if(clientcert) {
+  എങ്കിൽ(clientcert) {
     peer->clientcert = curlx_strdup(clientcert);
-    if(!peer->clientcert)
-      goto out;
+    എങ്കിൽ(!peer->clientcert)
+      പോകുക out;
   }
-  if(key_passwd) {
-    peer->key_passwd = curlx_strdup(key_passwd);
-    if(!peer->key_passwd)
-      goto out;
+  എങ്കിൽ(താക്കോൽ_passwd) {
+    peer->താക്കോൽ_passwd = curlx_strdup(താക്കോൽ_passwd);
+    എങ്കിൽ(!peer->താക്കോൽ_passwd)
+      പോകുക out;
   }
   cf_ssl_cache_peer_update(peer);
   result = CURLE_OK;
 out:
-  if(result)
+  എങ്കിൽ(result)
     cf_ssl_scache_clear_peer(peer);
-  return result;
+  തിരികെ result;
 }
 
-static void cf_scache_session_remove(struct Curl_ssl_scache_peer *peer,
-                                     struct Curl_ssl_session *s)
+സ്ഥിതം ശൂന്യം cf_scache_session_remove(ഘടന Curl_ssl_scache_peer *peer,
+                                     ഘടന Curl_ssl_session *s)
 {
-  (void)peer;
-  DEBUGASSERT(Curl_node_llist(&s->list) == &peer->sessions);
+  (ശൂന്യം)peer;
+  DEBUGASSERT(Curl_കണ്ണി_llist(&s->list) == &peer->sessions);
   Curl_ssl_session_destroy(s);
 }
 
-static bool cf_scache_session_expired(struct Curl_ssl_session *s,
+സ്ഥിതം bool cf_scache_session_expired(ഘടന Curl_ssl_session *s,
                                       curl_off_t now)
 {
-  return (s->valid_until > 0) && (s->valid_until < now);
+  തിരികെ (s->valid_until > 0) && (s->valid_until < now);
 }
 
-static void cf_scache_peer_remove_expired(struct Curl_ssl_scache_peer *peer,
+സ്ഥിതം ശൂന്യം cf_scache_peer_remove_expired(ഘടന Curl_ssl_scache_peer *peer,
                                           curl_off_t now)
 {
-  struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
-    struct Curl_ssl_session *s = Curl_node_elem(n);
-    n = Curl_node_next(n);
-    if(cf_scache_session_expired(s, now))
+  ഘടന Curl_llist_കണ്ണി *n = Curl_llist_head(&peer->sessions);
+  ആകുമ്പോൾ(n) {
+    ഘടന Curl_ssl_session *s = Curl_കണ്ണി_elem(n);
+    n = Curl_കണ്ണി_next(n);
+    എങ്കിൽ(cf_scache_session_expired(s, now))
       cf_scache_session_remove(peer, s);
   }
 }
 
-static void cf_scache_peer_remove_non13(struct Curl_ssl_scache_peer *peer)
+സ്ഥിതം ശൂന്യം cf_scache_peer_remove_non13(ഘടന Curl_ssl_scache_peer *peer)
 {
-  struct Curl_llist_node *n = Curl_llist_head(&peer->sessions);
-  while(n) {
-    struct Curl_ssl_session *s = Curl_node_elem(n);
-    n = Curl_node_next(n);
-    if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
+  ഘടന Curl_llist_കണ്ണി *n = Curl_llist_head(&peer->sessions);
+  ആകുമ്പോൾ(n) {
+    ഘടന Curl_ssl_session *s = Curl_കണ്ണി_elem(n);
+    n = Curl_കണ്ണി_next(n);
+    എങ്കിൽ(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3)
       cf_scache_session_remove(peer, s);
   }
 }
 
 CURLcode Curl_ssl_scache_create(size_t max_peers,
                                 size_t max_sessions_per_peer,
-                                struct Curl_ssl_scache **pscache)
+                                ഘടന Curl_ssl_scache **pscache)
 {
-  struct Curl_ssl_scache *scache;
-  struct Curl_ssl_scache_peer *peers;
+  ഘടന Curl_ssl_scache *scache;
+  ഘടന Curl_ssl_scache_peer *peers;
   size_t i;
 
-  *pscache = NULL;
-  peers = curlx_calloc(max_peers, sizeof(*peers));
-  if(!peers)
-    return CURLE_OUT_OF_MEMORY;
+  *pscache = ശൂന്യ;
+  peers = curlx_calloc(max_peers, വലുപ്പം(*peers));
+  എങ്കിൽ(!peers)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  scache = curlx_calloc(1, sizeof(*scache));
-  if(!scache) {
+  scache = curlx_calloc(1, വലുപ്പം(*scache));
+  എങ്കിൽ(!scache) {
     curlx_free(peers);
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
   scache->magic = CURL_SCACHE_MAGIC;
   scache->default_lifetime_secs = (24 * 60 * 60); /* 1 day */
-  scache->peer_count = max_peers;
+  scache->peer_എണ്ണം = max_peers;
   scache->peers = peers;
   scache->age = 1;
-  for(i = 0; i < scache->peer_count; ++i) {
+  വേണ്ടി(i = 0; i < scache->peer_എണ്ണം; ++i) {
     scache->peers[i].max_sessions = max_sessions_per_peer;
     Curl_llist_init(&scache->peers[i].sessions,
                     cf_ssl_scache_session_ldestroy);
@@ -664,15 +664,15 @@ CURLcode Curl_ssl_scache_create(size_t max_peers,
   Curl_mutex_init(&scache->mutex);
 #endif
   *pscache = scache;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
+ശൂന്യം Curl_ssl_scache_destroy(ഘടന Curl_ssl_scache *scache)
 {
-  if(GOOD_SCACHE(scache)) {
+  എങ്കിൽ(GOOD_SCACHE(scache)) {
     size_t i;
     scache->magic = 0;
-    for(i = 0; i < scache->peer_count; ++i) {
+    വേണ്ടി(i = 0; i < scache->peer_എണ്ണം; ++i) {
       cf_ssl_scache_clear_peer(&scache->peers[i]);
     }
     curlx_free(scache->peers);
@@ -683,22 +683,22 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache)
   }
 }
 
-bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data)
+bool Curl_ssl_scache_use(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data)
 {
-  if(cf_ssl_scache_get(data)) {
-    struct ssl_filter_config *conn_config =
+  എങ്കിൽ(cf_ssl_scache_get(data)) {
+    ഘടന ssl_filter_config *conn_config =
       Curl_ssl_cf_get_filter_config(cf);
-    return conn_config ? conn_config->cache_session : FALSE;
+    തിരികെ conn_config ? conn_config->cache_session : FALSE;
   }
-  return FALSE;
+  തിരികെ FALSE;
 }
 
 /* Lock shared SSL session data */
-void Curl_ssl_scache_lock(struct Curl_easy *data)
+ശൂന്യം Curl_ssl_scache_lock(ഘടന Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
-    if(CURL_SHARE_ssl_scache(data))
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  എങ്കിൽ(scache) {
+    എങ്കിൽ(CURL_SHARE_ssl_scache(data))
       Curl_share_lock(data, CURL_LOCK_DATA_SSL_SESSION,
                       CURL_LOCK_ACCESS_SINGLE);
 #ifdef USE_MUTEX
@@ -707,7 +707,7 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
     Curl_mutex_release(&scache->mutex);
-#else
+#അല്ലെങ്കിൽ
     DEBUGASSERT(!scache->is_locked);
     scache->is_locked = TRUE;
 #endif
@@ -715,428 +715,428 @@ void Curl_ssl_scache_lock(struct Curl_easy *data)
 }
 
 /* Unlock shared SSL session data */
-void Curl_ssl_scache_unlock(struct Curl_easy *data)
+ശൂന്യം Curl_ssl_scache_unlock(ഘടന Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  if(scache) {
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  എങ്കിൽ(scache) {
 #ifdef USE_MUTEX
     Curl_mutex_acquire(&scache->mutex);
     scache->locking_thread = 0;
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
     Curl_mutex_release(&scache->mutex);
-#else
+#അല്ലെങ്കിൽ
     DEBUGASSERT(scache->is_locked);
     scache->is_locked = FALSE;
 #endif
-    if(CURL_SHARE_ssl_scache(data))
+    എങ്കിൽ(CURL_SHARE_ssl_scache(data))
       Curl_share_unlock(data, CURL_LOCK_DATA_SSL_SESSION);
   }
 }
 
-bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data)
+bool Curl_ssl_scache_is_locked_by_current_thread(ഘടന Curl_easy *data)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
   bool locked = FALSE;
-  if(!scache)
-    return FALSE;
+  എങ്കിൽ(!scache)
+    തിരികെ FALSE;
 #ifdef USE_MUTEX
   Curl_mutex_acquire(&scache->mutex);
   locked = scache->is_locked && Curl_thread_is_current(scache->locking_thread);
   Curl_mutex_release(&scache->mutex);
-#else
+#അല്ലെങ്കിൽ
   locked = (bool)scache->is_locked;
 #endif
-  return locked;
+  തിരികെ locked;
 }
 
-static bool cf_ssl_scache_match_auth(struct Curl_ssl_scache_peer *peer,
-                                     struct ssl_filter_config *conn_config)
+സ്ഥിതം bool cf_ssl_scache_match_auth(ഘടന Curl_ssl_scache_peer *peer,
+                                     ഘടന ssl_filter_config *conn_config)
 {
-  if(!conn_config) {
-    if(peer->clientcert || peer->key_passwd)
-      return FALSE;
-    return TRUE;
+  എങ്കിൽ(!conn_config) {
+    എങ്കിൽ(peer->clientcert || peer->താക്കോൽ_passwd)
+      തിരികെ FALSE;
+    തിരികെ TRUE;
   }
-  else if(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
-    return FALSE;
-  if(Curl_timestrcmp(peer->key_passwd, conn_config->key_passwd))
-    return FALSE;
-  return TRUE;
+  അല്ലെങ്കിൽ എങ്കിൽ(!Curl_safecmp(peer->clientcert, conn_config->clientcert))
+    തിരികെ FALSE;
+  എങ്കിൽ(Curl_timestrcmp(peer->താക്കോൽ_passwd, conn_config->താക്കോൽ_passwd))
+    തിരികെ FALSE;
+  തിരികെ TRUE;
 }
 
-static CURLcode cf_ssl_find_peer_by_key(struct Curl_easy *data,
-                                        struct Curl_ssl_scache *scache,
-                                        const char *ssl_peer_key,
-                                        struct ssl_filter_config *conn_config,
-                                        struct Curl_ssl_scache_peer **ppeer)
+സ്ഥിതം CURLcode cf_ssl_find_peer_by_താക്കോൽ(ഘടന Curl_easy *data,
+                                        ഘടന Curl_ssl_scache *scache,
+                                        സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                                        ഘടന ssl_filter_config *conn_config,
+                                        ഘടന Curl_ssl_scache_peer **ppeer)
 {
-  size_t i, peer_key_len = 0;
+  size_t i, peer_താക്കോൽ_len = 0;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(!GOOD_SCACHE(scache)) {
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  *ppeer = ശൂന്യ;
+  എങ്കിൽ(!GOOD_SCACHE(scache)) {
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
   CURL_TRC_SSLS(data, "find peer slot for %s among %zu slots",
-                ssl_peer_key, scache->peer_count);
+                ssl_peer_താക്കോൽ, scache->peer_എണ്ണം);
 
   /* check for entries with known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(scache->peers[i].ssl_peer_key &&
-       !strcmp(ssl_peer_key, scache->peers[i].ssl_peer_key) &&
+  വേണ്ടി(i = 0; scache && i < scache->peer_എണ്ണം; i++) {
+    എങ്കിൽ(scache->peers[i].ssl_peer_താക്കോൽ &&
+       !strcmp(ssl_peer_താക്കോൽ, scache->peers[i].ssl_peer_താക്കോൽ) &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* yes, we have a cached session for this! */
       *ppeer = &scache->peers[i];
-      goto out;
+      പോകുക out;
     }
   }
   /* check for entries with HMAC set but no known peer_key */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    if(!scache->peers[i].ssl_peer_key &&
+  വേണ്ടി(i = 0; scache && i < scache->peer_എണ്ണം; i++) {
+    എങ്കിൽ(!scache->peers[i].ssl_peer_താക്കോൽ &&
        scache->peers[i].hmac_set &&
        cf_ssl_scache_match_auth(&scache->peers[i], conn_config)) {
       /* possible entry with unknown peer_key, check hmac */
-      unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
-      if(!peer_key_len) /* we are lazy */
-        peer_key_len = strlen(ssl_peer_key);
+      unsigned അക്ഷരം my_hmac[CURL_SHA256_DIGEST_LENGTH];
+      എങ്കിൽ(!peer_താക്കോൽ_len) /* we are lazy */
+        peer_താക്കോൽ_len = strlen(ssl_peer_താക്കോൽ);
       result = Curl_hmacit(&Curl_HMAC_SHA256,
-                           scache->peers[i].key_salt,
-                           sizeof(scache->peers[i].key_salt),
-                           (const unsigned char *)ssl_peer_key,
-                           peer_key_len,
+                           scache->peers[i].താക്കോൽ_salt,
+                           വലുപ്പം(scache->peers[i].താക്കോൽ_salt),
+                           (സ്ഥിരം unsigned അക്ഷരം *)ssl_peer_താക്കോൽ,
+                           peer_താക്കോൽ_len,
                            my_hmac);
-      if(result)
-        goto out;
-      if(!memcmp(scache->peers[i].key_hmac, my_hmac, sizeof(my_hmac))) {
+      എങ്കിൽ(result)
+        പോകുക out;
+      എങ്കിൽ(!memcmp(scache->peers[i].താക്കോൽ_hmac, my_hmac, വലുപ്പം(my_hmac))) {
         /* remember peer_key for future lookups */
         CURL_TRC_SSLS(data, "peer entry %zu key recovered: %s",
-                      i, ssl_peer_key);
-        scache->peers[i].ssl_peer_key = curlx_strdup(ssl_peer_key);
-        if(!scache->peers[i].ssl_peer_key) {
+                      i, ssl_peer_താക്കോൽ);
+        scache->peers[i].ssl_peer_താക്കോൽ = curlx_strdup(ssl_peer_താക്കോൽ);
+        എങ്കിൽ(!scache->peers[i].ssl_peer_താക്കോൽ) {
           result = CURLE_OUT_OF_MEMORY;
-          goto out;
+          പോകുക out;
         }
         cf_ssl_cache_peer_update(&scache->peers[i]);
         *ppeer = &scache->peers[i];
-        goto out;
+        പോകുക out;
       }
     }
   }
-  CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_key);
+  CURL_TRC_SSLS(data, "peer not found for %s", ssl_peer_താക്കോൽ);
 out:
-  return result;
+  തിരികെ result;
 }
 
-static struct Curl_ssl_scache_peer *cf_ssl_get_free_peer(
-  struct Curl_ssl_scache *scache)
+സ്ഥിതം ഘടന Curl_ssl_scache_peer *cf_ssl_get_free_peer(
+  ഘടന Curl_ssl_scache *scache)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
   size_t i;
 
   /* find empty or oldest peer */
-  for(i = 0; i < scache->peer_count; ++i) {
+  വേണ്ടി(i = 0; i < scache->peer_എണ്ണം; ++i) {
     /* free peer entry? */
-    if(!scache->peers[i].ssl_peer_key && !scache->peers[i].hmac_set) {
+    എങ്കിൽ(!scache->peers[i].ssl_peer_താക്കോൽ && !scache->peers[i].hmac_set) {
       peer = &scache->peers[i];
-      break;
+      നിർത്തുക;
     }
     /* peer without sessions and obj */
-    if(!scache->peers[i].sobj &&
-       !Curl_llist_count(&scache->peers[i].sessions)) {
+    എങ്കിൽ(!scache->peers[i].sobj &&
+       !Curl_llist_എണ്ണം(&scache->peers[i].sessions)) {
       peer = &scache->peers[i];
-      break;
+      നിർത്തുക;
     }
     /* remember "oldest" peer */
-    if(!peer || (scache->peers[i].age < peer->age)) {
+    എങ്കിൽ(!peer || (scache->peers[i].age < peer->age)) {
       peer = &scache->peers[i];
     }
   }
   DEBUGASSERT(peer);
-  if(peer)
+  എങ്കിൽ(peer)
     cf_ssl_scache_clear_peer(peer);
-  return peer;
+  തിരികെ peer;
 }
 
-static CURLcode cf_ssl_add_peer(struct Curl_easy *data,
-                                struct Curl_ssl_scache *scache,
-                                const char *ssl_peer_key,
-                                struct ssl_filter_config *conn_config,
-                                struct Curl_ssl_scache_peer **ppeer)
+സ്ഥിതം CURLcode cf_ssl_add_peer(ഘടന Curl_easy *data,
+                                ഘടന Curl_ssl_scache *scache,
+                                സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                                ഘടന ssl_filter_config *conn_config,
+                                ഘടന Curl_ssl_scache_peer **ppeer)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(ssl_peer_key) {
-    result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  *ppeer = ശൂന്യ;
+  എങ്കിൽ(ssl_peer_താക്കോൽ) {
+    result = cf_ssl_find_peer_by_താക്കോൽ(data, scache, ssl_peer_താക്കോൽ, conn_config,
                                      &peer);
-    if(result || !scache->peer_count)
-      return result;
+    എങ്കിൽ(result || !scache->peer_എണ്ണം)
+      തിരികെ result;
   }
 
-  if(peer) {
+  എങ്കിൽ(peer) {
     *ppeer = peer;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   peer = cf_ssl_get_free_peer(scache);
-  if(peer) {
-    char buffer[64];
-    const char *ccert = conn_config ? conn_config->clientcert : NULL;
-    const char *kpasswd = conn_config ? conn_config->key_passwd : NULL;
-    if(!ccert && conn_config && conn_config->cert_blob) {
+  എങ്കിൽ(peer) {
+    അക്ഷരം buffer[64];
+    സ്ഥിരം അക്ഷരം *ccert = conn_config ? conn_config->clientcert : ശൂന്യ;
+    സ്ഥിരം അക്ഷരം *kpasswd = conn_config ? conn_config->താക്കോൽ_passwd : ശൂന്യ;
+    എങ്കിൽ(!ccert && conn_config && conn_config->cert_blob) {
       /* when using a client cert blob, create a name for it */
-      curl_msnprintf(buffer, sizeof(buffer),
+      curl_msnprintf(buffer, വലുപ്പം(buffer),
                      "cert-%p", conn_config->cert_blob->data);
       ccert = buffer; /* data is strduped by cf_ssl_scache_peer_init */
     }
-    result = cf_ssl_scache_peer_init(peer, ssl_peer_key, ccert, kpasswd,
-                                     NULL, NULL);
-    if(result)
-      goto out;
+    result = cf_ssl_scache_peer_init(peer, ssl_peer_താക്കോൽ, ccert, kpasswd,
+                                     ശൂന്യ, ശൂന്യ);
+    എങ്കിൽ(result)
+      പോകുക out;
     /* all ready */
     *ppeer = peer;
     result = CURLE_OK;
   }
 
 out:
-  if(result) {
+  എങ്കിൽ(result) {
     cf_ssl_scache_clear_peer(peer);
   }
-  return result;
+  തിരികെ result;
 }
 
-static void cf_scache_peer_add_session(struct Curl_ssl_scache_peer *peer,
-                                       struct Curl_ssl_session *s,
+സ്ഥിതം ശൂന്യം cf_scache_peer_add_session(ഘടന Curl_ssl_scache_peer *peer,
+                                       ഘടന Curl_ssl_session *s,
                                        curl_off_t now)
 {
   /* A session not from TLSv1.3 replaces all other. */
-  if(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
-    Curl_llist_destroy(&peer->sessions, NULL);
+  എങ്കിൽ(s->ietf_tls_id != CURL_IETF_PROTO_TLS1_3) {
+    Curl_llist_destroy(&peer->sessions, ശൂന്യ);
     Curl_llist_append(&peer->sessions, s, &s->list);
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* Expire existing, append, trim from head to obey max_sessions */
     cf_scache_peer_remove_expired(peer, now);
     cf_scache_peer_remove_non13(peer);
     Curl_llist_append(&peer->sessions, s, &s->list);
-    while(Curl_llist_count(&peer->sessions) > peer->max_sessions) {
-      Curl_node_remove(Curl_llist_head(&peer->sessions));
+    ആകുമ്പോൾ(Curl_llist_എണ്ണം(&peer->sessions) > peer->max_sessions) {
+      Curl_കണ്ണി_remove(Curl_llist_head(&peer->sessions));
     }
   }
 }
 
-static CURLcode cf_scache_add_session(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct Curl_ssl_scache *scache,
-                                      const char *ssl_peer_key,
-                                      struct Curl_ssl_session *s)
+സ്ഥിതം CURLcode cf_scache_add_session(ഘടന Curl_cfilter *cf,
+                                      ഘടന Curl_easy *data,
+                                      ഘടന Curl_ssl_scache *scache,
+                                      സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                                      ഘടന Curl_ssl_session *s)
 {
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  curl_off_t now = (curl_off_t)time(NULL);
+  curl_off_t now = (curl_off_t)time(ശൂന്യ);
   curl_off_t max_lifetime;
 
-  if(!scache || !scache->peer_count) {
+  എങ്കിൽ(!scache || !scache->peer_എണ്ണം) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
-  if(s->valid_until <= 0)
+  എങ്കിൽ(s->valid_until <= 0)
     s->valid_until = now + scache->default_lifetime_secs;
 
   max_lifetime = (s->ietf_tls_id == CURL_IETF_PROTO_TLS1_3) ?
                  CURL_SCACHE_MAX_13_LIFETIME_SEC :
                  CURL_SCACHE_MAX_12_LIFETIME_SEC;
-  if(s->valid_until > (now + max_lifetime))
+  എങ്കിൽ(s->valid_until > (now + max_lifetime))
     s->valid_until = now + max_lifetime;
 
-  if(cf_scache_session_expired(s, now)) {
+  എങ്കിൽ(cf_scache_session_expired(s, now)) {
     CURL_TRC_SSLS(data, "add, session already expired");
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
-  result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
+  result = cf_ssl_add_peer(data, scache, ssl_peer_താക്കോൽ, conn_config, &peer);
+  എങ്കിൽ(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (പൂർണ്ണസംഖ്യ)result);
     Curl_ssl_session_destroy(s);
-    goto out;
+    പോകുക out;
   }
 
   cf_scache_peer_add_session(peer, s, now);
 
 out:
-  if(result) {
+  എങ്കിൽ(result) {
     failf(data, "[SCACHE] failed to add session for %s, error=%d",
-          ssl_peer_key, (int)result);
+          ssl_peer_താക്കോൽ, (പൂർണ്ണസംഖ്യ)result);
   }
-  else
+  അല്ലെങ്കിൽ
     CURL_TRC_SSLS(data, "added session for %s [proto=0x%x, "
                   "valid_secs=%" FMT_OFF_T ", alpn=%s, earlydata=%zu, "
-                  "quic_tp=%s], peer has %zu sessions now", ssl_peer_key,
-                  (unsigned int)s->ietf_tls_id, s->valid_until - now,
+                  "quic_tp=%s], peer has %zu sessions now", ssl_peer_താക്കോൽ,
+                  (unsigned പൂർണ്ണസംഖ്യ)s->ietf_tls_id, s->valid_until - now,
                   s->alpn, s->earlydata_max, s->quic_tp ? "yes" : "no",
-                  peer ? Curl_llist_count(&peer->sessions) : 0);
-  return result;
+                  peer ? Curl_llist_എണ്ണം(&peer->sessions) : 0);
+  തിരികെ result;
 }
 
-CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             const char *ssl_peer_key,
-                             struct Curl_ssl_session *s)
+CURLcode Curl_ssl_scache_put(ഘടന Curl_cfilter *cf,
+                             ഘടന Curl_easy *data,
+                             സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                             ഘടന Curl_ssl_session *s)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result;
   DEBUGASSERT(conn_config);
 
-  if(!scache || !conn_config->cache_session) {
+  എങ്കിൽ(!scache || !conn_config->cache_session) {
     Curl_ssl_session_destroy(s);
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   Curl_ssl_scache_lock(data);
-  result = cf_scache_add_session(cf, data, scache, ssl_peer_key, s);
+  result = cf_scache_add_session(cf, data, scache, ssl_peer_താക്കോൽ, s);
   Curl_ssl_scache_unlock(data);
-  return result;
+  തിരികെ result;
 }
 
-void Curl_ssl_scache_return(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const char *ssl_peer_key,
-                            struct Curl_ssl_session *s)
+ശൂന്യം Curl_ssl_scache_return(ഘടന Curl_cfilter *cf,
+                            ഘടന Curl_easy *data,
+                            സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                            ഘടന Curl_ssl_session *s)
 {
   /* See RFC 8446 C.4:
    * "Clients SHOULD NOT reuse a ticket for multiple connections." */
-  if(s && s->ietf_tls_id < 0x304)
-    (void)Curl_ssl_scache_put(cf, data, ssl_peer_key, s);
-  else
+  എങ്കിൽ(s && s->ietf_tls_id < 0x304)
+    (ശൂന്യം)Curl_ssl_scache_put(cf, data, ssl_peer_താക്കോൽ, s);
+  അല്ലെങ്കിൽ
     Curl_ssl_session_destroy(s);
 }
 
-CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key,
-                              struct Curl_ssl_session **ps)
+CURLcode Curl_ssl_scache_take(ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
+                              സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                              ഘടന Curl_ssl_session **ps)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct Curl_llist_node *n;
-  struct Curl_ssl_session *s = NULL;
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
+  ഘടന Curl_llist_കണ്ണി *n;
+  ഘടന Curl_ssl_session *s = ശൂന്യ;
   CURLcode result;
 
-  *ps = NULL;
-  if(!scache)
-    return CURLE_OK;
+  *ps = ശൂന്യ;
+  എങ്കിൽ(!scache)
+    തിരികെ CURLE_OK;
 
   Curl_ssl_scache_lock(data);
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_താക്കോൽ(data, scache, ssl_peer_താക്കോൽ, conn_config,
                                    &peer);
-  if(!result && peer) {
-    cf_scache_peer_remove_expired(peer, (curl_off_t)time(NULL));
+  എങ്കിൽ(!result && peer) {
+    cf_scache_peer_remove_expired(peer, (curl_off_t)time(ശൂന്യ));
     n = Curl_llist_head(&peer->sessions);
-    if(n) {
-      s = Curl_node_take_elem(n);
+    എങ്കിൽ(n) {
+      s = Curl_കണ്ണി_take_elem(n);
       scache->age++;           /* increase general age */
       peer->age = scache->age; /* set this as used in this age */
     }
   }
-  if(s) {
+  എങ്കിൽ(s) {
     *ps = s;
     CURL_TRC_SSLS(data, "took session for %s [proto=0x%x, "
                   "alpn=%s, earlydata=%zu, quic_tp=%s], %zu sessions remain",
-                  ssl_peer_key, (unsigned int)s->ietf_tls_id, s->alpn,
+                  ssl_peer_താക്കോൽ, (unsigned പൂർണ്ണസംഖ്യ)s->ietf_tls_id, s->alpn,
                   s->earlydata_max, s->quic_tp ? "yes" : "no",
-                  Curl_llist_count(&peer->sessions));
+                  Curl_llist_എണ്ണം(&peer->sessions));
   }
-  else {
-    CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_key);
+  അല്ലെങ്കിൽ {
+    CURL_TRC_SSLS(data, "no cached session for %s", ssl_peer_താക്കോൽ);
   }
   Curl_ssl_scache_unlock(data);
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 void *sobj,
+CURLcode Curl_ssl_scache_add_obj(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                                 ശൂന്യം *sobj,
                                  Curl_ssl_scache_obj_dtor *sobj_dtor_cb)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
   CURLcode result;
 
   DEBUGASSERT(sobj);
   DEBUGASSERT(sobj_dtor_cb);
 
-  if(!scache) {
+  എങ്കിൽ(!scache) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    പോകുക out;
   }
 
-  result = cf_ssl_add_peer(data, scache, ssl_peer_key, conn_config, &peer);
-  if(result || !peer) {
-    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (int)result);
-    goto out;
+  result = cf_ssl_add_peer(data, scache, ssl_peer_താക്കോൽ, conn_config, &peer);
+  എങ്കിൽ(result || !peer) {
+    CURL_TRC_SSLS(data, "unable to add scache peer: %d", (പൂർണ്ണസംഖ്യ)result);
+    പോകുക out;
   }
 
   cf_ssl_scache_peer_set_obj(peer, sobj, sobj_dtor_cb);
-  sobj = NULL;  /* peer took ownership */
+  sobj = ശൂന്യ;  /* peer took ownership */
 
 out:
-  if(sobj && sobj_dtor_cb)
+  എങ്കിൽ(sobj && sobj_dtor_cb)
     sobj_dtor_cb(sobj);
-  return result;
+  തിരികെ result;
 }
 
-void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key)
+ശൂന്യം *Curl_ssl_scache_get_obj(ഘടന Curl_cfilter *cf,
+                              ഘടന Curl_easy *data,
+                              സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
   CURLcode result;
-  void *sobj;
+  ശൂന്യം *sobj;
 
-  if(!scache)
-    return NULL;
+  എങ്കിൽ(!scache)
+    തിരികെ ശൂന്യ;
 
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_താക്കോൽ(data, scache, ssl_peer_താക്കോൽ, conn_config,
                                    &peer);
-  if(result)
-    return NULL;
+  എങ്കിൽ(result)
+    തിരികെ ശൂന്യ;
 
-  sobj = peer ? peer->sobj : NULL;
+  sobj = peer ? peer->sobj : ശൂന്യ;
 
   CURL_TRC_SSLS(data, "%s cached session for '%s'",
-                sobj ? "Found" : "No", ssl_peer_key);
-  return sobj;
+                sobj ? "Found" : "No", ssl_peer_താക്കോൽ);
+  തിരികെ sobj;
 }
 
-void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const char *ssl_peer_key)
+ശൂന്യം Curl_ssl_scache_remove_all(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data,
+                                സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-  struct Curl_ssl_scache_peer *peer = NULL;
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
   CURLcode result;
 
-  (void)cf;
-  if(!scache)
-    return;
+  (ശൂന്യം)cf;
+  എങ്കിൽ(!scache)
+    തിരികെ;
 
   Curl_ssl_scache_lock(data);
-  result = cf_ssl_find_peer_by_key(data, scache, ssl_peer_key, conn_config,
+  result = cf_ssl_find_peer_by_താക്കോൽ(data, scache, ssl_peer_താക്കോൽ, conn_config,
                                    &peer);
-  if(!result && peer)
+  എങ്കിൽ(!result && peer)
     cf_ssl_scache_clear_peer(peer);
   Curl_ssl_scache_unlock(data);
 }
@@ -1145,215 +1145,215 @@ void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
 
 #define CURL_SSL_TICKET_MAX   (16 * 1024)
 
-static CURLcode cf_ssl_scache_peer_set_hmac(struct Curl_ssl_scache_peer *peer)
+സ്ഥിതം CURLcode cf_ssl_scache_peer_set_hmac(ഘടന Curl_ssl_scache_peer *peer)
 {
   CURLcode result;
 
   DEBUGASSERT(peer);
-  if(!peer->ssl_peer_key)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(!peer->ssl_peer_താക്കോൽ)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  result = Curl_rand(NULL, peer->key_salt, sizeof(peer->key_salt));
-  if(result)
-    return result;
+  result = Curl_rand(ശൂന്യ, peer->താക്കോൽ_salt, വലുപ്പം(peer->താക്കോൽ_salt));
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   result = Curl_hmacit(&Curl_HMAC_SHA256,
-                       peer->key_salt, sizeof(peer->key_salt),
-                       (const unsigned char *)peer->ssl_peer_key,
-                       strlen(peer->ssl_peer_key),
-                       peer->key_hmac);
-  if(!result)
+                       peer->താക്കോൽ_salt, വലുപ്പം(peer->താക്കോൽ_salt),
+                       (സ്ഥിരം unsigned അക്ഷരം *)peer->ssl_peer_താക്കോൽ,
+                       strlen(peer->ssl_peer_താക്കോൽ),
+                       peer->താക്കോൽ_hmac);
+  എങ്കിൽ(!result)
     peer->hmac_set = TRUE;
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode cf_ssl_find_peer_by_hmac(struct Curl_ssl_scache *scache,
-                                         const unsigned char *salt,
-                                         const unsigned char *hmac,
-                                         struct Curl_ssl_scache_peer **ppeer)
+സ്ഥിതം CURLcode cf_ssl_find_peer_by_hmac(ഘടന Curl_ssl_scache *scache,
+                                         സ്ഥിരം unsigned അക്ഷരം *salt,
+                                         സ്ഥിരം unsigned അക്ഷരം *hmac,
+                                         ഘടന Curl_ssl_scache_peer **ppeer)
 {
   size_t i;
   CURLcode result = CURLE_OK;
 
-  *ppeer = NULL;
-  if(!GOOD_SCACHE(scache))
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  *ppeer = ശൂന്യ;
+  എങ്കിൽ(!GOOD_SCACHE(scache))
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
   /* look for an entry that matches salt+hmac exactly or has a known
    * ssl_peer_key which salt+hmac's to the same. */
-  for(i = 0; scache && i < scache->peer_count; i++) {
-    struct Curl_ssl_scache_peer *peer = &scache->peers[i];
-    if(!cf_ssl_scache_match_auth(peer, NULL))
-      continue;
-    if(scache->peers[i].hmac_set &&
-       !memcmp(peer->key_salt, salt, sizeof(peer->key_salt)) &&
-       !memcmp(peer->key_hmac, hmac, sizeof(peer->key_hmac))) {
+  വേണ്ടി(i = 0; scache && i < scache->peer_എണ്ണം; i++) {
+    ഘടന Curl_ssl_scache_peer *peer = &scache->peers[i];
+    എങ്കിൽ(!cf_ssl_scache_match_auth(peer, ശൂന്യ))
+      തുടരുക;
+    എങ്കിൽ(scache->peers[i].hmac_set &&
+       !memcmp(peer->താക്കോൽ_salt, salt, വലുപ്പം(peer->താക്കോൽ_salt)) &&
+       !memcmp(peer->താക്കോൽ_hmac, hmac, വലുപ്പം(peer->താക്കോൽ_hmac))) {
       /* found exact match, return */
       *ppeer = peer;
-      goto out;
+      പോകുക out;
     }
-    else if(peer->ssl_peer_key) {
-      unsigned char my_hmac[CURL_SHA256_DIGEST_LENGTH];
+    അല്ലെങ്കിൽ എങ്കിൽ(peer->ssl_peer_താക്കോൽ) {
+      unsigned അക്ഷരം my_hmac[CURL_SHA256_DIGEST_LENGTH];
       /* compute hmac for the passed salt */
       result = Curl_hmacit(&Curl_HMAC_SHA256,
-                           salt, sizeof(peer->key_salt),
-                           (const unsigned char *)peer->ssl_peer_key,
-                           strlen(peer->ssl_peer_key),
+                           salt, വലുപ്പം(peer->താക്കോൽ_salt),
+                           (സ്ഥിരം unsigned അക്ഷരം *)peer->ssl_peer_താക്കോൽ,
+                           strlen(peer->ssl_peer_താക്കോൽ),
                            my_hmac);
-      if(result)
-        goto out;
-      if(!memcmp(my_hmac, hmac, sizeof(my_hmac))) {
+      എങ്കിൽ(result)
+        പോകുക out;
+      എങ്കിൽ(!memcmp(my_hmac, hmac, വലുപ്പം(my_hmac))) {
         /* cryptohash match, take over salt+hmac if no set and return */
-        if(!peer->hmac_set) {
-          memcpy(peer->key_salt, salt, sizeof(peer->key_salt));
-          memcpy(peer->key_hmac, hmac, sizeof(peer->key_hmac));
+        എങ്കിൽ(!peer->hmac_set) {
+          memcpy(peer->താക്കോൽ_salt, salt, വലുപ്പം(peer->താക്കോൽ_salt));
+          memcpy(peer->താക്കോൽ_hmac, hmac, വലുപ്പം(peer->താക്കോൽ_hmac));
           peer->hmac_set = TRUE;
         }
         *ppeer = peer;
-        goto out;
+        പോകുക out;
       }
     }
   }
 out:
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_ssl_session_import(struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 const unsigned char *shmac, size_t shmac_len,
-                                 const void *sdata, size_t sdata_len)
+CURLcode Curl_ssl_session_import(ഘടന Curl_easy *data,
+                                 സ്ഥിരം അക്ഷരം *ssl_peer_താക്കോൽ,
+                                 സ്ഥിരം unsigned അക്ഷരം *shmac, size_t shmac_len,
+                                 സ്ഥിരം ശൂന്യം *sdata, size_t sdata_len)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct Curl_ssl_scache_peer *peer = NULL;
-  struct Curl_ssl_session *s = NULL;
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന Curl_ssl_scache_peer *peer = ശൂന്യ;
+  ഘടന Curl_ssl_session *s = ശൂന്യ;
   bool have_lock = FALSE;
   CURLcode result;
 
-  if(!scache || !sdata || !sdata_len) {
+  എങ്കിൽ(!scache || !sdata || !sdata_len) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    പോകുക out;
   }
-  if(!ssl_peer_key && (!shmac || !shmac_len)) {
+  എങ്കിൽ(!ssl_peer_താക്കോൽ && (!shmac || !shmac_len)) {
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    പോകുക out;
   }
 
   result = Curl_ssl_session_unpack(data, sdata, sdata_len, &s);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   Curl_ssl_scache_lock(data);
   have_lock = TRUE;
 
-  if(ssl_peer_key) {
-    result = cf_ssl_add_peer(data, scache, ssl_peer_key, NULL, &peer);
-    if(result)
-      goto out;
+  എങ്കിൽ(ssl_peer_താക്കോൽ) {
+    result = cf_ssl_add_peer(data, scache, ssl_peer_താക്കോൽ, ശൂന്യ, &peer);
+    എങ്കിൽ(result)
+      പോകുക out;
   }
-  else if(shmac_len != (sizeof(peer->key_salt) + sizeof(peer->key_hmac))) {
+  അല്ലെങ്കിൽ എങ്കിൽ(shmac_len != (വലുപ്പം(peer->താക്കോൽ_salt) + വലുപ്പം(peer->താക്കോൽ_hmac))) {
     /* Either salt+hmac was garbled by caller or is from a curl version
      * that does things differently */
     result = CURLE_BAD_FUNCTION_ARGUMENT;
-    goto out;
+    പോകുക out;
   }
-  else {
-    const unsigned char *salt = shmac;
-    const unsigned char *hmac = shmac + sizeof(peer->key_salt);
+  അല്ലെങ്കിൽ {
+    സ്ഥിരം unsigned അക്ഷരം *salt = shmac;
+    സ്ഥിരം unsigned അക്ഷരം *hmac = shmac + വലുപ്പം(peer->താക്കോൽ_salt);
 
     result = cf_ssl_find_peer_by_hmac(scache, salt, hmac, &peer);
-    if(result)
-      goto out;
-    if(!peer) {
+    എങ്കിൽ(result)
+      പോകുക out;
+    എങ്കിൽ(!peer) {
       peer = cf_ssl_get_free_peer(scache);
-      if(peer) {
-        result = cf_ssl_scache_peer_init(peer, ssl_peer_key, NULL, NULL,
+      എങ്കിൽ(peer) {
+        result = cf_ssl_scache_peer_init(peer, ssl_peer_താക്കോൽ, ശൂന്യ, ശൂന്യ,
                                          salt, hmac);
-        if(result)
-          goto out;
+        എങ്കിൽ(result)
+          പോകുക out;
       }
     }
   }
 
-  if(peer) {
-    cf_scache_peer_add_session(peer, s, time(NULL));
-    s = NULL; /* peer is now owner */
+  എങ്കിൽ(peer) {
+    cf_scache_peer_add_session(peer, s, time(ശൂന്യ));
+    s = ശൂന്യ; /* peer is now owner */
     CURL_TRC_SSLS(data, "successfully imported ticket for peer %s, now "
                   "with %zu tickets",
-                  peer->ssl_peer_key ? peer->ssl_peer_key : "without key",
-                  Curl_llist_count(&peer->sessions));
+                  peer->ssl_peer_താക്കോൽ ? peer->ssl_peer_താക്കോൽ : "without key",
+                  Curl_llist_എണ്ണം(&peer->sessions));
   }
 
 out:
-  if(scache && have_lock)
+  എങ്കിൽ(scache && have_lock)
     Curl_ssl_scache_unlock(data);
   Curl_ssl_session_destroy(s);
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_ssl_session_export(struct Curl_easy *data,
+CURLcode Curl_ssl_session_export(ഘടന Curl_easy *data,
                                  curl_ssls_export_cb *export_fn,
-                                 void *userptr)
+                                 ശൂന്യം *userptr)
 {
-  struct Curl_ssl_scache *scache = cf_ssl_scache_get(data);
-  struct Curl_ssl_scache_peer *peer;
-  struct dynbuf sbuf, hbuf;
-  struct Curl_llist_node *n;
+  ഘടന Curl_ssl_scache *scache = cf_ssl_scache_get(data);
+  ഘടന Curl_ssl_scache_peer *peer;
+  ഘടന dynbuf sbuf, hbuf;
+  ഘടന Curl_llist_കണ്ണി *n;
   size_t i;
-  curl_off_t now = time(NULL);
+  curl_off_t now = time(ശൂന്യ);
   CURLcode result = CURLE_OK;
 #ifdef CURLVERBOSE
   size_t npeers = 0, ntickets = 0;
 #endif
 
-  if(!export_fn)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(!export_fn)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_ssl_scache_lock(data);
 
   curlx_dyn_init(&hbuf, (CURL_SHA256_DIGEST_LENGTH * 2) + 1);
   curlx_dyn_init(&sbuf, CURL_SSL_TICKET_MAX);
 
-  for(i = 0; scache && i < scache->peer_count; i++) {
+  വേണ്ടി(i = 0; scache && i < scache->peer_എണ്ണം; i++) {
     peer = &scache->peers[i];
-    if(!peer->ssl_peer_key && !peer->hmac_set)
-      continue; /* skip free entry */
-    if(!peer->exportable)
-      continue;
+    എങ്കിൽ(!peer->ssl_peer_താക്കോൽ && !peer->hmac_set)
+      തുടരുക; /* skip free entry */
+    എങ്കിൽ(!peer->exportable)
+      തുടരുക;
 
     curlx_dyn_reset(&hbuf);
     cf_scache_peer_remove_expired(peer, now);
     n = Curl_llist_head(&peer->sessions);
-    if(n)
+    എങ്കിൽ(n)
       VERBOSE(++npeers);
-    while(n) {
-      struct Curl_ssl_session *s = Curl_node_elem(n);
-      if(!peer->hmac_set) {
+    ആകുമ്പോൾ(n) {
+      ഘടന Curl_ssl_session *s = Curl_കണ്ണി_elem(n);
+      എങ്കിൽ(!peer->hmac_set) {
         result = cf_ssl_scache_peer_set_hmac(peer);
-        if(result)
-          goto out;
+        എങ്കിൽ(result)
+          പോകുക out;
       }
-      if(!curlx_dyn_len(&hbuf)) {
-        result = curlx_dyn_addn(&hbuf, peer->key_salt, sizeof(peer->key_salt));
-        if(result)
-          goto out;
-        result = curlx_dyn_addn(&hbuf, peer->key_hmac, sizeof(peer->key_hmac));
-        if(result)
-          goto out;
+      എങ്കിൽ(!curlx_dyn_len(&hbuf)) {
+        result = curlx_dyn_addn(&hbuf, peer->താക്കോൽ_salt, വലുപ്പം(peer->താക്കോൽ_salt));
+        എങ്കിൽ(result)
+          പോകുക out;
+        result = curlx_dyn_addn(&hbuf, peer->താക്കോൽ_hmac, വലുപ്പം(peer->താക്കോൽ_hmac));
+        എങ്കിൽ(result)
+          പോകുക out;
       }
       curlx_dyn_reset(&sbuf);
       result = Curl_ssl_session_pack(data, s, &sbuf);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
 
-      result = export_fn(data, userptr, peer->ssl_peer_key,
+      result = export_fn(data, userptr, peer->ssl_peer_താക്കോൽ,
                          curlx_dyn_uptr(&hbuf), curlx_dyn_len(&hbuf),
                          curlx_dyn_uptr(&sbuf), curlx_dyn_len(&sbuf),
                          s->valid_until, s->ietf_tls_id,
                          s->alpn, s->earlydata_max);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
       VERBOSE(++ntickets);
-      n = Curl_node_next(n);
+      n = Curl_കണ്ണി_next(n);
     }
   }
   result = CURLE_OK;
@@ -1364,7 +1364,7 @@ out:
   Curl_ssl_scache_unlock(data);
   curlx_dyn_free(&hbuf);
   curlx_dyn_free(&sbuf);
-  return result;
+  തിരികെ result;
 }
 
 #endif /* USE_SSLS_EXPORT */

@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include "curl_gethostname.h"
-#include "curlx/strcopy.h"
+#അന്തര്ഭാവ "curl_gethostname.h"
+#അന്തര്ഭാവ "curlx/strcopy.h"
 
 /*
  * Curl_gethostname() is a wrapper around gethostname() which allows
@@ -41,41 +41,41 @@
  * than being provider dependent.
  */
 
-int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
+പൂർണ്ണസംഖ്യ Curl_gethostname(അക്ഷരം * സ്ഥിരം name, GETHOSTNAME_TYPE_ARG2 namelen)
 {
 #ifndef HAVE_GETHOSTNAME
 
   /* Allow compilation and return failure when unavailable */
-  (void)name;
-  (void)namelen;
-  return -1;
+  (ശൂന്യം)name;
+  (ശൂന്യം)namelen;
+  തിരികെ -1;
 
-#else
-  int err;
-  char *dot;
+#അല്ലെങ്കിൽ
+  പൂർണ്ണസംഖ്യ err;
+  അക്ഷരം *dot;
 
 #ifdef DEBUGBUILD
 
   /* Override hostname when environment variable CURL_GETHOSTNAME is set */
-  const char *force_hostname = getenv("CURL_GETHOSTNAME");
-  if(force_hostname) {
-    if(strlen(force_hostname) < (size_t)namelen)
+  സ്ഥിരം അക്ഷരം *force_hostname = getenv("CURL_GETHOSTNAME");
+  എങ്കിൽ(force_hostname) {
+    എങ്കിൽ(strlen(force_hostname) < (size_t)namelen)
       curlx_strcopy(name, namelen, force_hostname, strlen(force_hostname));
-    else
-      return 1; /* cannot do it */
+    അല്ലെങ്കിൽ
+      തിരികെ 1; /* cannot do it */
     err = 0;
   }
-  else {
+  അല്ലെങ്കിൽ {
     name[0] = '\0';
     err = gethostname(name, namelen);
   }
 
-#else /* DEBUGBUILD */
+#അല്ലെങ്കിൽ /* DEBUGBUILD */
 
   name[0] = '\0';
 #ifdef __AMIGA__
-  err = gethostname((unsigned char *)name, namelen);
-#else
+  err = gethostname((unsigned അക്ഷരം *)name, namelen);
+#അല്ലെങ്കിൽ
   err = gethostname(name, namelen);
 #endif
 
@@ -83,14 +83,14 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 
   name[namelen - 1] = '\0';
 
-  if(err)
-    return err;
+  എങ്കിൽ(err)
+    തിരികെ err;
 
   /* Truncate domain, leave only machine name */
   dot = strchr(name, '.');
-  if(dot)
+  എങ്കിൽ(dot)
     *dot = '\0';
 
-  return 0;
+  തിരികെ 0;
 #endif
 }

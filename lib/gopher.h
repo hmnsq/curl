@@ -24,8 +24,8 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_GOPHER
-extern const struct Curl_protocol Curl_protocol_gopher;
-extern const struct Curl_protocol Curl_protocol_gophers;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_protocol Curl_protocol_gopher;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_protocol Curl_protocol_gophers;
 #endif
 
 #endif /* HEADER_CURL_GOPHER_H */

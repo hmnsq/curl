@@ -22,19 +22,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
+#എങ്കിൽ !defined(CURL_DISABLE_AWS) || !defined(CURL_DISABLE_DIGEST_AUTH) || \
   defined(USE_LIBSSH2) || defined(USE_SSL)
 
-#include "curl_sha256.h"
+#അന്തര്ഭാവ "curl_sha256.h"
 
 #ifdef USE_MBEDTLS
-#include <mbedtls/version.h>
-#if MBEDTLS_VERSION_NUMBER < 0x03020000
+#അന്തര്ഭാവ <mbedtls/version.h>
+#എങ്കിൽ MBEDTLS_VERSION_സംഖ്യ < 0x03020000
 #error "mbedTLS 3.2.0 or greater required"
 #endif
-#include <psa/crypto_config.h>
+#അന്തര്ഭാവ <psa/crypto_config.h>
 #endif
 
 /* Please keep the SSL backend-specific #if branches in this order:
@@ -51,200 +51,200 @@
  */
 
 #ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#അന്തര്ഭാവ <openssl/evp.h>
 
-struct ossl_sha256_ctx {
+ഘടന ossl_sha256_ctx {
   EVP_MD_CTX *openssl_ctx;
 };
-typedef struct ossl_sha256_ctx my_sha256_ctx;
+തരനിർവചനം ഘടന ossl_sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   ctx->openssl_ctx = EVP_MD_CTX_new();
-  if(!ctx->openssl_ctx)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!ctx->openssl_ctx)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  if(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), NULL)) {
+  എങ്കിൽ(!EVP_DigestInit_ex(ctx->openssl_ctx, EVP_sha256(), ശൂന്യ)) {
     EVP_MD_CTX_free(ctx->openssl_ctx);
-    return CURLE_FAILED_INIT;
+    തിരികെ CURLE_FAILED_INIT;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *in,
+                             സ്ഥിരം unsigned അക്ഷരം *data,
+                             unsigned പൂർണ്ണസംഖ്യ length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   EVP_DigestUpdate(ctx->openssl_ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *digest, ശൂന്യം *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, NULL);
+  EVP_DigestFinal_ex(ctx->openssl_ctx, digest, ശൂന്യ);
   EVP_MD_CTX_free(ctx->openssl_ctx);
 }
 
-#elif defined(USE_WOLFSSL)
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/sha256.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_WOLFSSL)
+#അന്തര്ഭാവ <wolfssl/options.h>
+#അന്തര്ഭാവ <wolfssl/wolfcrypt/sha256.h>
 
-typedef struct wc_Sha256 my_sha256_ctx;
+തരനിർവചനം ഘടന wc_Sha256 my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *in)
 {
-  if(wc_InitSha256(in))
-    return CURLE_FAILED_INIT;
-  return CURLE_OK;
+  എങ്കിൽ(wc_InitSha256(in))
+    തിരികെ CURLE_FAILED_INIT;
+  തിരികെ CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *in,
+                             സ്ഥിരം unsigned അക്ഷരം *data,
+                             unsigned പൂർണ്ണസംഖ്യ length)
 {
-  (void)wc_Sha256Update(in, data, (word32)length);
+  (ശൂന്യം)wc_Sha256Update(in, data, (word32)length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *digest, ശൂന്യം *in)
 {
-  (void)wc_Sha256Final(in, digest);
+  (ശൂന്യം)wc_Sha256Final(in, digest);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/sha2.h>
-#include <nettle/version.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_GNUTLS)
+#അന്തര്ഭാവ <nettle/sha2.h>
+#അന്തര്ഭാവ <nettle/version.h>
 
-typedef struct sha256_ctx my_sha256_ctx;
+തരനിർവചനം ഘടന sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *ctx)
 {
   sha256_init(ctx);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *ctx,
+                             സ്ഥിരം unsigned അക്ഷരം *data,
+                             unsigned പൂർണ്ണസംഖ്യ length)
 {
   sha256_update(ctx, length, data);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *digest, ശൂന്യം *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#എങ്കിൽ NETTLE_VERSION_MAJOR >= 4
   sha256_digest(ctx, digest);
-#else
+#അല്ലെങ്കിൽ
   sha256_digest(ctx, SHA256_DIGEST_SIZE, digest);
 #endif
 }
 
-#elif defined(USE_MBEDTLS) && \
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_MBEDTLS) && \
   defined(PSA_WANT_ALG_SHA_256) && PSA_WANT_ALG_SHA_256
-#include <psa/crypto.h>
+#അന്തര്ഭാവ <psa/crypto.h>
 
-typedef psa_hash_operation_t my_sha256_ctx;
+തരനിർവചനം psa_hash_operation_t my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *ctx)
 {
   psa_hash_operation_t *pctx = (psa_hash_operation_t *)ctx;
   *pctx = psa_hash_operation_init();
-  if(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
-    return CURLE_OUT_OF_MEMORY;
-  return CURLE_OK;
+  എങ്കിൽ(psa_hash_setup(pctx, PSA_ALG_SHA_256) != PSA_SUCCESS)
+    തിരികെ CURLE_OUT_OF_MEMORY;
+  തിരികെ CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *ctx,
+                             സ്ഥിരം unsigned അക്ഷരം *data,
+                             unsigned പൂർണ്ണസംഖ്യ length)
 {
-  (void)psa_hash_update(ctx, data, length);
+  (ശൂന്യം)psa_hash_update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *digest, ശൂന്യം *ctx)
 {
   size_t actual_length;
-  (void)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
+  (ശൂന്യം)psa_hash_finish(ctx, digest, CURL_SHA256_DIGEST_LENGTH,
                         &actual_length);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#അല്ലെങ്കിലെങ്കിൽ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040) || \
       (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000)
-#include <CommonCrypto/CommonDigest.h>
+#അന്തര്ഭാവ <CommonCrypto/CommonDigest.h>
 
-typedef CC_SHA256_CTX my_sha256_ctx;
+തരനിർവചനം CC_SHA256_CTX my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *ctx)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *ctx)
 {
-  (void)CC_SHA256_Init(ctx);  /* always returns 1 */
-  return CURLE_OK;
+  (ശൂന്യം)CC_SHA256_Init(ctx);  /* always returns 1 */
+  തിരികെ CURLE_OK;
 }
 
-static void my_sha256_update(void *ctx,
-                             const unsigned char *data,
-                             unsigned int length)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *ctx,
+                             സ്ഥിരം unsigned അക്ഷരം *data,
+                             unsigned പൂർണ്ണസംഖ്യ length)
 {
-  (void)CC_SHA256_Update(ctx, data, length);
+  (ശൂന്യം)CC_SHA256_Update(ctx, data, length);
 }
 
-static void my_sha256_final(unsigned char *digest, void *ctx)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *digest, ശൂന്യം *ctx)
 {
-  (void)CC_SHA256_Final(digest, ctx);
+  (ശൂന്യം)CC_SHA256_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_WIN32_CRYPTO)
+#അന്തര്ഭാവ <wincrypt.h>
 
-struct sha256_ctx {
+ഘടന sha256_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct sha256_ctx my_sha256_ctx;
+തരനിർവചനം ഘടന sha256_ctx my_sha256_ctx;
 
-static CURLcode my_sha256_init(void *in)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_AES,
+  എങ്കിൽ(!CryptAcquireContext(&ctx->hCryptProv, ശൂന്യ, ശൂന്യ, PROV_RSA_AES,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
+  എങ്കിൽ(!CryptCreateHash(ctx->hCryptProv, CALG_SHA_256, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return CURLE_FAILED_INIT;
+    തിരികെ CURLE_FAILED_INIT;
   }
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static void my_sha256_update(void *in,
-                             const unsigned char *data,
-                             unsigned int length)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *in,
+                             സ്ഥിരം unsigned അക്ഷരം *data,
+                             unsigned പൂർണ്ണസംഖ്യ length)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
-  CryptHashData(ctx->hHash, (const BYTE *)data, length, 0);
+  CryptHashData(ctx->hHash, (സ്ഥിരം BYTE *)data, length, 0);
 }
 
-static void my_sha256_final(unsigned char *digest, void *in)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *digest, ശൂന്യം *in)
 {
   my_sha256_ctx *ctx = (my_sha256_ctx *)in;
   unsigned long length = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == CURL_SHA256_DIGEST_LENGTH)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, ശൂന്യ, &length, 0);
+  എങ്കിൽ(length == CURL_SHA256_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  എങ്കിൽ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  എങ്കിൽ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#else
+#അല്ലെങ്കിൽ
 
 /* When no other crypto library is available we use this code segment */
 
@@ -257,34 +257,34 @@ static void my_sha256_final(unsigned char *digest, void *in)
    (((unsigned long)(a)[2]) <<  8) | \
     ((unsigned long)(a)[3]))
 #define WPA_PUT_BE32(a, val)                                         \
-  do {                                                               \
-    (a)[0] = (unsigned char)((((unsigned long)(val)) >> 24) & 0xff); \
-    (a)[1] = (unsigned char)((((unsigned long)(val)) >> 16) & 0xff); \
-    (a)[2] = (unsigned char)((((unsigned long)(val)) >>  8) & 0xff); \
-    (a)[3] = (unsigned char)(((unsigned long)(val)) & 0xff);         \
-  } while(0)
+  ചെയ്യുക {                                                               \
+    (a)[0] = (unsigned അക്ഷരം)((((unsigned long)(val)) >> 24) & 0xff); \
+    (a)[1] = (unsigned അക്ഷരം)((((unsigned long)(val)) >> 16) & 0xff); \
+    (a)[2] = (unsigned അക്ഷരം)((((unsigned long)(val)) >>  8) & 0xff); \
+    (a)[3] = (unsigned അക്ഷരം)(((unsigned long)(val)) & 0xff);         \
+  } ആകുമ്പോൾ(0)
 
 #define WPA_PUT_BE64(a, val)                            \
-  do {                                                  \
-    (a)[0] = (unsigned char)(((uint64_t)(val)) >> 56);  \
-    (a)[1] = (unsigned char)(((uint64_t)(val)) >> 48);  \
-    (a)[2] = (unsigned char)(((uint64_t)(val)) >> 40);  \
-    (a)[3] = (unsigned char)(((uint64_t)(val)) >> 32);  \
-    (a)[4] = (unsigned char)(((uint64_t)(val)) >> 24);  \
-    (a)[5] = (unsigned char)(((uint64_t)(val)) >> 16);  \
-    (a)[6] = (unsigned char)(((uint64_t)(val)) >>  8);  \
-    (a)[7] = (unsigned char)(((uint64_t)(val)) & 0xff); \
-  } while(0)
+  ചെയ്യുക {                                                  \
+    (a)[0] = (unsigned അക്ഷരം)(((uint64_t)(val)) >> 56);  \
+    (a)[1] = (unsigned അക്ഷരം)(((uint64_t)(val)) >> 48);  \
+    (a)[2] = (unsigned അക്ഷരം)(((uint64_t)(val)) >> 40);  \
+    (a)[3] = (unsigned അക്ഷരം)(((uint64_t)(val)) >> 32);  \
+    (a)[4] = (unsigned അക്ഷരം)(((uint64_t)(val)) >> 24);  \
+    (a)[5] = (unsigned അക്ഷരം)(((uint64_t)(val)) >> 16);  \
+    (a)[6] = (unsigned അക്ഷരം)(((uint64_t)(val)) >>  8);  \
+    (a)[7] = (unsigned അക്ഷരം)(((uint64_t)(val)) & 0xff); \
+  } ആകുമ്പോൾ(0)
 
-struct sha256_state {
+ഘടന sha256_state {
   uint64_t length;
   unsigned long state[8], curlen;
-  unsigned char buf[64];
+  unsigned അക്ഷരം buf[64];
 };
-typedef struct sha256_state my_sha256_ctx;
+തരനിർവചനം ഘടന sha256_state my_sha256_ctx;
 
 /* The K array */
-static const unsigned long K[64] = {
+സ്ഥിതം സ്ഥിരം unsigned long K[64] = {
   0x428a2f98UL, 0x71374491UL, 0xb5c0fbcfUL, 0xe9b5dba5UL, 0x3956c25bUL,
   0x59f111f1UL, 0x923f82a4UL, 0xab1c5ed5UL, 0xd807aa98UL, 0x12835b01UL,
   0x243185beUL, 0x550c7dc3UL, 0x72be5d74UL, 0x80deb1feUL, 0x9bdc06a7UL,
@@ -316,33 +316,33 @@ static const unsigned long K[64] = {
 #define Gamma1(x)         (Sha256_S(x, 17) ^ Sha256_S(x, 19) ^ Sha256_R(x, 10))
 
 /* Compress 512 bits */
-static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sha256_compress(ഘടന sha256_state *md, സ്ഥിരം unsigned അക്ഷരം *buf)
 {
   unsigned long S[8], W[64];
-  int i;
+  പൂർണ്ണസംഖ്യ i;
 
   /* Copy state into S */
-  for(i = 0; i < 8; i++) {
+  വേണ്ടി(i = 0; i < 8; i++) {
     S[i] = md->state[i];
   }
   /* copy the state into 512 bits into W[0..15] */
-  for(i = 0; i < 16; i++)
+  വേണ്ടി(i = 0; i < 16; i++)
     W[i] = WPA_GET_BE32(buf + (4 * i));
   /* fill W[16..63] */
-  for(i = 16; i < 64; i++) {
+  വേണ്ടി(i = 16; i < 64; i++) {
     W[i] = Gamma1(W[i - 2]) + W[i - 7] + Gamma0(W[i - 15]) + W[i - 16];
   }
 
   /* Compress */
 #define RND(a, b, c, d, e, f, g, h, i)                                   \
-  do {                                                                   \
+  ചെയ്യുക {                                                                   \
     unsigned long t0 = h + Sigma1(e) + Sha256_Ch(e, f, g) + K[i] + W[i]; \
     unsigned long t1 = Sigma0(a) + Sha256_Maj(a, b, c);                  \
     d += t0;                                                             \
     h = t0 + t1;                                                         \
-  } while(0)
+  } ആകുമ്പോൾ(0)
 
-  for(i = 0; i < 64; ++i) {
+  വേണ്ടി(i = 0; i < 64; ++i) {
     unsigned long t;
     RND(S[0], S[1], S[2], S[3], S[4], S[5], S[6], S[7], i);
     t = S[7];
@@ -357,17 +357,17 @@ static int sha256_compress(struct sha256_state *md, const unsigned char *buf)
   }
 
   /* Feedback */
-  for(i = 0; i < 8; i++) {
+  വേണ്ടി(i = 0; i < 8; i++) {
     md->state[i] = md->state[i] + S[i];
   }
 
-  return 0;
+  തിരികെ 0;
 }
 
 /* Initialize the hash state */
-static CURLcode my_sha256_init(void *in)
+സ്ഥിതം CURLcode my_sha256_init(ശൂന്യം *in)
 {
-  struct sha256_state *md = (struct sha256_state *)in;
+  ഘടന sha256_state *md = (ഘടന sha256_state *)in;
   md->curlen = 0;
   md->length = 0;
   md->state[0] = 0x6A09E667UL;
@@ -379,7 +379,7 @@ static CURLcode my_sha256_init(void *in)
   md->state[6] = 0x1F83D9ABUL;
   md->state[7] = 0x5BE0CD19UL;
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /* Process a block of memory though the hash
@@ -387,33 +387,33 @@ static CURLcode my_sha256_init(void *in)
    @param in     The data to hash
    @param inlen  The length of the data (octets)
  */
-static void my_sha256_update(void *ctx,
-                             const unsigned char *in,
-                             unsigned int len)
+സ്ഥിതം ശൂന്യം my_sha256_update(ശൂന്യം *ctx,
+                             സ്ഥിരം unsigned അക്ഷരം *in,
+                             unsigned പൂർണ്ണസംഖ്യ len)
 {
   unsigned long inlen = len;
   unsigned long n;
-  struct sha256_state *md = (struct sha256_state *)ctx;
+  ഘടന sha256_state *md = (ഘടന sha256_state *)ctx;
 #define CURL_SHA256_BLOCK_SIZE 64
-  if(md->curlen > sizeof(md->buf))
-    return;
-  while(inlen > 0) {
-    if(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
-      if(sha256_compress(md, in) < 0)
-        return;
+  എങ്കിൽ(md->curlen > വലുപ്പം(md->buf))
+    തിരികെ;
+  ആകുമ്പോൾ(inlen > 0) {
+    എങ്കിൽ(md->curlen == 0 && inlen >= CURL_SHA256_BLOCK_SIZE) {
+      എങ്കിൽ(sha256_compress(md, in) < 0)
+        തിരികെ;
       md->length += CURL_SHA256_BLOCK_SIZE * 8;
       in += CURL_SHA256_BLOCK_SIZE;
       inlen -= CURL_SHA256_BLOCK_SIZE;
     }
-    else {
+    അല്ലെങ്കിൽ {
       n = CURLMIN(inlen, (CURL_SHA256_BLOCK_SIZE - md->curlen));
       memcpy(md->buf + md->curlen, in, n);
       md->curlen += n;
       in += n;
       inlen -= n;
-      if(md->curlen == CURL_SHA256_BLOCK_SIZE) {
-        if(sha256_compress(md, md->buf) < 0)
-          return;
+      എങ്കിൽ(md->curlen == CURL_SHA256_BLOCK_SIZE) {
+        എങ്കിൽ(sha256_compress(md, md->buf) < 0)
+          തിരികെ;
         md->length += 8 * CURL_SHA256_BLOCK_SIZE;
         md->curlen = 0;
       }
@@ -426,26 +426,26 @@ static void my_sha256_update(void *ctx,
    @param out [out] The destination of the hash (32 bytes)
    @return 0 if successful
  */
-static void my_sha256_final(unsigned char *out, void *ctx)
+സ്ഥിതം ശൂന്യം my_sha256_final(unsigned അക്ഷരം *out, ശൂന്യം *ctx)
 {
-  struct sha256_state *md = ctx;
-  int i;
+  ഘടന sha256_state *md = ctx;
+  പൂർണ്ണസംഖ്യ i;
 
-  if(md->curlen >= sizeof(md->buf))
-    return;
+  എങ്കിൽ(md->curlen >= വലുപ്പം(md->buf))
+    തിരികെ;
 
   /* Increase the length of the message */
   md->length += md->curlen * 8;
 
   /* Append the '1' bit */
-  md->buf[md->curlen++] = (unsigned char)0x80;
+  md->buf[md->curlen++] = (unsigned അക്ഷരം)0x80;
 
   /* If the length is currently above 56 bytes we append zeros
    * then compress. Then we can fall back to padding zeros and length
    * encoding like normal.
    */
-  if(md->curlen > 56) {
-    while(md->curlen < 64) {
+  എങ്കിൽ(md->curlen > 56) {
+    ആകുമ്പോൾ(md->curlen < 64) {
       md->buf[md->curlen++] = 0;
     }
     sha256_compress(md, md->buf);
@@ -453,7 +453,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   }
 
   /* Pad up to 56 bytes of zeroes */
-  while(md->curlen < 56) {
+  ആകുമ്പോൾ(md->curlen < 56) {
     md->buf[md->curlen++] = 0;
   }
 
@@ -462,7 +462,7 @@ static void my_sha256_final(unsigned char *out, void *ctx)
   sha256_compress(md, md->buf);
 
   /* Copy output */
-  for(i = 0; i < 8; i++)
+  വേണ്ടി(i = 0; i < 8; i++)
     WPA_PUT_BE32(out + (4 * i), md->state[i]);
 }
 
@@ -481,30 +481,30 @@ static void my_sha256_final(unsigned char *out, void *ctx)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_sha256it(unsigned char *output, const unsigned char *input,
+CURLcode Curl_sha256it(unsigned അക്ഷരം *output, സ്ഥിരം unsigned അക്ഷരം *നിവേശം,
                        size_t len)
 {
   CURLcode result;
   my_sha256_ctx ctx;
 
   result = my_sha256_init(&ctx);
-  if(!result) {
-    do {
-      unsigned int ilen = (unsigned int)CURLMIN(len, UINT_MAX);
-      my_sha256_update(&ctx, input, ilen);
+  എങ്കിൽ(!result) {
+    ചെയ്യുക {
+      unsigned പൂർണ്ണസംഖ്യ ilen = (unsigned പൂർണ്ണസംഖ്യ)CURLMIN(len, UINT_MAX);
+      my_sha256_update(&ctx, നിവേശം, ilen);
       len -= ilen;
-      input += ilen;
-    } while(len);
+      നിവേശം += ilen;
+    } ആകുമ്പോൾ(len);
     my_sha256_final(output, &ctx);
   }
-  return result;
+  തിരികെ result;
 }
 
-const struct HMAC_params Curl_HMAC_SHA256 = {
+സ്ഥിരം ഘടന HMAC_params Curl_HMAC_SHA256 = {
   my_sha256_init,        /* Hash initialization function. */
   my_sha256_update,      /* Hash update function. */
   my_sha256_final,       /* Hash computation end function. */
-  sizeof(my_sha256_ctx), /* Size of hash context structure. */
+  വലുപ്പം(my_sha256_ctx), /* Size of hash context structure. */
   64,                    /* Maximum key length. */
   32                     /* Result size. */
 };

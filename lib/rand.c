@@ -21,53 +21,53 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#അന്തര്ഭാവ <arpa/inet.h>
 #endif
 
-#include "urldata.h"
-#include "vtls/vtls.h"
-#include "curl_trc.h"
-#include "rand.h"
-#include "escape.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "rand.h"
+#അന്തര്ഭാവ "escape.h"
 
-#include "curlx/winapi.h"
+#അന്തര്ഭാവ "curlx/winapi.h"
 
 #ifndef USE_SSL
 /* ---- possibly non-cryptographic version following ---- */
-static CURLcode weak_random(struct Curl_easy *data,
-                            unsigned char *entropy,
+സ്ഥിതം CURLcode weak_random(ഘടന Curl_easy *data,
+                            unsigned അക്ഷരം *entropy,
                             size_t length) /* always 4, size of int */
 {
-  unsigned int r;
-  DEBUGASSERT(length == sizeof(int));
+  unsigned പൂർണ്ണസംഖ്യ r;
+  DEBUGASSERT(length == വലുപ്പം(പൂർണ്ണസംഖ്യ));
 
   /* Trying cryptographically secure functions first */
 #ifdef _WIN32
-  (void)data;
+  (ശൂന്യം)data;
   {
     CURLcode result = curlx_win32_random(entropy, length);
-    if(result != CURLE_NOT_BUILT_IN)
-      return result;
+    എങ്കിൽ(result != CURLE_NOT_BUILT_IN)
+      തിരികെ result;
   }
 #endif
 
 #ifdef HAVE_ARC4RANDOM
-  (void)data;
-  r = (unsigned int)arc4random();
+  (ശൂന്യം)data;
+  r = (unsigned പൂർണ്ണസംഖ്യ)arc4random();
   memcpy(entropy, &r, length);
-#else
+#അല്ലെങ്കിൽ
   infof(data, "WARNING: using weak random seed");
   {
-    static unsigned int randseed;
-    static bool seeded = FALSE;
-    unsigned int rnd;
-    if(!seeded) {
-      struct curltime now;
+    സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ randseed;
+    സ്ഥിതം bool seeded = FALSE;
+    unsigned പൂർണ്ണസംഖ്യ rnd;
+    എങ്കിൽ(!seeded) {
+      ഘടന curltime now;
       curlx_pnow(&now);
-      randseed += (unsigned int)now.tv_usec + (unsigned int)now.tv_sec;
+      randseed += (unsigned പൂർണ്ണസംഖ്യ)now.tv_usec + (unsigned പൂർണ്ണസംഖ്യ)now.tv_sec;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
       randseed = randseed * 1103515245 + 12345;
@@ -80,44 +80,44 @@ static CURLcode weak_random(struct Curl_easy *data,
     memcpy(entropy, &rnd, length);
   }
 #endif
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 #endif
 
-static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
+സ്ഥിതം CURLcode randit(ഘടന Curl_easy *data, unsigned പൂർണ്ണസംഖ്യ *rnd,
                        bool env_override)
 {
 #ifdef DEBUGBUILD
-  if(env_override) {
-    char *force_entropy = getenv("CURL_ENTROPY");
-    if(force_entropy) {
-      static unsigned int randseed;
-      static bool seeded = FALSE;
+  എങ്കിൽ(env_override) {
+    അക്ഷരം *force_entropy = getenv("CURL_ENTROPY");
+    എങ്കിൽ(force_entropy) {
+      സ്ഥിതം unsigned പൂർണ്ണസംഖ്യ randseed;
+      സ്ഥിതം bool seeded = FALSE;
 
-      if(!seeded) {
-        unsigned int seed = 0;
+      എങ്കിൽ(!seeded) {
+        unsigned പൂർണ്ണസംഖ്യ seed = 0;
         size_t elen = strlen(force_entropy);
-        size_t clen = sizeof(seed);
+        size_t clen = വലുപ്പം(seed);
         size_t min = elen < clen ? elen : clen;
-        memcpy((char *)&seed, force_entropy, min);
+        memcpy((അക്ഷരം *)&seed, force_entropy, min);
         randseed = ntohl(seed);
         seeded = TRUE;
       }
-      else
+      അല്ലെങ്കിൽ
         randseed++;
       *rnd = randseed;
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
   }
-#else
-  (void)env_override;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)env_override;
 #endif
 
   /* data may be NULL! */
 #ifdef USE_SSL
-  return Curl_ssl_random(data, (unsigned char *)rnd, sizeof(*rnd));
-#else
-  return weak_random(data, (unsigned char *)rnd, sizeof(*rnd));
+  തിരികെ Curl_ssl_random(data, (unsigned അക്ഷരം *)rnd, വലുപ്പം(*rnd));
+#അല്ലെങ്കിൽ
+  തിരികെ weak_random(data, (unsigned അക്ഷരം *)rnd, വലുപ്പം(*rnd));
 #endif
 }
 
@@ -136,36 +136,36 @@ static CURLcode randit(struct Curl_easy *data, unsigned int *rnd,
  *
  */
 
-CURLcode Curl_rand_bytes(struct Curl_easy *data,
+CURLcode Curl_rand_bytes(ഘടന Curl_easy *data,
 #ifdef DEBUGBUILD
                          bool env_override,
 #endif
-                         unsigned char *rnd, size_t num)
+                         unsigned അക്ഷരം *rnd, size_t അക്കം)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
 #ifndef DEBUGBUILD
-  const bool env_override = FALSE;
+  സ്ഥിരം bool env_override = FALSE;
 #endif
 
-  DEBUGASSERT(num);
+  DEBUGASSERT(അക്കം);
 
-  while(num) {
-    unsigned int r;
-    size_t left = num < sizeof(unsigned int) ? num : sizeof(unsigned int);
+  ആകുമ്പോൾ(അക്കം) {
+    unsigned പൂർണ്ണസംഖ്യ r;
+    size_t ഇടത് = അക്കം < വലുപ്പം(unsigned പൂർണ്ണസംഖ്യ) ? അക്കം : വലുപ്പം(unsigned പൂർണ്ണസംഖ്യ);
 
     result = randit(data, &r, env_override);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
 
-    while(left) {
-      *rnd++ = (unsigned char)(r & 0xFF);
+    ആകുമ്പോൾ(ഇടത്) {
+      *rnd++ = (unsigned അക്ഷരം)(r & 0xFF);
       r >>= 8;
-      --num;
-      --left;
+      --അക്കം;
+      --ഇടത്;
     }
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /*
@@ -174,26 +174,26 @@ CURLcode Curl_rand_bytes(struct Curl_easy *data,
  * size.
  */
 
-CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
+CURLcode Curl_rand_hex(ഘടന Curl_easy *data, unsigned അക്ഷരം *rnd, size_t അക്കം)
 {
   CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-  unsigned char buffer[128];
-  DEBUGASSERT(num > 1);
+  unsigned അക്ഷരം buffer[128];
+  DEBUGASSERT(അക്കം > 1);
 
-  if((num / 2 >= sizeof(buffer)) || !(num & 1)) {
+  എങ്കിൽ((അക്കം / 2 >= വലുപ്പം(buffer)) || !(അക്കം & 1)) {
     /* make sure it fits in the local buffer and that it is an odd number! */
     DEBUGF(infof(data, "invalid buffer size with Curl_rand_hex"));
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
   }
 
-  num--; /* save one for null-termination */
+  അക്കം--; /* save one for null-termination */
 
-  result = Curl_rand(data, buffer, num / 2);
-  if(result)
-    return result;
+  result = Curl_rand(data, buffer, അക്കം / 2);
+  എങ്കിൽ(result)
+    തിരികെ result;
 
-  Curl_hexencode(buffer, num / 2, rnd, num + 1);
-  return result;
+  Curl_hexencode(buffer, അക്കം / 2, rnd, അക്കം + 1);
+  തിരികെ result;
 }
 
 /*
@@ -201,30 +201,30 @@ CURLcode Curl_rand_hex(struct Curl_easy *data, unsigned char *rnd, size_t num)
  * alphanumerical chars PLUS a null-terminator byte.
  */
 
-static const char alnum[] =
+സ്ഥിതം സ്ഥിരം അക്ഷരം alnum[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-CURLcode Curl_rand_alnum(struct Curl_easy *data, unsigned char *rnd,
-                         size_t num)
+CURLcode Curl_rand_alnum(ഘടന Curl_easy *data, unsigned അക്ഷരം *rnd,
+                         size_t അക്കം)
 {
   CURLcode result = CURLE_OK;
-  const unsigned int alnumspace = CURL_CSTRLEN(alnum);
-  unsigned int r;
-  DEBUGASSERT(num > 1);
+  സ്ഥിരം unsigned പൂർണ്ണസംഖ്യ alnumspace = CURL_CSTRLEN(alnum);
+  unsigned പൂർണ്ണസംഖ്യ r;
+  DEBUGASSERT(അക്കം > 1);
 
-  num--; /* save one for null-termination */
+  അക്കം--; /* save one for null-termination */
 
-  while(num) {
-    do {
+  ആകുമ്പോൾ(അക്കം) {
+    ചെയ്യുക {
       result = randit(data, &r, TRUE);
-      if(result)
-        return result;
-    } while(r >= (UINT_MAX - UINT_MAX % alnumspace));
+      എങ്കിൽ(result)
+        തിരികെ result;
+    } ആകുമ്പോൾ(r >= (UINT_MAX - UINT_MAX % alnumspace));
 
-    *rnd++ = (unsigned char)alnum[r % alnumspace];
-    num--;
+    *rnd++ = (unsigned അക്ഷരം)alnum[r % alnumspace];
+    അക്കം--;
   }
   *rnd = 0;
 
-  return result;
+  തിരികെ result;
 }

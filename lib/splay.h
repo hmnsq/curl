@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include "curlx/timeval.h"
+#അന്തര്ഭാവ "curlx/timeval.h"
 
-struct Curl_easy;
+ഘടന Curl_easy;
 
 /* only use function calls to access this struct */
-struct Curl_tree {
-  struct Curl_tree *smaller; /* smaller node */
-  struct Curl_tree *larger;  /* larger node */
-  struct Curl_tree *same;    /* points to the next node with identical key */
-  timediff_t key;            /* this node's "sort" key */
+ഘടന Curl_വൃക്ഷം {
+  ഘടന Curl_വൃക്ഷം *smaller; /* smaller node */
+  ഘടന Curl_വൃക്ഷം *larger;  /* larger node */
+  ഘടന Curl_വൃക്ഷം *same;    /* points to the next node with identical key */
+  timediff_t താക്കോൽ;            /* this node's "sort" key */
   uint32_t id;               /* provided id for this node */
   BIT(registered);           /* node is registered in splay tree */
 };
 
-struct Curl_timeouts {
-  struct Curl_tree *tree;
+ഘടന Curl_timeouts {
+  ഘടന Curl_വൃക്ഷം *വൃക്ഷം;
   time_t time_base_sec;
 };
 
-void Curl_timeouts_init(struct Curl_timeouts *timeouts,
-                        const struct curltime *ptime_base);
+ശൂന്യം Curl_timeouts_init(ഘടന Curl_timeouts *timeouts,
+                        സ്ഥിരം ഘടന curltime *ptime_base);
 
-bool Curl_timeouts_has(struct Curl_easy *data);
+bool Curl_timeouts_has(ഘടന Curl_easy *data);
 
-timediff_t Curl_timeouts_offset_us(struct Curl_timeouts *timeouts,
-                                   const struct curltime *pts);
+timediff_t Curl_timeouts_offset_us(ഘടന Curl_timeouts *timeouts,
+                                   സ്ഥിരം ഘടന curltime *pts);
 
-int Curl_timeouts_next_ms(struct Curl_timeouts *timeouts,
-                          const struct curltime *pnow,
+പൂർണ്ണസംഖ്യ Curl_timeouts_next_ms(ഘടന Curl_timeouts *timeouts,
+                          സ്ഥിരം ഘടന curltime *pnow,
                           timediff_t *pexpire_offset_us,
                           uint32_t *pmid);
 
-bool Curl_timeouts_remove_expired(struct Curl_timeouts *timeouts,
-                                  const struct curltime *ts,
+bool Curl_timeouts_remove_expired(ഘടന Curl_timeouts *timeouts,
+                                  സ്ഥിരം ഘടന curltime *ts,
                                   uint32_t *pmid);
 
-void Curl_timeouts_add(struct Curl_timeouts *timeouts,
-                       struct Curl_easy *data,
+ശൂന്യം Curl_timeouts_add(ഘടന Curl_timeouts *timeouts,
+                       ഘടന Curl_easy *data,
                        timediff_t offset_us);
 
 /* Returns TRUE if data was registered in timeouts before */
-bool Curl_timeouts_remove(struct Curl_timeouts *timeouts,
-                          struct Curl_easy *data);
+bool Curl_timeouts_remove(ഘടന Curl_timeouts *timeouts,
+                          ഘടന Curl_easy *data);
 
 #ifdef UNITTESTS
-uint32_t Curl_splayget(struct Curl_tree *node);
+uint32_t Curl_splayget(ഘടന Curl_വൃക്ഷം *കണ്ണി);
 #endif
 
 #endif /* HEADER_CURL_SPLAY_H */

@@ -23,41 +23,41 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifndef CURL_DISABLE_HTTP
-#include "bufq.h"
-#include "http.h"
+#അന്തര്ഭാവ "bufq.h"
+#അന്തര്ഭാവ "http.h"
 
 #define H1_PARSE_OPT_NONE       0
 #define H1_PARSE_OPT_STRICT     (1 << 0)
 
-#define H1_PARSE_DEFAULT_MAX_LINE_LEN   DYN_HTTP_REQUEST
+#define H1_PARSE_DEFAULT_MAX_വരി_LEN   DYN_HTTP_REQUEST
 
-struct h1_req_parser {
-  struct httpreq *req;
-  struct dynbuf scratch;
+ഘടന h1_req_parser {
+  ഘടന httpreq *req;
+  ഘടന dynbuf scratch;
   size_t scratch_skip;
-  const char *line;
-  size_t max_line_len;
-  size_t line_len;
+  സ്ഥിരം അക്ഷരം *വരി;
+  size_t max_വരി_len;
+  size_t വരി_len;
   BIT(done);
 };
 
-void Curl_h1_req_parse_init(struct h1_req_parser *parser, size_t max_line_len);
-void Curl_h1_req_parse_free(struct h1_req_parser *parser);
+ശൂന്യം Curl_h1_req_parse_init(ഘടന h1_req_parser *parser, size_t max_വരി_len);
+ശൂന്യം Curl_h1_req_parse_free(ഘടന h1_req_parser *parser);
 
-CURLcode Curl_h1_req_parse_read(struct h1_req_parser *parser,
-                                const uint8_t *buf, size_t buflen,
-                                const char *scheme_default,
-                                const char *custom_method,
-                                int options, size_t *pnread);
+CURLcode Curl_h1_req_parse_read(ഘടന h1_req_parser *parser,
+                                സ്ഥിരം uint8_t *buf, size_t buflen,
+                                സ്ഥിരം അക്ഷരം *scheme_default,
+                                സ്ഥിരം അക്ഷരം *custom_method,
+                                പൂർണ്ണസംഖ്യ options, size_t *pnread);
 
-CURLcode Curl_h1_req_dprint(const struct httpreq *req,
-                            struct dynbuf *dbuf);
+CURLcode Curl_h1_req_dprint(സ്ഥിരം ഘടന httpreq *req,
+                            ഘടന dynbuf *dbuf);
 
-CURLcode Curl_h1_req_write_head(struct httpreq *req, int http_minor,
-                                struct dynbuf *dbuf);
+CURLcode Curl_h1_req_write_head(ഘടന httpreq *req, പൂർണ്ണസംഖ്യ http_minor,
+                                ഘടന dynbuf *dbuf);
 
 #endif /* !CURL_DISABLE_HTTP */
 #endif /* HEADER_CURL_HTTP1_H */

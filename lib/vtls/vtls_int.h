@@ -23,18 +23,18 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_SSL
 
-#include "cfilters.h"
-#include "select.h"
-#include "urldata.h"
-#include "vtls/vtls.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "select.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
 
-struct Curl_ssl;
-struct ssl_connect_data;
-struct Curl_ssl_session;
+ഘടന Curl_ssl;
+ഘടന ssl_connect_data;
+ഘടന Curl_ssl_session;
 
 /* see https://www.iana.org/assignments/tls-extensiontype-values/ */
 #define ALPN_HTTP_1_0_LENGTH 8
@@ -53,47 +53,47 @@ struct Curl_ssl_session;
 #define ALPN_ENTRIES_MAX   3
 #define ALPN_PROTO_BUF_MAX (ALPN_ENTRIES_MAX * (ALPN_NAME_MAX + 1))
 
-struct alpn_spec {
-  char entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
-  size_t count; /* number of entries */
+ഘടന alpn_spec {
+  അക്ഷരം entries[ALPN_ENTRIES_MAX][ALPN_NAME_MAX];
+  size_t എണ്ണം; /* number of entries */
 };
 
-struct alpn_proto_buf {
-  unsigned char data[ALPN_PROTO_BUF_MAX];
-  int len;
+ഘടന alpn_proto_buf {
+  unsigned അക്ഷരം data[ALPN_PROTO_BUF_MAX];
+  പൂർണ്ണസംഖ്യ len;
 };
 
-CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec);
-CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec);
-void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto);
-void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src);
+CURLcode Curl_alpn_to_proto_buf(ഘടന alpn_proto_buf *buf,
+                                സ്ഥിരം ഘടന alpn_spec *spec);
+CURLcode Curl_alpn_to_proto_str(ഘടന alpn_proto_buf *buf,
+                                സ്ഥിരം ഘടന alpn_spec *spec);
+ശൂന്യം Curl_alpn_restrict_to(ഘടന alpn_spec *spec, സ്ഥിരം അക്ഷരം *proto);
+ശൂന്യം Curl_alpn_copy(ഘടന alpn_spec *dest, സ്ഥിരം ഘടന alpn_spec *src);
 
-CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ssl_connect_data *connssl,
-                                  const unsigned char *proto,
+CURLcode Curl_alpn_set_negotiated(ഘടന Curl_cfilter *cf,
+                                  ഘടന Curl_easy *data,
+                                  ഘടന ssl_connect_data *connssl,
+                                  സ്ഥിരം unsigned അക്ഷരം *proto,
                                   size_t proto_len);
 
-bool Curl_alpn_contains_proto(const struct alpn_spec *spec, const char *proto);
+bool Curl_alpn_contains_proto(സ്ഥിരം ഘടന alpn_spec *spec, സ്ഥിരം അക്ഷരം *proto);
 
 /* enum for the nonblocking SSL connection state machine */
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   ssl_connect_1,
   ssl_connect_2,
   ssl_connect_3,
   ssl_connect_done
 } ssl_connect_state;
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   ssl_connection_none,
   ssl_connection_deferred,
   ssl_connection_negotiating,
   ssl_connection_complete
 } ssl_connection_state;
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   ssl_earlydata_none,
   ssl_earlydata_await,
   ssl_earlydata_sending,
@@ -110,104 +110,104 @@ typedef enum {
 #define CURL_SSL_EARLY_MAX      (64 * 1024)
 
 /* Information in each SSL cfilter context: cf->ctx */
-struct ssl_connect_data {
-  const struct Curl_ssl *ssl_impl;  /* TLS backend for this filter */
-  struct ssl_peer peer;             /* peer the filter talks to */
-  const struct alpn_spec *alpn;     /* ALPN to use or NULL for none */
-  void *backend;                    /* vtls backend specific props */
-  struct cf_call_data call_data;    /* data handle used in current call */
-  struct Curl_ssl_session *session; /* TLS session in use or NULL */
-  struct curltime handshake_done;   /* time when handshake finished */
-  struct {
-    char *alpn;                     /* ALPN value or NULL */
+ഘടന ssl_connect_data {
+  സ്ഥിരം ഘടന Curl_ssl *ssl_impl;  /* TLS backend for this filter */
+  ഘടന ssl_peer peer;             /* peer the filter talks to */
+  സ്ഥിരം ഘടന alpn_spec *alpn;     /* ALPN to use or NULL for none */
+  ശൂന്യം *backend;                    /* vtls backend specific props */
+  ഘടന cf_call_data call_data;    /* data handle used in current call */
+  ഘടന Curl_ssl_session *session; /* TLS session in use or NULL */
+  ഘടന curltime handshake_done;   /* time when handshake finished */
+  ഘടന {
+    അക്ഷരം *alpn;                     /* ALPN value or NULL */
   } negotiated;
-  struct bufq earlydata;            /* earlydata to be send to peer */
+  ഘടന bufq earlydata;            /* earlydata to be send to peer */
   size_t earlydata_max;             /* max earlydata allowed by peer */
   size_t earlydata_skip;            /* sending bytes to skip when earlydata
                                      * is accepted by peer */
   ssl_connection_state state;
   ssl_connect_state connecting_state;
   ssl_earlydata_state earlydata_state;
-  int io_need;                      /* TLS signals special SEND/RECV needs */
+  പൂർണ്ണസംഖ്യ io_need;                      /* TLS signals special SEND/RECV needs */
   BIT(peer_closed);                 /* peer has closed connection */
   BIT(prefs_checked);               /* SSL preferences have been checked */
-  BIT(input_pending);               /* data for SSL_read() may be available */
+  BIT(നിവേശം_pending);               /* data for SSL_read() may be available */
   BIT(stats_reported);              /* connect times have been reported */
 };
 
 /* Definitions for SSL Implementations */
 
-struct Curl_ssl {
+ഘടന Curl_ssl {
   /*
    * This *must* be the first entry to allow returning the list of available
    * backends in curl_global_sslset().
    */
   curl_ssl_backend info;
-  unsigned int supports; /* bitfield, see above */
+  unsigned പൂർണ്ണസംഖ്യ supports; /* bitfield, see above */
   size_t sizeof_ssl_backend_data;
 
-  int (*init)(void);
-  void (*cleanup)(void);
+  പൂർണ്ണസംഖ്യ (*init)(ശൂന്യം);
+  ശൂന്യം (*cleanup)(ശൂന്യം);
 
-  size_t (*version)(char *buffer, size_t size);
-  CURLcode (*shut_down)(struct Curl_cfilter *cf, struct Curl_easy *data,
+  size_t (*version)(അക്ഷരം *buffer, size_t size);
+  CURLcode (*shut_down)(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
                         bool send_shutdown, bool *done);
 
   /* data_pending() shall return TRUE when it wants to get called again to
      drain internal buffers and deliver data instead of waiting for the socket
      to get readable */
-  bool (*data_pending)(struct Curl_cfilter *cf, const struct Curl_easy *data);
+  bool (*data_pending)(ഘടന Curl_cfilter *cf, സ്ഥിരം ഘടന Curl_easy *data);
 
   /* return 0 if a find random is filled in */
-  CURLcode (*random)(struct Curl_easy *data, unsigned char *entropy,
+  CURLcode (*random)(ഘടന Curl_easy *data, unsigned അക്ഷരം *entropy,
                      size_t length);
-  bool (*cert_status_request)(void);
+  bool (*cert_status_request)(ശൂന്യം);
 
-  CURLcode (*do_connect)(struct Curl_cfilter *cf, struct Curl_easy *data,
+  CURLcode (*do_connect)(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
                          bool *done);
 
   /* During handshake/shutdown, adjust the pollset to include the socket
    * for POLLOUT or POLLIN as needed. Mandatory. */
-  CURLcode (*adjust_pollset)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                             struct easy_pollset *ps);
-  void *(*get_internals)(struct ssl_connect_data *connssl, CURLINFO info);
-  void (*close)(struct Curl_cfilter *cf, struct Curl_easy *data);
-  void (*close_all)(struct Curl_easy *data);
+  CURLcode (*adjust_pollset)(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
+                             ഘടന easy_pollset *ps);
+  ശൂന്യം *(*get_internals)(ഘടന ssl_connect_data *connssl, CURLINFO info);
+  ശൂന്യം (*close)(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data);
+  ശൂന്യം (*close_all)(ഘടന Curl_easy *data);
 
-  struct curl_slist *(*engines_list)(struct Curl_easy *data);
+  ഘടന curl_slist *(*engines_list)(ഘടന Curl_easy *data);
 
-  CURLcode (*sha256sum)(const unsigned char *input, size_t inputlen,
-                        unsigned char *sha256sum, size_t sha256sumlen);
-  CURLcode (*recv_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         char *buf, size_t len, size_t *pnread);
-  CURLcode (*send_plain)(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const void *mem, size_t len, size_t *pnwritten);
+  CURLcode (*sha256sum)(സ്ഥിരം unsigned അക്ഷരം *നിവേശം, size_t inputlen,
+                        unsigned അക്ഷരം *sha256sum, size_t sha256sumlen);
+  CURLcode (*recv_plain)(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
+                         അക്ഷരം *buf, size_t len, size_t *pnread);
+  CURLcode (*send_plain)(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
+                         സ്ഥിരം ശൂന്യം *mem, size_t len, size_t *pnwritten);
 
-  CURLcode (*get_channel_binding)(struct Curl_easy *data, int8_t sockindex,
-                                  struct dynbuf *binding);
+  CURLcode (*get_channel_binding)(ഘടന Curl_easy *data, int8_t sockindex,
+                                  ഘടന dynbuf *binding);
 };
 
-extern const struct Curl_ssl *Curl_ssl;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_ssl *Curl_ssl;
 
-CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct easy_pollset *ps);
+CURLcode Curl_ssl_adjust_pollset(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 ഘടന easy_pollset *ps);
 
 /**
  * Get the SSL filter below the given one or NULL if there is none.
  */
-bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf);
+bool Curl_ssl_cf_is_proxy(ഘടന Curl_cfilter *cf);
 
-CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct alpn_spec *alpns,
-                               struct Curl_ssl_session *scs,
+CURLcode Curl_on_session_reuse(ഘടന Curl_cfilter *cf,
+                               ഘടന Curl_easy *data,
+                               ഘടന alpn_spec *alpns,
+                               ഘടന Curl_ssl_session *scs,
                                bool *do_early_data, bool early_data_allowed);
 
 /* Retrieve the SSL session held at the filter of type `cft` at
  * data's connection at `sockindex` or NULL if not found/available. */
-struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
-                                                 const struct Curl_cftype *cft,
+ഘടന Curl_ssl_session *Curl_ssl_get_cf_session(ഘടന Curl_easy *data,
+                                                 സ്ഥിരം ഘടന Curl_cftype *cft,
                                                  int8_t sockindex);
 
 #endif /* USE_SSL */
@@ -217,5 +217,5 @@ struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
 #ifdef USE_SSL
 /* Restore the default SSL filter call_data accessor for unity builds. */
 #undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct ssl_connect_data *)(cf)->ctx)->call_data
+#define CF_CTX_CALL_DATA(cf) ((ഘടന ssl_connect_data *)(cf)->ctx)->call_data
 #endif

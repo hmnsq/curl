@@ -21,285 +21,285 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_WINDOWS_SSPI
-#include "curl_sspi.h"
+#അന്തര്ഭാവ "curl_sspi.h"
 #endif
 
-#include "curlx/winapi.h"
-#include "strerror.h"
-#include "curlx/strcopy.h"
+#അന്തര്ഭാവ "curlx/winapi.h"
+#അന്തര്ഭാവ "strerror.h"
+#അന്തര്ഭാവ "curlx/strcopy.h"
 
-const char *curl_easy_strerror(CURLcode error)
+സ്ഥിരം അക്ഷരം *curl_easy_strerror(CURLcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLE_OK:
-    return "No error";
+  തിരഞ്ഞെടുപ്പ്(error) {
+  അവസ്ഥ CURLE_OK:
+    തിരികെ "No error";
 
-  case CURLE_UNSUPPORTED_PROTOCOL:
-    return "Unsupported protocol";
+  അവസ്ഥ CURLE_UNSUPPORTED_PROTOCOL:
+    തിരികെ "Unsupported protocol";
 
-  case CURLE_FAILED_INIT:
-    return "Failed initialization";
+  അവസ്ഥ CURLE_FAILED_INIT:
+    തിരികെ "Failed initialization";
 
-  case CURLE_URL_MALFORMAT:
-    return "URL using bad/illegal format or missing URL";
+  അവസ്ഥ CURLE_URL_MALFORMAT:
+    തിരികെ "URL using bad/illegal format or missing URL";
 
-  case CURLE_NOT_BUILT_IN:
-    return "A requested feature, protocol or option was not found built-in in"
+  അവസ്ഥ CURLE_NOT_BUILT_IN:
+    തിരികെ "A requested feature, protocol or option was not found built-in in"
            " this libcurl due to a build-time decision.";
 
-  case CURLE_COULDNT_RESOLVE_PROXY:
-    return "Could not resolve proxy name";
+  അവസ്ഥ CURLE_COULDNT_RESOLVE_PROXY:
+    തിരികെ "Could not resolve proxy name";
 
-  case CURLE_COULDNT_RESOLVE_HOST:
-    return "Could not resolve hostname";
+  അവസ്ഥ CURLE_COULDNT_RESOLVE_HOST:
+    തിരികെ "Could not resolve hostname";
 
-  case CURLE_COULDNT_CONNECT:
-    return "Could not connect to server";
+  അവസ്ഥ CURLE_COULDNT_CONNECT:
+    തിരികെ "Could not connect to server";
 
-  case CURLE_WEIRD_SERVER_REPLY:
-    return "Weird server reply";
+  അവസ്ഥ CURLE_WEIRD_SERVER_REPLY:
+    തിരികെ "Weird server reply";
 
-  case CURLE_REMOTE_ACCESS_DENIED:
-    return "Access denied to remote resource";
+  അവസ്ഥ CURLE_REMOTE_ACCESS_DENIED:
+    തിരികെ "Access denied to remote resource";
 
-  case CURLE_FTP_ACCEPT_FAILED:
-    return "FTP: The server failed to connect to data port";
+  അവസ്ഥ CURLE_FTP_ACCEPT_FAILED:
+    തിരികെ "FTP: The server failed to connect to data port";
 
-  case CURLE_FTP_ACCEPT_TIMEOUT:
-    return "FTP: Accepting server connect has timed out";
+  അവസ്ഥ CURLE_FTP_ACCEPT_TIMEOUT:
+    തിരികെ "FTP: Accepting server connect has timed out";
 
-  case CURLE_FTP_PRET_FAILED:
-    return "FTP: The server did not accept the PRET command.";
+  അവസ്ഥ CURLE_FTP_PRET_FAILED:
+    തിരികെ "FTP: The server did not accept the PRET command.";
 
-  case CURLE_FTP_WEIRD_PASS_REPLY:
-    return "FTP: unknown PASS reply";
+  അവസ്ഥ CURLE_FTP_WEIRD_PASS_REPLY:
+    തിരികെ "FTP: unknown PASS reply";
 
-  case CURLE_FTP_WEIRD_PASV_REPLY:
-    return "FTP: unknown PASV reply";
+  അവസ്ഥ CURLE_FTP_WEIRD_PASV_REPLY:
+    തിരികെ "FTP: unknown PASV reply";
 
-  case CURLE_FTP_WEIRD_227_FORMAT:
-    return "FTP: unknown 227 response format";
+  അവസ്ഥ CURLE_FTP_WEIRD_227_FORMAT:
+    തിരികെ "FTP: unknown 227 response format";
 
-  case CURLE_FTP_CANT_GET_HOST:
-    return "FTP: cannot figure out the host in the PASV response";
+  അവസ്ഥ CURLE_FTP_CANT_GET_HOST:
+    തിരികെ "FTP: cannot figure out the host in the PASV response";
 
-  case CURLE_HTTP2:
-    return "Error in the HTTP2 framing layer";
+  അവസ്ഥ CURLE_HTTP2:
+    തിരികെ "Error in the HTTP2 framing layer";
 
-  case CURLE_FTP_COULDNT_SET_TYPE:
-    return "FTP: could not set file type";
+  അവസ്ഥ CURLE_FTP_COULDNT_SET_TYPE:
+    തിരികെ "FTP: could not set file type";
 
-  case CURLE_PARTIAL_FILE:
-    return "Transferred a partial file";
+  അവസ്ഥ CURLE_PARTIAL_FILE:
+    തിരികെ "Transferred a partial file";
 
-  case CURLE_FTP_COULDNT_RETR_FILE:
-    return "FTP: could not retrieve (RETR failed) the specified file";
+  അവസ്ഥ CURLE_FTP_COULDNT_RETR_FILE:
+    തിരികെ "FTP: could not retrieve (RETR failed) the specified file";
 
-  case CURLE_QUOTE_ERROR:
-    return "Quote command returned error";
+  അവസ്ഥ CURLE_QUOTE_ERROR:
+    തിരികെ "Quote command returned error";
 
-  case CURLE_HTTP_RETURNED_ERROR:
-    return "HTTP response code said error";
+  അവസ്ഥ CURLE_HTTP_RETURNED_ERROR:
+    തിരികെ "HTTP response code said error";
 
-  case CURLE_WRITE_ERROR:
-    return "Failed writing received data to disk/application";
+  അവസ്ഥ CURLE_WRITE_ERROR:
+    തിരികെ "Failed writing received data to disk/application";
 
-  case CURLE_UPLOAD_FAILED:
-    return "Upload failed (at start/before it took off)";
+  അവസ്ഥ CURLE_UPLOAD_FAILED:
+    തിരികെ "Upload failed (at start/before it took off)";
 
-  case CURLE_READ_ERROR:
-    return "Failed to open/read local data from file/application";
+  അവസ്ഥ CURLE_READ_ERROR:
+    തിരികെ "Failed to open/read local data from file/application";
 
-  case CURLE_OUT_OF_MEMORY:
-    return "Out of memory";
+  അവസ്ഥ CURLE_OUT_OF_MEMORY:
+    തിരികെ "Out of memory";
 
-  case CURLE_OPERATION_TIMEDOUT:
-    return "Timeout was reached";
+  അവസ്ഥ CURLE_OPERATION_TIMEDOUT:
+    തിരികെ "Timeout was reached";
 
-  case CURLE_FTP_PORT_FAILED:
-    return "FTP: command PORT failed";
+  അവസ്ഥ CURLE_FTP_PORT_FAILED:
+    തിരികെ "FTP: command PORT failed";
 
-  case CURLE_FTP_COULDNT_USE_REST:
-    return "FTP: command REST failed";
+  അവസ്ഥ CURLE_FTP_COULDNT_USE_REST:
+    തിരികെ "FTP: command REST failed";
 
-  case CURLE_RANGE_ERROR:
-    return "Requested range was not delivered by the server";
+  അവസ്ഥ CURLE_RANGE_ERROR:
+    തിരികെ "Requested range was not delivered by the server";
 
-  case CURLE_SSL_CONNECT_ERROR:
-    return "SSL connect error";
+  അവസ്ഥ CURLE_SSL_CONNECT_ERROR:
+    തിരികെ "SSL connect error";
 
-  case CURLE_BAD_DOWNLOAD_RESUME:
-    return "Could not resume download";
+  അവസ്ഥ CURLE_BAD_DOWNLOAD_RESUME:
+    തിരികെ "Could not resume download";
 
-  case CURLE_FILE_COULDNT_READ_FILE:
-    return "Could not read a file:// file";
+  അവസ്ഥ CURLE_FILE_COULDNT_READ_FILE:
+    തിരികെ "Could not read a file:// file";
 
-  case CURLE_LDAP_CANNOT_BIND:
-    return "LDAP: cannot bind";
+  അവസ്ഥ CURLE_LDAP_CANNOT_BIND:
+    തിരികെ "LDAP: cannot bind";
 
-  case CURLE_LDAP_SEARCH_FAILED:
-    return "LDAP: search failed";
+  അവസ്ഥ CURLE_LDAP_തിരയൽ_FAILED:
+    തിരികെ "LDAP: search failed";
 
-  case CURLE_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  അവസ്ഥ CURLE_ABORTED_BY_CALLBACK:
+    തിരികെ "Operation was aborted by an application callback";
 
-  case CURLE_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  അവസ്ഥ CURLE_BAD_FUNCTION_ARGUMENT:
+    തിരികെ "A libcurl function was given a bad argument";
 
-  case CURLE_INTERFACE_FAILED:
-    return "Failed binding local connection end";
+  അവസ്ഥ CURLE_INTERFACE_FAILED:
+    തിരികെ "Failed binding local connection end";
 
-  case CURLE_TOO_MANY_REDIRECTS:
-    return "Number of redirects hit maximum amount";
+  അവസ്ഥ CURLE_TOO_MANY_REDIRECTS:
+    തിരികെ "Number of redirects hit maximum amount";
 
-  case CURLE_UNKNOWN_OPTION:
-    return "An unknown option was passed in to libcurl";
+  അവസ്ഥ CURLE_UNKNOWN_OPTION:
+    തിരികെ "An unknown option was passed in to libcurl";
 
-  case CURLE_SETOPT_OPTION_SYNTAX:
-    return "Malformed option provided in a setopt";
+  അവസ്ഥ CURLE_SETOPT_OPTION_SYNTAX:
+    തിരികെ "Malformed option provided in a setopt";
 
-  case CURLE_GOT_NOTHING:
-    return "Server returned nothing (no headers, no data)";
+  അവസ്ഥ CURLE_GOT_NOTHING:
+    തിരികെ "Server returned nothing (no headers, no data)";
 
-  case CURLE_SSL_ENGINE_NOTFOUND:
-    return "SSL crypto engine not found";
+  അവസ്ഥ CURLE_SSL_ENGINE_NOTFOUND:
+    തിരികെ "SSL crypto engine not found";
 
-  case CURLE_SSL_ENGINE_SETFAILED:
-    return "Can not set SSL crypto engine as default";
+  അവസ്ഥ CURLE_SSL_ENGINE_SETFAILED:
+    തിരികെ "Can not set SSL crypto engine as default";
 
-  case CURLE_SSL_ENGINE_INITFAILED:
-    return "Failed to initialize SSL crypto engine";
+  അവസ്ഥ CURLE_SSL_ENGINE_INITFAILED:
+    തിരികെ "Failed to initialize SSL crypto engine";
 
-  case CURLE_SEND_ERROR:
-    return "Failed sending data to the peer";
+  അവസ്ഥ CURLE_SEND_ERROR:
+    തിരികെ "Failed sending data to the peer";
 
-  case CURLE_RECV_ERROR:
-    return "Failure when receiving data from the peer";
+  അവസ്ഥ CURLE_RECV_ERROR:
+    തിരികെ "Failure when receiving data from the peer";
 
-  case CURLE_SSL_CERTPROBLEM:
-    return "Problem with the local SSL certificate";
+  അവസ്ഥ CURLE_SSL_CERTPROBLEM:
+    തിരികെ "Problem with the local SSL certificate";
 
-  case CURLE_SSL_CIPHER:
-    return "Could not use specified SSL cipher";
+  അവസ്ഥ CURLE_SSL_CIPHER:
+    തിരികെ "Could not use specified SSL cipher";
 
-  case CURLE_PEER_FAILED_VERIFICATION:
-    return "SSL peer certificate or SSH remote key was not OK";
+  അവസ്ഥ CURLE_PEER_FAILED_VERIFICATION:
+    തിരികെ "SSL peer certificate or SSH remote key was not OK";
 
-  case CURLE_SSL_CACERT_BADFILE:
-    return "Problem with the SSL CA cert (path? access rights?)";
+  അവസ്ഥ CURLE_SSL_CACERT_BADFILE:
+    തിരികെ "Problem with the SSL CA cert (path? access rights?)";
 
-  case CURLE_BAD_CONTENT_ENCODING:
-    return "Unrecognized or bad HTTP Content or Transfer-Encoding";
+  അവസ്ഥ CURLE_BAD_CONTENT_ENCODING:
+    തിരികെ "Unrecognized or bad HTTP Content or Transfer-Encoding";
 
-  case CURLE_FILESIZE_EXCEEDED:
-    return "Maximum file size exceeded";
+  അവസ്ഥ CURLE_FILESIZE_EXCEEDED:
+    തിരികെ "Maximum file size exceeded";
 
-  case CURLE_USE_SSL_FAILED:
-    return "Requested SSL level failed";
+  അവസ്ഥ CURLE_USE_SSL_FAILED:
+    തിരികെ "Requested SSL level failed";
 
-  case CURLE_SSL_SHUTDOWN_FAILED:
-    return "Failed to shut down the SSL connection";
+  അവസ്ഥ CURLE_SSL_SHUTDOWN_FAILED:
+    തിരികെ "Failed to shut down the SSL connection";
 
-  case CURLE_SSL_CRL_BADFILE:
-    return "Failed to load CRL file (path? access rights?, format?)";
+  അവസ്ഥ CURLE_SSL_CRL_BADFILE:
+    തിരികെ "Failed to load CRL file (path? access rights?, format?)";
 
-  case CURLE_SSL_ISSUER_ERROR:
-    return "Issuer check against peer certificate failed";
+  അവസ്ഥ CURLE_SSL_ISSUER_ERROR:
+    തിരികെ "Issuer check against peer certificate failed";
 
-  case CURLE_SEND_FAIL_REWIND:
-    return "Send failed since rewinding of the data stream failed";
+  അവസ്ഥ CURLE_SEND_FAIL_REWIND:
+    തിരികെ "Send failed since rewinding of the data stream failed";
 
-  case CURLE_LOGIN_DENIED:
-    return "Login denied";
+  അവസ്ഥ CURLE_LOGIN_DENIED:
+    തിരികെ "Login denied";
 
-  case CURLE_TFTP_NOTFOUND:
-    return "TFTP: File Not Found";
+  അവസ്ഥ CURLE_TFTP_NOTFOUND:
+    തിരികെ "TFTP: File Not Found";
 
-  case CURLE_TFTP_PERM:
-    return "TFTP: Access Violation";
+  അവസ്ഥ CURLE_TFTP_PERM:
+    തിരികെ "TFTP: Access Violation";
 
-  case CURLE_REMOTE_DISK_FULL:
-    return "Disk full or allocation exceeded";
+  അവസ്ഥ CURLE_REMOTE_DISK_FULL:
+    തിരികെ "Disk full or allocation exceeded";
 
-  case CURLE_TFTP_ILLEGAL:
-    return "TFTP: Illegal operation";
+  അവസ്ഥ CURLE_TFTP_ILLEGAL:
+    തിരികെ "TFTP: Illegal operation";
 
-  case CURLE_TFTP_UNKNOWNID:
-    return "TFTP: Unknown transfer ID";
+  അവസ്ഥ CURLE_TFTP_UNKNOWNID:
+    തിരികെ "TFTP: Unknown transfer ID";
 
-  case CURLE_REMOTE_FILE_EXISTS:
-    return "Remote file already exists";
+  അവസ്ഥ CURLE_REMOTE_FILE_EXISTS:
+    തിരികെ "Remote file already exists";
 
-  case CURLE_TFTP_NOSUCHUSER:
-    return "TFTP: No such user";
+  അവസ്ഥ CURLE_TFTP_NOSUCHUSER:
+    തിരികെ "TFTP: No such user";
 
-  case CURLE_REMOTE_FILE_NOT_FOUND:
-    return "Remote file not found";
+  അവസ്ഥ CURLE_REMOTE_FILE_NOT_FOUND:
+    തിരികെ "Remote file not found";
 
-  case CURLE_SSH:
-    return "Error in the SSH layer";
+  അവസ്ഥ CURLE_SSH:
+    തിരികെ "Error in the SSH layer";
 
-  case CURLE_AGAIN:
-    return "Socket not ready for send/recv";
+  അവസ്ഥ CURLE_AGAIN:
+    തിരികെ "Socket not ready for send/recv";
 
-  case CURLE_RTSP_CSEQ_ERROR:
-    return "RTSP CSeq mismatch or invalid CSeq";
+  അവസ്ഥ CURLE_RTSP_CSEQ_ERROR:
+    തിരികെ "RTSP CSeq mismatch or invalid CSeq";
 
-  case CURLE_RTSP_SESSION_ERROR:
-    return "RTSP session error";
+  അവസ്ഥ CURLE_RTSP_SESSION_ERROR:
+    തിരികെ "RTSP session error";
 
-  case CURLE_FTP_BAD_FILE_LIST:
-    return "Unable to parse FTP file list";
+  അവസ്ഥ CURLE_FTP_BAD_FILE_LIST:
+    തിരികെ "Unable to parse FTP file list";
 
-  case CURLE_CHUNK_FAILED:
-    return "Chunk callback failed";
+  അവസ്ഥ CURLE_CHUNK_FAILED:
+    തിരികെ "Chunk callback failed";
 
-  case CURLE_NO_CONNECTION_AVAILABLE:
-    return "The max connection limit is reached";
+  അവസ്ഥ CURLE_NO_CONNECTION_AVAILABLE:
+    തിരികെ "The max connection limit is reached";
 
-  case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
-    return "SSL public key does not match pinned public key";
+  അവസ്ഥ CURLE_SSL_PINNEDPUBKEYNOTMATCH:
+    തിരികെ "SSL public key does not match pinned public key";
 
-  case CURLE_SSL_INVALIDCERTSTATUS:
-    return "SSL server certificate status verification FAILED";
+  അവസ്ഥ CURLE_SSL_INVALIDCERTSTATUS:
+    തിരികെ "SSL server certificate status verification FAILED";
 
-  case CURLE_HTTP2_STREAM:
-    return "Stream error in the HTTP/2 framing layer";
+  അവസ്ഥ CURLE_HTTP2_STREAM:
+    തിരികെ "Stream error in the HTTP/2 framing layer";
 
-  case CURLE_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  അവസ്ഥ CURLE_RECURSIVE_API_CALL:
+    തിരികെ "API function called from within callback";
 
-  case CURLE_AUTH_ERROR:
-    return "An authentication function returned an error";
+  അവസ്ഥ CURLE_AUTH_ERROR:
+    തിരികെ "An authentication function returned an error";
 
-  case CURLE_HTTP3:
-    return "HTTP/3 error";
+  അവസ്ഥ CURLE_HTTP3:
+    തിരികെ "HTTP/3 error";
 
-  case CURLE_QUIC_CONNECT_ERROR:
-    return "QUIC connection error";
+  അവസ്ഥ CURLE_QUIC_CONNECT_ERROR:
+    തിരികെ "QUIC connection error";
 
-  case CURLE_PROXY:
-    return "proxy handshake error";
+  അവസ്ഥ CURLE_PROXY:
+    തിരികെ "proxy handshake error";
 
-  case CURLE_SSL_CLIENTCERT:
-    return "SSL Client Certificate required";
+  അവസ്ഥ CURLE_SSL_CLIENTCERT:
+    തിരികെ "SSL Client Certificate required";
 
-  case CURLE_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  അവസ്ഥ CURLE_UNRECOVERABLE_POLL:
+    തിരികെ "Unrecoverable error in select/poll";
 
-  case CURLE_TOO_LARGE:
-    return "A value or data field grew larger than allowed";
+  അവസ്ഥ CURLE_TOO_LARGE:
+    തിരികെ "A value or data field grew larger than allowed";
 
-  case CURLE_ECH_REQUIRED:
-    return "ECH attempted but failed";
+  അവസ്ഥ CURLE_ECH_REQUIRED:
+    തിരികെ "ECH attempted but failed";
 
     /* error codes not used by current libcurl */
-  default:
-    break;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
   /*
    * By using a switch, gcc -Wall will complain about enum values
@@ -314,222 +314,222 @@ const char *curl_easy_strerror(CURLcode error)
    * The line number for the error will be near this comment, which is why it
    * is here, and not at the start of the switch.
    */
-  return "Unknown error";
-#else
-  if(!error)
-    return "No error";
-  else
-    return "Error";
+  തിരികെ "Unknown error";
+#അല്ലെങ്കിൽ
+  എങ്കിൽ(!error)
+    തിരികെ "No error";
+  അല്ലെങ്കിൽ
+    തിരികെ "Error";
 #endif
 }
 
-const char *curl_multi_strerror(CURLMcode error)
+സ്ഥിരം അക്ഷരം *curl_multi_strerror(CURLMcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLM_CALL_MULTI_PERFORM:
-    return "Please call curl_multi_perform() soon";
+  തിരഞ്ഞെടുപ്പ്(error) {
+  അവസ്ഥ CURLM_CALL_MULTI_PERFORM:
+    തിരികെ "Please call curl_multi_perform() soon";
 
-  case CURLM_OK:
-    return "No error";
+  അവസ്ഥ CURLM_OK:
+    തിരികെ "No error";
 
-  case CURLM_BAD_HANDLE:
-    return "Invalid multi handle";
+  അവസ്ഥ CURLM_BAD_HANDLE:
+    തിരികെ "Invalid multi handle";
 
-  case CURLM_BAD_EASY_HANDLE:
-    return "Invalid easy handle";
+  അവസ്ഥ CURLM_BAD_EASY_HANDLE:
+    തിരികെ "Invalid easy handle";
 
-  case CURLM_OUT_OF_MEMORY:
-    return "Out of memory";
+  അവസ്ഥ CURLM_OUT_OF_MEMORY:
+    തിരികെ "Out of memory";
 
-  case CURLM_INTERNAL_ERROR:
-    return "Internal error";
+  അവസ്ഥ CURLM_INTERNAL_ERROR:
+    തിരികെ "Internal error";
 
-  case CURLM_BAD_SOCKET:
-    return "Invalid socket argument";
+  അവസ്ഥ CURLM_BAD_SOCKET:
+    തിരികെ "Invalid socket argument";
 
-  case CURLM_UNKNOWN_OPTION:
-    return "Unknown option";
+  അവസ്ഥ CURLM_UNKNOWN_OPTION:
+    തിരികെ "Unknown option";
 
-  case CURLM_ADDED_ALREADY:
-    return "The easy handle is already added to a multi handle";
+  അവസ്ഥ CURLM_ADDED_ALREADY:
+    തിരികെ "The easy handle is already added to a multi handle";
 
-  case CURLM_RECURSIVE_API_CALL:
-    return "API function called from within callback";
+  അവസ്ഥ CURLM_RECURSIVE_API_CALL:
+    തിരികെ "API function called from within callback";
 
-  case CURLM_WAKEUP_FAILURE:
-    return "Wakeup is unavailable or failed";
+  അവസ്ഥ CURLM_WAKEUP_FAILURE:
+    തിരികെ "Wakeup is unavailable or failed";
 
-  case CURLM_BAD_FUNCTION_ARGUMENT:
-    return "A libcurl function was given a bad argument";
+  അവസ്ഥ CURLM_BAD_FUNCTION_ARGUMENT:
+    തിരികെ "A libcurl function was given a bad argument";
 
-  case CURLM_ABORTED_BY_CALLBACK:
-    return "Operation was aborted by an application callback";
+  അവസ്ഥ CURLM_ABORTED_BY_CALLBACK:
+    തിരികെ "Operation was aborted by an application callback";
 
-  case CURLM_UNRECOVERABLE_POLL:
-    return "Unrecoverable error in select/poll";
+  അവസ്ഥ CURLM_UNRECOVERABLE_POLL:
+    തിരികെ "Unrecoverable error in select/poll";
 
-  case CURLM_LAST:
-    break;
+  അവസ്ഥ CURLM_LAST:
+    നിർത്തുക;
   }
 
-  return "Unknown error";
-#else
-  if(error == CURLM_OK)
-    return "No error";
-  else
-    return "Error";
+  തിരികെ "Unknown error";
+#അല്ലെങ്കിൽ
+  എങ്കിൽ(error == CURLM_OK)
+    തിരികെ "No error";
+  അല്ലെങ്കിൽ
+    തിരികെ "Error";
 #endif
 }
 
-const char *curl_share_strerror(CURLSHcode error)
+സ്ഥിരം അക്ഷരം *curl_share_strerror(CURLSHcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLSHE_OK:
-    return "No error";
+  തിരഞ്ഞെടുപ്പ്(error) {
+  അവസ്ഥ CURLSHE_OK:
+    തിരികെ "No error";
 
-  case CURLSHE_BAD_OPTION:
-    return "Unknown share option";
+  അവസ്ഥ CURLSHE_BAD_OPTION:
+    തിരികെ "Unknown share option";
 
-  case CURLSHE_IN_USE:
-    return "Share currently in use";
+  അവസ്ഥ CURLSHE_IN_USE:
+    തിരികെ "Share currently in use";
 
-  case CURLSHE_INVALID:
-    return "Invalid share handle";
+  അവസ്ഥ CURLSHE_INVALID:
+    തിരികെ "Invalid share handle";
 
-  case CURLSHE_NOMEM:
-    return "Out of memory";
+  അവസ്ഥ CURLSHE_NOMEM:
+    തിരികെ "Out of memory";
 
-  case CURLSHE_NOT_BUILT_IN:
-    return "Feature not enabled in this library";
+  അവസ്ഥ CURLSHE_NOT_BUILT_IN:
+    തിരികെ "Feature not enabled in this library";
 
-  case CURLSHE_LAST:
-    break;
+  അവസ്ഥ CURLSHE_LAST:
+    നിർത്തുക;
   }
 
-  return "CURLSHcode unknown";
-#else
-  if(error == CURLSHE_OK)
-    return "No error";
-  else
-    return "Error";
+  തിരികെ "CURLSHcode unknown";
+#അല്ലെങ്കിൽ
+  എങ്കിൽ(error == CURLSHE_OK)
+    തിരികെ "No error";
+  അല്ലെങ്കിൽ
+    തിരികെ "Error";
 #endif
 }
 
-const char *curl_url_strerror(CURLUcode error)
+സ്ഥിരം അക്ഷരം *curl_url_strerror(CURLUcode error)
 {
 #ifdef CURLVERBOSE
-  switch(error) {
-  case CURLUE_OK:
-    return "No error";
+  തിരഞ്ഞെടുപ്പ്(error) {
+  അവസ്ഥ CURLUE_OK:
+    തിരികെ "No error";
 
-  case CURLUE_BAD_HANDLE:
-    return "An invalid CURLU pointer was passed as argument";
+  അവസ്ഥ CURLUE_BAD_HANDLE:
+    തിരികെ "An invalid CURLU pointer was passed as argument";
 
-  case CURLUE_BAD_PARTPOINTER:
-    return "An invalid 'part' argument was passed as argument";
+  അവസ്ഥ CURLUE_BAD_PARTPOINTER:
+    തിരികെ "An invalid 'part' argument was passed as argument";
 
-  case CURLUE_MALFORMED_INPUT:
-    return "Malformed input to a URL function";
+  അവസ്ഥ CURLUE_MALFORMED_നിവേശം:
+    തിരികെ "Malformed input to a URL function";
 
-  case CURLUE_BAD_PORT_NUMBER:
-    return "Port number was not a decimal number between 0 and 65535";
+  അവസ്ഥ CURLUE_BAD_PORT_സംഖ്യ:
+    തിരികെ "Port number was not a decimal number between 0 and 65535";
 
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return "Unsupported URL scheme";
+  അവസ്ഥ CURLUE_UNSUPPORTED_SCHEME:
+    തിരികെ "Unsupported URL scheme";
 
-  case CURLUE_URLDECODE:
-    return "URL decode error, most likely because of rubbish in the input";
+  അവസ്ഥ CURLUE_URLDECODE:
+    തിരികെ "URL decode error, most likely because of rubbish in the input";
 
-  case CURLUE_OUT_OF_MEMORY:
-    return "A memory function failed";
+  അവസ്ഥ CURLUE_OUT_OF_MEMORY:
+    തിരികെ "A memory function failed";
 
-  case CURLUE_USER_NOT_ALLOWED:
-    return "Credentials was passed in the URL when prohibited";
+  അവസ്ഥ CURLUE_USER_NOT_ALLOWED:
+    തിരികെ "Credentials was passed in the URL when prohibited";
 
-  case CURLUE_UNKNOWN_PART:
-    return "An unknown part ID was passed to a URL API function";
+  അവസ്ഥ CURLUE_UNKNOWN_PART:
+    തിരികെ "An unknown part ID was passed to a URL API function";
 
-  case CURLUE_NO_SCHEME:
-    return "No scheme present";
+  അവസ്ഥ CURLUE_NO_SCHEME:
+    തിരികെ "No scheme present";
 
-  case CURLUE_NO_USER:
-    return "No user present";
+  അവസ്ഥ CURLUE_NO_USER:
+    തിരികെ "No user present";
 
-  case CURLUE_NO_PASSWORD:
-    return "No password present";
+  അവസ്ഥ CURLUE_NO_PASSWORD:
+    തിരികെ "No password present";
 
-  case CURLUE_NO_OPTIONS:
-    return "No options present";
+  അവസ്ഥ CURLUE_NO_OPTIONS:
+    തിരികെ "No options present";
 
-  case CURLUE_NO_HOST:
-    return "No host present";
+  അവസ്ഥ CURLUE_NO_HOST:
+    തിരികെ "No host present";
 
-  case CURLUE_NO_PORT:
-    return "No port number present";
+  അവസ്ഥ CURLUE_NO_PORT:
+    തിരികെ "No port number present";
 
-  case CURLUE_NO_QUERY:
-    return "No query present";
+  അവസ്ഥ CURLUE_NO_QUERY:
+    തിരികെ "No query present";
 
-  case CURLUE_NO_FRAGMENT:
-    return "No fragment present";
+  അവസ്ഥ CURLUE_NO_FRAGMENT:
+    തിരികെ "No fragment present";
 
-  case CURLUE_NO_ZONEID:
-    return "No zoneid present";
+  അവസ്ഥ CURLUE_NO_ZONEID:
+    തിരികെ "No zoneid present";
 
-  case CURLUE_BAD_LOGIN:
-    return "Bad login";
+  അവസ്ഥ CURLUE_BAD_LOGIN:
+    തിരികെ "Bad login";
 
-  case CURLUE_BAD_IPV6:
-    return "Bad IPv6 address";
+  അവസ്ഥ CURLUE_BAD_IPV6:
+    തിരികെ "Bad IPv6 address";
 
-  case CURLUE_BAD_HOSTNAME:
-    return "Bad hostname";
+  അവസ്ഥ CURLUE_BAD_HOSTNAME:
+    തിരികെ "Bad hostname";
 
-  case CURLUE_BAD_FILE_URL:
-    return "Bad file:// URL";
+  അവസ്ഥ CURLUE_BAD_FILE_URL:
+    തിരികെ "Bad file:// URL";
 
-  case CURLUE_BAD_SLASHES:
-    return "Unsupported number of slashes following scheme";
+  അവസ്ഥ CURLUE_BAD_SLASHES:
+    തിരികെ "Unsupported number of slashes following scheme";
 
-  case CURLUE_BAD_SCHEME:
-    return "Bad scheme";
+  അവസ്ഥ CURLUE_BAD_SCHEME:
+    തിരികെ "Bad scheme";
 
-  case CURLUE_BAD_PATH:
-    return "Bad path";
+  അവസ്ഥ CURLUE_BAD_PATH:
+    തിരികെ "Bad path";
 
-  case CURLUE_BAD_FRAGMENT:
-    return "Bad fragment";
+  അവസ്ഥ CURLUE_BAD_FRAGMENT:
+    തിരികെ "Bad fragment";
 
-  case CURLUE_BAD_QUERY:
-    return "Bad query";
+  അവസ്ഥ CURLUE_BAD_QUERY:
+    തിരികെ "Bad query";
 
-  case CURLUE_BAD_PASSWORD:
-    return "Bad password";
+  അവസ്ഥ CURLUE_BAD_PASSWORD:
+    തിരികെ "Bad password";
 
-  case CURLUE_BAD_USER:
-    return "Bad user";
+  അവസ്ഥ CURLUE_BAD_USER:
+    തിരികെ "Bad user";
 
-  case CURLUE_LACKS_IDN:
-    return "libcurl lacks IDN support";
+  അവസ്ഥ CURLUE_LACKS_IDN:
+    തിരികെ "libcurl lacks IDN support";
 
-  case CURLUE_TOO_LARGE:
-    return "A value or data field is larger than allowed";
+  അവസ്ഥ CURLUE_TOO_LARGE:
+    തിരികെ "A value or data field is larger than allowed";
 
-  case CURLUE_BACKSLASH:
-    return "Found a backslash where a forward slash was expected";
+  അവസ്ഥ CURLUE_BACKSLASH:
+    തിരികെ "Found a backslash where a forward slash was expected";
 
-  case CURLUE_LAST:
-    break;
+  അവസ്ഥ CURLUE_LAST:
+    നിർത്തുക;
   }
 
-  return "CURLUcode unknown";
-#else
-  if(error == CURLUE_OK)
-    return "No error";
-  else
-    return "Error";
+  തിരികെ "CURLUcode unknown";
+#അല്ലെങ്കിൽ
+  എങ്കിൽ(error == CURLUE_OK)
+    തിരികെ "No error";
+  അല്ലെങ്കിൽ
+    തിരികെ "Error";
 #endif
 }
 
@@ -538,25 +538,25 @@ const char *curl_url_strerror(CURLUcode error)
  * Curl_sspi_strerror:
  * Variant of curlx_strerror if the error code is definitely Windows SSPI.
  */
-const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
+സ്ഥിരം അക്ഷരം *Curl_sspi_strerror(SECURITY_STATUS err, അക്ഷരം *buf, size_t buflen)
 {
 #ifdef _WIN32
   DWORD old_win_err = GetLastError();
 #endif
-  int old_errno = errno;
-  VERBOSE(const char *txt);
+  പൂർണ്ണസംഖ്യ old_errno = errno;
+  VERBOSE(സ്ഥിരം അക്ഷരം *txt);
 
-  if(!buflen)
-    return NULL;
+  എങ്കിൽ(!buflen)
+    തിരികെ ശൂന്യ;
 
   *buf = '\0';
 
 #ifdef CURLVERBOSE
-  switch(err) {
-  case SEC_E_OK:
+  തിരഞ്ഞെടുപ്പ്(err) {
+  അവസ്ഥ SEC_E_OK:
     txt = "No error";
-    break;
-#define SEC2TXT(sec) case sec: txt = #sec; break
+    നിർത്തുക;
+#define SEC2TXT(sec) അവസ്ഥ sec: txt = #sec; നിർത്തുക
   SEC2TXT(CRYPT_E_REVOKED);
   SEC2TXT(CRYPT_E_NO_REVOCATION_DLL);
   SEC2TXT(CRYPT_E_NO_REVOCATION_CHECK);
@@ -604,7 +604,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_NO_CREDENTIALS);
   SEC2TXT(SEC_E_NO_IMPERSONATION);
   SEC2TXT(SEC_E_NO_IP_ADDRESSES);
-  SEC2TXT(SEC_E_NO_KERB_KEY);
+  SEC2TXT(SEC_E_NO_KERB_താക്കോൽ);
   SEC2TXT(SEC_E_NO_PA_DATA);
   SEC2TXT(SEC_E_NO_S4U_PROT_SUPPORT);
   SEC2TXT(SEC_E_NO_TGT_REPLY);
@@ -629,7 +629,7 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_E_UNKNOWN_CREDENTIALS);
   SEC2TXT(SEC_E_UNSUPPORTED_FUNCTION);
   SEC2TXT(SEC_E_UNSUPPORTED_PREAUTH);
-  SEC2TXT(SEC_E_UNTRUSTED_ROOT);
+  SEC2TXT(SEC_E_UNTRUSTED_വേര്);
   SEC2TXT(SEC_E_WRONG_CREDENTIAL_HANDLE);
   SEC2TXT(SEC_E_WRONG_PRINCIPAL);
   SEC2TXT(SEC_I_COMPLETE_AND_CONTINUE);
@@ -641,40 +641,40 @@ const char *Curl_sspi_strerror(SECURITY_STATUS err, char *buf, size_t buflen)
   SEC2TXT(SEC_I_NO_LSA_CONTEXT);
   SEC2TXT(SEC_I_RENEGOTIATE);
   SEC2TXT(SEC_I_SIGNATURE_NEEDED);
-  default:
+  സ്ഥിരസ്ഥിതി:
     txt = "Unknown error";
   }
 
-  if(err == SEC_E_ILLEGAL_MESSAGE) {
+  എങ്കിൽ(err == SEC_E_ILLEGAL_MESSAGE) {
     curl_msnprintf(buf, buflen,
                    "SEC_E_ILLEGAL_MESSAGE (0x%08lx) - This error usually "
                    "occurs when a fatal SSL/TLS alert is received (e.g. "
                    "handshake failed). More detail may be available in "
                    "the Windows System event log.", (unsigned long)err);
   }
-  else {
-    char msgbuf[256];
-    if(curlx_get_winapi_error((DWORD)err, msgbuf, sizeof(msgbuf)))
+  അല്ലെങ്കിൽ {
+    അക്ഷരം msgbuf[256];
+    എങ്കിൽ(curlx_get_winapi_error((DWORD)err, msgbuf, വലുപ്പം(msgbuf)))
       curl_msnprintf(buf, buflen, "%s (0x%08lx) - %s", txt, (unsigned long)err,
                      msgbuf);
-    else
+    അല്ലെങ്കിൽ
       curl_msnprintf(buf, buflen, "%s (0x%08lx)", txt, (unsigned long)err);
   }
-#else /* CURLVERBOSE */
-  if(err == SEC_E_OK)
+#അല്ലെങ്കിൽ /* CURLVERBOSE */
+  എങ്കിൽ(err == SEC_E_OK)
     curlx_strcopy(buf, buflen, STRCONST("No error"));
-  else
+  അല്ലെങ്കിൽ
     curlx_strcopy(buf, buflen, STRCONST("Error"));
 #endif
 
-  if(errno != old_errno)
+  എങ്കിൽ(errno != old_errno)
     errno = old_errno;
 
 #ifdef _WIN32
-  if(old_win_err != GetLastError())
+  എങ്കിൽ(old_win_err != GetLastError())
     SetLastError(old_win_err);
 #endif
 
-  return buf;
+  തിരികെ buf;
 }
 #endif /* USE_WINDOWS_SSPI */

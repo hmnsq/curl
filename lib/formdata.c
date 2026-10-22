@@ -21,19 +21,19 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-struct Curl_easy;
+ഘടന Curl_easy;
 
-#include "formdata.h"
+#അന്തര്ഭാവ "formdata.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
 
-#include "urldata.h" /* for struct Curl_easy */
-#include "mime.h"
-#include "curlx/strdup.h"
-#include "bufref.h"
-#include "curlx/win32-fopen.h"
+#അന്തര്ഭാവ "urldata.h" /* for struct Curl_easy */
+#അന്തര്ഭാവ "mime.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
+#അന്തര്ഭാവ "bufref.h"
+#അന്തര്ഭാവ "curlx/win32-fopen.h"
 
 
 #define HTTPPOST_PTRNAME     CURL_HTTPPOST_PTRNAME
@@ -54,23 +54,23 @@ struct Curl_easy;
  * Returns newly allocated HttpPost on success and NULL if malloc failed.
  *
  ***************************************************************************/
-static struct curl_httppost *httppost_add(struct FormInfo *src,
-                                          struct curl_httppost *parent_post,
-                                          struct curl_httppost **httppost,
-                                          struct curl_httppost **last_post)
+സ്ഥിതം ഘടന curl_httppost *httppost_add(ഘടന FormInfo *src,
+                                          ഘടന curl_httppost *parent_post,
+                                          ഘടന curl_httppost **httppost,
+                                          ഘടന curl_httppost **last_post)
 {
-  struct curl_httppost *post;
+  ഘടന curl_httppost *post;
   size_t namelength = src->namelength;
-  if(!namelength && Curl_bufref_ptr(&src->name))
+  എങ്കിൽ(!namelength && Curl_bufref_ptr(&src->name))
     namelength = strlen(Curl_bufref_ptr(&src->name));
-  if((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
+  എങ്കിൽ((src->bufferlength > LONG_MAX) || (namelength > LONG_MAX))
     /* avoid overflow in typecasts below */
-    return NULL;
-  post = curlx_calloc(1, sizeof(struct curl_httppost));
-  if(post) {
+    തിരികെ ശൂന്യ;
+  post = curlx_calloc(1, വലുപ്പം(ഘടന curl_httppost));
+  എങ്കിൽ(post) {
     post->name = CURL_UNCONST(Curl_bufref_ptr(&src->name));
     post->namelength = (long)namelength;
-    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->value));
+    post->contents = CURL_UNCONST(Curl_bufref_ptr(&src->മൂല്യം));
     post->contentlen = src->contentslength;
     post->buffer = src->buffer;
     post->bufferlength = (long)src->bufferlength;
@@ -80,56 +80,56 @@ static struct curl_httppost *httppost_add(struct FormInfo *src,
     post->showfilename = CURL_UNCONST(Curl_bufref_ptr(&src->showfilename));
     post->userp = src->userp;
   }
-  else
-    return NULL;
+  അല്ലെങ്കിൽ
+    തിരികെ ശൂന്യ;
 
-  if(parent_post) {
+  എങ്കിൽ(parent_post) {
     /* now, point our 'more' to the original 'more' */
     post->more = parent_post->more;
 
     /* then move the original 'more' to point to ourselves */
     parent_post->more = post;
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* make the previous point to this */
-    if(*last_post)
+    എങ്കിൽ(*last_post)
       (*last_post)->next = post;
-    else
+    അല്ലെങ്കിൽ
       (*httppost) = post;
 
     (*last_post) = post;
   }
-  return post;
+  തിരികെ post;
 }
 
 /* Allocate and initialize a new FormInfo structure. */
-static struct FormInfo *forminfo_new(void)
+സ്ഥിതം ഘടന FormInfo *forminfo_new(ശൂന്യം)
 {
-  struct FormInfo *form_info = curlx_calloc(1, sizeof(struct FormInfo));
+  ഘടന FormInfo *form_info = curlx_calloc(1, വലുപ്പം(ഘടന FormInfo));
 
-  if(form_info) {
+  എങ്കിൽ(form_info) {
     Curl_bufref_init(&form_info->name);
-    Curl_bufref_init(&form_info->value);
+    Curl_bufref_init(&form_info->മൂല്യം);
     Curl_bufref_init(&form_info->contenttype);
     Curl_bufref_init(&form_info->showfilename);
   }
 
-  return form_info;
+  തിരികെ form_info;
 }
 
 /* Replace the target field data by a dynamic copy of it. */
-static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
+സ്ഥിതം CURLcode forminfo_copyfield(ഘടന bufref *field, size_t len)
 {
-  const char *value = Curl_bufref_ptr(field);
+  സ്ഥിരം അക്ഷരം *മൂല്യം = Curl_bufref_ptr(field);
   CURLcode result = CURLE_OK;
 
-  if(value) {
-    if(!len)
-      len = strlen(value);
-    result = Curl_bufref_memdup0(field, value, len);
+  എങ്കിൽ(മൂല്യം) {
+    എങ്കിൽ(!len)
+      len = strlen(മൂല്യം);
+    result = Curl_bufref_memdup0(field, മൂല്യം, len);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /***************************************************************************
@@ -139,11 +139,11 @@ static CURLcode forminfo_copyfield(struct bufref *field, size_t len)
  * Adds a FormInfo structure to the list presented by parent.
  *
  ***************************************************************************/
-static void forminfo_add(struct FormInfo *form_info, struct FormInfo *parent)
+സ്ഥിതം ശൂന്യം forminfo_add(ഘടന FormInfo *form_info, ഘടന FormInfo *parent)
 {
   form_info->flags |= HTTPPOST_FILENAME;
 
-  if(parent) {
+  എങ്കിൽ(parent) {
     /* now, point our 'more' to the original 'more' */
     form_info->more = parent->more;
 
@@ -152,11 +152,11 @@ static void forminfo_add(struct FormInfo *form_info, struct FormInfo *parent)
   }
 }
 
-static void free_formlist(struct FormInfo *ptr)
+സ്ഥിതം ശൂന്യം free_formlist(ഘടന FormInfo *ptr)
 {
-  for(; ptr; ptr = ptr->more) {
+  വേണ്ടി(; ptr; ptr = ptr->more) {
     Curl_bufref_free(&ptr->name);
-    Curl_bufref_free(&ptr->value);
+    Curl_bufref_free(&ptr->മൂല്യം);
     Curl_bufref_free(&ptr->contenttype);
     Curl_bufref_free(&ptr->showfilename);
   }
@@ -212,21 +212,21 @@ static void free_formlist(struct FormInfo *ptr)
  *
  ***************************************************************************/
 
-static CURLFORMcode formadd_check(struct FormInfo *first_form,
-                                  struct curl_httppost **httppost,
-                                  struct curl_httppost **last_post)
+സ്ഥിതം CURLFORMcode formadd_check(ഘടന FormInfo *first_form,
+                                  ഘടന curl_httppost **httppost,
+                                  ഘടന curl_httppost **last_post)
 {
-  const char *prevtype = NULL;
-  struct FormInfo *form = NULL;
-  struct curl_httppost *post = NULL;
+  സ്ഥിരം അക്ഷരം *prevtype = ശൂന്യ;
+  ഘടന FormInfo *form = ശൂന്യ;
+  ഘടന curl_httppost *post = ശൂന്യ;
 
   /* go through the list, check for completeness and if everything is
    * alright add the HttpPost item otherwise set retval accordingly */
 
-  for(form = first_form; form; form = form->more) {
-    const char *name = Curl_bufref_ptr(&form->name);
+  വേണ്ടി(form = first_form; form; form = form->more) {
+    സ്ഥിരം അക്ഷരം *name = Curl_bufref_ptr(&form->name);
 
-    if(((!name || !Curl_bufref_ptr(&form->value)) && !post) ||
+    എങ്കിൽ(((!name || !Curl_bufref_ptr(&form->മൂല്യം)) && !post) ||
        (form->contentslength &&
         (form->flags & HTTPPOST_FILENAME)) ||
        ((form->flags & HTTPPOST_FILENAME) &&
@@ -239,345 +239,345 @@ static CURLFORMcode formadd_check(struct FormInfo *first_form,
        ((form->flags & HTTPPOST_READFILE) &&
         (form->flags & HTTPPOST_PTRCONTENTS))
       ) {
-      return CURL_FORMADD_INCOMPLETE;
+      തിരികെ CURL_FORMADD_INCOMPLETE;
     }
-    if(((form->flags & HTTPPOST_FILENAME) ||
+    എങ്കിൽ(((form->flags & HTTPPOST_FILENAME) ||
         (form->flags & HTTPPOST_BUFFER)) &&
        !Curl_bufref_ptr(&form->contenttype)) {
-      const char *f = Curl_bufref_ptr((form->flags & HTTPPOST_BUFFER) ?
-                                      &form->showfilename : &form->value);
-      const char *type = Curl_mime_contenttype(f);
-      if(!type)
+      സ്ഥിരം അക്ഷരം *f = Curl_bufref_ptr((form->flags & HTTPPOST_BUFFER) ?
+                                      &form->showfilename : &form->മൂല്യം);
+      സ്ഥിരം അക്ഷരം *type = Curl_mime_contenttype(f);
+      എങ്കിൽ(!type)
         type = prevtype;
-      if(!type)
+      എങ്കിൽ(!type)
         type = FILE_CONTENTTYPE_DEFAULT;
 
       /* our contenttype is missing */
-      if(Curl_bufref_memdup0(&form->contenttype, type, strlen(type)))
-        return CURL_FORMADD_MEMORY;
+      എങ്കിൽ(Curl_bufref_memdup0(&form->contenttype, type, strlen(type)))
+        തിരികെ CURL_FORMADD_MEMORY;
     }
-    if(name && form->namelength && memchr(name, 0, form->namelength))
-      return CURL_FORMADD_NULL;
-    if(!(form->flags & HTTPPOST_PTRNAME) &&
+    എങ്കിൽ(name && form->namelength && memchr(name, 0, form->namelength))
+      തിരികെ CURL_FORMADD_NULL;
+    എങ്കിൽ(!(form->flags & HTTPPOST_PTRNAME) &&
        /* Note that there is small risk that form->name is NULL here if the app
           passed in a bad combo, so we check for that. */
        forminfo_copyfield(&form->name, form->namelength))
-      return CURL_FORMADD_MEMORY;
-    if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
+      തിരികെ CURL_FORMADD_MEMORY;
+    എങ്കിൽ(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE |
                         HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER |
                         HTTPPOST_CALLBACK)) &&
-       forminfo_copyfield(&form->value, (size_t)form->contentslength))
-      return CURL_FORMADD_MEMORY;
+       forminfo_copyfield(&form->മൂല്യം, (size_t)form->contentslength))
+      തിരികെ CURL_FORMADD_MEMORY;
     post = httppost_add(form, post, httppost, last_post);
 
-    if(!post)
-      return CURL_FORMADD_MEMORY;
+    എങ്കിൽ(!post)
+      തിരികെ CURL_FORMADD_MEMORY;
 
-    if(Curl_bufref_ptr(&form->contenttype))
+    എങ്കിൽ(Curl_bufref_ptr(&form->contenttype))
       prevtype = Curl_bufref_ptr(&form->contenttype);
   }
 
-  return CURL_FORMADD_OK;
+  തിരികെ CURL_FORMADD_OK;
 }
 
 /* Shallow cleanup. Remove the newly created chain, the structs only and not
    the content they point to */
-static void free_chain(struct curl_httppost *c)
+സ്ഥിതം ശൂന്യം free_chain(ഘടന curl_httppost *c)
 {
-  while(c) {
-    struct curl_httppost *next = c->next;
-    if(c->more)
+  ആകുമ്പോൾ(c) {
+    ഘടന curl_httppost *next = c->next;
+    എങ്കിൽ(c->more)
       free_chain(c->more);
     curlx_free(c);
     c = next;
   }
 }
 
-static CURLFORMcode formadd(struct curl_httppost **httppost,
-                            struct curl_httppost **last_post, va_list params)
+സ്ഥിതം CURLFORMcode formadd(ഘടന curl_httppost **httppost,
+                            ഘടന curl_httppost **last_post, va_list params)
 {
-  struct FormInfo *first_form, *curr, *form = NULL;
+  ഘടന FormInfo *first_form, *curr, *form = ശൂന്യ;
   CURLFORMcode retval = CURL_FORMADD_OK;
   CURLformoption option;
-  const struct curl_forms *forms = NULL;
-  char *avalue = NULL;
-  struct curl_httppost *newchain = NULL;
-  struct curl_httppost *lastnode = NULL;
+  സ്ഥിരം ഘടന curl_forms *forms = ശൂന്യ;
+  അക്ഷരം *avalue = ശൂന്യ;
+  ഘടന curl_httppost *newchain = ശൂന്യ;
+  ഘടന curl_httppost *lastnode = ശൂന്യ;
 
-#define form_ptr_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
+#define form_ptr_arg(t) (forms ? (t)(ശൂന്യം *)avalue : va_arg(params, t))
 #ifdef HAVE_UINTPTR_T
 #define form_int_arg(t) (forms ? (t)(uintptr_t)avalue : va_arg(params, t))
-#else
-#define form_int_arg(t) (forms ? (t)(void *)avalue : va_arg(params, t))
+#അല്ലെങ്കിൽ
+#define form_int_arg(t) (forms ? (t)(ശൂന്യം *)avalue : va_arg(params, t))
 #endif
 
   /*
    * We need to allocate the first struct to fill in.
    */
   first_form = forminfo_new();
-  if(!first_form)
-    return CURL_FORMADD_MEMORY;
+  എങ്കിൽ(!first_form)
+    തിരികെ CURL_FORMADD_MEMORY;
 
   curr = first_form;
 
   /*
    * Loop through all the options set. Break if we have an error to report.
    */
-  while(retval == CURL_FORMADD_OK) {
+  ആകുമ്പോൾ(retval == CURL_FORMADD_OK) {
 
     /* first see if we have more parts of the array param */
-    if(forms) {
+    എങ്കിൽ(forms) {
       /* get the upcoming option from the given array */
       option = forms->option;
-      avalue = (char *)CURL_UNCONST(forms->value);
+      avalue = (അക്ഷരം *)CURL_UNCONST(forms->മൂല്യം);
 
       forms++; /* advance this to next entry */
-      if(CURLFORM_END == option) {
+      എങ്കിൽ(CURLFORM_END == option) {
         /* end of array state */
-        forms = NULL;
-        continue;
+        forms = ശൂന്യ;
+        തുടരുക;
       }
     }
-    else {
+    അല്ലെങ്കിൽ {
       /* This is not array-state, get next option. This gets an 'int' with
          va_arg() because CURLformoption might be a smaller type than int and
          might cause compiler warnings and wrong behavior. */
-      option = (CURLformoption)va_arg(params, int);
-      if(CURLFORM_END == option)
-        break;
+      option = (CURLformoption)va_arg(params, പൂർണ്ണസംഖ്യ);
+      എങ്കിൽ(CURLFORM_END == option)
+        നിർത്തുക;
     }
 
-    switch(option) {
-    case CURLFORM_ARRAY:
-      if(forms)
+    തിരഞ്ഞെടുപ്പ്(option) {
+    അവസ്ഥ CURLFORM_ARRAY:
+      എങ്കിൽ(forms)
         /* we do not support an array from within an array */
         retval = CURL_FORMADD_ILLEGAL_ARRAY;
-      else {
-        forms = va_arg(params, struct curl_forms *);
-        if(!forms)
+      അല്ലെങ്കിൽ {
+        forms = va_arg(params, ഘടന curl_forms *);
+        എങ്കിൽ(!forms)
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      നിർത്തുക;
 
       /*
        * Set the Name property.
        */
-    case CURLFORM_PTRNAME:
+    അവസ്ഥ CURLFORM_PTRNAME:
       curr->flags |= HTTPPOST_PTRNAME;
       FALLTHROUGH();
-    case CURLFORM_COPYNAME:
-      if(Curl_bufref_ptr(&curr->name))
+    അവസ്ഥ CURLFORM_COPYNAME:
+      എങ്കിൽ(Curl_bufref_ptr(&curr->name))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->name, avalue, 0, NULL); /* No copy yet. */
-        else
+      അല്ലെങ്കിൽ {
+        avalue = form_ptr_arg(അക്ഷരം *);
+        എങ്കിൽ(avalue)
+          Curl_bufref_set(&curr->name, avalue, 0, ശൂന്യ); /* No copy yet. */
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_NAMELENGTH:
-      if(curr->namelength)
+      നിർത്തുക;
+    അവസ്ഥ CURLFORM_NAMELENGTH:
+      എങ്കിൽ(curr->namelength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
+      അല്ലെങ്കിൽ
         curr->namelength = (size_t)form_int_arg(long);
-      break;
+      നിർത്തുക;
 
       /*
        * Set the contents property.
        */
-    case CURLFORM_PTRCONTENTS:
+    അവസ്ഥ CURLFORM_PTRCONTENTS:
       curr->flags |= HTTPPOST_PTRCONTENTS;
       FALLTHROUGH();
-    case CURLFORM_COPYCONTENTS:
-      if(Curl_bufref_ptr(&curr->value))
+    അവസ്ഥ CURLFORM_COPYCONTENTS:
+      എങ്കിൽ(Curl_bufref_ptr(&curr->മൂല്യം))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue)
-          Curl_bufref_set(&curr->value, avalue, 0, NULL); /* No copy yet. */
-        else
+      അല്ലെങ്കിൽ {
+        avalue = form_ptr_arg(അക്ഷരം *);
+        എങ്കിൽ(avalue)
+          Curl_bufref_set(&curr->മൂല്യം, avalue, 0, ശൂന്യ); /* No copy yet. */
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_NULL;
       }
-      break;
-    case CURLFORM_CONTENTSLENGTH: {
+      നിർത്തുക;
+    അവസ്ഥ CURLFORM_CONTENTSLENGTH: {
       long clen = form_int_arg(long);
-      if(clen < 0)
+      എങ്കിൽ(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else
+      അല്ലെങ്കിൽ
         curr->contentslength = (curl_off_t)clen;
-      break;
+      നിർത്തുക;
     }
 
-    case CURLFORM_CONTENTLEN: {
+    അവസ്ഥ CURLFORM_CONTENTLEN: {
       curl_off_t clen = form_int_arg(curl_off_t);
-      if(clen < 0)
+      എങ്കിൽ(clen < 0)
         retval = CURL_FORMADD_INCOMPLETE;
-      else {
+      അല്ലെങ്കിൽ {
         curr->flags |= CURL_HTTPPOST_LARGE;
         curr->contentslength = clen;
       }
-      break;
+      നിർത്തുക;
     }
 
       /* Get contents from a given filename */
-    case CURLFORM_FILECONTENT:
-      if(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
+    അവസ്ഥ CURLFORM_FILECONTENT:
+      എങ്കിൽ(curr->flags & (HTTPPOST_PTRCONTENTS | HTTPPOST_READFILE))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
+      അല്ലെങ്കിൽ {
+        avalue = form_ptr_arg(അക്ഷരം *);
+        എങ്കിൽ(avalue) {
+          എങ്കിൽ(Curl_bufref_memdup0(&curr->മൂല്യം, avalue, strlen(avalue)))
             retval = CURL_FORMADD_MEMORY;
-          else
+          അല്ലെങ്കിൽ
             curr->flags |= HTTPPOST_READFILE;
         }
-        else
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      നിർത്തുക;
 
       /* We upload a file */
-    case CURLFORM_FILE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->value)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    അവസ്ഥ CURLFORM_FILE:
+      avalue = form_ptr_arg(അക്ഷരം *);
+      എങ്കിൽ(Curl_bufref_ptr(&curr->മൂല്യം)) {
+        എങ്കിൽ(curr->flags & HTTPPOST_FILENAME) {
+          എങ്കിൽ(avalue) {
             form = forminfo_new();
-            if(!form ||
-               Curl_bufref_memdup0(&form->value, avalue, strlen(avalue))) {
+            എങ്കിൽ(!form ||
+               Curl_bufref_memdup0(&form->മൂല്യം, avalue, strlen(avalue))) {
               curlx_free(form);
               retval = CURL_FORMADD_MEMORY;
             }
-            else {
+            അല്ലെങ്കിൽ {
               forminfo_add(form, curr);
               curr = form;
-              form = NULL;
+              form = ശൂന്യ;
             }
           }
-          else
+          അല്ലെങ്കിൽ
             retval = CURL_FORMADD_NULL;
         }
-        else
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else {
-        if(avalue) {
-          if(Curl_bufref_memdup0(&curr->value, avalue, strlen(avalue)))
+      അല്ലെങ്കിൽ {
+        എങ്കിൽ(avalue) {
+          എങ്കിൽ(Curl_bufref_memdup0(&curr->മൂല്യം, avalue, strlen(avalue)))
             retval = CURL_FORMADD_MEMORY;
-          else
+          അല്ലെങ്കിൽ
             curr->flags |= HTTPPOST_FILENAME;
         }
-        else
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      നിർത്തുക;
 
-    case CURLFORM_BUFFERPTR:
+    അവസ്ഥ CURLFORM_BUFFERPTR:
       curr->flags |= HTTPPOST_PTRBUFFER | HTTPPOST_BUFFER;
-      if(curr->buffer)
+      എങ്കിൽ(curr->buffer)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
+      അല്ലെങ്കിൽ {
+        avalue = form_ptr_arg(അക്ഷരം *);
+        എങ്കിൽ(avalue) {
           curr->buffer = avalue; /* store for the moment */
           /* Make value non-NULL to be accepted as fine */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_set(&curr->മൂല്യം, avalue, 0, ശൂന്യ);
         }
-        else
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      നിർത്തുക;
 
-    case CURLFORM_BUFFERLENGTH:
-      if(curr->bufferlength)
+    അവസ്ഥ CURLFORM_BUFFERLENGTH:
+      എങ്കിൽ(curr->bufferlength)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
+      അല്ലെങ്കിൽ
         curr->bufferlength = (size_t)form_int_arg(long);
-      break;
+      നിർത്തുക;
 
-    case CURLFORM_STREAM:
+    അവസ്ഥ CURLFORM_STREAM:
       curr->flags |= HTTPPOST_CALLBACK;
-      if(curr->userp)
+      എങ്കിൽ(curr->userp)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else {
-        avalue = form_ptr_arg(char *);
-        if(avalue) {
+      അല്ലെങ്കിൽ {
+        avalue = form_ptr_arg(അക്ഷരം *);
+        എങ്കിൽ(avalue) {
           curr->userp = avalue;
           /* The following line is not strictly true but we derive a value
              from this later on and we need this non-NULL to be accepted as
              a fine form part */
-          Curl_bufref_set(&curr->value, avalue, 0, NULL);
+          Curl_bufref_set(&curr->മൂല്യം, avalue, 0, ശൂന്യ);
         }
-        else
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_NULL;
       }
-      break;
+      നിർത്തുക;
 
-    case CURLFORM_CONTENTTYPE:
-      avalue = form_ptr_arg(char *);
-      if(Curl_bufref_ptr(&curr->contenttype)) {
-        if(curr->flags & HTTPPOST_FILENAME) {
-          if(avalue) {
+    അവസ്ഥ CURLFORM_CONTENTTYPE:
+      avalue = form_ptr_arg(അക്ഷരം *);
+      എങ്കിൽ(Curl_bufref_ptr(&curr->contenttype)) {
+        എങ്കിൽ(curr->flags & HTTPPOST_FILENAME) {
+          എങ്കിൽ(avalue) {
             form = forminfo_new();
-            if(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
+            എങ്കിൽ(!form || Curl_bufref_memdup0(&form->contenttype, avalue,
                                             strlen(avalue))) {
               curlx_free(form);
               retval = CURL_FORMADD_MEMORY;
             }
-            else {
+            അല്ലെങ്കിൽ {
               forminfo_add(form, curr);
               curr = form;
-              form = NULL;
+              form = ശൂന്യ;
             }
           }
-          else
+          അല്ലെങ്കിൽ
             retval = CURL_FORMADD_NULL;
         }
-        else
+        അല്ലെങ്കിൽ
           retval = CURL_FORMADD_OPTION_TWICE;
       }
-      else if(avalue) {
-        if(Curl_bufref_memdup0(&curr->contenttype, avalue, strlen(avalue)))
+      അല്ലെങ്കിൽ എങ്കിൽ(avalue) {
+        എങ്കിൽ(Curl_bufref_memdup0(&curr->contenttype, avalue, strlen(avalue)))
           retval = CURL_FORMADD_MEMORY;
       }
-      else
+      അല്ലെങ്കിൽ
         retval = CURL_FORMADD_NULL;
-      break;
+      നിർത്തുക;
 
-    case CURLFORM_CONTENTHEADER: {
+    അവസ്ഥ CURLFORM_CONTENTHEADER: {
       /* this "cast increases required alignment of target type" but
          we consider it OK anyway */
-      struct curl_slist *list = form_ptr_arg(struct curl_slist *);
+      ഘടന curl_slist *list = form_ptr_arg(ഘടന curl_slist *);
 
-      if(curr->contentheader)
+      എങ്കിൽ(curr->contentheader)
         retval = CURL_FORMADD_OPTION_TWICE;
-      else
+      അല്ലെങ്കിൽ
         curr->contentheader = list;
 
-      break;
+      നിർത്തുക;
     }
-    case CURLFORM_FILENAME:
-    case CURLFORM_BUFFER:
-      avalue = form_ptr_arg(char *);
-      if(!avalue)
+    അവസ്ഥ CURLFORM_FILENAME:
+    അവസ്ഥ CURLFORM_BUFFER:
+      avalue = form_ptr_arg(അക്ഷരം *);
+      എങ്കിൽ(!avalue)
         retval = CURL_FORMADD_NULL;
-      else if(Curl_bufref_ptr(&curr->showfilename))
+      അല്ലെങ്കിൽ എങ്കിൽ(Curl_bufref_ptr(&curr->showfilename))
         retval = CURL_FORMADD_OPTION_TWICE;
-      else if(Curl_bufref_memdup0(&curr->showfilename, avalue, strlen(avalue)))
+      അല്ലെങ്കിൽ എങ്കിൽ(Curl_bufref_memdup0(&curr->showfilename, avalue, strlen(avalue)))
         retval = CURL_FORMADD_MEMORY;
-      break;
+      നിർത്തുക;
 
-    default:
+    സ്ഥിരസ്ഥിതി:
       retval = CURL_FORMADD_UNKNOWN_OPTION;
-      break;
+      നിർത്തുക;
     }
   }
 
-  if(!retval)
+  എങ്കിൽ(!retval)
     retval = formadd_check(first_form, &newchain, &lastnode);
 
-  if(retval)
+  എങ്കിൽ(retval)
     /* On error, free allocated fields for all nodes of the FormInfo linked
        list without deallocating nodes. List nodes are deallocated later on */
     free_formlist(first_form);
@@ -585,25 +585,25 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
   /* Always deallocate FormInfo linked list nodes without touching node
      fields given that these have either been deallocated or are owned
      now by the httppost linked list */
-  while(first_form) {
-    struct FormInfo *ptr = first_form->more;
+  ആകുമ്പോൾ(first_form) {
+    ഘടന FormInfo *ptr = first_form->more;
     curlx_free(first_form);
     first_form = ptr;
   }
 
-  if(!retval) {
+  എങ്കിൽ(!retval) {
     /* Only if all is fine, link the new chain into the provided list */
-    if(*last_post)
+    എങ്കിൽ(*last_post)
       (*last_post)->next = newchain;
-    else
+    അല്ലെങ്കിൽ
       (*httppost) = newchain;
 
     (*last_post) = lastnode;
   }
-  else
+  അല്ലെങ്കിൽ
     free_chain(newchain);
 
-  return retval;
+  തിരികെ retval;
 #undef form_ptr_arg
 #undef form_int_arg
 }
@@ -614,15 +614,15 @@ static CURLFORMcode formadd(struct curl_httppost **httppost,
  * @unittest: 1308
  */
 
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+CURLFORMcode curl_formadd(ഘടന curl_httppost **httppost,
+                          ഘടന curl_httppost **last_post, ...)
 {
   va_list arg;
   CURLFORMcode form;
   va_start(arg, last_post);
   form = formadd(httppost, last_post, arg);
   va_end(arg);
-  return form;
+  തിരികെ form;
 }
 
 /*
@@ -632,84 +632,84 @@ CURLFORMcode curl_formadd(struct curl_httppost **httppost,
  *
  * @unittest: 1308
  */
-int curl_formget(struct curl_httppost *form, void *arg,
+പൂർണ്ണസംഖ്യ curl_formget(ഘടന curl_httppost *form, ശൂന്യം *arg,
                  curl_formget_callback append)
 {
   CURLcode result;
   curl_mimepart toppart;
 
   /* Validate callback is provided */
-  if(!append)
-    return (int)CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(!append)
+    തിരികെ (പൂർണ്ണസംഖ്യ)CURLE_BAD_FUNCTION_ARGUMENT;
 
   Curl_mime_initpart(&toppart); /* default form is empty */
-  result = Curl_getformdata(NULL, &toppart, form, NULL);
-  if(!result)
-    result = Curl_mime_prepare_headers(NULL, &toppart, "multipart/form-data",
-                                       NULL, MIMESTRATEGY_FORM);
+  result = Curl_getformdata(ശൂന്യ, &toppart, form, ശൂന്യ);
+  എങ്കിൽ(!result)
+    result = Curl_mime_prepare_headers(ശൂന്യ, &toppart, "multipart/form-data",
+                                       ശൂന്യ, MIMESTRATEGY_FORM);
 
-  while(!result) {
-    char buffer[8192];
-    size_t nread = Curl_mime_read(buffer, 1, sizeof(buffer), &toppart);
+  ആകുമ്പോൾ(!result) {
+    അക്ഷരം buffer[8192];
+    size_t nread = Curl_mime_read(buffer, 1, വലുപ്പം(buffer), &toppart);
 
-    if(!nread)
-      break;
+    എങ്കിൽ(!nread)
+      നിർത്തുക;
 
-    if(nread > sizeof(buffer) || append(arg, buffer, nread) != nread) {
+    എങ്കിൽ(nread > വലുപ്പം(buffer) || append(arg, buffer, nread) != nread) {
       result = CURLE_READ_ERROR;
-      if(nread == CURL_READFUNC_ABORT)
+      എങ്കിൽ(nread == CURL_READFUNC_ABORT)
         result = CURLE_ABORTED_BY_CALLBACK;
     }
   }
 
   Curl_mime_cleanpart(&toppart);
-  return (int)result;
+  തിരികെ (പൂർണ്ണസംഖ്യ)result;
 }
 
 /*
  * curl_formfree() is an external function to free up a whole form post
  * chain
  */
-void curl_formfree(struct curl_httppost *form)
+ശൂന്യം curl_formfree(ഘടന curl_httppost *form)
 {
-  struct curl_httppost *next;
+  ഘടന curl_httppost *next;
 
-  if(!form)
+  എങ്കിൽ(!form)
     /* no form to free, get out of this */
-    return;
+    തിരികെ;
 
-  do {
+  ചെയ്യുക {
     next = form->next;  /* the following form line */
 
     /* recurse to sub-contents */
     curl_formfree(form->more);
 
-    if(!(form->flags & HTTPPOST_PTRNAME))
+    എങ്കിൽ(!(form->flags & HTTPPOST_PTRNAME))
       curlx_free(form->name); /* free the name */
-    if(!(form->flags &
+    എങ്കിൽ(!(form->flags &
          (HTTPPOST_PTRCONTENTS | HTTPPOST_BUFFER | HTTPPOST_CALLBACK)))
       curlx_free(form->contents); /* free the contents */
     curlx_free(form->contenttype); /* free the content type */
     curlx_free(form->showfilename); /* free the faked filename */
     curlx_free(form);       /* free the struct */
     form = next;
-  } while(form); /* continue */
+  } ആകുമ്പോൾ(form); /* continue */
 }
 
 /* Set mime part name, taking care of non null-terminated name string. */
-static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
+സ്ഥിതം CURLcode setname(curl_mimepart *part, സ്ഥിരം അക്ഷരം *name, size_t len)
 {
-  char *zname;
+  അക്ഷരം *zname;
   CURLcode result;
 
-  if(!name || !len)
-    return curl_mime_name(part, name);
+  എങ്കിൽ(!name || !len)
+    തിരികെ curl_mime_name(part, name);
   zname = curlx_memdup0(name, len);
-  if(!zname)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!zname)
+    തിരികെ CURLE_OUT_OF_MEMORY;
   result = curl_mime_name(part, zname);
   curlx_free(zname);
-  return result;
+  തിരികെ result;
 }
 
 /*
@@ -724,151 +724,151 @@ static CURLcode setname(curl_mimepart *part, const char *name, size_t len)
 
 CURLcode Curl_getformdata(CURL *data,
                           curl_mimepart *finalform,
-                          struct curl_httppost *post,
+                          ഘടന curl_httppost *post,
                           curl_read_callback fread_func)
 {
   CURLcode result = CURLE_OK;
-  curl_mime *form = NULL;
+  curl_mime *form = ശൂന്യ;
   curl_mimepart *part;
-  struct curl_httppost *file;
+  ഘടന curl_httppost *file;
 
   Curl_mime_cleanpart(finalform); /* default form is empty */
 
-  if(!post)
-    return result; /* no input => no output! */
+  എങ്കിൽ(!post)
+    തിരികെ result; /* no input => no output! */
 
   form = curl_mime_init(data);
-  if(!form)
+  എങ്കിൽ(!form)
     result = CURLE_OUT_OF_MEMORY;
 
-  if(!result)
+  എങ്കിൽ(!result)
     result = curl_mime_subparts(finalform, form);
 
   /* Process each top part. */
-  for(; !result && post; post = post->next) {
+  വേണ്ടി(; !result && post; post = post->next) {
     /* If we have more than a file here, create a mime subpart and fill it. */
     curl_mime *multipart = form;
-    if(post->more) {
+    എങ്കിൽ(post->more) {
       part = curl_mime_addpart(form);
-      if(!part)
+      എങ്കിൽ(!part)
         result = CURLE_OUT_OF_MEMORY;
-      if(!result)
+      എങ്കിൽ(!result)
         result = setname(part, post->name, post->namelength);
-      if(!result) {
+      എങ്കിൽ(!result) {
         multipart = curl_mime_init(data);
-        if(!multipart)
+        എങ്കിൽ(!multipart)
           result = CURLE_OUT_OF_MEMORY;
       }
-      if(!result)
+      എങ്കിൽ(!result)
         result = curl_mime_subparts(part, multipart);
     }
 
     /* Generate all the part contents. */
-    for(file = post; !result && file; file = file->more) {
+    വേണ്ടി(file = post; !result && file; file = file->more) {
       /* Create the part. */
       part = curl_mime_addpart(multipart);
-      if(!part)
+      എങ്കിൽ(!part)
         result = CURLE_OUT_OF_MEMORY;
 
       /* Set the headers. */
-      if(!result)
+      എങ്കിൽ(!result)
         result = curl_mime_headers(part, file->contentheader, 0);
 
       /* Set the content type. */
-      if(!result && file->contenttype)
+      എങ്കിൽ(!result && file->contenttype)
         result = curl_mime_type(part, file->contenttype);
 
       /* Set field name. */
-      if(!result && !post->more)
+      എങ്കിൽ(!result && !post->more)
         result = setname(part, post->name, post->namelength);
 
       /* Process contents. */
-      if(!result) {
+      എങ്കിൽ(!result) {
         curl_off_t clen = post->contentslength;
 
-        if(post->flags & CURL_HTTPPOST_LARGE)
+        എങ്കിൽ(post->flags & CURL_HTTPPOST_LARGE)
           clen = post->contentlen;
 
-        if(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
-          if(!strcmp(file->contents, "-")) {
+        എങ്കിൽ(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
+          എങ്കിൽ(!strcmp(file->contents, "-")) {
             /* There are a few cases where the code below will not work; in
                particular, freopen(stdin) by the caller is not guaranteed
                to result as expected. This feature has been kept for backward
                compatibility: use of "-" pseudo filename should be avoided. */
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic തള്ളുക
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
             result = curl_mime_data_cb(part, (curl_off_t)-1,
                                        (curl_read_callback)fread,
                                        curlx_fseek,
-                                       NULL, (void *)stdin);
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+                                       ശൂന്യ, (ശൂന്യം *)stdin);
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic എടുക്കുക
 #endif
           }
-          else
+          അല്ലെങ്കിൽ
             result = curl_mime_filedata(part, file->contents);
-          if(!result && (post->flags & HTTPPOST_READFILE))
-            result = curl_mime_filename(part, NULL);
+          എങ്കിൽ(!result && (post->flags & HTTPPOST_READFILE))
+            result = curl_mime_filename(part, ശൂന്യ);
         }
-        else if(post->flags & HTTPPOST_BUFFER)
+        അല്ലെങ്കിൽ എങ്കിൽ(post->flags & HTTPPOST_BUFFER)
           result = curl_mime_data(part, post->buffer,
                                   post->bufferlength ?
                                   post->bufferlength : -1);
-        else if(post->flags & HTTPPOST_CALLBACK) {
+        അല്ലെങ്കിൽ എങ്കിൽ(post->flags & HTTPPOST_CALLBACK) {
           /* the contents should be read with the callback and the size is set
              with the contentslength */
-          if(!clen)
+          എങ്കിൽ(!clen)
             clen = -1;
           result = curl_mime_data_cb(part, clen,
-                                     fread_func, NULL, NULL, post->userp);
+                                     fread_func, ശൂന്യ, ശൂന്യ, post->userp);
         }
-        else {
+        അല്ലെങ്കിൽ {
           size_t uclen;
-          if(!clen)
+          എങ്കിൽ(!clen)
             uclen = CURL_ZERO_TERMINATED;
-          else
+          അല്ലെങ്കിൽ
             uclen = (size_t)clen;
           result = curl_mime_data(part, post->contents, uclen);
         }
       }
 
       /* Set fake filename. */
-      if(!result && post->showfilename &&
+      എങ്കിൽ(!result && post->showfilename &&
          (post->more || (post->flags & (HTTPPOST_FILENAME | HTTPPOST_BUFFER |
                                         HTTPPOST_CALLBACK))))
         result = curl_mime_filename(part, post->showfilename);
     }
   }
 
-  if(result)
+  എങ്കിൽ(result)
     Curl_mime_cleanpart(finalform);
 
-  return result;
+  തിരികെ result;
 }
 
-#else /* if disabled */
-CURLFORMcode curl_formadd(struct curl_httppost **httppost,
-                          struct curl_httppost **last_post, ...)
+#അല്ലെങ്കിൽ /* if disabled */
+CURLFORMcode curl_formadd(ഘടന curl_httppost **httppost,
+                          ഘടന curl_httppost **last_post, ...)
 {
-  (void)httppost;
-  (void)last_post;
-  return CURL_FORMADD_DISABLED;
+  (ശൂന്യം)httppost;
+  (ശൂന്യം)last_post;
+  തിരികെ CURL_FORMADD_DISABLED;
 }
 
-int curl_formget(struct curl_httppost *form, void *arg,
+പൂർണ്ണസംഖ്യ curl_formget(ഘടന curl_httppost *form, ശൂന്യം *arg,
                  curl_formget_callback append)
 {
-  (void)form;
-  (void)arg;
-  (void)append;
-  return CURL_FORMADD_DISABLED;
+  (ശൂന്യം)form;
+  (ശൂന്യം)arg;
+  (ശൂന്യം)append;
+  തിരികെ CURL_FORMADD_DISABLED;
 }
 
-void curl_formfree(struct curl_httppost *form)
+ശൂന്യം curl_formfree(ഘടന curl_httppost *form)
 {
-  (void)form;
+  (ശൂന്യം)form;
   /* Nothing to do. */
 }
 

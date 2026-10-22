@@ -24,11 +24,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_MBEDTLS
 
-extern const struct Curl_ssl Curl_ssl_mbedtls;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_ssl Curl_ssl_mbedtls;
 
 #endif /* USE_MBEDTLS */
 #endif /* HEADER_CURL_MBEDTLS_H */

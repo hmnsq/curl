@@ -23,16 +23,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_WINDOWS_SSPI
 
-#include <sspi.h>
+#അന്തര്ഭാവ <sspi.h>
 
 /* Local helper macro */
 #ifdef UNICODE
 #define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_UNICODE
-#else
+#അല്ലെങ്കിൽ
 #define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_ANSI
 #endif
 
@@ -40,28 +40,28 @@
 #ifndef SECPKG_ATTR_ENDPOINT_BINDINGS
 #define SECPKG_ATTR_ENDPOINT_BINDINGS 26
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct {
+തരനിർവചനം ഘടന {
   unsigned long BindingsLength;
   SEC_CHANNEL_BINDINGS *Bindings;
 } SecPkgContext_Bindings;
 #endif
 
-CURLcode Curl_sspi_global_init(void);
-void Curl_sspi_global_cleanup(void);
+CURLcode Curl_sspi_global_init(ശൂന്യം);
+ശൂന്യം Curl_sspi_global_cleanup(ശൂന്യം);
 
 /* This is used to populate the domain in an SSPI identity structure */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
+CURLcode Curl_override_sspi_http_realm(സ്ഥിരം അക്ഷരം *chlg,
                                        SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* This is used to generate an SSPI identity structure */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
+CURLcode Curl_create_sspi_identity(സ്ഥിരം അക്ഷരം *userp, സ്ഥിരം അക്ഷരം *passwdp,
                                    SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* This is used to free an SSPI identity structure */
-void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity);
+ശൂന്യം Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* Forward-declaration of global variables defined in curl_sspi.c */
-extern PSecurityFunctionTable Curl_pSecFn;
+ബാഹ്യ PSecurityFunctionTable Curl_pSecFn;
 
 /* Provide Service Principal names as macros */
 #define SP_NAME_DIGEST              "WDigest"

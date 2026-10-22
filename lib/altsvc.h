@@ -23,54 +23,54 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-#include "llist.h"
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
+#അന്തര്ഭാവ "llist.h"
 
-struct Curl_peer;
+ഘടന Curl_peer;
 
 /* the maximum number of alt-svc entries kept in a single cache */
 #define MAX_ALTSVC_ENTRIES 5000
 
-struct althost {
-  char *host;
+ഘടന althost {
+  അക്ഷരം *host;
   uint16_t port;
-  enum alpnid alpnid;
+  എണ്ണൽ alpnid alpnid;
 };
 
-struct altsvc {
-  struct althost src;
-  struct althost dst;
+ഘടന altsvc {
+  ഘടന althost src;
+  ഘടന althost dst;
   time_t expires;
-  struct Curl_llist_node node;
+  ഘടന Curl_llist_കണ്ണി കണ്ണി;
   BIT(persist);
 };
 
-struct altsvcinfo {
-  char *filename;
-  struct Curl_llist list; /* list of entries */
+ഘടന altsvcinfo {
+  അക്ഷരം *filename;
+  ഘടന Curl_llist list; /* list of entries */
   long flags; /* the publicly set bitmask */
 };
 
-const char *Curl_alpnid2str(enum alpnid id);
-struct altsvcinfo *Curl_altsvc_init(void);
-CURLcode Curl_altsvc_load(struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_save(struct Curl_easy *data,
-                          struct altsvcinfo *asi, const char *file);
-CURLcode Curl_altsvc_ctrl(struct Curl_easy *data, const long ctrl);
-void Curl_altsvc_cleanup(struct altsvcinfo **asi);
-CURLcode Curl_altsvc_parse(struct Curl_easy *data,
-                           struct altsvcinfo *asi, const char *value,
-                           struct Curl_peer *origin,
-                           enum alpnid origin_alpnid);
-bool Curl_altsvc_lookup(struct altsvcinfo *asi,
-                        struct Curl_peer *origin,
-                        enum alpnid origin_alpnid,
-                        struct altsvc **dstentry,
-                        const int versions, /* CURLALTSVC_H* bits */
+സ്ഥിരം അക്ഷരം *Curl_alpnid2str(എണ്ണൽ alpnid id);
+ഘടന altsvcinfo *Curl_altsvc_init(ശൂന്യം);
+CURLcode Curl_altsvc_load(ഘടന altsvcinfo *asi, സ്ഥിരം അക്ഷരം *file);
+CURLcode Curl_altsvc_save(ഘടന Curl_easy *data,
+                          ഘടന altsvcinfo *asi, സ്ഥിരം അക്ഷരം *file);
+CURLcode Curl_altsvc_ctrl(ഘടന Curl_easy *data, സ്ഥിരം long ctrl);
+ശൂന്യം Curl_altsvc_cleanup(ഘടന altsvcinfo **asi);
+CURLcode Curl_altsvc_parse(ഘടന Curl_easy *data,
+                           ഘടന altsvcinfo *asi, സ്ഥിരം അക്ഷരം *മൂല്യം,
+                           ഘടന Curl_peer *origin,
+                           എണ്ണൽ alpnid origin_alpnid);
+bool Curl_altsvc_lookup(ഘടന altsvcinfo *asi,
+                        ഘടന Curl_peer *origin,
+                        എണ്ണൽ alpnid origin_alpnid,
+                        ഘടന altsvc **dstentry,
+                        സ്ഥിരം പൂർണ്ണസംഖ്യ versions, /* CURLALTSVC_H* bits */
                         bool *psame_destination);
-#else
+#അല്ലെങ്കിൽ
 /* disabled */
 #define Curl_altsvc_save(a, b, c)
 #define Curl_altsvc_cleanup(x)

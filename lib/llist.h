@@ -23,58 +23,58 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-typedef void (*Curl_llist_dtor)(void *user, void *elem);
+തരനിർവചനം ശൂന്യം (*Curl_llist_dtor)(ശൂന്യം *user, ശൂന്യം *elem);
 
 /* none of these struct members should be referenced directly, use the
    dedicated functions */
 
-struct Curl_llist {
-  struct Curl_llist_node *_head;
-  struct Curl_llist_node *_tail;
+ഘടന Curl_llist {
+  ഘടന Curl_llist_കണ്ണി *_head;
+  ഘടന Curl_llist_കണ്ണി *_tail;
   Curl_llist_dtor _dtor;
   size_t _size;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  പൂർണ്ണസംഖ്യ _init;      /* detect API usage mistakes */
 #endif
 };
 
-struct Curl_llist_node {
-  struct Curl_llist *_list; /* the list where this belongs */
-  void *_ptr;
-  struct Curl_llist_node *_prev;
-  struct Curl_llist_node *_next;
+ഘടന Curl_llist_കണ്ണി {
+  ഘടന Curl_llist *_list; /* the list where this belongs */
+  ശൂന്യം *_ptr;
+  ഘടന Curl_llist_കണ്ണി *_prev;
+  ഘടന Curl_llist_കണ്ണി *_next;
 #ifdef DEBUGBUILD
-  int _init;      /* detect API usage mistakes */
+  പൂർണ്ണസംഖ്യ _init;      /* detect API usage mistakes */
 #endif
 };
 
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor);
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne);
-void Curl_node_remove(struct Curl_llist_node *e);
-void Curl_llist_destroy(struct Curl_llist *list, void *user);
+ശൂന്യം Curl_llist_init(ഘടന Curl_llist *l, Curl_llist_dtor dtor);
+ശൂന്യം Curl_llist_append(ഘടന Curl_llist *list, സ്ഥിരം ശൂന്യം *p,
+                       ഘടന Curl_llist_കണ്ണി *ne);
+ശൂന്യം Curl_കണ്ണി_remove(ഘടന Curl_llist_കണ്ണി *e);
+ശൂന്യം Curl_llist_destroy(ഘടന Curl_llist *list, ശൂന്യം *user);
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list);
+ഘടന Curl_llist_കണ്ണി *Curl_llist_head(സ്ഥിരം ഘടന Curl_llist *list);
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list);
+size_t Curl_llist_എണ്ണം(സ്ഥിരം ഘടന Curl_llist *list);
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n);
+ശൂന്യം *Curl_കണ്ണി_elem(സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n);
 
 /* Remove the node from the list and return the custom data
  * from a Curl_llist_node. Does NOT invoke a registered `dtor`. */
-void *Curl_node_take_elem(struct Curl_llist_node *e);
+ശൂന്യം *Curl_കണ്ണി_take_elem(ഘടന Curl_llist_കണ്ണി *e);
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n);
+ഘടന Curl_llist_കണ്ണി *Curl_കണ്ണി_next(സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n);
 
 /* Curl_node_llist() return the list the node is in or NULL. */
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n);
+ഘടന Curl_llist *Curl_കണ്ണി_llist(സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n);
 
 #endif /* HEADER_CURL_LLIST_H */

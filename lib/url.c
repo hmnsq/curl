@@ -21,108 +21,108 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#അന്തര്ഭാവ <netinet/in.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#അന്തര്ഭാവ <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#അന്തര്ഭാവ <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+#അന്തര്ഭാവ <net/if.h>
 #endif
 #ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
+#അന്തര്ഭാവ <Iphlpapi.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+#അന്തര്ഭാവ <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+#അന്തര്ഭാവ <sys/param.h>
 #endif
 
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#അന്തര്ഭാവ <in.h>
+#അന്തര്ഭാവ <inet.h>
 #endif
 
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
+#അന്തര്ഭാവ <sys/un.h>
 #endif
 
 #ifndef HAVE_SOCKET
 #error "We cannot compile without socket() support"
 #endif
 
-#if defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
-#if defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
-#include <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
+#എങ്കിൽ defined(HAVE_IF_NAMETOINDEX) && defined(USE_WINSOCK)
+#എങ്കിൽ defined(__MINGW32__) && (__MINGW64_VERSION_MAJOR <= 5)
+#അന്തര്ഭാവ <wincrypt.h>  /* workaround for old mingw-w64 missing to include it */
 #endif
-#include <iphlpapi.h>
+#അന്തര്ഭാവ <iphlpapi.h>
 #endif
 
-#include "urldata.h"
-#include "mime.h"
-#include "bufref.h"
-#include "vtls/vtls.h"
-#include "vssh/vssh.h"
-#include "transfer.h"
-#include "curl_addrinfo.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "cookie.h"
-#include "strcase.h"
-#include "escape.h"
-#include "curl_share.h"
-#include "http_digest.h"
-#include "multiif.h"
-#include "getinfo.h"
-#include "pop3.h"
-#include "urlapi-int.h"
-#include "hsts.h"
-#include "proxy.h"
-#include "cfilters.h"
-#include "idn.h"
-#include "http_proxy.h"
-#include "conncache.h"
-#include "multihandle.h"
-#include "curlx/strdup.h"
-#include "setopt.h"
-#include "altsvc.h"
-#include "curlx/dynbuf.h"
-#include "headers.h"
-#include "curlx/strerr.h"
-#include "curlx/strparse.h"
-#include "peer.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "mime.h"
+#അന്തര്ഭാവ "bufref.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
+#അന്തര്ഭാവ "vssh/vssh.h"
+#അന്തര്ഭാവ "transfer.h"
+#അന്തര്ഭാവ "curl_addrinfo.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "progress.h"
+#അന്തര്ഭാവ "cookie.h"
+#അന്തര്ഭാവ "strcase.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "curl_share.h"
+#അന്തര്ഭാവ "http_digest.h"
+#അന്തര്ഭാവ "multiif.h"
+#അന്തര്ഭാവ "getinfo.h"
+#അന്തര്ഭാവ "pop3.h"
+#അന്തര്ഭാവ "urlapi-int.h"
+#അന്തര്ഭാവ "hsts.h"
+#അന്തര്ഭാവ "proxy.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "idn.h"
+#അന്തര്ഭാവ "http_proxy.h"
+#അന്തര്ഭാവ "conncache.h"
+#അന്തര്ഭാവ "multihandle.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
+#അന്തര്ഭാവ "setopt.h"
+#അന്തര്ഭാവ "altsvc.h"
+#അന്തര്ഭാവ "curlx/dynbuf.h"
+#അന്തര്ഭാവ "headers.h"
+#അന്തര്ഭാവ "curlx/strerr.h"
+#അന്തര്ഭാവ "curlx/strparse.h"
+#അന്തര്ഭാവ "peer.h"
 
 /* Now for the protocols */
-#include "ftp.h"
-#include "dict.h"
-#include "telnet.h"
-#include "tftp.h"
-#include "http.h"
-#include "vauth/vauth.h"
-#include "file.h"
-#include "curl_ldap.h"
-#include "vssh/ssh.h"
-#include "imap.h"
-#include "url.h"
-#include "connect.h"
-#include "gopher.h"
-#include "mqtt.h"
-#include "rtsp.h"
-#include "smtp.h"
-#include "ws.h"
+#അന്തര്ഭാവ "ftp.h"
+#അന്തര്ഭാവ "dict.h"
+#അന്തര്ഭാവ "telnet.h"
+#അന്തര്ഭാവ "tftp.h"
+#അന്തര്ഭാവ "http.h"
+#അന്തര്ഭാവ "vauth/vauth.h"
+#അന്തര്ഭാവ "file.h"
+#അന്തര്ഭാവ "curl_ldap.h"
+#അന്തര്ഭാവ "vssh/ssh.h"
+#അന്തര്ഭാവ "imap.h"
+#അന്തര്ഭാവ "url.h"
+#അന്തര്ഭാവ "connect.h"
+#അന്തര്ഭാവ "gopher.h"
+#അന്തര്ഭാവ "mqtt.h"
+#അന്തര്ഭാവ "rtsp.h"
+#അന്തര്ഭാവ "smtp.h"
+#അന്തര്ഭാവ "ws.h"
 
 /* Some parts of the code (e.g. chunked encoding) assume this buffer has more
  * than a few bytes to play with. Do not let it become too small or bad things
  * will happen.
  */
-#if READBUFFER_SIZE < READBUFFER_MIN
+#എങ്കിൽ READBUFFER_SIZE < READBUFFER_MIN
 # error READBUFFER_SIZE is too small
 #endif
 
@@ -137,55 +137,55 @@
  *
  * Returns the family as a single bit protocol identifier.
  */
-static curl_prot_t get_protocol_family(const struct Curl_scheme *s)
+സ്ഥിതം curl_prot_t get_protocol_family(സ്ഥിരം ഘടന Curl_scheme *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->family);
-  return s->family;
+  തിരികെ s->family;
 }
 
-void Curl_freeset(struct Curl_easy *data)
+ശൂന്യം Curl_freeset(ഘടന Curl_easy *data)
 {
   /* Free all dynamic strings stored in the data->set substructure. */
-  enum dupblob j;
+  എണ്ണൽ dupblob j;
 
   CURL_EASY_STR_CLEAR0(data, STRING_PASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD);
+  CURL_EASY_STR_CLEAR0(data, STRING_താക്കോൽ_PASSWD);
   CURL_EASY_STR_CLEAR0(data, STRING_BEARER);
 #ifndef CURL_DISABLE_PROXY
   CURL_EASY_STR_CLEAR0(data, STRING_PROXYPASSWORD);
-  CURL_EASY_STR_CLEAR0(data, STRING_KEY_PASSWD_PROXY);
+  CURL_EASY_STR_CLEAR0(data, STRING_താക്കോൽ_PASSWD_PROXY);
 #endif
   Curl_u8_strset_clear(&data->set.strings);
   curlx_safefree(data->set.str_copypostfields);
 
-  for(j = (enum dupblob)0; j < BLOB_LAST; j++) {
+  വേണ്ടി(j = (എണ്ണൽ dupblob)0; j < BLOB_LAST; j++) {
     curlx_safefree(data->set.blobs[j]);
   }
 
   Curl_bufref_free(&data->state.referer);
   Curl_bufref_free(&data->state.url);
 
-#if !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
+#എങ്കിൽ !defined(CURL_DISABLE_MIME) || !defined(CURL_DISABLE_FORM_API)
   Curl_mime_cleanpart(data->set.mimepostp);
   curlx_safefree(data->set.mimepostp);
 #endif
 
 #ifndef CURL_DISABLE_COOKIES
   curl_slist_free_all(data->state.cookielist);
-  data->state.cookielist = NULL;
+  data->state.cookielist = ശൂന്യ;
 #endif
 }
 
 /* free the URL pieces */
-static void up_free(struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം up_free(ഘടന Curl_easy *data)
 {
-  struct urlpieces *up = &data->state.up;
+  ഘടന urlpieces *up = &data->state.up;
   curlx_safefree(up->options);
   curlx_safefree(up->path);
   curlx_safefree(up->query);
   curl_url_cleanup(data->state.uh);
-  data->state.uh = NULL;
+  data->state.uh = ശൂന്യ;
 }
 
 /*
@@ -194,38 +194,38 @@ static void up_free(struct Curl_easy *data)
  *
  * We ignore SIGPIPE when this is called from curl_easy_cleanup.
  */
-CURLcode Curl_close(struct Curl_easy **datap)
+CURLcode Curl_close(ഘടന Curl_easy **datap)
 {
-  struct Curl_easy *data;
+  ഘടന Curl_easy *data;
 
-  if(!datap || !*datap)
-    return CURLE_OK;
+  എങ്കിൽ(!datap || !*datap)
+    തിരികെ CURLE_OK;
 
   data = *datap;
-  *datap = NULL;
+  *datap = ശൂന്യ;
 
-  if(!data->state.internal && data->multi) {
+  എങ്കിൽ(!data->state.internal && data->multi) {
     /* This handle is still part of a multi handle, take care of this first
        and detach this handle from there.
        This detaches the connection. */
     Curl_multi_remove_handle(data->multi, data);
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* Detach connection if any is left. This should not be normal, but can be
        the case for example with CONNECT_ONLY + recv/send (test 556) */
     Curl_detach_connection(data);
-    if(!data->state.internal && data->multi_easy) {
+    എങ്കിൽ(!data->state.internal && data->multi_easy) {
       /* when curl_easy_perform() is used, it creates its own multi handle to
          use and this is the one */
       curl_multi_cleanup(data->multi_easy);
-      data->multi_easy = NULL;
+      data->multi_easy = ശൂന്യ;
     }
   }
   DEBUGASSERT(!data->conn || data->state.internal);
 
   Curl_expire_clear_all(data); /* shut off any timers left */
 
-  if(data->state.rangestringalloc)
+  എങ്കിൽ(data->state.rangestringalloc)
     curlx_free(data->state.range);
 
   /* release any resolve information this transfer kept */
@@ -260,11 +260,11 @@ CURLcode Curl_close(struct Curl_easy **datap)
 #endif
 #ifndef CURL_DISABLE_HSTS
   Curl_hsts_save(data, data->hsts, CURL_EASY_STR(data, STRING_HSTS));
-  if(!data->share || !data->share->hsts)
+  എങ്കിൽ(!data->share || !data->share->hsts)
     Curl_hsts_cleanup(&data->hsts);
   curl_slist_free_all(data->state.hstslist); /* clean up list */
 #endif
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
   Curl_http_auth_cleanup_digest(data);
 #endif
   curlx_safefree(data->state.most_recent_ftp_entrypath);
@@ -273,7 +273,7 @@ CURLcode Curl_close(struct Curl_easy **datap)
   curlx_safefree(data->info.effective_url);
 
   /* No longer a dirty share, if it exists */
-  if(Curl_share_easy_unlink(data))
+  എങ്കിൽ(Curl_share_easy_unlink(data))
     DEBUGASSERT(0);
 
   Curl_hash_destroy(&data->meta_hash);
@@ -286,7 +286,7 @@ CURLcode Curl_close(struct Curl_easy **datap)
   curlx_safefree(data->req.cookiehost);
 #endif
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
   Curl_mime_cleanpart(data->state.formp);
   curlx_safefree(data->state.formp);
 #endif
@@ -299,18 +299,18 @@ CURLcode Curl_close(struct Curl_easy **datap)
 #ifndef CURL_DISABLE_DIGEST_AUTH
   curlx_free(data->state.envproxy);
 #endif
-  curlx_memzero(data, sizeof(*data));
+  curlx_memzero(data, വലുപ്പം(*data));
   curlx_free(data);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
  * Initialize the UserDefined fields within a Curl_easy.
  * This may be safely called on a new or existing Curl_easy.
  */
-void Curl_init_userdefined(struct Curl_easy *data)
+ശൂന്യം Curl_init_userdefined(ഘടന Curl_easy *data)
 {
-  struct UserDefined *set = &data->set;
+  ഘടന UserDefined *set = &data->set;
 
   set->out = stdout;  /* default output to stdout */
   set->in_set = stdin;  /* default input from stdin */
@@ -318,8 +318,8 @@ void Curl_init_userdefined(struct Curl_easy *data)
 
   Curl_u8_strset_init(&data->set.strings);
 
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic push
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic തള്ളുക
 #pragma clang diagnostic ignored "-Wcast-function-type-strict"
 #endif
   /* use fwrite as default function to store output */
@@ -327,8 +327,8 @@ void Curl_init_userdefined(struct Curl_easy *data)
 
   /* use fread as default function to read input */
   set->fread_func_set = (curl_read_callback)fread;
-#if defined(__clang__) && __clang_major__ >= 16
-#pragma clang diagnostic pop
+#എങ്കിൽ defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic എടുക്കുക
 #endif
   set->is_fread_set = 0;
 
@@ -380,7 +380,7 @@ void Curl_init_userdefined(struct Curl_easy *data)
   set->allowed_protocols = (curl_prot_t)CURLPROTO_64ALL;
   set->redir_protocols = CURLPROTO_REDIR;
 
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#എങ്കിൽ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /*
    * disallow unprotected protection negotiation NEC reference implementation
    * seem not to follow rfc1961 section 4.3/4.4
@@ -421,7 +421,7 @@ void Curl_init_userdefined(struct Curl_easy *data)
   set->conn_max_age_ms = 24 * 3600 * 1000;
   set->http09_allowed = FALSE;
   set->httpwant = CURL_HTTP_VERSION_NONE;
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
+#എങ്കിൽ defined(USE_HTTP2) || defined(USE_HTTP3)
   set->weight = 0;
 #endif
   set->quick_exit = 0L;
@@ -433,9 +433,9 @@ void Curl_init_userdefined(struct Curl_easy *data)
 
 /* easy->meta_hash destructor. Should never be called as elements
  * MUST be added with their own destructor */
-static void easy_meta_freeentry(void *p)
+സ്ഥിതം ശൂന്യം easy_meta_freeentry(ശൂന്യം *p)
 {
-  (void)p;
+  (ശൂന്യം)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
@@ -449,19 +449,19 @@ static void easy_meta_freeentry(void *p)
  * function.
  * @return CURLcode
  */
-CURLcode Curl_open(struct Curl_easy **curl)
+CURLcode Curl_open(ഘടന Curl_easy **curl)
 {
-  struct Curl_easy *data;
+  ഘടന Curl_easy *data;
 
   /* simple start-up: alloc the struct, init it with zeroes and return */
-  data = curlx_calloc(1, sizeof(struct Curl_easy));
-  if(!data) {
+  data = curlx_calloc(1, വലുപ്പം(ഘടന Curl_easy));
+  എങ്കിൽ(!data) {
     /* this is a serious error */
     DEBUGF(curl_mfprintf(stderr, "Error: calloc of Curl_easy failed\n"));
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
-  data->magic = CURLEASY_MAGIC_NUMBER;
+  data->magic = CURLEASY_MAGIC_സംഖ്യ;
   /* most recent connection is not yet defined */
   data->state.last_conn_id = -1;
   data->state.last_cpid = UINT32_MAX;
@@ -481,26 +481,26 @@ CURLcode Curl_open(struct Curl_easy **curl)
   Curl_req_init(&data->req);
   Curl_initinfo(data);
 #ifndef CURL_DISABLE_HTTP
-  Curl_llist_init(&data->state.httphdrs, NULL);
+  Curl_llist_init(&data->state.httphdrs, ശൂന്യ);
 #endif
   Curl_netrc_init(&data->state.netrc);
   Curl_init_userdefined(data);
 
   *curl = data;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
+ശൂന്യം Curl_conn_free(ഘടന Curl_easy *data, ഘടന connectdata *conn)
 {
   int8_t i;
 
   DEBUGASSERT(conn);
 
-  if(conn->scheme && conn->scheme->run->disconnect &&
+  എങ്കിൽ(conn->scheme && conn->scheme->run->disconnect &&
      !conn->bits.shutdown_handler)
     conn->scheme->run->disconnect(data, conn, TRUE);
 
-  for(i = 0; i < (int8_t)CURL_ARRAYSIZE(conn->cfilter); ++i) {
+  വേണ്ടി(i = 0; i < (int8_t)CURL_ARRAYSIZE(conn->cfilter); ++i) {
     Curl_conn_cf_discard_all(data, conn, i);
   }
 
@@ -532,60 +532,60 @@ void Curl_conn_free(struct Curl_easy *data, struct connectdata *conn)
  * Return a TRUE, iff the transfer can be done over an (appropriate)
  * multiplexed connection.
  */
-static bool xfer_may_multiplex(const struct Curl_easy *data,
-                               const struct connectdata *conn)
+സ്ഥിതം bool xfer_may_multiplex(സ്ഥിരം ഘടന Curl_easy *data,
+                               സ്ഥിരം ഘടന connectdata *conn)
 {
 #ifndef CURL_DISABLE_HTTP
   /* If an HTTP protocol and multiplexing is enabled */
-  if((conn->scheme->protocol & PROTO_FAMILY_HTTP) &&
+  എങ്കിൽ((conn->scheme->protocol & PROTO_FAMILY_HTTP) &&
      (!conn->bits.protoconnstart || !conn->bits.close)) {
 
-    if(Curl_multiplex_wanted(data->multi) &&
+    എങ്കിൽ(Curl_multiplex_wanted(data->multi) &&
        (data->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)))
       /* allows HTTP/2 or newer */
-      return TRUE;
+      തിരികെ TRUE;
   }
-#else
-  (void)data;
-  (void)conn;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)data;
+  (ശൂന്യം)conn;
 #endif
-  return FALSE;
+  തിരികെ FALSE;
 }
 
 #ifndef CURL_DISABLE_PROXY
-static bool proxy_info_matches(const struct proxy_info *data,
-                               const struct proxy_info *needle)
+സ്ഥിതം bool proxy_info_matches(സ്ഥിരം ഘടന proxy_info *data,
+                               സ്ഥിരം ഘടന proxy_info *needle)
 {
-  if((data->proxytype == needle->proxytype) &&
+  എങ്കിൽ((data->proxytype == needle->proxytype) &&
      Curl_peer_same_destination(data->peer, needle->peer) &&
      Curl_creds_same(data->creds, needle->creds)) {
-    return TRUE;
+    തിരികെ TRUE;
   }
-  return FALSE;
+  തിരികെ FALSE;
 }
 #endif
 
 #ifdef USE_SSH
-static bool ssh_config_matches(struct connectdata *one,
-                               struct connectdata *two)
+സ്ഥിതം bool ssh_config_matches(ഘടന connectdata *one,
+                               ഘടന connectdata *two)
 {
-  struct ssh_conn *sshc1, *sshc2;
+  ഘടന ssh_conn *sshc1, *sshc2;
 
   sshc1 = Curl_conn_meta_get(one, CURL_META_SSH_CONN);
   sshc2 = Curl_conn_meta_get(two, CURL_META_SSH_CONN);
-  return sshc1 && sshc2 && Curl_safecmp(sshc1->priv_key, sshc2->priv_key) &&
-         Curl_safecmp(sshc1->pub_key, sshc2->pub_key);
+  തിരികെ sshc1 && sshc2 && Curl_safecmp(sshc1->priv_താക്കോൽ, sshc2->priv_താക്കോൽ) &&
+         Curl_safecmp(sshc1->pub_താക്കോൽ, sshc2->pub_താക്കോൽ);
 }
 #endif
 
-struct url_conn_match {
-  struct connectdata *found;
-  struct Curl_easy *data;
-  struct connectdata *needle;
-  struct curltime now;
-  struct ssl_filter_config ssl_config;
+ഘടന url_conn_match {
+  ഘടന connectdata *found;
+  ഘടന Curl_easy *data;
+  ഘടന connectdata *needle;
+  ഘടന curltime now;
+  ഘടന ssl_filter_config ssl_config;
 #ifndef CURL_DISABLE_PROXY
-  struct ssl_filter_config proxy_ssl_config;
+  ഘടന ssl_filter_config proxy_ssl_config;
 #endif
   BIT(may_multiplex);
   BIT(want_ntlm_http);
@@ -603,32 +603,32 @@ struct url_conn_match {
   BIT(seen_multiplex_conn);
 };
 
-static bool url_match_connect_config(struct connectdata *conn,
-                                     struct url_conn_match *m)
+സ്ഥിതം bool url_match_connect_config(ഘടന connectdata *conn,
+                                     ഘടന url_conn_match *m)
 {
   /* connect-only or to-be-closed connections will not be reused */
-  if(conn->bits.connect_only || conn->bits.close || conn->bits.no_reuse)
-    return FALSE;
+  എങ്കിൽ(conn->bits.connect_only || conn->bits.close || conn->bits.no_reuse)
+    തിരികെ FALSE;
 
   /* ip_version must match */
-  if(m->data->set.ipver != CURL_IPRESOLVE_WHATEVER &&
+  എങ്കിൽ(m->data->set.ipver != CURL_IPRESOLVE_WHATEVER &&
      m->data->set.ipver != conn->ip_version)
-    return FALSE;
+    തിരികെ FALSE;
 
   /* When needle has specific local bind settings, those have to match.
    * If it does not, any other connection might do when it comes to ports. */
-  if(m->needle->localport &&
+  എങ്കിൽ(m->needle->localport &&
      ((conn->localport != m->needle->localport) ||
       (conn->localportrange != m->needle->localportrange)))
-    return FALSE;
+    തിരികെ FALSE;
   /* For interface related bind options, we require a full match
    * as connection might go totally different ways (VPNs, for example). */
-  if((m->needle->interface_opts != conn->interface_opts) &&
+  എങ്കിൽ((m->needle->interface_opts != conn->interface_opts) &&
      (!m->needle->interface_opts || !conn->interface_opts ||
       strcmp(conn->interface_opts, m->needle->interface_opts)))
-    return FALSE;
+    തിരികെ FALSE;
 
-  if((m->needle->interface_opts || m->needle->localport) &&
+  എങ്കിൽ((m->needle->interface_opts || m->needle->localport) &&
     /* If we are bound to a specific local end (IP+port), we must not reuse a
        random other one, although if we did not ask for a particular one we
        can reuse one that was bound. */
@@ -637,469 +637,469 @@ static bool url_match_connect_config(struct connectdata *conn,
      (m->needle->interface_opts &&
       (!conn->interface_opts ||
        strcmp(conn->interface_opts, m->needle->interface_opts)))))
-    return FALSE;
+    തിരികെ FALSE;
 
-  if(!m->needle->via_peer != !conn->via_peer)
+  എങ്കിൽ(!m->needle->via_peer != !conn->via_peer)
     /* do not mix connections that use the "connect to host" feature and
      * connections that do not use this feature */
-    return FALSE;
+    തിരികെ FALSE;
 
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_fully_connected(struct connectdata *conn,
-                                      struct url_conn_match *m)
+സ്ഥിതം bool url_match_fully_connected(ഘടന connectdata *conn,
+                                      ഘടന url_conn_match *m)
 {
-  if(!Curl_conn_is_connected(conn, FIRSTSOCKET) ||
+  എങ്കിൽ(!Curl_conn_is_connected(conn, FIRSTSOCKET) ||
      conn->bits.upgrade_in_progress) {
     /* Not yet connected, or a protocol upgrade is in progress. The later
      * happens for HTTP/2 Upgrade: requests that need a response. */
-    if(m->may_multiplex) {
+    എങ്കിൽ(m->may_multiplex) {
       m->seen_pending_conn = TRUE;
       /* Do not pick a connection that has not connected yet */
       infof(m->data, "Connection #%" FMT_OFF_T
             " is not open enough, cannot reuse", conn->connection_id);
     }
     /* Do not pick a connection that has not connected yet */
-    return FALSE;
+    തിരികെ FALSE;
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_multi(struct connectdata *conn,
-                            struct url_conn_match *m)
+സ്ഥിതം bool url_match_multi(ഘടന connectdata *conn,
+                            ഘടന url_conn_match *m)
 {
-  if(CONN_INUSE(conn)) {
+  എങ്കിൽ(CONN_INUSE(conn)) {
     DEBUGASSERT(conn->attached_multi);
-    if(conn->attached_multi != m->data->multi)
-      return FALSE;
+    എങ്കിൽ(conn->attached_multi != m->data->multi)
+      തിരികെ FALSE;
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_multiplex_needs(struct connectdata *conn,
-                                      struct url_conn_match *m)
+സ്ഥിതം bool url_match_multiplex_needs(ഘടന connectdata *conn,
+                                      ഘടന url_conn_match *m)
 {
-  if(CONN_INUSE(conn)) {
-    if(!conn->bits.multiplex) {
+  എങ്കിൽ(CONN_INUSE(conn)) {
+    എങ്കിൽ(!conn->bits.multiplex) {
       /* conn busy and conn cannot take more transfers */
       m->seen_single_use_conn = TRUE;
-      return FALSE;
+      തിരികെ FALSE;
     }
     m->seen_multiplex_conn = TRUE;
-    if(!m->may_multiplex || !url_match_multi(conn, m))
+    എങ്കിൽ(!m->may_multiplex || !url_match_multi(conn, m))
       /* conn busy and transfer cannot be multiplexed */
-      return FALSE;
+      തിരികെ FALSE;
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_multiplex_limits(struct connectdata *conn,
-                                       struct url_conn_match *m)
+സ്ഥിതം bool url_match_multiplex_limits(ഘടന connectdata *conn,
+                                       ഘടന url_conn_match *m)
 {
-  if(CONN_INUSE(conn) && m->may_multiplex) {
+  എങ്കിൽ(CONN_INUSE(conn) && m->may_multiplex) {
     DEBUGASSERT(conn->bits.multiplex);
     /* If multiplexed, make sure we do not go over concurrency limit */
-    if(conn->attached_xfers >=
+    എങ്കിൽ(conn->attached_xfers >=
             Curl_multi_max_concurrent_streams(m->data->multi)) {
       infof(m->data, "connection #%" FMT_OFF_T " reached "
             "MAX_CONCURRENT_STREAMS(%u), skip",
             conn->connection_id, conn->attached_xfers);
-      return FALSE;
+      തിരികെ FALSE;
     }
-    if(conn->attached_xfers >=
+    എങ്കിൽ(conn->attached_xfers >=
        Curl_conn_get_max_concurrent(m->data, conn, FIRSTSOCKET)) {
       infof(m->data, "connection #%" FMT_OFF_T "reached "
             "MAX_CONCURRENT_STREAMS(%u), skip",
             conn->connection_id, conn->attached_xfers);
-      return FALSE;
+      തിരികെ FALSE;
     }
     /* When not multiplexed, we have a match here! */
     infof(m->data, "Multiplexed connection found");
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_ssl_use(struct connectdata *conn,
-                              struct url_conn_match *m)
+സ്ഥിതം bool url_match_ssl_use(ഘടന connectdata *conn,
+                              ഘടന url_conn_match *m)
 {
-  if(m->needle->scheme->flags & PROTOPT_SSL) {
+  എങ്കിൽ(m->needle->scheme->flags & PROTOPT_SSL) {
     /* We are looking for SSL, if `conn` does not do it, not a match. */
-    if(!Curl_conn_is_ssl(conn, FIRSTSOCKET))
-      return FALSE;
+    എങ്കിൽ(!Curl_conn_is_ssl(conn, FIRSTSOCKET))
+      തിരികെ FALSE;
   }
-  else if(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  അല്ലെങ്കിൽ എങ്കിൽ(Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     /* If the protocol does not allow reuse of SSL connections OR
        is of another protocol family, not a match. */
-    if(!(m->needle->scheme->flags & PROTOPT_SSL_REUSE) ||
+    എങ്കിൽ(!(m->needle->scheme->flags & PROTOPT_SSL_REUSE) ||
        (get_protocol_family(conn->scheme) != m->needle->scheme->protocol))
-      return FALSE;
+      തിരികെ FALSE;
     /* We may reuse this as an auto-TLS upgrade, but only if the SSL
      * config parameters match. */
-    if(!Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE))
-      return FALSE;
+    എങ്കിൽ(!Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE))
+      തിരികെ FALSE;
   }
-  else if(m->require_tls)
+  അല്ലെങ്കിൽ എങ്കിൽ(m->require_tls)
     /* a clear-text STARTTLS protocol with required TLS */
-    return FALSE;
-  return TRUE;
+    തിരികെ FALSE;
+  തിരികെ TRUE;
 }
 
 #ifndef CURL_DISABLE_PROXY
-static bool url_match_proxy_use(struct connectdata *conn,
-                                struct url_conn_match *m)
+സ്ഥിതം bool url_match_proxy_use(ഘടന connectdata *conn,
+                                ഘടന url_conn_match *m)
 {
-  if(m->needle->bits.origin_is_proxy != conn->bits.origin_is_proxy)
-    return FALSE;
+  എങ്കിൽ(m->needle->bits.origin_is_proxy != conn->bits.origin_is_proxy)
+    തിരികെ FALSE;
 
-  if(!proxy_info_matches(&m->needle->socks_proxy, &conn->socks_proxy))
-    return FALSE;
+  എങ്കിൽ(!proxy_info_matches(&m->needle->socks_proxy, &conn->socks_proxy))
+    തിരികെ FALSE;
 
-  if(!proxy_info_matches(&m->needle->http_proxy, &conn->http_proxy))
-    return FALSE;
+  എങ്കിൽ(!proxy_info_matches(&m->needle->http_proxy, &conn->http_proxy))
+    തിരികെ FALSE;
 
-  if(m->data->set.socks5_auth_only && !conn->bits.socks5_authenticated &&
+  എങ്കിൽ(m->data->set.socks5_auth_only && !conn->bits.socks5_authenticated &&
      ((conn->socks_proxy.proxytype == CURLPROXY_SOCKS5) ||
       (conn->socks_proxy.proxytype == CURLPROXY_SOCKS5_HOSTNAME))) {
     DEBUGF(infof(m->data,
                  "Connection #%" FMT_OFF_T
                  " was not SOCKS5 authenticated, cannot reuse",
                  conn->connection_id));
-    return FALSE;
+    തിരികെ FALSE;
   }
 
-  if(CURL_PROXY_IS_HTTPS(m->needle->http_proxy.proxytype)) {
+  എങ്കിൽ(CURL_PROXY_IS_HTTPS(m->needle->http_proxy.proxytype)) {
     /* https proxies come in different types, http/1.1, h2, ... */
     /* match SSL config to proxy */
-    if(!Curl_ssl_conn_config_match(m->data, &m->proxy_ssl_config,
+    എങ്കിൽ(!Curl_ssl_conn_config_match(m->data, &m->proxy_ssl_config,
                                    conn, TRUE)) {
       DEBUGF(infof(m->data,
                    "Connection #%" FMT_OFF_T
                    " has different SSL proxy parameters, cannot reuse",
                    conn->connection_id));
-      return FALSE;
+      തിരികെ FALSE;
     }
     /* the SSL config to the server, which may apply here is checked
      * further below */
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
-#else
-#define url_match_proxy_use(c, m) ((void)(c), (void)(m), TRUE)
+#അല്ലെങ്കിൽ
+#define url_match_proxy_use(c, m) ((ശൂന്യം)(c), (ശൂന്യം)(m), TRUE)
 #endif
 
 #ifndef CURL_DISABLE_HTTP
-static bool url_match_http_multiplex(struct connectdata *conn,
-                                     struct url_conn_match *m,
+സ്ഥിതം bool url_match_http_multiplex(ഘടന connectdata *conn,
+                                     ഘടന url_conn_match *m,
                                      bool *pwait_pipe)
 {
-  if(m->may_multiplex &&
+  എങ്കിൽ(m->may_multiplex &&
      (m->data->state.http_neg.allowed & (CURL_HTTP_V2x | CURL_HTTP_V3x)) &&
      (m->needle->scheme->protocol & CURLPROTO_HTTP) &&
      !conn->httpversion_seen) {
-    if(m->data->set.pipewait) {
+    എങ്കിൽ(m->data->set.pipewait) {
       infof(m->data, "Server upgrade does not support multiplex yet, wait");
-      m->found = NULL;
+      m->found = ശൂന്യ;
       *pwait_pipe = TRUE;
-      return TRUE; /* stop searching, we want to wait */
+      തിരികെ TRUE; /* stop searching, we want to wait */
     }
     infof(m->data, "Server upgrade cannot be used");
-    return FALSE;
+    തിരികെ FALSE;
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_http_version(struct connectdata *conn,
-                                   struct url_conn_match *m)
+സ്ഥിതം bool url_match_http_version(ഘടന connectdata *conn,
+                                   ഘടന url_conn_match *m)
 {
   /* If looking for HTTP and the HTTP versions allowed do not include
    * the HTTP version of conn, continue looking. */
-  if((m->needle->scheme->protocol & PROTO_FAMILY_HTTP)) {
-    switch(Curl_conn_http_version(m->data, conn)) {
-    case 30:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V3x)) {
+  എങ്കിൽ((m->needle->scheme->protocol & PROTO_FAMILY_HTTP)) {
+    തിരഞ്ഞെടുപ്പ്(Curl_conn_http_version(m->data, conn)) {
+    അവസ്ഥ 30:
+      എങ്കിൽ(!(m->data->state.http_neg.allowed & CURL_HTTP_V3x)) {
         DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h3", conn->connection_id));
-        return FALSE;
+        തിരികെ FALSE;
       }
-      break;
-    case 20:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V2x)) {
+      നിർത്തുക;
+    അവസ്ഥ 20:
+      എങ്കിൽ(!(m->data->state.http_neg.allowed & CURL_HTTP_V2x)) {
         DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h2", conn->connection_id));
-        return FALSE;
+        തിരികെ FALSE;
       }
-      break;
-    default:
-      if(!(m->data->state.http_neg.allowed & CURL_HTTP_V1x)) {
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
+      എങ്കിൽ(!(m->data->state.http_neg.allowed & CURL_HTTP_V1x)) {
         DEBUGF(infof(m->data, "not reusing conn #%" CURL_FORMAT_CURL_OFF_T
                      ", we do not want h1", conn->connection_id));
-        return FALSE;
+        തിരികെ FALSE;
       }
-      break;
+      നിർത്തുക;
     }
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
-#else
-#define url_match_http_multiplex(c, m, w) ((void)(c), (void)(m), TRUE)
-#define url_match_http_version(c, m)      ((void)(c), (void)(m), TRUE)
+#അല്ലെങ്കിൽ
+#define url_match_http_multiplex(c, m, w) ((ശൂന്യം)(c), (ശൂന്യം)(m), TRUE)
+#define url_match_http_version(c, m)      ((ശൂന്യം)(c), (ശൂന്യം)(m), TRUE)
 #endif
 
-static bool url_match_proto_config(struct connectdata *conn,
-                                   struct url_conn_match *m)
+സ്ഥിതം bool url_match_proto_config(ഘടന connectdata *conn,
+                                   ഘടന url_conn_match *m)
 {
-  if(!url_match_http_version(conn, m))
-    return FALSE;
+  എങ്കിൽ(!url_match_http_version(conn, m))
+    തിരികെ FALSE;
 
 #ifdef USE_SSH
-  if(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_SSH) {
-    if(!ssh_config_matches(m->needle, conn))
-      return FALSE;
+  എങ്കിൽ(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_SSH) {
+    എങ്കിൽ(!ssh_config_matches(m->needle, conn))
+      തിരികെ FALSE;
   }
 #endif
 #ifndef CURL_DISABLE_FTP
-  else if(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_FTP) {
-    if(!Curl_ftp_conns_match(m->needle, conn))
-      return FALSE;
+  അല്ലെങ്കിൽ എങ്കിൽ(get_protocol_family(m->needle->scheme) & PROTO_FAMILY_FTP) {
+    എങ്കിൽ(!Curl_ftp_conns_match(m->needle, conn))
+      തിരികെ FALSE;
   }
 #endif
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_auth(struct connectdata *conn,
-                           struct url_conn_match *m)
+സ്ഥിതം bool url_match_auth(ഘടന connectdata *conn,
+                           ഘടന url_conn_match *m)
 {
-  if(!Curl_creds_same(m->needle->creds, conn->creds)) {
-    if(m->needle->creds)
-      return FALSE;
-    if(!Curl_creds_same(m->data->state.creds, conn->creds))
-      return FALSE;
+  എങ്കിൽ(!Curl_creds_same(m->needle->creds, conn->creds)) {
+    എങ്കിൽ(m->needle->creds)
+      തിരികെ FALSE;
+    എങ്കിൽ(!Curl_creds_same(m->data->state.creds, conn->creds))
+      തിരികെ FALSE;
   }
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#എങ്കിൽ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   /* GSS delegation differences do not actually affect every connection and
      auth method, but this check takes precaution before efficiency */
-  if(m->needle->gssapi_delegation != conn->gssapi_delegation)
-    return FALSE;
+  എങ്കിൽ(m->needle->gssapi_delegation != conn->gssapi_delegation)
+    തിരികെ FALSE;
 #endif
 
-  return TRUE;
+  തിരികെ TRUE;
 }
 
-static bool url_match_destination(struct connectdata *conn,
-                                  struct url_conn_match *m)
+സ്ഥിതം bool url_match_destination(ഘടന connectdata *conn,
+                                  ഘടന url_conn_match *m)
 {
   /* Different connect-to peers never match */
-  if(!Curl_peer_same_destination(m->needle->via_peer, conn->via_peer))
-    return FALSE;
+  എങ്കിൽ(!Curl_peer_same_destination(m->needle->via_peer, conn->via_peer))
+    തിരികെ FALSE;
 
-  if(m->needle->origin->scheme != conn->origin->scheme &&
+  എങ്കിൽ(m->needle->origin->scheme != conn->origin->scheme &&
     /* `needle` and `conn` not having the same scheme.
      * This is allowed for the same family *if* conn is using TLS.
      * - IMAP+STARTTLS works for IMAPS.
      * - IMAPS works for IMAP. */
      get_protocol_family(conn->origin->scheme) !=
      m->needle->scheme->protocol)
-    return FALSE;
+    തിരികെ FALSE;
 
   /* Scheme mismatch is acceptable, compare hostname/port */
-  return Curl_peer_same_destination(m->needle->origin, conn->origin);
+  തിരികെ Curl_peer_same_destination(m->needle->origin, conn->origin);
 }
 
-static bool url_match_ssl_config(struct connectdata *conn,
-                                 struct url_conn_match *m)
+സ്ഥിതം bool url_match_ssl_config(ഘടന connectdata *conn,
+                                 ഘടന url_conn_match *m)
 {
   /* If talking/upgrading to TLS, conn needs to use the same SSL options. */
-  if(((m->needle->scheme->flags & PROTOPT_SSL) || m->may_tls) &&
+  എങ്കിൽ(((m->needle->scheme->flags & PROTOPT_SSL) || m->may_tls) &&
      !Curl_ssl_conn_config_match(m->data, &m->ssl_config, conn, FALSE)) {
     DEBUGF(infof(m->data, "Connection #%" FMT_OFF_T
                  " has different SSL parameters, cannot reuse",
                  conn->connection_id));
-    return FALSE;
+    തിരികെ FALSE;
   }
-  return TRUE;
+  തിരികെ TRUE;
 }
 
 #ifdef USE_NTLM
-static bool url_match_auth_ntlm(struct connectdata *conn,
-                                struct url_conn_match *m)
+സ്ഥിതം bool url_match_auth_ntlm(ഘടന connectdata *conn,
+                                ഘടന url_conn_match *m)
 {
-  if(conn->http_ntlm_state != NTLMSTATE_NONE) {
+  എങ്കിൽ(conn->http_ntlm_state != NTLMSTATE_NONE) {
     /* Connection is using NTLM. We cannot reuse if transfer
      * has different Auth input parameters. */
-    if(!m->want_ntlm_http ||
+    എങ്കിൽ(!m->want_ntlm_http ||
        !Curl_creds_same(conn->creds, m->data->state.creds) ||
        !Curl_peer_equal(conn->creds_origin, m->data->state.origin))
-      return FALSE;
+      തിരികെ FALSE;
   }
-  else if(m->want_ntlm_http) {
+  അല്ലെങ്കിൽ എങ്കിൽ(m->want_ntlm_http) {
     /* Transfer wants NTLM, connection is not using it.
      * Do not reuse when connection credentials state is bound to an origin
      * and it or creds differ. */
-    if(conn->creds_origin &&
+    എങ്കിൽ(conn->creds_origin &&
        (!Curl_creds_same(conn->creds, m->data->state.creds) ||
         !Curl_peer_equal(conn->creds_origin, m->data->state.origin)))
-      return FALSE;
+      തിരികെ FALSE;
   }
 
 #ifndef CURL_DISABLE_PROXY
   /* Same for Proxy NTLM authentication */
-  if(conn->proxy_ntlm_state != NTLMSTATE_NONE) {
-    if(!m->want_proxy_ntlm_http ||
+  എങ്കിൽ(conn->proxy_ntlm_state != NTLMSTATE_NONE) {
+    എങ്കിൽ(!m->want_proxy_ntlm_http ||
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      തിരികെ FALSE;
   }
-  else if(m->want_proxy_ntlm_http) {
-    if(conn->http_proxy.creds &&
+  അല്ലെങ്കിൽ എങ്കിൽ(m->want_proxy_ntlm_http) {
+    എങ്കിൽ(conn->http_proxy.creds &&
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      തിരികെ FALSE;
   }
 #endif
-  return TRUE;
+  തിരികെ TRUE;
 }
-#else
-#define url_match_auth_ntlm(c, m) ((void)(c), (void)(m), TRUE)
+#അല്ലെങ്കിൽ
+#define url_match_auth_ntlm(c, m) ((ശൂന്യം)(c), (ശൂന്യം)(m), TRUE)
 #endif
 
 #ifdef USE_SPNEGO
-static bool url_match_auth_nego(struct connectdata *conn,
-                                struct url_conn_match *m)
+സ്ഥിതം bool url_match_auth_nego(ഘടന connectdata *conn,
+                                ഘടന url_conn_match *m)
 {
-  if(conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) {
+  എങ്കിൽ(conn->http_negotiate_state != CURL_NEGO_AUTH_NONE) {
     /* Connection is using Negotiate. We cannot reuse if transfer
      * has different Auth input parameters. */
-    if(!m->want_nego_http ||
+    എങ്കിൽ(!m->want_nego_http ||
        !Curl_creds_same(conn->creds, m->data->state.creds) ||
        !Curl_peer_equal(conn->creds_origin, m->data->state.origin))
-      return FALSE;
+      തിരികെ FALSE;
   }
-  else if(m->want_nego_http) {
+  അല്ലെങ്കിൽ എങ്കിൽ(m->want_nego_http) {
     /* Transfer wants Negotiate, connection is not using it.
      * Do not reuse when connection credentials state is bound to an origin
      * and it or creds differ. */
-    if(conn->creds_origin &&
+    എങ്കിൽ(conn->creds_origin &&
        (!Curl_creds_same(conn->creds, m->data->state.creds) ||
         !Curl_peer_equal(conn->creds_origin, m->data->state.origin)))
-      return FALSE;
+      തിരികെ FALSE;
   }
 
 #ifndef CURL_DISABLE_PROXY
   /* Same for Proxy Negotiate authentication */
-  if(conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE) {
-    if(!m->want_proxy_nego_http ||
+  എങ്കിൽ(conn->proxy_negotiate_state != CURL_NEGO_AUTH_NONE) {
+    എങ്കിൽ(!m->want_proxy_nego_http ||
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      തിരികെ FALSE;
   }
-  else if(m->want_proxy_nego_http) {
-    if(conn->http_proxy.creds &&
+  അല്ലെങ്കിൽ എങ്കിൽ(m->want_proxy_nego_http) {
+    എങ്കിൽ(conn->http_proxy.creds &&
        !Curl_creds_same(m->needle->http_proxy.creds, conn->http_proxy.creds))
-      return FALSE;
+      തിരികെ FALSE;
   }
 #endif
-  return TRUE;
+  തിരികെ TRUE;
 }
-#else
-#define url_match_auth_nego(c, m) ((void)(c), (void)(m), TRUE)
+#അല്ലെങ്കിൽ
+#define url_match_auth_nego(c, m) ((ശൂന്യം)(c), (ശൂന്യം)(m), TRUE)
 #endif
 
-static cpool_match_result url_match_conn(struct connectdata *conn,
-                                         void *userdata)
+സ്ഥിതം cpool_match_result url_match_conn(ഘടന connectdata *conn,
+                                         ശൂന്യം *userdata)
 {
-  struct url_conn_match *m = userdata;
+  ഘടന url_conn_match *m = userdata;
   bool wait_pipe = FALSE;
 
   /* general connect config setting match? */
-  if(!url_match_connect_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_connect_config(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
   /* match for destination and protocol? */
-  if(!url_match_destination(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_destination(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_fully_connected(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_fully_connected(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_multiplex_needs(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_multiplex_needs(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_ssl_use(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_ssl_use(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_proxy_use(conn, m))
-    return CPOOL_MATCH_CONT;
-  if(!url_match_ssl_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_proxy_use(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_ssl_config(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_http_multiplex(conn, m, &wait_pipe))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_http_multiplex(conn, m, &wait_pipe))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_auth(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_auth(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_proto_config(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_proto_config(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_auth_ntlm(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_auth_ntlm(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_auth_nego(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_auth_nego(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
-  if(!url_match_multiplex_limits(conn, m))
-    return CPOOL_MATCH_CONT;
+  എങ്കിൽ(!url_match_multiplex_limits(conn, m))
+    തിരികെ CPOOL_MATCH_CONT;
 
   /* The connection matches all conditions, but do we want to use it? */
-  if(wait_pipe) {
+  എങ്കിൽ(wait_pipe) {
     /* The connection fits, but it's multiplex state has not been determined
      * yet. Put the transfer into PENDING and wait for conn state change. */
     DEBUGASSERT(!m->found);
     m->wait_pipe = TRUE;
-    return CPOOL_MATCH_FOUND;
+    തിരികെ CPOOL_MATCH_FOUND;
   }
 
-  if(m->data->set.conn_max_age_ms > 0) {
+  എങ്കിൽ(m->data->set.conn_max_age_ms > 0) {
     timediff_t age_ms = Curl_cpool_conn_age_ms(m->data, conn, &m->now);
-    if(age_ms > m->data->set.conn_max_age_ms) {
+    എങ്കിൽ(age_ms > m->data->set.conn_max_age_ms) {
       /* Transfer is looking for a younger connection. */
-      return CPOOL_MATCH_TOO_OLD;
+      തിരികെ CPOOL_MATCH_TOO_OLD;
     }
   }
 
   /* If we are going to pick an idle connection, do an extra
    * health check before we reuse it. */
-  if(!CONN_INUSE(conn) &&
+  എങ്കിൽ(!CONN_INUSE(conn) &&
      !Curl_cpool_conn_seems_healthy(conn, m->data, &m->now)) {
     infof(m->data, "Connection %" FMT_OFF_T " seems to be dead, terminating",
           conn->connection_id);
-    return CPOOL_MATCH_CLOSE;
+    തിരികെ CPOOL_MATCH_CLOSE;
   }
 
   /* conn matches our needs. */
   m->found = conn;
-  return CPOOL_MATCH_FOUND;
+  തിരികെ CPOOL_MATCH_FOUND;
 }
 
-static bool url_match_result(void *userdata)
+സ്ഥിതം bool url_match_result(ശൂന്യം *userdata)
 {
-  struct url_conn_match *match = userdata;
-  if(match->found) {
+  ഘടന url_conn_match *match = userdata;
+  എങ്കിൽ(match->found) {
     /* Attach it now while still under lock, so the connection does
      * no longer appear idle and can be reaped. */
     Curl_attach_connection(match->data, match->found, TRUE);
-    return TRUE;
+    തിരികെ TRUE;
   }
-  else if(match->seen_single_use_conn && !match->seen_multiplex_conn) {
+  അല്ലെങ്കിൽ എങ്കിൽ(match->seen_single_use_conn && !match->seen_multiplex_conn) {
     /* We have seen a single-use, existing connection to the destination and
      * no multiplexed one. It seems safe to assume that the server does
      * not support multiplexing. */
     match->wait_pipe = FALSE;
   }
-  else if(match->seen_pending_conn && match->data->set.pipewait) {
+  അല്ലെങ്കിൽ എങ്കിൽ(match->seen_pending_conn && match->data->set.pipewait) {
     infof(match->data,
           "Found pending candidate for reuse and CURLOPT_PIPEWAIT is set");
     match->wait_pipe = TRUE;
   }
-  return FALSE;
+  തിരികെ FALSE;
 }
 
 /*
@@ -1111,25 +1111,25 @@ static bool url_match_result(void *userdata)
  * might be suitable one in the near future (common cause: multiplexing
  * capability has not been determined yet, e.g. ALPN handshake).
  */
-static bool url_attach_existing(struct Curl_easy *data,
-                                struct connectdata *needle,
-                                struct url_conn_match *m,
-                                const struct curltime *pnow)
+സ്ഥിതം bool url_attach_existing(ഘടന Curl_easy *data,
+                                ഘടന connectdata *needle,
+                                ഘടന url_conn_match *m,
+                                സ്ഥിരം ഘടന curltime *pnow)
 {
   /* Find a connection in the pool that matches what "data + needle"
    * requires. If a suitable candidate is found, it is attached to "data". */
-  return Curl_cpool_find(data, needle->destination, TRUE, pnow,
+  തിരികെ Curl_cpool_find(data, needle->destination, TRUE, pnow,
                          url_match_conn, url_match_result, m);
 }
 
 /*
  * Allocate and initialize a new connectdata object.
  */
-static struct connectdata *allocate_conn(struct Curl_easy *data)
+സ്ഥിതം ഘടന connectdata *allocate_conn(ഘടന Curl_easy *data)
 {
-  struct connectdata *conn = curlx_calloc(1, sizeof(struct connectdata));
-  if(!conn)
-    return NULL;
+  ഘടന connectdata *conn = curlx_calloc(1, വലുപ്പം(ഘടന connectdata));
+  എങ്കിൽ(!conn)
+    തിരികെ ശൂന്യ;
 
   /* and we setup a few fields in case we end up actually using this struct */
   conn->sock[FIRSTSOCKET] = CURL_SOCKET_BAD;     /* no file descriptor */
@@ -1151,11 +1151,11 @@ static struct connectdata *allocate_conn(struct Curl_easy *data)
   conn->transport_wanted = TRNSPRT_TCP; /* most of them are TCP streams */
 
   /* Store the local bind parameters that will be used for this connection */
-  if(CURL_EASY_STR(data, STRING_INTERFACE_OPT)) {
+  എങ്കിൽ(CURL_EASY_STR(data, STRING_INTERFACE_OPT)) {
     conn->interface_opts =
       curlx_strdup(CURL_EASY_STR(data, STRING_INTERFACE_OPT));
-    if(!conn->interface_opts)
-      goto error;
+    എങ്കിൽ(!conn->interface_opts)
+      പോകുക error;
   }
 #ifndef CURL_DISABLE_BINDLOCAL
   conn->localportrange = data->set.localportrange;
@@ -1166,99 +1166,99 @@ static struct connectdata *allocate_conn(struct Curl_easy *data)
      it may live on without (this specific) Curl_easy */
   conn->fclosesocket = data->set.fclosesocket;
   conn->closesocket_client = data->set.closesocket_client;
-#if defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
+#എങ്കിൽ defined(HAVE_GSSAPI) || defined(USE_WINDOWS_SSPI)
   conn->gssapi_delegation = data->set.gssapi_delegation;
 #endif
-  return conn;
+  തിരികെ conn;
 error:
 
   curlx_free(conn->interface_opts);
   curlx_free(conn);
-  return NULL;
+  തിരികെ ശൂന്യ;
 }
 
-static CURLcode url_set_conn_scheme(struct Curl_easy *data,
-                                    struct connectdata *conn)
+സ്ഥിതം CURLcode url_set_conn_scheme(ഘടന Curl_easy *data,
+                                    ഘടന connectdata *conn)
 {
   /* URL scheme is usable for connection when it is
    * - allowed
    * - not from a redirect or an allowed redirect protocol */
-  const struct Curl_scheme *scheme = conn->origin->scheme;
-  if(scheme->run &&
+  സ്ഥിരം ഘടന Curl_scheme *scheme = conn->origin->scheme;
+  എങ്കിൽ(scheme->run &&
      (data->set.allowed_protocols & scheme->protocol) &&
      (!data->state.this_is_a_follow ||
        (data->set.redir_protocols & scheme->protocol))) {
     conn->scheme = scheme;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
-  if(scheme->flags & PROTOPT_NO_TRANSFER)
+  എങ്കിൽ(scheme->flags & PROTOPT_NO_TRANSFER)
     failf(data, "Protocol \"%s\" is not for transfers", scheme->name);
-  else
+  അല്ലെങ്കിൽ
     failf(data, "Protocol \"%s\" is disabled%s", scheme->name,
           data->state.this_is_a_follow ? " (in redirect)" : "");
-  return CURLE_UNSUPPORTED_PROTOCOL;
+  തിരികെ CURLE_UNSUPPORTED_PROTOCOL;
 }
 
 CURLcode Curl_uc_to_curlcode(CURLUcode uc)
 {
-  switch(uc) {
-  default:
-    return CURLE_URL_MALFORMAT;
-  case CURLUE_UNSUPPORTED_SCHEME:
-    return CURLE_UNSUPPORTED_PROTOCOL;
-  case CURLUE_OUT_OF_MEMORY:
-    return CURLE_OUT_OF_MEMORY;
-  case CURLUE_USER_NOT_ALLOWED:
-    return CURLE_LOGIN_DENIED;
+  തിരഞ്ഞെടുപ്പ്(uc) {
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ CURLE_URL_MALFORMAT;
+  അവസ്ഥ CURLUE_UNSUPPORTED_SCHEME:
+    തിരികെ CURLE_UNSUPPORTED_PROTOCOL;
+  അവസ്ഥ CURLUE_OUT_OF_MEMORY:
+    തിരികെ CURLE_OUT_OF_MEMORY;
+  അവസ്ഥ CURLUE_USER_NOT_ALLOWED:
+    തിരികെ CURLE_LOGIN_DENIED;
   }
 }
 
 #ifndef CURL_DISABLE_HSTS
-static CURLcode hsts_upgrade(struct Curl_easy *data,
+സ്ഥിതം CURLcode hsts_upgrade(ഘടന Curl_easy *data,
                              CURLU *uh,
                              uint16_t port_override,
                              uint32_t scope_id)
 {
   /* HSTS upgrade */
-  if(data->hsts && (data->state.origin->scheme == &Curl_scheme_http) &&
+  എങ്കിൽ(data->hsts && (data->state.origin->scheme == &Curl_scheme_http) &&
      Curl_hsts_applies(data->hsts, data->state.origin)) {
-    char *url;
+    അക്ഷരം *url;
     CURLUcode uc;
     CURLcode result;
 
     uc = curl_url_set(uh, CURLUPART_SCHEME, "https", 0);
-    if(uc)
-      return Curl_uc_to_curlcode(uc);
+    എങ്കിൽ(uc)
+      തിരികെ Curl_uc_to_curlcode(uc);
     Curl_bufref_free(&data->state.url);
     /* after update, get the updated version */
     uc = curl_url_get(uh, CURLUPART_URL, &url, 0);
-    if(uc)
-      return Curl_uc_to_curlcode(uc);
+    എങ്കിൽ(uc)
+      തിരികെ Curl_uc_to_curlcode(uc);
     Curl_bufref_set(&data->state.url, url, 0, curl_free);
 
     result = Curl_peer_from_url(uh, data, port_override, scope_id,
                                 &data->state.origin);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
     infof(data, "Switched from HTTP to HTTPS due to HSTS => %s", url);
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
-#else
+#അല്ലെങ്കിൽ
 #define hsts_upgrade(x, y, z, a) CURLE_OK
 #endif
 
-static bool str_has_ctrl(const char *input)
+സ്ഥിതം bool str_has_ctrl(സ്ഥിരം അക്ഷരം *നിവേശം)
 {
-  if(input) {
-    const unsigned char *str = (const unsigned char *)input;
-    while(*str) {
-      if(*str < 0x20)
-        return TRUE;
+  എങ്കിൽ(നിവേശം) {
+    സ്ഥിരം unsigned അക്ഷരം *str = (സ്ഥിരം unsigned അക്ഷരം *)നിവേശം;
+    ആകുമ്പോൾ(*str) {
+      എങ്കിൽ(*str < 0x20)
+        തിരികെ TRUE;
       str++;
     }
   }
-  return FALSE;
+  തിരികെ FALSE;
 }
 
 #ifndef CURL_DISABLE_NETRC
@@ -1266,44 +1266,44 @@ static bool str_has_ctrl(const char *input)
  * Override the login details from the URL with that in the CURLOPT_USERPWD
  * option or a .netrc file, if applicable.
  */
-static CURLcode url_set_data_creds_netrc(struct Curl_easy *data,
-                                         struct Curl_creds **pcreds)
+സ്ഥിതം CURLcode url_set_data_creds_netrc(ഘടന Curl_easy *data,
+                                         ഘടന Curl_creds **pcreds)
 {
-  struct Curl_creds *ncreds_out = NULL;
+  ഘടന Curl_creds *ncreds_out = ശൂന്യ;
   CURLcode result = CURLE_OK;
 
-  if(data->set.use_netrc) { /* not CURL_NETRC_IGNORED */
-    struct Curl_creds *ncreds_in = NULL;
+  എങ്കിൽ(data->set.use_netrc) { /* not CURL_NETRC_IGNORED */
+    ഘടന Curl_creds *ncreds_in = ശൂന്യ;
     bool scan_netrc = TRUE;
     NETRCcode ret;
     CURLUcode uc;
 
-    if(*pcreds) {
-      switch((*pcreds)->source) {
-      case CREDS_OPTION:
+    എങ്കിൽ(*pcreds) {
+      തിരഞ്ഞെടുപ്പ്((*pcreds)->source) {
+      അവസ്ഥ CREDS_OPTION:
         /* we never override credentials set via CURLOPT_*, leave. */
         scan_netrc = FALSE;
-        break;
-      case CREDS_URL: /* only apply when netrc is not required */
-        if(data->set.use_netrc == CURL_NETRC_REQUIRED) {
+        നിർത്തുക;
+      അവസ്ഥ CREDS_URL: /* only apply when netrc is not required */
+        എങ്കിൽ(data->set.use_netrc == CURL_NETRC_REQUIRED) {
           /* We ignore password from URL */
           ncreds_in = *pcreds;
         }
-        else if(!Curl_creds_has_user(*pcreds) ||
+        അല്ലെങ്കിൽ എങ്കിൽ(!Curl_creds_has_user(*pcreds) ||
                 !Curl_creds_has_passwd(*pcreds)) {
           /* We use netrc to complete what is missing */
           ncreds_in = *pcreds;
         }
-        else
+        അല്ലെങ്കിൽ
           scan_netrc = FALSE;
-        break;
-      default: /* ignore credentials from other sources */
-        break;
+        നിർത്തുക;
+      സ്ഥിരസ്ഥിതി: /* ignore credentials from other sources */
+        നിർത്തുക;
       }
     }
 
-    if(!scan_netrc)
-      goto out;
+    എങ്കിൽ(!scan_netrc)
+      പോകുക out;
 
     ret = Curl_netrc_scan(data, &data->state.netrc,
                           data->state.origin->hostname,
@@ -1311,50 +1311,50 @@ static CURLcode url_set_data_creds_netrc(struct Curl_easy *data,
                           CURL_EASY_STR(data, STRING_NETRC_FILE),
                           &ncreds_out);
     DEBUGASSERT(!ret || !ncreds_out);
-    if(ret == NETRC_OUT_OF_MEMORY) {
+    എങ്കിൽ(ret == NETRC_OUT_OF_MEMORY) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
-    else if(ret && ((ret == NETRC_NO_MATCH) ||
+    അല്ലെങ്കിൽ എങ്കിൽ(ret && ((ret == NETRC_NO_MATCH) ||
                     (data->set.use_netrc == CURL_NETRC_OPTIONAL))) {
       infof(data, "Could not find host %s in the %s file; using defaults",
             data->state.origin->hostname,
             (CURL_EASY_STR(data, STRING_NETRC_FILE) ?
              CURL_EASY_STR(data, STRING_NETRC_FILE) : ".netrc"));
     }
-    else if(ret) {
-      const char *m = Curl_netrc_strerror(ret);
+    അല്ലെങ്കിൽ എങ്കിൽ(ret) {
+      സ്ഥിരം അക്ഷരം *m = Curl_netrc_strerror(ret);
       failf(data, ".netrc error: %s", m);
       result = CURLE_READ_ERROR;
-      goto out;
+      പോകുക out;
     }
-    else if(ncreds_out) {
-      if(!(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
+    അല്ലെങ്കിൽ എങ്കിൽ(ncreds_out) {
+      എങ്കിൽ(!(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
          /* if the protocol cannot handle control codes in credentials, make
             sure there are none */
          (str_has_ctrl(ncreds_out->user) ||
           str_has_ctrl(ncreds_out->passwd))) {
         failf(data, "control code detected in .netrc credentials");
         result = CURLE_READ_ERROR;
-        goto out;
+        പോകുക out;
       }
       CURL_TRC_M(data, "netrc: using credentials for %s as %s",
                  data->state.origin->hostname, ncreds_out->user);
       result = Curl_creds_merge(ncreds_out->user, ncreds_out->passwd,
                                 *pcreds, CREDS_NETRC, pcreds);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
       /* for updated strings, we update them in the URL */
       uc = curl_url_set(data->state.uh, CURLUPART_USER,
                         Curl_creds_user(*pcreds), CURLU_URLENCODE);
-      if(!uc)
+      എങ്കിൽ(!uc)
         uc = curl_url_set(data->state.uh, CURLUPART_PASSWORD,
                           Curl_creds_passwd(*pcreds),
                           CURLU_URLENCODE);
-      if(uc)
+      എങ്കിൽ(uc)
         result = Curl_uc_to_curlcode(uc);
     }
-    else
+    അല്ലെങ്കിൽ
       DEBUGASSERT(0);
   }
 
@@ -1364,16 +1364,16 @@ static CURLcode url_set_data_creds_netrc(struct Curl_easy *data,
 
 out:
   Curl_creds_unlink(&ncreds_out);
-  return result;
+  തിരികെ result;
 }
 #endif /* CURL_DISABLE_NETRC */
 
-static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
+സ്ഥിതം CURLcode url_set_data_creds(ഘടന Curl_easy *data, CURLU *uh)
 {
-  struct Curl_creds *newcreds = NULL;
+  ഘടന Curl_creds *newcreds = ശൂന്യ;
   CURLcode result = CURLE_OK;
 
-  if((CURL_EASY_STR(data, STRING_USERNAME) ||
+  എങ്കിൽ((CURL_EASY_STR(data, STRING_USERNAME) ||
       CURL_EASY_STR(data, STRING_PASSWORD) ||
       CURL_EASY_STR(data, STRING_BEARER) ||
       CURL_EASY_STR(data, STRING_SASL_AUTHZID) ||
@@ -1385,9 +1385,9 @@ static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
                                CURL_EASY_STR(data, STRING_SASL_AUTHZID),
                                CURL_EASY_STR(data, STRING_SERVICE_NAME),
                                CREDS_OPTION, &newcreds);
-    if(result)
-      goto out;
-    if(newcreds &&
+    എങ്കിൽ(result)
+      പോകുക out;
+    എങ്കിൽ(newcreds &&
        !(data->state.origin->scheme->flags & PROTOPT_USERPWDCTRL) &&
        (str_has_ctrl(Curl_creds_user(newcreds)) ||
         str_has_ctrl(Curl_creds_passwd(newcreds)))) {
@@ -1395,40 +1395,40 @@ static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
          sure there are none */
       failf(data, "control code detected in credentials");
       result = CURLE_BAD_FUNCTION_ARGUMENT;
-      goto out;
+      പോകുക out;
     }
   }
 
   /* Extract credentials from the URL only if there are none OR
    * if no CURLOPT_USER was set. */
-  if(!newcreds || !Curl_creds_has_user(newcreds)) {
-    char *user = NULL;
-    char *passwd = NULL;
-    char *udecoded = NULL;
-    char *pdecoded = NULL;
+  എങ്കിൽ(!newcreds || !Curl_creds_has_user(newcreds)) {
+    അക്ഷരം *user = ശൂന്യ;
+    അക്ഷരം *passwd = ശൂന്യ;
+    അക്ഷരം *udecoded = ശൂന്യ;
+    അക്ഷരം *pdecoded = ശൂന്യ;
     CURLUcode uc;
 
     uc = curl_url_get(uh, CURLUPART_USER, &user, 0);
-    if(uc && (uc != CURLUE_NO_USER))
+    എങ്കിൽ(uc && (uc != CURLUE_NO_USER))
       result = Curl_uc_to_curlcode(uc);
-    if(!result) {
+    എങ്കിൽ(!result) {
       uc = curl_url_get(uh, CURLUPART_PASSWORD, &passwd, 0);
-      if(uc && (uc != CURLUE_NO_PASSWORD))
+      എങ്കിൽ(uc && (uc != CURLUE_NO_PASSWORD))
         result = Curl_uc_to_curlcode(uc);
     }
-    if(!result && user) {
-      result = Curl_urldecode(user, 0, &udecoded, NULL,
+    എങ്കിൽ(!result && user) {
+      result = Curl_urldecode(user, 0, &udecoded, ശൂന്യ,
                               (data->state.origin->scheme->flags &
                                PROTOPT_USERPWDCTRL) ?
                               REJECT_ZERO : REJECT_CTRL);
     }
-    if(!result && passwd) {
-      result = Curl_urldecode(passwd, 0, &pdecoded, NULL,
+    എങ്കിൽ(!result && passwd) {
+      result = Curl_urldecode(passwd, 0, &pdecoded, ശൂന്യ,
                               (data->state.origin->scheme->flags &
                                PROTOPT_USERPWDCTRL) ?
                               REJECT_ZERO : REJECT_CTRL);
     }
-    if(!result)
+    എങ്കിൽ(!result)
       result = Curl_creds_merge(udecoded, pdecoded, newcreds,
                                 CREDS_URL, &newcreds);
 
@@ -1436,9 +1436,9 @@ static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
     curlx_free(pdecoded);
     curlx_free(passwd);
     curlx_free(user);
-    if(result) {
+    എങ്കിൽ(result) {
       failf(data, "error extracting credentials from URL");
-      goto out;
+      പോകുക out;
     }
   }
 
@@ -1449,16 +1449,16 @@ static CURLcode url_set_data_creds(struct Curl_easy *data, CURLU *uh)
 #endif /* CURL_DISABLE_NETRC */
 
 out:
-  if(!result && !Curl_creds_equal(data->state.creds, newcreds)) {
+  എങ്കിൽ(!result && !Curl_creds_equal(data->state.creds, newcreds)) {
     /* Do we have more things to trigger on credentials change? */
     Curl_creds_link(&data->state.creds, newcreds);
   }
   Curl_creds_unlink(&newcreds);
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode url_set_conn_origin_etc(struct Curl_easy *data,
-                                        struct connectdata *conn)
+സ്ഥിതം CURLcode url_set_conn_origin_etc(ഘടന Curl_easy *data,
+                                        ഘടന connectdata *conn)
 {
   CURLcode result = CURLE_OK;
 
@@ -1466,58 +1466,58 @@ static CURLcode url_set_conn_origin_etc(struct Curl_easy *data,
 
   /* set the connection scheme */
   result = url_set_conn_scheme(data, conn);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /* set the connection options */
-  if(CURL_EASY_STR(data, STRING_OPTIONS)) {
+  എങ്കിൽ(CURL_EASY_STR(data, STRING_OPTIONS)) {
     conn->options = curlx_strdup(CURL_EASY_STR(data, STRING_OPTIONS));
-    if(!conn->options) {
+    എങ്കിൽ(!conn->options) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
   }
-  else if(data->state.up.options) {
+  അല്ലെങ്കിൽ എങ്കിൽ(data->state.up.options) {
     conn->options = curlx_strdup(data->state.up.options);
-    if(!conn->options) {
+    എങ്കിൽ(!conn->options) {
       result = CURLE_OUT_OF_MEMORY;
-      goto out;
+      പോകുക out;
     }
   }
 
 out:
-  return result;
+  തിരികെ result;
 }
 
 /*
  * If we are doing a resumed transfer, we need to setup our stuff
  * properly.
  */
-static CURLcode setup_range(struct Curl_easy *data)
+സ്ഥിതം CURLcode setup_range(ഘടന Curl_easy *data)
 {
-  struct UrlState *s = &data->state;
+  ഘടന UrlState *s = &data->state;
   s->resume_from = data->set.set_resume_from;
-  if(s->resume_from || CURL_EASY_STR(data, STRING_SET_RANGE)) {
-    if(s->rangestringalloc)
+  എങ്കിൽ(s->resume_from || CURL_EASY_STR(data, STRING_SET_RANGE)) {
+    എങ്കിൽ(s->rangestringalloc)
       curlx_free(s->range);
 
-    if(s->resume_from)
+    എങ്കിൽ(s->resume_from)
       s->range = curl_maprintf("%" FMT_OFF_T "-", s->resume_from);
-    else
+    അല്ലെങ്കിൽ
       s->range = curlx_strdup(CURL_EASY_STR(data, STRING_SET_RANGE));
 
-    if(!s->range)
-      return CURLE_OUT_OF_MEMORY;
+    എങ്കിൽ(!s->range)
+      തിരികെ CURLE_OUT_OF_MEMORY;
 
     s->rangestringalloc = TRUE;
 
     /* tell ourselves to fetch this range */
     s->use_range = TRUE;        /* enable range download */
   }
-  else
+  അല്ലെങ്കിൽ
     s->use_range = FALSE; /* disable range download */
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
@@ -1529,51 +1529,51 @@ static CURLcode setup_range(struct Curl_easy *data)
  *
  * This MUST get called after proxy magic has been figured out.
  */
-static CURLcode setup_connection_internals(struct Curl_easy *data,
-                                           struct connectdata *conn)
+സ്ഥിതം CURLcode setup_connection_internals(ഘടന Curl_easy *data,
+                                           ഘടന connectdata *conn)
 {
-  struct Curl_peer *peer = NULL;
+  ഘടന Curl_peer *peer = ശൂന്യ;
 
-  if(conn->scheme->run->setup_connection) {
+  എങ്കിൽ(conn->scheme->run->setup_connection) {
     CURLcode result = conn->scheme->run->setup_connection(data, conn);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
   /* Now create the destination name */
   peer = Curl_conn_get_destination(conn, FIRSTSOCKET);
-  if(!peer)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!peer)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* IPv6 addresses with a scope_id (0 is default == global) have a
    * printable representation with a '%<scope_id>' suffix. */
-  if(peer->ipv6)
-    if(peer->scopeid)
+  എങ്കിൽ(peer->ipv6)
+    എങ്കിൽ(peer->scopeid)
       conn->destination = curl_maprintf("[%s%%%u]:%u",
         peer->hostname, peer->scopeid, peer->port);
-    else
+    അല്ലെങ്കിൽ
       conn->destination = curl_maprintf("[%s]:%u",
         peer->hostname, peer->port);
-  else
+  അല്ലെങ്കിൽ
     conn->destination = curl_maprintf("%s:%u", peer->hostname, peer->port);
-  if(!conn->destination)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!conn->destination)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
   Curl_strntolower(conn->destination, conn->destination,
                    strlen(conn->destination));
 
 #ifdef USE_IPV6
-  if(data->set.scope_id)
+  എങ്കിൽ(data->set.scope_id)
     conn->scope_id = data->set.scope_id;
-  else {
+  അല്ലെങ്കിൽ {
     peer = Curl_conn_get_first_peer(conn, FIRSTSOCKET);
-    if(!peer)
-      return CURLE_FAILED_INIT;
+    എങ്കിൽ(!peer)
+      തിരികെ CURLE_FAILED_INIT;
     conn->scope_id = peer->scopeid;
   }
 #endif
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
@@ -1606,14 +1606,14 @@ static CURLcode setup_connection_internals(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_parse_login_details(const char *login, const size_t len,
-                                  char **userp, char **passwdp,
-                                  char **optionsp)
+CURLcode Curl_parse_login_details(സ്ഥിരം അക്ഷരം *login, സ്ഥിരം size_t len,
+                                  അക്ഷരം **userp, അക്ഷരം **passwdp,
+                                  അക്ഷരം **optionsp)
 {
-  char *ubuf = NULL;
-  char *pbuf = NULL;
-  const char *psep = NULL;
-  const char *osep = NULL;
+  അക്ഷരം *ubuf = ശൂന്യ;
+  അക്ഷരം *pbuf = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *psep = ശൂന്യ;
+  സ്ഥിരം അക്ഷരം *osep = ശൂന്യ;
   size_t ulen;
   size_t plen;
   size_t olen;
@@ -1625,7 +1625,7 @@ CURLcode Curl_parse_login_details(const char *login, const size_t len,
   psep = memchr(login, ':', len);
 
   /* Attempt to find the options separator */
-  if(optionsp)
+  എങ്കിൽ(optionsp)
     osep = memchr(login, ';', len);
 
   /* Calculate the portion lengths */
@@ -1641,109 +1641,109 @@ CURLcode Curl_parse_login_details(const char *login, const size_t len,
 
   /* Clone the user portion buffer, which can be zero length */
   ubuf = curlx_memdup0(login, ulen);
-  if(!ubuf)
-    goto error;
+  എങ്കിൽ(!ubuf)
+    പോകുക error;
 
   /* Clone the password portion buffer */
-  if(psep) {
+  എങ്കിൽ(psep) {
     pbuf = curlx_memdup0(&psep[1], plen);
-    if(!pbuf)
-      goto error;
+    എങ്കിൽ(!pbuf)
+      പോകുക error;
   }
 
   /* Allocate the options portion buffer */
-  if(optionsp) {
-    char *obuf = NULL;
-    if(olen) {
+  എങ്കിൽ(optionsp) {
+    അക്ഷരം *obuf = ശൂന്യ;
+    എങ്കിൽ(olen) {
       obuf = curlx_memdup0(&osep[1], olen);
-      if(!obuf)
-        goto error;
+      എങ്കിൽ(!obuf)
+        പോകുക error;
     }
     *optionsp = obuf;
   }
   *userp = ubuf;
   *passwdp = pbuf;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 error:
   curlx_free(ubuf);
   curlx_free(pbuf);
-  return CURLE_OUT_OF_MEMORY;
+  തിരികെ CURLE_OUT_OF_MEMORY;
 }
 
 /*
  * Set the login details so they are available in the connection
  */
-static CURLcode url_set_conn_login(struct Curl_easy *data,
-                                   struct connectdata *conn)
+സ്ഥിതം CURLcode url_set_conn_login(ഘടന Curl_easy *data,
+                                   ഘടന connectdata *conn)
 {
   /* If our protocol needs a password and we have none, use the defaults */
-  if((conn->scheme->flags & PROTOPT_NEEDSPWD) && !conn->creds) {
+  എങ്കിൽ((conn->scheme->flags & PROTOPT_NEEDSPWD) && !conn->creds) {
     Curl_peer_link(&conn->creds_origin, data->state.origin);
-    if(data->state.creds)
+    എങ്കിൽ(data->state.creds)
       Curl_creds_link(&conn->creds, data->state.creds);
-    else
-      return Curl_creds_create(CURL_DEFAULT_USER, CURL_DEFAULT_PASSWORD,
-                               NULL, NULL, NULL, CREDS_NONE, &conn->creds);
+    അല്ലെങ്കിൽ
+      തിരികെ Curl_creds_create(CURL_DEFAULT_USER, CURL_DEFAULT_PASSWORD,
+                               ശൂന്യ, ശൂന്യ, ശൂന്യ, CREDS_NONE, &conn->creds);
   }
-  else if(!(conn->scheme->flags & PROTOPT_CREDSPERREQUEST)) {
+  അല്ലെങ്കിൽ എങ്കിൽ(!(conn->scheme->flags & PROTOPT_CREDSPERREQUEST)) {
     /* for protocols that do not handle credentials per request,
      * the connection credentials are set by the initial transfer. */
     Curl_peer_link(&conn->creds_origin, data->state.origin);
     Curl_creds_link(&conn->creds, data->state.creds);
   }
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
  * Parses one "connect to" string in the form:
  * "HOST:PORT:CONNECT-TO-HOST:CONNECT-TO-PORT".
  */
-static CURLcode parse_connect_to_string(struct Curl_easy *data,
-                                        const struct Curl_peer *dest,
-                                        const char *conn_to_line,
-                                        struct Curl_peer **pvia_dest)
+സ്ഥിതം CURLcode parse_connect_to_string(ഘടന Curl_easy *data,
+                                        സ്ഥിരം ഘടന Curl_peer *dest,
+                                        സ്ഥിരം അക്ഷരം *conn_to_വരി,
+                                        ഘടന Curl_peer **pvia_dest)
 {
   CURLcode result = CURLE_OK;
-  const char *ptr = conn_to_line;
+  സ്ഥിരം അക്ഷരം *ptr = conn_to_വരി;
   bool host_match = FALSE;
   bool port_match = FALSE;
 
-  *pvia_dest = NULL;
+  *pvia_dest = ശൂന്യ;
 
-  if(*ptr == ':') {
+  എങ്കിൽ(*ptr == ':') {
     /* an empty hostname always matches */
     host_match = TRUE;
     ptr++;
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* check whether the URL's hostname matches. Use the URL hostname
      * when it was an IPv6 address. Otherwise use the connection's hostname
      * that has IDN conversion. */
     size_t hlen = strlen(dest->hostname);
     host_match = curl_strnequal(ptr, dest->hostname, hlen);
-    if(!host_match && (dest->user_hostname != dest->hostname)) {
+    എങ്കിൽ(!host_match && (dest->user_hostname != dest->hostname)) {
       /* hostname was normalized, could be IPv6 or IDN */
       hlen = strlen(dest->user_hostname);
       host_match = curl_strnequal(ptr, dest->user_hostname, hlen);
     }
     host_match = host_match && ptr[hlen] == ':';
-    if(host_match)
+    എങ്കിൽ(host_match)
       ptr += hlen + 1;
   }
 
-  if(host_match) {
-    if(*ptr == ':') {
+  എങ്കിൽ(host_match) {
+    എങ്കിൽ(*ptr == ':') {
       /* an empty port always matches */
       port_match = TRUE;
       ptr++;
     }
-    else {
+    അല്ലെങ്കിൽ {
       /* check whether the URL's port matches */
-      const char *ptr_next = strchr(ptr, ':');
-      if(ptr_next) {
+      സ്ഥിരം അക്ഷരം *ptr_next = strchr(ptr, ':');
+      എങ്കിൽ(ptr_next) {
         curl_off_t port_to_match;
-        if(!curlx_str_number(&ptr, &port_to_match, 0xffff) &&
+        എങ്കിൽ(!curlx_str_സംഖ്യ(&ptr, &port_to_match, 0xffff) &&
            ((uint16_t)port_to_match == dest->port)) {
           port_match = TRUE;
         }
@@ -1752,69 +1752,69 @@ static CURLcode parse_connect_to_string(struct Curl_easy *data,
     }
   }
 
-  if(host_match && port_match && ptr && *ptr)
+  എങ്കിൽ(host_match && port_match && ptr && *ptr)
     result = Curl_peer_from_connect_to(data, dest, ptr, pvia_dest);
 
-  return result;
+  തിരികെ result;
 }
 
 /* With `conn->origin` known, determine if we should talk to that
  * directly or via another peer. This is the result of inspecting
  * the "connect to" slist and "alt-svc" settings. */
-static CURLcode url_set_conn_peer(struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode url_set_conn_peer(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
   CURLcode result = CURLE_OK;
-  struct Curl_peer *origin = conn->origin;
-  struct Curl_peer *via_peer = NULL;
-  struct curl_slist *conn_to_entry = data->set.connect_to;
+  ഘടന Curl_peer *origin = conn->origin;
+  ഘടന Curl_peer *via_peer = ശൂന്യ;
+  ഘടന curl_slist *conn_to_entry = data->set.connect_to;
 
   DEBUGASSERT(!conn->via_peer);
   Curl_peer_unlink(&conn->via_peer);
 
-  while(conn_to_entry && !via_peer) {
+  ആകുമ്പോൾ(conn_to_entry && !via_peer) {
     result = parse_connect_to_string(data, origin, conn_to_entry->data,
                                      &via_peer);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
     conn_to_entry = conn_to_entry->next;
   }
 
 #ifndef CURL_DISABLE_ALTSVC
-  if(data->asi && !via_peer &&
+  എങ്കിൽ(data->asi && !via_peer &&
      ((conn->scheme->protocol == CURLPROTO_HTTPS) ||
 #ifdef DEBUGBUILD
       /* allow debug builds to circumvent the HTTPS restriction */
       getenv("CURL_ALTSVC_HTTP")
-#else
+#അല്ലെങ്കിൽ
       0
 #endif
        )) {
     /* no connect_to match, try alt-svc! */
-    enum alpnid srcalpnid = ALPN_none;
+    എണ്ണൽ alpnid srcalpnid = ALPN_none;
     bool hit = FALSE;
-    struct altsvc *as = NULL;
-    int allowed_alpns = ALPN_none;
-    struct http_negotiation *neg = &data->state.http_neg;
+    ഘടന altsvc *as = ശൂന്യ;
+    പൂർണ്ണസംഖ്യ allowed_alpns = ALPN_none;
+    ഘടന http_negotiation *neg = &data->state.http_neg;
     bool same_dest = FALSE;
 
     DEBUGF(infof(data, "Alt-svc check wanted=%x, allowed=%x",
                  neg->wanted, neg->allowed));
 #ifdef USE_HTTP3
-    if(neg->allowed & CURL_HTTP_V3x)
+    എങ്കിൽ(neg->allowed & CURL_HTTP_V3x)
       allowed_alpns |= ALPN_h3;
 #endif
 #ifdef USE_HTTP2
-    if(neg->allowed & CURL_HTTP_V2x)
+    എങ്കിൽ(neg->allowed & CURL_HTTP_V2x)
       allowed_alpns |= ALPN_h2;
 #endif
-    if(neg->allowed & CURL_HTTP_V1x)
+    എങ്കിൽ(neg->allowed & CURL_HTTP_V1x)
       allowed_alpns |= ALPN_h1;
-    allowed_alpns &= (int)data->asi->flags;
+    allowed_alpns &= (പൂർണ്ണസംഖ്യ)data->asi->flags;
 
     DEBUGF(infof(data, "check Alt-Svc for host '%s'", origin->hostname));
 #ifdef USE_HTTP3
-    if(!hit && (neg->wanted & CURL_HTTP_V3x)) {
+    എങ്കിൽ(!hit && (neg->wanted & CURL_HTTP_V3x)) {
       srcalpnid = ALPN_h3;
       hit = Curl_altsvc_lookup(data->asi,
                                origin, ALPN_h3, /* from */
@@ -1823,7 +1823,7 @@ static CURLcode url_set_conn_peer(struct Curl_easy *data,
     }
 #endif
 #ifdef USE_HTTP2
-    if(!hit && (neg->wanted & CURL_HTTP_V2x) &&
+    എങ്കിൽ(!hit && (neg->wanted & CURL_HTTP_V2x) &&
        !neg->h2_prior_knowledge) {
       srcalpnid = ALPN_h2;
       hit = Curl_altsvc_lookup(data->asi,
@@ -1832,7 +1832,7 @@ static CURLcode url_set_conn_peer(struct Curl_easy *data,
                                allowed_alpns, &same_dest);
     }
 #endif
-    if(!hit && (neg->wanted & CURL_HTTP_V1x) &&
+    എങ്കിൽ(!hit && (neg->wanted & CURL_HTTP_V1x) &&
        !neg->only_10) {
       srcalpnid = ALPN_h1;
       hit = Curl_altsvc_lookup(data->asi,
@@ -1841,75 +1841,75 @@ static CURLcode url_set_conn_peer(struct Curl_easy *data,
                                allowed_alpns, &same_dest);
     }
 
-    if(hit && same_dest) {
+    എങ്കിൽ(hit && same_dest) {
       /* same destination, but more HTTPS version options */
-      switch(as->dst.alpnid) {
-      case ALPN_h1:
+      തിരഞ്ഞെടുപ്പ്(as->dst.alpnid) {
+      അവസ്ഥ ALPN_h1:
         neg->wanted |= CURL_HTTP_V1x;
         neg->preferred = CURL_HTTP_V1x;
-        break;
-      case ALPN_h2:
+        നിർത്തുക;
+      അവസ്ഥ ALPN_h2:
         neg->wanted |= CURL_HTTP_V2x;
         neg->preferred = CURL_HTTP_V2x;
-        break;
-      case ALPN_h3:
+        നിർത്തുക;
+      അവസ്ഥ ALPN_h3:
         neg->wanted |= CURL_HTTP_V3x;
         neg->preferred = CURL_HTTP_V3x;
-        break;
-      default: /* should not be possible */
-        break;
+        നിർത്തുക;
+      സ്ഥിരസ്ഥിതി: /* should not be possible */
+        നിർത്തുക;
       }
     }
-    else if(hit) {
+    അല്ലെങ്കിൽ എങ്കിൽ(hit) {
       result = Curl_peer_create(data, conn->origin->scheme,
                                 as->dst.host, as->dst.port,
                                 &via_peer);
-      if(result)
-        return result;
+      എങ്കിൽ(result)
+        തിരികെ result;
       infof(data, "Alt-svc connecting from [%s]%s:%u to [%s]%s:%u",
             Curl_alpnid2str(srcalpnid), origin->hostname, origin->port,
             Curl_alpnid2str(as->dst.alpnid),
             via_peer->hostname, via_peer->port);
       conn->bits.altused = TRUE;
-      if(srcalpnid != as->dst.alpnid) {
+      എങ്കിൽ(srcalpnid != as->dst.alpnid) {
         /* protocol version switch */
-        switch(as->dst.alpnid) {
-        case ALPN_h1:
+        തിരഞ്ഞെടുപ്പ്(as->dst.alpnid) {
+        അവസ്ഥ ALPN_h1:
           neg->wanted = neg->allowed = CURL_HTTP_V1x;
           neg->only_10 = FALSE;
-          break;
-        case ALPN_h2:
+          നിർത്തുക;
+        അവസ്ഥ ALPN_h2:
           neg->wanted = neg->allowed = CURL_HTTP_V2x;
-          break;
-        case ALPN_h3:
+          നിർത്തുക;
+        അവസ്ഥ ALPN_h3:
           conn->transport_wanted = TRNSPRT_QUIC;
           neg->wanted = neg->allowed = CURL_HTTP_V3x;
-          break;
-        default: /* should not be possible */
-          break;
+          നിർത്തുക;
+        സ്ഥിരസ്ഥിതി: /* should not be possible */
+          നിർത്തുക;
         }
       }
     }
   }
 #endif
 
-  if(via_peer)
+  എങ്കിൽ(via_peer)
     conn->via_peer = via_peer;
 
-  return result;
+  തിരികെ result;
 }
 
 /*
  * Adjust reused connection settings to the transfer/needle.
  */
-static void url_conn_reuse_adjust(struct Curl_easy *data,
-                                  struct connectdata *needle)
+സ്ഥിതം ശൂന്യം url_conn_reuse_adjust(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *needle)
 {
-  struct connectdata *conn = data->conn;
+  ഘടന connectdata *conn = data->conn;
 
   /* get the user+password information from the needle since it may
    * be new for this request even when we reuse conn */
-  if(needle->creds) {
+  എങ്കിൽ(needle->creds) {
     /* use the new username and password though */
     Curl_creds_link(&conn->creds, needle->creds);
   }
@@ -1937,28 +1937,28 @@ static void url_conn_reuse_adjust(struct Curl_easy *data,
   Curl_peer_link(&conn->via_peer2, needle->via_peer2);
 }
 
-static void conn_meta_freeentry(void *p)
+സ്ഥിതം ശൂന്യം conn_meta_freeentry(ശൂന്യം *p)
 {
-  (void)p;
+  (ശൂന്യം)p;
   /* Always FALSE. Cannot use a 0 assert here since compilers
    * are not in agreement if they then want a NORETURN attribute or
    * not. *sigh* */
   DEBUGASSERT(!p);
 }
 
-static CURLcode url_create_needle(struct Curl_easy *data,
-                                  struct connectdata **pneedle)
+സ്ഥിതം CURLcode url_create_needle(ഘടന Curl_easy *data,
+                                  ഘടന connectdata **pneedle)
 {
-  struct connectdata *needle = NULL;
+  ഘടന connectdata *needle = ശൂന്യ;
   CURLcode result = CURLE_OK;
   bool network_scheme = TRUE; /* almost all are */
 
   /* Allocate a temporary connection data struct (needle) and fill in for
      comparison purposes. */
   needle = allocate_conn(data);
-  if(!needle) {
+  എങ്കിൽ(!needle) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
   /* Do the unfailable inits first, before checks that may early return */
@@ -1970,8 +1970,8 @@ static CURLcode url_create_needle(struct Curl_easy *data,
    * other URL related properties.
    *************************************************************/
   result = url_set_conn_origin_etc(data, needle);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   DEBUGASSERT(needle->origin);
   network_scheme = !(needle->origin->scheme->flags & PROTOPT_NONETWORK);
@@ -1980,24 +1980,24 @@ static CURLcode url_create_needle(struct Curl_easy *data,
   /*************************************************************
    * Set UDS first. It overrides "via_peer" and proxy settings.
    *************************************************************/
-  if(network_scheme && CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH)) {
+  എങ്കിൽ(network_scheme && CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH)) {
     result = Curl_peer_uds_create(
       needle->origin->scheme, CURL_EASY_STR(data, STRING_UNIX_SOCKET_PATH),
       (bool)data->set.abstract_unix_socket, &needle->via_peer);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 #endif /* USE_UNIX_SOCKETS */
 
-  if(network_scheme && !needle->via_peer) {
+  എങ്കിൽ(network_scheme && !needle->via_peer) {
     /*************************************************************
      * If the `via_peer` is not already set (via UDS above),
      * determine if we talk to `conn->origin` directly or use
      * `conn->via_peer` using "connect to" and "alt-svc" properties.
      *************************************************************/
     result = url_set_conn_peer(data, needle);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
   /*************************************************************
@@ -2005,40 +2005,40 @@ static CURLcode url_create_needle(struct Curl_easy *data,
    * Do this after the hostnames have been IDN-converted and
    * before initializing the proxy.
    *************************************************************/
-  if(Curl_peer_equal(needle->origin, needle->via_peer)) {
+  എങ്കിൽ(Curl_peer_equal(needle->origin, needle->via_peer)) {
     Curl_peer_unlink(&needle->via_peer);
   }
 
 #ifndef CURL_DISABLE_PROXY
   /* Going via a unix socket ignores any proxy settings */
-  if(network_scheme &&
+  എങ്കിൽ(network_scheme &&
      (!needle->via_peer || !needle->via_peer->unix_socket)) {
     result = Curl_proxy_init_conn(data, needle);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 #endif /* CURL_DISABLE_PROXY */
 
   result = url_set_conn_login(data, needle); /* default credentials */
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /*************************************************************
    * Setup internals depending on protocol. Needs to be done after
    * we figured out what/if proxy to use.
    *************************************************************/
   result = setup_connection_internals(data, needle);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
-  if(needle->scheme->flags & PROTOPT_ALPN) {
+  എങ്കിൽ(needle->scheme->flags & PROTOPT_ALPN) {
     /* The protocol wants it, so set the bits if enabled in the easy handle
        (default) */
-    if(data->set.ssl_enable_alpn)
+    എങ്കിൽ(data->set.ssl_enable_alpn)
       needle->bits.tls_enable_alpn = TRUE;
   }
 
-  if(network_scheme) {
+  എങ്കിൽ(network_scheme) {
     /* Setup callbacks for network connections */
     needle->recv[FIRSTSOCKET] = Curl_cf_recv;
     needle->send[FIRSTSOCKET] = Curl_cf_send;
@@ -2046,26 +2046,26 @@ static CURLcode url_create_needle(struct Curl_easy *data,
     needle->send[SECONDARYSOCKET] = Curl_cf_send;
     needle->bits.tcp_fastopen = data->set.tcp_fastopen;
 #ifdef USE_UNIX_SOCKETS
-    if(Curl_conn_get_first_peer(needle, FIRSTSOCKET)->unix_socket)
+    എങ്കിൽ(Curl_conn_get_first_peer(needle, FIRSTSOCKET)->unix_socket)
       needle->transport_wanted = TRNSPRT_UNIX;
 #endif
   }
 
 out:
-  if(!result) {
+  എങ്കിൽ(!result) {
     DEBUGASSERT(needle);
     DEBUGASSERT(needle->origin);
     *pneedle = needle;
   }
-  else {
-    *pneedle = NULL;
-    if(needle)
+  അല്ലെങ്കിൽ {
+    *pneedle = ശൂന്യ;
+    എങ്കിൽ(needle)
       Curl_conn_free(data, needle);
   }
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode url_set_data_origin_and_creds(struct Curl_easy *data)
+സ്ഥിതം CURLcode url_set_data_origin_and_creds(ഘടന Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
   CURLU *uh;
@@ -2077,91 +2077,91 @@ static CURLcode url_set_data_origin_and_creds(struct Curl_easy *data)
   /*************************************************************
    * Check input data
    *************************************************************/
-  if(!Curl_bufref_ptr(&data->state.url)) {
+  എങ്കിൽ(!Curl_bufref_ptr(&data->state.url)) {
     result = CURLE_URL_MALFORMAT;
-    goto out;
+    പോകുക out;
   }
 
   up_free(data); /* cleanup previous leftovers first */
 
   /* parse the URL */
-  if(use_set_uh)
+  എങ്കിൽ(use_set_uh)
     uh = data->state.uh = curl_url_dup(data->set.uh);
-  else
+  അല്ലെങ്കിൽ
     uh = data->state.uh = curl_url();
-  if(!uh) {
+  എങ്കിൽ(!uh) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
-  if(!use_set_uh) {
+  എങ്കിൽ(!use_set_uh) {
     bool prepend_sheme = FALSE;
     /* special-case when 'file' is default as a normal path is not a valid URL
        without the 'file' scheme present */
-    if(curl_strequal("file", CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) &&
-       !Curl_is_absolute_url(Curl_bufref_ptr(&data->state.url), NULL, 0, TRUE))
+    എങ്കിൽ(curl_strequal("file", CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) &&
+       !Curl_is_absolute_url(Curl_bufref_ptr(&data->state.url), ശൂന്യ, 0, TRUE))
       prepend_sheme = TRUE;
-    else {
+    അല്ലെങ്കിൽ {
       uc = curl_url_set(uh, CURLUPART_URL, Curl_bufref_ptr(&data->state.url),
-                        (unsigned int)
+                        (unsigned പൂർണ്ണസംഖ്യ)
                         CURLU_GUESS_SCHEME |
                         CURLU_NON_SUPPORT_SCHEME |
                         (data->set.disallow_username_in_url ?
                          CURLU_DISALLOW_USER : 0) |
                         (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
-      if(uc) {
+      എങ്കിൽ(uc) {
         failf(data, "URL rejected: %s", curl_url_strerror(uc));
         result = Curl_uc_to_curlcode(uc);
-        goto out;
+        പോകുക out;
       }
 
-      if(CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) {
+      എങ്കിൽ(CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL)) {
         /* check if we there was a scheme provided */
-        char *scheme;
+        അക്ഷരം *scheme;
         uc = curl_url_get(uh, CURLUPART_SCHEME, &scheme,
                           CURLU_NO_GUESS_SCHEME);
-        if(uc == CURLUE_NO_SCHEME)
+        എങ്കിൽ(uc == CURLUE_NO_SCHEME)
           prepend_sheme = TRUE;
         curl_free(scheme);
-        if(uc && uc != CURLUE_NO_SCHEME) {
+        എങ്കിൽ(uc && uc != CURLUE_NO_SCHEME) {
           result = Curl_uc_to_curlcode(uc);
-          goto out;
+          പോകുക out;
         }
       }
     }
 
-    if(prepend_sheme) {
-      char *url = curl_maprintf("%s://%s",
+    എങ്കിൽ(prepend_sheme) {
+      അക്ഷരം *url = curl_maprintf("%s://%s",
                                 CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL),
                                 Curl_bufref_ptr(&data->state.url));
-      if(!url) {
+      എങ്കിൽ(!url) {
         result = CURLE_OUT_OF_MEMORY;
-        goto out;
+        പോകുക out;
       }
       uc = curl_url_set(uh, CURLUPART_URL, url,
-                        (unsigned int)
+                        (unsigned പൂർണ്ണസംഖ്യ)
                         CURLU_GUESS_SCHEME |
                         CURLU_NON_SUPPORT_SCHEME |
                         (data->set.disallow_username_in_url ?
                          CURLU_DISALLOW_USER : 0) |
                         (data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
       curl_free(url);
-      if(uc) {
+      എങ്കിൽ(uc) {
         failf(data, "URL rejected: %s", curl_url_strerror(uc));
         result = Curl_uc_to_curlcode(uc);
-        goto out;
+        പോകുക out;
       }
     }
     {
-      char *newurl;
+      അക്ഷരം *newurl;
       /* after it was parsed, and possibly given a new scheme, get the
          normalized version */
       uc = curl_url_get(uh, CURLUPART_URL, &newurl, CURLU_GET_EMPTY);
-      if(uc) {
+      എങ്കിൽ(uc) {
         result = Curl_uc_to_curlcode(uc);
-        goto out;
+        പോകുക out;
       }
-      if(prepend_sheme)
+      എങ്കിൽ(prepend_sheme)
         infof(data, "Applied default protocol '%s'",
               CURL_EASY_STR(data, STRING_DEFAULT_PROTOCOL));
       Curl_bufref_set(&data->state.url, newurl, 0, curl_free);
@@ -2175,50 +2175,50 @@ static CURLcode url_set_data_origin_and_creds(struct Curl_easy *data)
   /* `uh` is now as the connection should use it, probably. */
   result = Curl_peer_from_url(uh, data, port_override, scope_id,
                               &data->state.origin);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
   /* The origin might get changed when HSTS applies */
   result = hsts_upgrade(data, uh, port_override, scope_id);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /* When the transfers initial_origin is not set, this is the initial
    * request. Remember this starting point. */
-  if(!data->state.initial_origin)
+  എങ്കിൽ(!data->state.initial_origin)
     Curl_peer_link(&data->state.initial_origin, data->state.origin);
 
   uc = curl_url_get(uh, CURLUPART_PATH, &data->state.up.path, CURLU_URLENCODE);
-  if(uc) {
+  എങ്കിൽ(uc) {
     result = Curl_uc_to_curlcode(uc);
-    goto out;
+    പോകുക out;
   }
   uc = curl_url_get(uh, CURLUPART_QUERY, &data->state.up.query,
                     CURLU_GET_EMPTY);
-  if(uc && (uc != CURLUE_NO_QUERY)) {
+  എങ്കിൽ(uc && (uc != CURLUE_NO_QUERY)) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
   uc = curl_url_get(uh, CURLUPART_OPTIONS, &data->state.up.options,
                     CURLU_URLDECODE);
-  if(uc && (uc != CURLUE_NO_OPTIONS)) {
+  എങ്കിൽ(uc && (uc != CURLUE_NO_OPTIONS)) {
     result = Curl_uc_to_curlcode(uc);
-    goto out;
+    പോകുക out;
   }
 
   result = url_set_data_creds(data, uh);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
 out:
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode url_match_init(struct Curl_easy *data,
-                               struct connectdata *needle,
-                               struct url_conn_match *m)
+സ്ഥിതം CURLcode url_match_init(ഘടന Curl_easy *data,
+                               ഘടന connectdata *needle,
+                               ഘടന url_conn_match *m)
 {
-  memset(m, 0, sizeof(*m));
+  memset(m, 0, വലുപ്പം(*m));
   m->data = data;
   m->needle = needle;
   m->now = *Curl_pgrs_now(data);
@@ -2237,7 +2237,7 @@ static CURLcode url_match_init(struct Curl_easy *data,
 #endif
 #endif
 
-#if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
   m->want_nego_http =
     (data->state.authhost.want & CURLAUTH_NEGOTIATE) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
@@ -2253,16 +2253,16 @@ static CURLcode url_match_init(struct Curl_easy *data,
   m->may_tls = data->set.use_ssl > CURLUSESSL_NONE;
 
   /* Get a shallow setup of filter configs for connection cache matching */
-  return Curl_ssl_filter_config_tmp_init(data, needle->origin,
+  തിരികെ Curl_ssl_filter_config_tmp_init(data, needle->origin,
                                          &m->ssl_config,
 #ifndef CURL_DISABLE_PROXY
                                          &m->proxy_ssl_config);
-#else
-                                         NULL);
+#അല്ലെങ്കിൽ
+                                         ശൂന്യ);
 #endif
 }
 
-static void url_match_destroy(struct url_conn_match *m)
+സ്ഥിതം ശൂന്യം url_match_destroy(ഘടന url_conn_match *m)
 {
   Curl_ssl_config_cleanup(&m->ssl_config);
 #ifndef CURL_DISABLE_PROXY
@@ -2278,11 +2278,11 @@ static void url_match_destroy(struct url_conn_match *m)
  *   a suitable connection has not determined its multiplex capability.
  * - a fatal error
  */
-static CURLcode url_find_or_create_conn(struct Curl_easy *data,
-                                        const struct curltime *pnow)
+സ്ഥിതം CURLcode url_find_or_create_conn(ഘടന Curl_easy *data,
+                                        സ്ഥിരം ഘടന curltime *pnow)
 {
-  struct connectdata *needle = NULL;
-  struct url_conn_match match;
+  ഘടന connectdata *needle = ശൂന്യ;
+  ഘടന url_conn_match match;
   bool match_initialized = FALSE;
   CURLcode result;
 
@@ -2290,20 +2290,20 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
    * find an existing connection or, if none exists, convert needle
    * to a full connection and attach it to data. */
   result = url_create_needle(data, &needle);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
   DEBUGASSERT(needle);
 
   result = url_match_init(data, needle, &match);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
   match_initialized = TRUE;
 
   /***********************************************************************
    * file: is a special case in that it does not need a network connection
    ***********************************************************************/
 #ifndef CURL_DISABLE_FILE
-  if(needle->scheme->flags & PROTOPT_NONETWORK) {
+  എങ്കിൽ(needle->scheme->flags & PROTOPT_NONETWORK) {
     bool done;
     /* this is supposed to be the connect function so we better at least check
        that the file is present here! */
@@ -2312,28 +2312,28 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
     /* conn_protocol can only provide "old" protocols */
     data->info.conn_protocol = needle->scheme->protocol & CURLPROTO_MASK;
     result = needle->scheme->run->connect_it(data, &done);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
 
     /* Setup a "faked" transfer that will do nothing */
     result = Curl_cpool_add(data, needle, 0, 0, pnow);
     Curl_attach_connection(data, needle, TRUE);
-    needle = NULL;
-    if(!result) {
+    needle = ശൂന്യ;
+    എങ്കിൽ(!result) {
       /* Setup whatever necessary for a resumed transfer */
       result = setup_range(data);
-      if(!result) {
+      എങ്കിൽ(!result) {
         Curl_xfer_setup_nop(data);
         result = Curl_init_transfer(data, data->conn);
       }
     }
 
-    if(result) {
+    എങ്കിൽ(result) {
       DEBUGASSERT(data->conn->scheme->run->done);
       /* we ignore the return code for the protocol-specific DONE */
-      (void)data->conn->scheme->run->done(data, result, FALSE);
+      (ശൂന്യം)data->conn->scheme->run->done(data, result, FALSE);
     }
-    goto out;
+    പോകുക out;
   }
 #endif
 
@@ -2343,13 +2343,13 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
    * - reuse_fresh is set and this is not a follow-up request
    *   (like with HTTP followlocation)
    *************************************************************/
-  if((!data->set.reuse_fresh || data->state.followlocation) &&
+  എങ്കിൽ((!data->set.reuse_fresh || data->state.followlocation) &&
      !data->set.connect_only) {
     /* Ok, try to find and attach an existing one */
-    if(url_attach_existing(data, needle, &match, pnow)) {
+    എങ്കിൽ(url_attach_existing(data, needle, &match, pnow)) {
       /* We attached an existing connection for this transfer. Copy
        * over transfer specific properties over from needle. */
-      struct connectdata *conn = data->conn;
+      ഘടന connectdata *conn = data->conn;
       VERBOSE(bool tls_upgraded =
         (!(needle->origin->scheme->flags & PROTOPT_SSL) &&
          Curl_conn_is_ssl(conn, FIRSTSOCKET)));
@@ -2367,7 +2367,7 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
             conn->socks_proxy.peer ? conn->socks_proxy.peer->user_hostname :
             conn->http_proxy.peer ? conn->http_proxy.peer->user_hostname :
             conn->origin->hostname);
-#else
+#അല്ലെങ്കിൽ
       infof(data, "Reusing existing %s: connection%s with host %s",
             conn->origin->scheme->name,
             tls_upgraded ? " (upgraded to SSL)" : "",
@@ -2376,18 +2376,18 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
     }
   }
 
-  if(!data->conn) {
+  എങ്കിൽ(!data->conn) {
     /* We have not attached an existing connection. `needle` may become
      * the connection to use, if
      * - we are not waiting on an existing connection result
      * - the total/host limits on active connections allow it
      */
-    if(match.wait_pipe) {
+    എങ്കിൽ(match.wait_pipe) {
       /* There is a connection that *might* become usable for multiplexing
          "soon", and we wait for that */
       infof(data, "Waiting on connection to negotiate possible multiplexing.");
       result = CURLE_NO_CONNECTION_AVAILABLE;
-      goto out;
+      പോകുക out;
     }
 
     /* Add needle to conn pool, observing the limits.
@@ -2397,38 +2397,38 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
                             data->multi->max_total_connections,
                             data->multi->max_host_connections,
                             pnow);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
 
     /* All fine, attach it and forget needle */
     Curl_attach_connection(data, needle, TRUE);
-    needle = NULL;
+    needle = ശൂന്യ;
 
     /* Clone the SSL filter configs into the new connection. */
     result = Curl_ssl_conn_config_clone(&match.ssl_config,
 #ifndef CURL_DISABLE_PROXY
                                         &match.proxy_ssl_config,
-#else
-                                        NULL,
+#അല്ലെങ്കിൽ
+                                        ശൂന്യ,
 #endif
                                         data->conn);
-    if(result) {
+    എങ്കിൽ(result) {
       DEBUGF(infof(data, "Error: clone connection SSL config"));
-      goto out;
+      പോകുക out;
     }
 
 #ifdef USE_NTLM
     /* If NTLM is requested in a part of this connection, make sure we do not
        assume the state is fine as this is a fresh connection and NTLM is
        connection based. */
-    if((data->state.authhost.picked & CURLAUTH_NTLM) &&
+    എങ്കിൽ((data->state.authhost.picked & CURLAUTH_NTLM) &&
        data->state.authhost.done) {
       infof(data, "NTLM picked AND auth done set, clear picked");
       data->state.authhost.picked = CURLAUTH_NONE;
       data->state.authhost.done = FALSE;
     }
 
-    if((data->state.authproxy.picked & CURLAUTH_NTLM) &&
+    എങ്കിൽ((data->state.authproxy.picked & CURLAUTH_NTLM) &&
        data->state.authproxy.done) {
       infof(data, "NTLM-proxy picked AND auth done set, clear picked");
       data->state.authproxy.picked = CURLAUTH_NONE;
@@ -2441,13 +2441,13 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
 
   /* Setup and init stuff before DO starts, in preparing for the transfer. */
   result = Curl_init_transfer(data, data->conn);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /* Setup whatever necessary for a resumed transfer */
   result = setup_range(data);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   /* persist the scheme and handler the transfer is using */
   data->info.conn_scheme = data->conn->scheme->name;
@@ -2456,7 +2456,7 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
   data->info.used_proxy =
 #ifdef CURL_DISABLE_PROXY
     0
-#else
+#അല്ലെങ്കിൽ
     (data->conn->socks_proxy.peer || data->conn->http_proxy.peer)
 #endif
     ;
@@ -2465,31 +2465,31 @@ static CURLcode url_find_or_create_conn(struct Curl_easy *data,
   result = Curl_conn_ev_data_setup(data);
 
 out:
-  if(match_initialized)
+  എങ്കിൽ(match_initialized)
     url_match_destroy(&match);
-  if(needle)
+  എങ്കിൽ(needle)
     Curl_conn_free(data, needle);
   DEBUGASSERT(result || data->conn);
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_connect(struct Curl_easy *data, bool *pconnected)
+CURLcode Curl_connect(ഘടന Curl_easy *data, bool *pconnected)
 {
   CURLcode result;
-  struct connectdata *conn = NULL;
-  const struct curltime *pnow = NULL;
+  ഘടന connectdata *conn = ശൂന്യ;
+  സ്ഥിരം ഘടന curltime *pnow = ശൂന്യ;
   *pconnected = FALSE;
 
   /* Set the request to virgin state based on transfer settings */
   Curl_req_hard_reset(&data->req, data);
   /* Determine the origin of the transfer and what credentials to use */
   result = url_set_data_origin_and_creds(data);
-  if(result)
-    goto out;
-  if(!data->state.origin) { /* just make really sure */
+  എങ്കിൽ(result)
+    പോകുക out;
+  എങ്കിൽ(!data->state.origin) { /* just make really sure */
     DEBUGASSERT(0);
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
 
   /* Get or create a connection for the transfer. */
@@ -2497,42 +2497,42 @@ CURLcode Curl_connect(struct Curl_easy *data, bool *pconnected)
   Curl_pgrsTimeWas(data, TIMER_POSTQUEUE, *pnow);
   result = url_find_or_create_conn(data, pnow);
   conn = data->conn;
-  if(result)
-    goto out;
-  if(!data->conn) { /* just make really sure */
+  എങ്കിൽ(result)
+    പോകുക out;
+  എങ്കിൽ(!data->conn) { /* just make really sure */
     DEBUGASSERT(0);
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
 
-  if(conn->bits.reuse) {
-    if(conn->attached_xfers > 1)
+  എങ്കിൽ(conn->bits.reuse) {
+    എങ്കിൽ(conn->attached_xfers > 1)
       /* multiplexed */
       *pconnected = TRUE;
   }
-  else if(conn->scheme->flags & PROTOPT_NONETWORK) {
+  അല്ലെങ്കിൽ എങ്കിൽ(conn->scheme->flags & PROTOPT_NONETWORK) {
     Curl_pgrsTime(data, TIMER_NAMELOOKUP);
     *pconnected = TRUE;
   }
-  else {
+  അല്ലെങ്കിൽ {
     result = Curl_conn_setup(data, conn, FIRSTSOCKET, CURL_CF_SSL_DEFAULT);
-    if(!result)
+    എങ്കിൽ(!result)
       result = Curl_headers_init(data);
-    CURL_TRC_M(data, "Curl_conn_setup() -> %d", (int)result);
+    CURL_TRC_M(data, "Curl_conn_setup() -> %d", (പൂർണ്ണസംഖ്യ)result);
   }
 
 out:
-  if(result == CURLE_NO_CONNECTION_AVAILABLE)
+  എങ്കിൽ(result == CURLE_NO_CONNECTION_AVAILABLE)
     DEBUGASSERT(!conn);
 
-  if(result && conn) {
+  എങ്കിൽ(result && conn) {
     /* We are not allowed to return failure with memory left allocated in the
        connectdata struct, free those here */
     Curl_detach_connection(data);
     Curl_conn_close(data, conn, TRUE);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /*
@@ -2544,15 +2544,15 @@ out:
  * Allow this function to get called with 'conn' set to NULL.
  */
 
-CURLcode Curl_init_transfer(struct Curl_easy *data, struct connectdata *conn)
+CURLcode Curl_init_transfer(ഘടന Curl_easy *data, ഘടന connectdata *conn)
 {
   CURLcode result;
 
-  if(conn) {
+  എങ്കിൽ(conn) {
     conn->bits.do_more = FALSE; /* by default there is no curl_do_more() to
                                    use */
     /* if the protocol used does not support wildcards, switch it off */
-    if(data->state.wildcardmatch &&
+    എങ്കിൽ(data->state.wildcardmatch &&
        !(conn->scheme->flags & PROTOPT_WILDCARD))
       data->state.wildcardmatch = FALSE;
   }
@@ -2560,62 +2560,62 @@ CURLcode Curl_init_transfer(struct Curl_easy *data, struct connectdata *conn)
   data->state.done = FALSE; /* *_done() is not called yet */
 
   data->req.no_body = data->set.opt_no_body;
-  if(data->req.no_body)
+  എങ്കിൽ(data->req.no_body)
     /* in HTTP lingo, no body means using the HEAD request... */
     data->state.httpreq = HTTPREQ_HEAD;
 
   result = Curl_req_start(&data->req, data);
-  if(!result) {
+  എങ്കിൽ(!result) {
     Curl_pgrsReset(data);
   }
-  return result;
+  തിരികെ result;
 }
 
-#if defined(USE_HTTP2) || defined(USE_HTTP3)
+#എങ്കിൽ defined(USE_HTTP2) || defined(USE_HTTP3)
 
-void Curl_data_priority_clear_state(struct Curl_easy *data)
+ശൂന്യം Curl_data_priority_clear_state(ഘടന Curl_easy *data)
 {
   data->state.weight = 0;
 }
 
 #endif /* USE_HTTP2 || USE_HTTP3 */
 
-CURLcode Curl_conn_meta_set(struct connectdata *conn, const char *key,
-                            void *meta_data, Curl_meta_dtor *meta_dtor)
+CURLcode Curl_conn_meta_set(ഘടന connectdata *conn, സ്ഥിരം അക്ഷരം *താക്കോൽ,
+                            ശൂന്യം *meta_data, Curl_meta_dtor *meta_dtor)
 {
-  if(!Curl_hash_add2(&conn->meta_hash, key, strlen(key) + 1,
+  എങ്കിൽ(!Curl_hash_add2(&conn->meta_hash, താക്കോൽ, strlen(താക്കോൽ) + 1,
                      meta_data, meta_dtor)) {
-    meta_dtor(key, strlen(key) + 1, meta_data);
-    return CURLE_OUT_OF_MEMORY;
+    meta_dtor(താക്കോൽ, strlen(താക്കോൽ) + 1, meta_data);
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-void Curl_conn_meta_remove(struct connectdata *conn, const char *key)
+ശൂന്യം Curl_conn_meta_remove(ഘടന connectdata *conn, സ്ഥിരം അക്ഷരം *താക്കോൽ)
 {
-  Curl_hash_delete(&conn->meta_hash, key, strlen(key) + 1);
+  Curl_hash_delete(&conn->meta_hash, താക്കോൽ, strlen(താക്കോൽ) + 1);
 }
 
-void *Curl_conn_meta_get(struct connectdata *conn, const char *key)
+ശൂന്യം *Curl_conn_meta_get(ഘടന connectdata *conn, സ്ഥിരം അക്ഷരം *താക്കോൽ)
 {
-  return Curl_hash_pick(&conn->meta_hash, key, strlen(key) + 1);
+  തിരികെ Curl_hash_pick(&conn->meta_hash, താക്കോൽ, strlen(താക്കോൽ) + 1);
 }
 
-struct Curl_easy *Curl_get_admin(struct Curl_easy *data)
+ഘടന Curl_easy *Curl_get_admin(ഘടന Curl_easy *data)
 {
-  struct Curl_easy *admin;
+  ഘടന Curl_easy *admin;
 
-  if(!data->mid) /* already an admin handle */
+  എങ്കിൽ(!data->mid) /* already an admin handle */
     admin = data;
-  else if(data->multi)
+  അല്ലെങ്കിൽ എങ്കിൽ(data->multi)
     admin = data->multi->admin;
-  else if(data->multi_easy)
+  അല്ലെങ്കിൽ എങ്കിൽ(data->multi_easy)
     admin = data->multi_easy->admin;
-  else {
+  അല്ലെങ്കിൽ {
     DEBUGASSERT(0); /* we do not want this. does it happen? */
     admin = data;
   }
-  if(admin != data) {
+  എങ്കിൽ(admin != data) {
     admin->set.conn_max_idle_ms = data->set.conn_max_idle_ms;
     admin->set.conn_max_age_ms = data->set.conn_max_age_ms;
     admin->set.upkeep_interval_ms = data->set.upkeep_interval_ms;
@@ -2623,14 +2623,14 @@ struct Curl_easy *Curl_get_admin(struct Curl_easy *data)
     admin->set.server_response_timeout = data->set.server_response_timeout;
     admin->set.no_signal = data->set.no_signal;
   }
-  return admin;
+  തിരികെ admin;
 }
 
 CURLcode Curl_1st_fatal(CURLcode r1, CURLcode r2)
 {
-  if(r1 && (r1 != CURLE_AGAIN))
-    return r1;
-  if(r2 && (r2 != CURLE_AGAIN))
-    return r2;
-  return r1;
+  എങ്കിൽ(r1 && (r1 != CURLE_AGAIN))
+    തിരികെ r1;
+  എങ്കിൽ(r2 && (r2 != CURLE_AGAIN))
+    തിരികെ r2;
+  തിരികെ r1;
 }

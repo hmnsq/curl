@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 #ifndef CURL_DISABLE_TELNET
-extern const struct Curl_protocol Curl_protocol_telnet;
+ബാഹ്യ സ്ഥിരം ഘടന Curl_protocol Curl_protocol_telnet;
 #endif
 
 #endif /* HEADER_CURL_TELNET_H */

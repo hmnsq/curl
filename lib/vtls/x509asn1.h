@@ -24,16 +24,16 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 /* forward-declare to make it visible in all builds */
-struct Curl_asn1Element;
+ഘടന Curl_asn1Element;
 
-#if defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
+#എങ്കിൽ defined(USE_GNUTLS) || defined(USE_WOLFSSL) || defined(USE_SCHANNEL) || \
   defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
-#include "cfilters.h"
-#include "urldata.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "urldata.h"
 
 /* ASN.1 classes. */
 /* #define CURL_ASN1_UNIVERSAL             0 */
@@ -76,44 +76,44 @@ struct Curl_asn1Element;
  */
 
 /* ASN.1 parsed element. */
-struct Curl_asn1Element {
-  const uint8_t *header;      /* Pointer to header byte. */
-  const uint8_t *beg;         /* Pointer to element data. */
-  const uint8_t *end;         /* Pointer to 1st byte after element. */
+ഘടന Curl_asn1Element {
+  സ്ഥിരം uint8_t *header;      /* Pointer to header byte. */
+  സ്ഥിരം uint8_t *beg;         /* Pointer to element data. */
+  സ്ഥിരം uint8_t *end;         /* Pointer to 1st byte after element. */
   uint8_t eclass;             /* ASN.1 element class. */
   uint8_t tag;                /* ASN.1 element tag. */
   BIT(constructed);           /* Element is constructed. */
 };
 
 /* X509 certificate: RFC 5280. */
-struct Curl_X509certificate {
-  struct Curl_asn1Element certificate;
-  struct Curl_asn1Element version;
-  struct Curl_asn1Element serialNumber;
-  struct Curl_asn1Element signatureAlgorithm;
-  struct Curl_asn1Element signature;
-  struct Curl_asn1Element issuer;
-  struct Curl_asn1Element notBefore;
-  struct Curl_asn1Element notAfter;
-  struct Curl_asn1Element subject;
-  struct Curl_asn1Element subjectPublicKeyInfo;
-  struct Curl_asn1Element subjectPublicKeyAlgorithm;
-  struct Curl_asn1Element subjectPublicKey;
-  struct Curl_asn1Element issuerUniqueID;
-  struct Curl_asn1Element subjectUniqueID;
-  struct Curl_asn1Element extensions;
+ഘടന Curl_X509certificate {
+  ഘടന Curl_asn1Element certificate;
+  ഘടന Curl_asn1Element version;
+  ഘടന Curl_asn1Element serial_സംഖ്യ;
+  ഘടന Curl_asn1Element signatureAlgorithm;
+  ഘടന Curl_asn1Element signature;
+  ഘടന Curl_asn1Element issuer;
+  ഘടന Curl_asn1Element notBefore;
+  ഘടന Curl_asn1Element notAfter;
+  ഘടന Curl_asn1Element subject;
+  ഘടന Curl_asn1Element subject_Public_താക്കോൽ_Info;
+  ഘടന Curl_asn1Element subject_Public_താക്കോൽ_Algorithm;
+  ഘടന Curl_asn1Element subject_Public_താക്കോൽ;
+  ഘടന Curl_asn1Element issuerUniqueID;
+  ഘടന Curl_asn1Element subjectUniqueID;
+  ഘടന Curl_asn1Element extensions;
 };
 
 /*
  * Prototypes.
  */
 
-int Curl_parseX509(struct Curl_X509certificate *cert,
-                   const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_extract_certinfo(struct Curl_easy *data, int certnum,
-                               const uint8_t *beg, const uint8_t *end);
-CURLcode Curl_verifyhost(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         const uint8_t *beg, const uint8_t *end);
+പൂർണ്ണസംഖ്യ Curl_parseX509(ഘടന Curl_X509certificate *cert,
+                   സ്ഥിരം uint8_t *beg, സ്ഥിരം uint8_t *end);
+CURLcode Curl_extract_certinfo(ഘടന Curl_easy *data, പൂർണ്ണസംഖ്യ certnum,
+                               സ്ഥിരം uint8_t *beg, സ്ഥിരം uint8_t *end);
+CURLcode Curl_verifyhost(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
+                         സ്ഥിരം uint8_t *beg, സ്ഥിരം uint8_t *end);
 #endif /* USE_GNUTLS || USE_WOLFSSL || USE_SCHANNEL || USE_MBEDTLS ||
           USE_RUSTLS */
 #endif /* HEADER_CURL_X509ASN1_H */

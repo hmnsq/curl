@@ -21,10 +21,10 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
-#include "curl_printf.h"
+#അന്തര്ഭാവ "curlx/dynbuf.h"
+#അന്തര്ഭാവ "curl_printf.h"
 
 #define MIN_FIRST_ALLOC 32
 
@@ -35,12 +35,12 @@
 /*
  * Init a dynbuf struct.
  */
-void curlx_dyn_init(struct dynbuf *s, size_t toobig)
+ശൂന്യം curlx_dyn_init(ഘടന dynbuf *s, size_t toobig)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(toobig);
   DEBUGASSERT(toobig <= MAX_DYNBUF_SIZE); /* catch crazy mistakes */
-  s->bufr = NULL;
+  s->bufr = ശൂന്യ;
   s->leng = 0;
   s->allc = 0;
   s->toobig = toobig;
@@ -53,7 +53,7 @@ void curlx_dyn_init(struct dynbuf *s, size_t toobig)
  * free the buffer and re-init the necessary fields. It does not touch the
  * 'init' field and thus this buffer can be reused to add data to again.
  */
-void curlx_dyn_free(struct dynbuf *s)
+ശൂന്യം curlx_dyn_free(ഘടന dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
@@ -64,8 +64,8 @@ void curlx_dyn_free(struct dynbuf *s)
 /*
  * Store/append an chunk of memory to the dynbuf.
  */
-static CURLcode dyn_nappend(struct dynbuf *s,
-                            const unsigned char *mem, size_t len)
+സ്ഥിതം CURLcode dyn_nappend(ഘടന dynbuf *s,
+                            സ്ഥിരം unsigned അക്ഷരം *mem, size_t len)
 {
   size_t idx = s->leng;
   size_t a = s->allc;
@@ -79,55 +79,55 @@ static CURLcode dyn_nappend(struct dynbuf *s,
   DEBUGASSERT(a <= s->toobig);
   DEBUGASSERT(!len || mem);
 
-  if(fit > s->toobig) {
+  എങ്കിൽ(fit > s->toobig) {
     curlx_dyn_free(s);
-    return CURLE_TOO_LARGE;
+    തിരികെ CURLE_TOO_LARGE;
   }
-  else if(!a) {
+  അല്ലെങ്കിൽ എങ്കിൽ(!a) {
     DEBUGASSERT(!idx);
     /* first invoke */
-    if(MIN_FIRST_ALLOC > s->toobig)
+    എങ്കിൽ(MIN_FIRST_ALLOC > s->toobig)
       a = s->toobig;
-    else if(fit < MIN_FIRST_ALLOC)
+    അല്ലെങ്കിൽ എങ്കിൽ(fit < MIN_FIRST_ALLOC)
       a = MIN_FIRST_ALLOC;
-    else
+    അല്ലെങ്കിൽ
       a = fit;
   }
-  else {
-    while(a < fit)
+  അല്ലെങ്കിൽ {
+    ആകുമ്പോൾ(a < fit)
       a *= 2;
-    if(a > s->toobig)
+    എങ്കിൽ(a > s->toobig)
       /* no point in allocating a larger buffer than this is allowed to use */
       a = s->toobig;
   }
 
-  if(a != s->allc) {
-    void *p = curlx_realloc(s->bufr, a);
-    if(!p) {
+  എങ്കിൽ(a != s->allc) {
+    ശൂന്യം *p = curlx_realloc(s->bufr, a);
+    എങ്കിൽ(!p) {
       curlx_dyn_free(s);
-      return CURLE_OUT_OF_MEMORY;
+      തിരികെ CURLE_OUT_OF_MEMORY;
     }
     s->bufr = p;
     s->allc = a;
   }
 
-  if(len)
+  എങ്കിൽ(len)
     memcpy(&s->bufr[idx], mem, len);
   s->leng = idx + len;
   s->bufr[s->leng] = 0;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
  * Clears the string, keeps the allocation. This can also be called on a
  * buffer that already was freed.
  */
-void curlx_dyn_reset(struct dynbuf *s)
+ശൂന്യം curlx_dyn_reset(ഘടന dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(s->leng)
+  എങ്കിൽ(s->leng)
     s->bufr[0] = 0;
   s->leng = 0;
 }
@@ -136,41 +136,41 @@ void curlx_dyn_reset(struct dynbuf *s)
  * Specify the size of the tail to keep (number of bytes from the end of the
  * buffer). The rest is dropped.
  */
-CURLcode curlx_dyn_tail(struct dynbuf *s, size_t trail)
+CURLcode curlx_dyn_tail(ഘടന dynbuf *s, size_t trail)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(trail > s->leng)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
-  else if(trail == s->leng)
-    return CURLE_OK;
-  else if(!trail) {
+  എങ്കിൽ(trail > s->leng)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
+  അല്ലെങ്കിൽ എങ്കിൽ(trail == s->leng)
+    തിരികെ CURLE_OK;
+  അല്ലെങ്കിൽ എങ്കിൽ(!trail) {
     curlx_dyn_reset(s);
   }
-  else {
+  അല്ലെങ്കിൽ {
     memmove(&s->bufr[0], &s->bufr[s->leng - trail], trail);
     s->leng = trail;
     s->bufr[s->leng] = 0;
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
  * Appends a buffer with length.
  */
-CURLcode curlx_dyn_addn(struct dynbuf *s, const void *mem, size_t len)
+CURLcode curlx_dyn_addn(ഘടന dynbuf *s, സ്ഥിരം ശൂന്യം *mem, size_t len)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return dyn_nappend(s, mem, len);
+  തിരികെ dyn_nappend(s, mem, len);
 }
 
 /*
  * Append a null-terminated string at the end.
  */
-CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
+CURLcode curlx_dyn_add(ഘടന dynbuf *s, സ്ഥിരം അക്ഷരം *str)
 {
   size_t n;
   DEBUGASSERT(str);
@@ -178,46 +178,46 @@ CURLcode curlx_dyn_add(struct dynbuf *s, const char *str)
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   n = strlen(str);
-  return dyn_nappend(s, (const unsigned char *)str, n);
+  തിരികെ dyn_nappend(s, (സ്ഥിരം unsigned അക്ഷരം *)str, n);
 }
 
 /*
  * Append a string vprintf()-style
  */
-CURLcode curlx_dyn_vaddf(struct dynbuf *s, const char *fmt, va_list ap)
+CURLcode curlx_dyn_vaddf(ഘടന dynbuf *s, സ്ഥിരം അക്ഷരം *fmt, va_list ap)
 {
 #ifdef BUILDING_LIBCURL
-  int rc;
+  പൂർണ്ണസംഖ്യ rc;
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
   DEBUGASSERT(fmt);
   rc = curlx_dyn_vprintf(s, fmt, ap);
 
-  if(!rc)
-    return CURLE_OK;
-  else if(rc == MERR_TOO_LARGE)
-    return CURLE_TOO_LARGE;
-  return CURLE_OUT_OF_MEMORY;
-#else
-  char *str;
+  എങ്കിൽ(!rc)
+    തിരികെ CURLE_OK;
+  അല്ലെങ്കിൽ എങ്കിൽ(rc == MERR_TOO_LARGE)
+    തിരികെ CURLE_TOO_LARGE;
+  തിരികെ CURLE_OUT_OF_MEMORY;
+#അല്ലെങ്കിൽ
+  അക്ഷരം *str;
   str = curl_mvaprintf(fmt, ap); /* this allocs a new string to append */
 
-  if(str) {
-    CURLcode result = dyn_nappend(s, (const unsigned char *)str, strlen(str));
+  എങ്കിൽ(str) {
+    CURLcode result = dyn_nappend(s, (സ്ഥിരം unsigned അക്ഷരം *)str, strlen(str));
     curl_free(str);
-    return result;
+    തിരികെ result;
   }
   /* If we failed, we cleanup the whole buffer and return error */
   curlx_dyn_free(s);
-  return CURLE_OUT_OF_MEMORY;
+  തിരികെ CURLE_OUT_OF_MEMORY;
 #endif
 }
 
 /*
  * Append a string printf()-style
  */
-CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
+CURLcode curlx_dyn_addf(ഘടന dynbuf *s, സ്ഥിരം അക്ഷരം *fmt, ...)
 {
   CURLcode result;
   va_list ap;
@@ -228,65 +228,65 @@ CURLcode curlx_dyn_addf(struct dynbuf *s, const char *fmt, ...)
   va_start(ap, fmt);
   result = curlx_dyn_vaddf(s, fmt, ap);
   va_end(ap);
-  return result;
+  തിരികെ result;
 }
 
 /*
  * Returns a pointer to the buffer.
  */
-char *curlx_dyn_ptr(const struct dynbuf *s)
+അക്ഷരം *curlx_dyn_ptr(സ്ഥിരം ഘടന dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return s->bufr;
+  തിരികെ s->bufr;
 }
 
-char *curlx_dyn_take(struct dynbuf *s, size_t *plen)
+അക്ഷരം *curlx_dyn_take(ഘടന dynbuf *s, size_t *plen)
 {
-  char *ptr = s->bufr;
+  അക്ഷരം *ptr = s->bufr;
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   *plen = s->leng;
-  s->bufr = NULL;
+  s->bufr = ശൂന്യ;
   s->leng = 0;
   s->allc = 0;
-  return ptr;
+  തിരികെ ptr;
 }
 
 /*
  * Returns an unsigned pointer to the buffer.
  */
-unsigned char *curlx_dyn_uptr(const struct dynbuf *s)
+unsigned അക്ഷരം *curlx_dyn_uptr(സ്ഥിരം ഘടന dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return (unsigned char *)s->bufr;
+  തിരികെ (unsigned അക്ഷരം *)s->bufr;
 }
 
 /*
  * Returns the length of the buffer.
  */
-size_t curlx_dyn_len(const struct dynbuf *s)
+size_t curlx_dyn_len(സ്ഥിരം ഘടന dynbuf *s)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  return s->leng;
+  തിരികെ s->leng;
 }
 
 /*
  * Set a new (smaller) length.
  */
-CURLcode curlx_dyn_setlen(struct dynbuf *s, size_t set)
+CURLcode curlx_dyn_setlen(ഘടന dynbuf *s, size_t set)
 {
   DEBUGASSERT(s);
   DEBUGASSERT(s->init == DYNINIT);
   DEBUGASSERT(!s->leng || s->bufr);
-  if(set > s->leng)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(set > s->leng)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
   s->leng = set;
   s->bufr[s->leng] = 0;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }

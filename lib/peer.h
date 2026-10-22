@@ -24,23 +24,23 @@
  *
  ***************************************************************************/
 
-struct Curl_scheme;
+ഘടന Curl_scheme;
 
 /* if peer hostname starts with this, the peer is a unix domain socket
  * path, e.g. the remainder after 'localhost'. */
 #define CURL_PEER_UDS_PREFIX "localhost/"
 
-struct Curl_peer {
-  const struct Curl_scheme *scheme; /* url scheme */
-  char *hostname; /* normalized hostname (IDN decoded when supported) */
-  char *zoneid; /* NULL or IPv6 zone identifier */
+ഘടന Curl_peer {
+  സ്ഥിരം ഘടന Curl_scheme *scheme; /* url scheme */
+  അക്ഷരം *hostname; /* normalized hostname (IDN decoded when supported) */
+  അക്ഷരം *zoneid; /* NULL or IPv6 zone identifier */
   uint32_t refcount;  /* created with 1, freed when dropping to 0 */
   uint32_t scopeid;  /* != 0, IPv6 scope to use */
   uint16_t port;
   BIT(unix_socket); /* hostname is a UDS path without the prefix */
   BIT(abstract_uds); /* only TRUE when `unix_socket` also TRUE */
   BIT(ipv6); /* hostname is an IPv6 address stripped of '[]' */
-  char user_hostname[1]; /* hostname supplied by user/url */
+  അക്ഷരം user_hostname[1]; /* hostname supplied by user/url */
 };
 
 /* Create a new peer:
@@ -54,54 +54,54 @@ struct Curl_peer {
  * - `zoneid` IPv6 zone identifier or NULL
  * - `scopeid` IPv6 scopeid of zoneid, when known.
  */
-CURLcode Curl_peer_create(struct Curl_easy *data,
-                          const struct Curl_scheme *scheme,
-                          const char *hostname,
+CURLcode Curl_peer_create(ഘടന Curl_easy *data,
+                          സ്ഥിരം ഘടന Curl_scheme *scheme,
+                          സ്ഥിരം അക്ഷരം *hostname,
                           uint16_t port,
-                          struct Curl_peer **ppeer);
+                          ഘടന Curl_peer **ppeer);
 
 #ifdef USE_UNIX_SOCKETS
-CURLcode Curl_peer_uds_create(const struct Curl_scheme *scheme,
-                              const char *path,
+CURLcode Curl_peer_uds_create(സ്ഥിരം ഘടന Curl_scheme *scheme,
+                              സ്ഥിരം അക്ഷരം *path,
                               bool abstract_unix_socket,
-                              struct Curl_peer **ppeer);
+                              ഘടന Curl_peer **ppeer);
 #endif
 
 /* Unlink any peer in `*pdest`, assign src, increase src
  * refcount when not NULL. */
-void Curl_peer_link(struct Curl_peer **pdest, struct Curl_peer *src);
+ശൂന്യം Curl_peer_link(ഘടന Curl_peer **pdest, ഘടന Curl_peer *src);
 
 /* Drop a reference, peer may be passed as NULL */
-void Curl_peer_unlink(struct Curl_peer **ppeer);
+ശൂന്യം Curl_peer_unlink(ഘടന Curl_peer **ppeer);
 
 /* TRUE if both peers are NULL or have completely same properties. */
-bool Curl_peer_equal(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_equal(ഘടന Curl_peer *p1, ഘടന Curl_peer *p2);
 
 /* TRUE if both peers are NULL or have same properties except the scheme. */
-bool Curl_peer_same_destination(struct Curl_peer *p1, struct Curl_peer *p2);
+bool Curl_peer_same_destination(ഘടന Curl_peer *p1, ഘടന Curl_peer *p2);
 
-CURLcode Curl_peer_from_url(CURLU *uh, struct Curl_easy *data,
+CURLcode Curl_peer_from_url(CURLU *uh, ഘടന Curl_easy *data,
                             uint16_t port_override,
                             uint32_t scopeid_override,
-                            struct Curl_peer **ppeer);
+                            ഘടന Curl_peer **ppeer);
 
-CURLcode Curl_peer_from_connect_to(struct Curl_easy *data,
-                                   const struct Curl_peer *dest,
-                                   const char *connect_to,
-                                   struct Curl_peer **ppeer);
+CURLcode Curl_peer_from_connect_to(ഘടന Curl_easy *data,
+                                   സ്ഥിരം ഘടന Curl_peer *dest,
+                                   സ്ഥിരം അക്ഷരം *connect_to,
+                                   ഘടന Curl_peer **ppeer);
 
 #ifndef CURL_DISABLE_PROXY
 
-CURLcode Curl_scheme_to_proxytype(struct Curl_easy *data,
-                                  const char *scheme,
+CURLcode Curl_scheme_to_proxytype(ഘടന Curl_easy *data,
+                                  സ്ഥിരം അക്ഷരം *scheme,
                                   uint8_t *proxytype,
-                                  const char *url);
+                                  സ്ഥിരം അക്ഷരം *url);
 
 CURLcode Curl_peer_from_proxy_url(CURLU *uh,
-                                  struct Curl_easy *data,
-                                  const char *url,
+                                  ഘടന Curl_easy *data,
+                                  സ്ഥിരം അക്ഷരം *url,
                                   uint8_t proxytype,
-                                  struct Curl_peer **ppeer,
+                                  ഘടന Curl_peer **ppeer,
                                   uint8_t *pproxytype);
 #endif /* !CURL_DISABLE_PROXY */
 

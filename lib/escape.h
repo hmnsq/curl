@@ -26,20 +26,20 @@
 /* Escape and unescape URL encoding in strings. The functions return a new
  * allocated string or NULL if an error occurred. */
 
-enum urlreject {
+എണ്ണൽ urlreject {
   REJECT_NADA = 2,
   REJECT_CTRL,
   REJECT_ZERO
 };
 
-CURLcode Curl_urldecode(const char *string, size_t length,
-                        char **ostring, size_t *olen,
-                        enum urlreject ctrl);
+CURLcode Curl_urldecode(സ്ഥിരം അക്ഷരം *string, size_t length,
+                        അക്ഷരം **ostring, size_t *olen,
+                        എണ്ണൽ urlreject ctrl);
 
-void Curl_hexencode(const unsigned char *src, size_t len, /* input length */
-                    unsigned char *out, size_t olen); /* output buffer size */
+ശൂന്യം Curl_hexencode(സ്ഥിരം unsigned അക്ഷരം *src, size_t len, /* input length */
+                    unsigned അക്ഷരം *out, size_t olen); /* output buffer size */
 
-void Curl_hexbyte(unsigned char *dest, /* must fit two bytes */
-                  unsigned char val);
+ശൂന്യം Curl_hexbyte(unsigned അക്ഷരം *dest, /* must fit two bytes */
+                  unsigned അക്ഷരം val);
 
 #endif /* HEADER_CURL_ESCAPE_H */

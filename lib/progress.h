@@ -23,11 +23,11 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curlx/timeval.h"
+#അന്തര്ഭാവ "curlx/timeval.h"
 
-struct Curl_easy;
+ഘടന Curl_easy;
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   TIMER_NONE,
   TIMER_STARTOP,
   TIMER_STARTSINGLE, /* start of transfer, might get queued */
@@ -43,51 +43,51 @@ typedef enum {
 } timerid;
 
 /* Get the current timestamp of the transfer */
-const struct curltime *Curl_pgrs_now(struct Curl_easy *data);
+സ്ഥിരം ഘടന curltime *Curl_pgrs_now(ഘടന Curl_easy *data);
 
-int Curl_pgrsDone(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsStart(struct Curl_easy *data, const struct curltime *pnow);
-void Curl_pgrsSetDownloadSize(struct Curl_easy *data, curl_off_t size);
-void Curl_pgrsSetUploadSize(struct Curl_easy *data, curl_off_t size);
-CURLcode Curl_pgrs_deliver_check(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_deliver_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_download_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrs_upload_inc(struct Curl_easy *data, size_t delta);
-void Curl_pgrsSetUploadCounter(struct Curl_easy *data, curl_off_t size);
+പൂർണ്ണസംഖ്യ Curl_pgrsDone(ഘടന Curl_easy *data, സ്ഥിരം ഘടന curltime *pnow);
+ശൂന്യം Curl_pgrsStart(ഘടന Curl_easy *data, സ്ഥിരം ഘടന curltime *pnow);
+ശൂന്യം Curl_pgrsSetDownloadSize(ഘടന Curl_easy *data, curl_off_t size);
+ശൂന്യം Curl_pgrsSetUploadSize(ഘടന Curl_easy *data, curl_off_t size);
+CURLcode Curl_pgrs_deliver_check(ഘടന Curl_easy *data, size_t delta);
+ശൂന്യം Curl_pgrs_deliver_inc(ഘടന Curl_easy *data, size_t delta);
+ശൂന്യം Curl_pgrs_download_inc(ഘടന Curl_easy *data, size_t delta);
+ശൂന്യം Curl_pgrs_upload_inc(ഘടന Curl_easy *data, size_t delta);
+ശൂന്യം Curl_pgrsSetUploadCounter(ഘടന Curl_easy *data, curl_off_t size);
 
 /* perform progress update, invoking callbacks at intervals */
-CURLcode Curl_pgrsUpdate(struct Curl_easy *data);
-CURLcode Curl_pgrsUpdateX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsUpdate(ഘടന Curl_easy *data);
+CURLcode Curl_pgrsUpdateX(ഘടന Curl_easy *data, സ്ഥിരം ഘടന curltime *pnow);
 /* perform progress update, no callbacks invoked */
-void Curl_pgrsUpdate_nometer(struct Curl_easy *data);
+ശൂന്യം Curl_pgrsUpdate_nometer(ഘടന Curl_easy *data);
 /* perform progress update with callbacks and speed checks */
-CURLcode Curl_pgrsCheck(struct Curl_easy *data);
-CURLcode Curl_pgrsCheckX(struct Curl_easy *data, const struct curltime *pnow);
+CURLcode Curl_pgrsCheck(ഘടന Curl_easy *data);
+CURLcode Curl_pgrsCheckX(ഘടന Curl_easy *data, സ്ഥിരം ഘടന curltime *pnow);
 
 /* Inform progress/speedcheck about receive/send pausing */
-void Curl_pgrsRecvPause(struct Curl_easy *data, bool enable);
-void Curl_pgrsSendPause(struct Curl_easy *data, bool enable);
+ശൂന്യം Curl_pgrsRecvPause(ഘടന Curl_easy *data, bool enable);
+ശൂന്യം Curl_pgrsSendPause(ഘടന Curl_easy *data, bool enable);
 
 /* Reset sizes and counters for up- and download. */
-void Curl_pgrsReset(struct Curl_easy *data);
+ശൂന്യം Curl_pgrsReset(ഘടന Curl_easy *data);
 /* Reset sizes for up- and download. */
-void Curl_pgrsResetTransferSizes(struct Curl_easy *data);
+ശൂന്യം Curl_pgrsResetTransferSizes(ഘടന Curl_easy *data);
 
-void Curl_pgrsTime(struct Curl_easy *data, timerid timer);
+ശൂന്യം Curl_pgrsTime(ഘടന Curl_easy *data, timerid timer);
 /**
  * Update progress timer with the elapsed time from its start to `timestamp`.
  * This allows updating timers later and is used by happy eyeballing, where
  * we only want to record the winner's times.
  */
-void Curl_pgrsTimeWas(struct Curl_easy *data, timerid timer,
-                      struct curltime timestamp);
+ശൂന്യം Curl_pgrsTimeWas(ഘടന Curl_easy *data, timerid timer,
+                      ഘടന curltime timestamp);
 
-void Curl_pgrsEarlyData(struct Curl_easy *data, curl_off_t sent);
+ശൂന്യം Curl_pgrsEarlyData(ഘടന Curl_easy *data, curl_off_t sent);
 
-void Curl_pgrsCompleted(struct Curl_easy *data);
+ശൂന്യം Curl_pgrsCompleted(ഘടന Curl_easy *data);
 
-timediff_t Curl_pgrs_since_ms(struct Curl_easy *data,
-                              const struct curltime *pnow,
+timediff_t Curl_pgrs_since_ms(ഘടന Curl_easy *data,
+                              സ്ഥിരം ഘടന curltime *pnow,
                               timerid timer);
 
 #endif /* HEADER_CURL_PROGRESS_H */

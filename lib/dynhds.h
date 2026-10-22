@@ -23,31 +23,31 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include "curlx/dynbuf.h"
+#അന്തര്ഭാവ "curlx/dynbuf.h"
 
-struct dynbuf;
+ഘടന dynbuf;
 
 /**
  * A single header entry.
  * `name` and `value` are non-NULL and always null-terminated.
  */
-struct dynhds_entry {
-  char *name;
-  char *value;
+ഘടന dynhds_entry {
+  അക്ഷരം *name;
+  അക്ഷരം *മൂല്യം;
   size_t namelen;
   size_t valuelen;
 };
 
-struct dynhds {
-  struct dynhds_entry **hds;
+ഘടന dynhds {
+  ഘടന dynhds_entry **hds;
   size_t hds_len;   /* number of entries in hds */
   size_t hds_allc;  /* size of hds allocation */
   size_t max_entries;   /* size limit number of entries */
   size_t strs_len; /* length of all strings */
   size_t max_strs_size; /* max length of all strings */
-  int opts;
+  പൂർണ്ണസംഖ്യ opts;
 };
 
 #define DYNHDS_OPT_NONE          0
@@ -58,83 +58,83 @@ struct dynhds {
  * Allow `max_entries` headers to be added, 0 for unlimited.
  * Allow size of all name and values added to not exceed `max_strs_size``
  */
-void Curl_dynhds_init(struct dynhds *dynhds, size_t max_entries,
+ശൂന്യം Curl_dynhds_init(ഘടന dynhds *dynhds, size_t max_entries,
                       size_t max_strs_size);
 /**
  * Frees all data held in `dynhds`, but not the struct itself.
  */
-void Curl_dynhds_free(struct dynhds *dynhds);
+ശൂന്യം Curl_dynhds_free(ഘടന dynhds *dynhds);
 
 /**
  * Reset `dyndns` to the initial init state. May keep allocations
  * around.
  */
-void Curl_dynhds_reset(struct dynhds *dynhds);
+ശൂന്യം Curl_dynhds_reset(ഘടന dynhds *dynhds);
 
 /**
  * Return the number of header entries.
  */
-size_t Curl_dynhds_count(struct dynhds *dynhds);
+size_t Curl_dynhds_എണ്ണം(ഘടന dynhds *dynhds);
 
 /**
  * Set the options to use, replacing any existing ones.
  * This will not have an effect on already existing headers.
  */
-void Curl_dynhds_set_opts(struct dynhds *dynhds, int opts);
+ശൂന്യം Curl_dynhds_set_opts(ഘടന dynhds *dynhds, പൂർണ്ണസംഖ്യ opts);
 
 /**
  * Return the n-th header entry or NULL if it does not exist.
  */
-struct dynhds_entry *Curl_dynhds_getn(struct dynhds *dynhds, size_t n);
+ഘടന dynhds_entry *Curl_dynhds_getn(ഘടന dynhds *dynhds, size_t n);
 
 /**
  * Return the 1st header entry of the name or NULL if none exists.
  */
-struct dynhds_entry *Curl_dynhds_get(struct dynhds *dynhds,
-                                     const char *name, size_t namelen);
-struct dynhds_entry *Curl_dynhds_cget(struct dynhds *dynhds, const char *name);
+ഘടന dynhds_entry *Curl_dynhds_get(ഘടന dynhds *dynhds,
+                                     സ്ഥിരം അക്ഷരം *name, size_t namelen);
+ഘടന dynhds_entry *Curl_dynhds_cget(ഘടന dynhds *dynhds, സ്ഥിരം അക്ഷരം *name);
 
-CURLcode Curl_dynhds_cset(struct dynhds *dynhds,
-                          const char *name, const char *value);
+CURLcode Curl_dynhds_cset(ഘടന dynhds *dynhds,
+                          സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *മൂല്യം);
 
 /**
  * Add a header, name + value, to `dynhds` at the end. Does *not*
  * check for duplicate names.
  */
-CURLcode Curl_dynhds_add(struct dynhds *dynhds,
-                         const char *name, size_t namelen,
-                         const char *value, size_t valuelen);
+CURLcode Curl_dynhds_add(ഘടന dynhds *dynhds,
+                         സ്ഥിരം അക്ഷരം *name, size_t namelen,
+                         സ്ഥിരം അക്ഷരം *മൂല്യം, size_t valuelen);
 
 /**
  * Add a header, c-string name + value, to `dynhds` at the end.
  */
-CURLcode Curl_dynhds_cadd(struct dynhds *dynhds,
-                          const char *name, const char *value);
+CURLcode Curl_dynhds_cadd(ഘടന dynhds *dynhds,
+                          സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *മൂല്യം);
 
 /**
  * Add a single header from an HTTP/1.1 formatted line at the end. Line may
  * contain a delimiting CRLF or LF. Any characters after that will be ignored.
  */
-CURLcode Curl_dynhds_h1_cadd_line(struct dynhds *dynhds, const char *line);
+CURLcode Curl_dynhds_h1_cadd_വരി(ഘടന dynhds *dynhds, സ്ഥിരം അക്ഷരം *വരി);
 
 /**
  * Add a single header from an HTTP/1.1 formatted line at the end. Line may
  * contain a delimiting CRLF or LF. Any characters after that will be ignored.
  */
-CURLcode Curl_dynhds_h1_add_line(struct dynhds *dynhds,
-                                 const char *line, size_t line_len);
+CURLcode Curl_dynhds_h1_add_വരി(ഘടന dynhds *dynhds,
+                                 സ്ഥിരം അക്ഷരം *വരി, size_t വരി_len);
 
 /**
  * Add the headers to the given `dynbuf` in HTTP/1.1 format with
  * CR+LF line endings. Does NOT output a last empty line.
  */
-CURLcode Curl_dynhds_h1_dprint(struct dynhds *dynhds, struct dynbuf *dbuf);
+CURLcode Curl_dynhds_h1_dprint(ഘടന dynhds *dynhds, ഘടന dynbuf *dbuf);
 
 #ifdef USE_NGHTTP2
 
-#include <nghttp2/nghttp2.h>
+#അന്തര്ഭാവ <nghttp2/nghttp2.h>
 
-nghttp2_nv *Curl_dynhds_to_nva(struct dynhds *dynhds, size_t *pcount);
+nghttp2_nv *Curl_dynhds_to_nva(ഘടന dynhds *dynhds, size_t *pcount);
 
 #endif /* USE_NGHTTP2 */
 

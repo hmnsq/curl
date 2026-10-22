@@ -21,28 +21,28 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY) && \
   defined(USE_NGHTTP2)
 
-#include <nghttp2/nghttp2.h>
+#അന്തര്ഭാവ <nghttp2/nghttp2.h>
 
-#include "urldata.h"
-#include "url.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "curl_trc.h"
-#include "bufq.h"
-#include "curlx/dynbuf.h"
-#include "dynhds.h"
-#include "http2.h"
-#include "http_proxy.h"
-#include "multiif.h"
-#include "ngh2_shim.h"
-#include "sendf.h"
-#include "select.h"
-#include "cf-h2-proxy.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "url.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "connect.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "bufq.h"
+#അന്തര്ഭാവ "curlx/dynbuf.h"
+#അന്തര്ഭാവ "dynhds.h"
+#അന്തര്ഭാവ "http2.h"
+#അന്തര്ഭാവ "http_proxy.h"
+#അന്തര്ഭാവ "multiif.h"
+#അന്തര്ഭാവ "ngh2_shim.h"
+#അന്തര്ഭാവ "sendf.h"
+#അന്തര്ഭാവ "select.h"
+#അന്തര്ഭാവ "cf-h2-proxy.h"
 
 #define PROXY_H2_CHUNK_SIZE  (16 * 1024)
 
@@ -56,7 +56,7 @@
 #define H2_TUNNEL_SEND_CHUNKS   ((128 * 1024) / PROXY_H2_CHUNK_SIZE)
 
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   H2_TUNNEL_INIT,     /* init/default/no tunnel state */
   H2_TUNNEL_CONNECT,  /* CONNECT request is being send */
   H2_TUNNEL_RESPONSE, /* CONNECT response received completely */
@@ -64,11 +64,11 @@ typedef enum {
   H2_TUNNEL_FAILED
 } h2_tunnel_state;
 
-struct tunnel_stream {
-  struct http_resp *resp;
-  struct bufq recvbuf;
-  struct bufq sendbuf;
-  char *authority;
+ഘടന tunnel_stream {
+  ഘടന http_resp *resp;
+  ഘടന bufq recvbuf;
+  ഘടന bufq sendbuf;
+  അക്ഷരം *authority;
   int32_t stream_id;
   uint32_t error;
   h2_tunnel_state state;
@@ -77,8 +77,8 @@ struct tunnel_stream {
   BIT(reset);
 };
 
-static CURLcode tunnel_stream_init(struct tunnel_stream *ts,
-                                   struct Curl_peer *dest)
+സ്ഥിതം CURLcode tunnel_stream_init(ഘടന tunnel_stream *ts,
+                                   ഘടന Curl_peer *dest)
 {
   ts->state = H2_TUNNEL_INIT;
   ts->stream_id = -1;
@@ -91,16 +91,16 @@ static CURLcode tunnel_stream_init(struct tunnel_stream *ts,
                                 dest->hostname,
                                 dest->ipv6 ? "]" : "",
                                 dest->port);
-  if(!ts->authority)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!ts->authority)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static void tunnel_stream_reset(struct tunnel_stream *ts)
+സ്ഥിതം ശൂന്യം tunnel_stream_reset(ഘടന tunnel_stream *ts)
 {
   Curl_http_resp_free(ts->resp);
-  ts->resp = NULL;
+  ts->resp = ശൂന്യ;
   Curl_bufq_reset(&ts->recvbuf);
   Curl_bufq_reset(&ts->sendbuf);
   ts->stream_id = -1;
@@ -111,53 +111,53 @@ static void tunnel_stream_reset(struct tunnel_stream *ts)
   ts->state = H2_TUNNEL_INIT;
 }
 
-static void tunnel_stream_clear(struct tunnel_stream *ts)
+സ്ഥിതം ശൂന്യം tunnel_stream_clear(ഘടന tunnel_stream *ts)
 {
   Curl_http_resp_free(ts->resp);
   Curl_bufq_free(&ts->recvbuf);
   Curl_bufq_free(&ts->sendbuf);
   curlx_safefree(ts->authority);
-  memset(ts, 0, sizeof(*ts));
+  memset(ts, 0, വലുപ്പം(*ts));
   ts->state = H2_TUNNEL_INIT;
 }
 
-static void h2_tunnel_go_state(struct Curl_cfilter *cf,
-                               struct tunnel_stream *ts,
+സ്ഥിതം ശൂന്യം h2_tunnel_go_state(ഘടന Curl_cfilter *cf,
+                               ഘടന tunnel_stream *ts,
                                h2_tunnel_state new_state,
-                               struct Curl_easy *data,
+                               ഘടന Curl_easy *data,
                                bool udp_tunnel)
 {
-  (void)cf;
-  (void)udp_tunnel;
+  (ശൂന്യം)cf;
+  (ശൂന്യം)udp_tunnel;
 
-  if(ts->state == new_state)
-    return;
+  എങ്കിൽ(ts->state == new_state)
+    തിരികെ;
   /* leaving this one */
-  switch(ts->state) {
-  case H2_TUNNEL_CONNECT:
+  തിരഞ്ഞെടുപ്പ്(ts->state) {
+  അവസ്ഥ H2_TUNNEL_CONNECT:
     data->req.ignorebody = FALSE;
-    break;
-  default:
-    break;
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
   /* entering this one */
-  switch(new_state) {
-  case H2_TUNNEL_INIT:
+  തിരഞ്ഞെടുപ്പ്(new_state) {
+  അവസ്ഥ H2_TUNNEL_INIT:
     CURL_TRC_CF(data, cf, "[%d] new tunnel state 'init'", ts->stream_id);
     tunnel_stream_reset(ts);
-    break;
+    നിർത്തുക;
 
-  case H2_TUNNEL_CONNECT:
+  അവസ്ഥ H2_TUNNEL_CONNECT:
     CURL_TRC_CF(data, cf, "[%d] new tunnel state 'connect'", ts->stream_id);
     ts->state = H2_TUNNEL_CONNECT;
-    break;
+    നിർത്തുക;
 
-  case H2_TUNNEL_RESPONSE:
+  അവസ്ഥ H2_TUNNEL_RESPONSE:
     CURL_TRC_CF(data, cf, "[%d] new tunnel state 'response'", ts->stream_id);
     ts->state = H2_TUNNEL_RESPONSE;
-    break;
+    നിർത്തുക;
 
-  case H2_TUNNEL_ESTABLISHED:
+  അവസ്ഥ H2_TUNNEL_ESTABLISHED:
     CURL_TRC_CF(data, cf, "[%d] new tunnel state 'established'",
                 ts->stream_id);
     infof(data, "CONNECT%s phase completed for HTTP/2 proxy",
@@ -165,29 +165,29 @@ static void h2_tunnel_go_state(struct Curl_cfilter *cf,
     data->state.authproxy.done = TRUE;
     data->state.authproxy.multipass = FALSE;
     FALLTHROUGH();
-  case H2_TUNNEL_FAILED:
-    if(new_state == H2_TUNNEL_FAILED)
+  അവസ്ഥ H2_TUNNEL_FAILED:
+    എങ്കിൽ(new_state == H2_TUNNEL_FAILED)
       CURL_TRC_CF(data, cf, "[%d] new tunnel state 'failed'", ts->stream_id);
     ts->state = new_state;
     /* If a proxy-authorization header was used for the proxy, then we should
        make sure that it is not accidentally used for the document request
        after we have connected. Let's thus free and clear it here. */
     curlx_safefree(data->req.hd_proxy_auth);
-    break;
+    നിർത്തുക;
   }
 }
 
-struct cf_h2_proxy_ctx {
-  struct curl_ngh2 ngh2;
+ഘടന cf_h2_proxy_ctx {
+  ഘടന curl_ngh2 ngh2;
   /* The easy handle used in the current filter call, cleared at return */
-  struct cf_call_data call_data;
+  ഘടന cf_call_data call_data;
 
-  struct bufq inbufq;  /* network receive buffer */
-  struct bufq outbufq; /* network send buffer */
+  ഘടന bufq inbufq;  /* network receive buffer */
+  ഘടന bufq outbufq; /* network send buffer */
 
-  struct Curl_peer *peer; /* proxy we talk to */
-  struct Curl_peer *dest; /* where to tunnel to */
-  struct tunnel_stream tunnel; /* our tunnel CONNECT stream */
+  ഘടന Curl_peer *peer; /* proxy we talk to */
+  ഘടന Curl_peer *dest; /* where to tunnel to */
+  ഘടന tunnel_stream tunnel; /* our tunnel CONNECT stream */
   int32_t goaway_error;
   int32_t remote_max_sid;
   BIT(conn_closed);
@@ -199,11 +199,11 @@ struct cf_h2_proxy_ctx {
 
 /* How to access `call_data` from a cf_h2 filter */
 #undef CF_CTX_CALL_DATA
-#define CF_CTX_CALL_DATA(cf) ((struct cf_h2_proxy_ctx *)(cf)->ctx)->call_data
+#define CF_CTX_CALL_DATA(cf) ((ഘടന cf_h2_proxy_ctx *)(cf)->ctx)->call_data
 
-static void cf_h2_proxy_ctx_clear(struct cf_h2_proxy_ctx *ctx)
+സ്ഥിതം ശൂന്യം cf_h2_proxy_ctx_clear(ഘടന cf_h2_proxy_ctx *ctx)
 {
-  struct cf_call_data save = ctx->call_data;
+  ഘടന cf_call_data save = ctx->call_data;
 
   Curl_ngh2_del(&ctx->ngh2);
   Curl_bufq_free(&ctx->inbufq);
@@ -211,99 +211,99 @@ static void cf_h2_proxy_ctx_clear(struct cf_h2_proxy_ctx *ctx)
   Curl_peer_unlink(&ctx->peer);
   Curl_peer_unlink(&ctx->dest);
   tunnel_stream_clear(&ctx->tunnel);
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, വലുപ്പം(*ctx));
   ctx->call_data = save;
 }
 
-static void cf_h2_proxy_ctx_free(struct cf_h2_proxy_ctx *ctx)
+സ്ഥിതം ശൂന്യം cf_h2_proxy_ctx_free(ഘടന cf_h2_proxy_ctx *ctx)
 {
-  if(ctx) {
+  എങ്കിൽ(ctx) {
     cf_h2_proxy_ctx_clear(ctx);
     curlx_free(ctx);
   }
 }
 
-static void drain_tunnel(struct Curl_cfilter *cf,
-                         struct Curl_easy *data,
-                         struct tunnel_stream *tunnel)
+സ്ഥിതം ശൂന്യം drain_tunnel(ഘടന Curl_cfilter *cf,
+                         ഘടന Curl_easy *data,
+                         ഘടന tunnel_stream *tunnel)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  (void)cf;
-  if(!tunnel->closed && !tunnel->reset &&
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  (ശൂന്യം)cf;
+  എങ്കിൽ(!tunnel->closed && !tunnel->reset &&
      (!Curl_bufq_is_empty(&ctx->tunnel.sendbuf) ||
       !Curl_bufq_is_empty(&ctx->tunnel.recvbuf)))
     Curl_multi_mark_dirty(data);
 }
 
-static CURLcode proxy_h2_nw_out_writer(void *writer_ctx,
-                                       const uint8_t *buf, size_t buflen,
+സ്ഥിതം CURLcode proxy_h2_nw_out_writer(ശൂന്യം *writer_ctx,
+                                       സ്ഥിരം uint8_t *buf, size_t buflen,
                                        size_t *pnwritten)
 {
-  struct Curl_cfilter *cf = writer_ctx;
+  ഘടന Curl_cfilter *cf = writer_ctx;
   *pnwritten = 0;
-  if(cf) {
-    struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  എങ്കിൽ(cf) {
+    ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
     CURLcode result;
     result = Curl_conn_cf_send(cf->next, data, buf, buflen, FALSE, pnwritten);
     CURL_TRC_CF(data, cf, "[0] nw_out_writer(len=%zu) -> %d, %zu",
-                buflen, (int)result, *pnwritten);
-    return result;
+                buflen, (പൂർണ്ണസംഖ്യ)result, *pnwritten);
+    തിരികെ result;
   }
-  return CURLE_FAILED_INIT;
+  തിരികെ CURLE_FAILED_INIT;
 }
 
-static int proxy_h2_client_new(struct Curl_cfilter *cf,
+സ്ഥിതം പൂർണ്ണസംഖ്യ proxy_h2_client_new(ഘടന Curl_cfilter *cf,
                                nghttp2_session_callbacks *cbs)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   nghttp2_option *o;
-  nghttp2_mem mem = { NULL, Curl_nghttp2_malloc, Curl_nghttp2_free,
+  nghttp2_mem mem = { ശൂന്യ, Curl_nghttp2_malloc, Curl_nghttp2_free,
                       Curl_nghttp2_calloc, Curl_nghttp2_realloc };
 
-  int rc = nghttp2_option_new(&o);
-  if(rc)
-    return rc;
+  പൂർണ്ണസംഖ്യ rc = nghttp2_option_new(&o);
+  എങ്കിൽ(rc)
+    തിരികെ rc;
   /* We handle window updates ourself to enforce buffer limits */
   nghttp2_option_set_no_auto_window_update(o, 1);
-#if NGHTTP2_VERSION_NUM >= 0x013200 /* with 1.50.0 */
+#എങ്കിൽ NGHTTP2_VERSION_അക്കം >= 0x013200 /* with 1.50.0 */
   /* turn off RFC 9113 leading and trailing white spaces validation against
      HTTP field value. */
   nghttp2_option_set_no_rfc9113_leading_and_trailing_ws_validation(o, 1);
 #endif
   rc = Curl_ngh2_session_client_new3(&ctx->ngh2, cbs, cf, o, &mem);
   nghttp2_option_del(o);
-  return rc;
+  തിരികെ rc;
 }
 
-static int proxy_h2_should_close_session(struct cf_h2_proxy_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ proxy_h2_should_close_session(ഘടന cf_h2_proxy_ctx *ctx)
 {
-  return !Curl_ngh2_valid(&ctx->ngh2) ||
+  തിരികെ !Curl_ngh2_valid(&ctx->ngh2) ||
     (!Curl_ngh2_session_want_read(&ctx->ngh2) &&
      !Curl_ngh2_session_want_write(&ctx->ngh2));
 }
 
-static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data)
+സ്ഥിതം CURLcode proxy_h2_nw_out_flush(ഘടന Curl_cfilter *cf,
+                                      ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   size_t nwritten;
   CURLcode result;
 
-  if(Curl_bufq_is_empty(&ctx->outbufq))
-    return CURLE_OK;
+  എങ്കിൽ(Curl_bufq_is_empty(&ctx->outbufq))
+    തിരികെ CURLE_OK;
 
   result = Curl_bufq_pass(&ctx->outbufq, proxy_h2_nw_out_writer, cf,
                           &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result == CURLE_AGAIN) {
       CURL_TRC_CF(data, cf, "[0] flush nw send buffer(%zu) -> EAGAIN",
                   Curl_bufq_len(&ctx->outbufq));
       ctx->nw_out_blocked = 1;
     }
-    return result;
+    തിരികെ result;
   }
   CURL_TRC_CF(data, cf, "[0] nw send buffer flushed");
-  return Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
+  തിരികെ Curl_bufq_is_empty(&ctx->outbufq) ? CURLE_OK : CURLE_AGAIN;
 }
 
 /*
@@ -311,435 +311,435 @@ static CURLcode proxy_h2_nw_out_flush(struct Curl_cfilter *cf,
  * This function returns 0 if it succeeds, or -1 and error code will
  * be assigned to *err.
  */
-static CURLcode proxy_h2_process_pending_input(struct Curl_cfilter *cf,
-                                               struct Curl_easy *data)
+സ്ഥിതം CURLcode proxy_h2_process_pending_നിവേശം(ഘടന Curl_cfilter *cf,
+                                               ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  const unsigned char *buf;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  സ്ഥിരം unsigned അക്ഷരം *buf;
   size_t blen, nread;
   ssize_t rv;
 
-  while(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
+  ആകുമ്പോൾ(Curl_bufq_peek(&ctx->inbufq, &buf, &blen)) {
 
-    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (const uint8_t *)buf, blen);
+    rv = Curl_ngh2_session_mem_recv(&ctx->ngh2, (സ്ഥിരം uint8_t *)buf, blen);
     CURL_TRC_CF(data, cf, "[0] %zu bytes to nghttp2 -> %zd", blen, rv);
-    if(!curlx_sztouz(rv, &nread)) {
+    എങ്കിൽ(!curlx_sztouz(rv, &nread)) {
       failf(data,
             "process_pending_input: nghttp2_session_mem_recv() returned "
-            "%zd:%s", rv, nghttp2_strerror((int)rv));
-      return CURLE_RECV_ERROR;
+            "%zd:%s", rv, nghttp2_strerror((പൂർണ്ണസംഖ്യ)rv));
+      തിരികെ CURLE_RECV_ERROR;
     }
-    else if(!nread) {
+    അല്ലെങ്കിൽ എങ്കിൽ(!nread) {
       /* nghttp2 does not want to process more, but has no error. This
        * probably cannot happen, but be safe. */
-      break;
+      നിർത്തുക;
     }
     Curl_bufq_skip(&ctx->inbufq, nread);
-    if(Curl_bufq_is_empty(&ctx->inbufq)) {
+    എങ്കിൽ(Curl_bufq_is_empty(&ctx->inbufq)) {
       CURL_TRC_CF(data, cf, "[0] all data in connection buffer processed");
-      break;
+      നിർത്തുക;
     }
-    else {
+    അല്ലെങ്കിൽ {
       CURL_TRC_CF(data, cf, "[0] process_pending_input: %zu bytes left "
                   "in connection buffer", Curl_bufq_len(&ctx->inbufq));
     }
   }
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode proxy_h2_progress_ingress(struct Curl_cfilter *cf,
-                                          struct Curl_easy *data)
+സ്ഥിതം CURLcode proxy_h2_progress_ingress(ഘടന Curl_cfilter *cf,
+                                          ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
   size_t nread;
 
   /* Process network input buffer first */
-  if(!Curl_bufq_is_empty(&ctx->inbufq)) {
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->inbufq)) {
     CURL_TRC_CF(data, cf, "[0] process %zu bytes in connection buffer",
                 Curl_bufq_len(&ctx->inbufq));
-    result = proxy_h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    result = proxy_h2_process_pending_നിവേശം(cf, data);
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
   /* Receive data from the "lower" filters, e.g. network until
    * it is time to stop or we have enough data for this stream */
-  while(!ctx->conn_closed &&                /* not closed the connection */
+  ആകുമ്പോൾ(!ctx->conn_closed &&                /* not closed the connection */
         !ctx->tunnel.closed &&              /* nor the tunnel */
         Curl_bufq_is_empty(&ctx->inbufq) && /* and we consumed our input */
         !Curl_bufq_is_full(&ctx->tunnel.recvbuf)) {
 
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
     CURL_TRC_CF(data, cf, "[0] read %zu bytes nw data -> %d, %zu",
-                Curl_bufq_len(&ctx->inbufq), (int)result, nread);
-    if(result) {
-      if(result != CURLE_AGAIN) {
+                Curl_bufq_len(&ctx->inbufq), (പൂർണ്ണസംഖ്യ)result, nread);
+    എങ്കിൽ(result) {
+      എങ്കിൽ(result != CURLE_AGAIN) {
         failf(data, "Failed receiving HTTP2 proxy data");
-        return result;
+        തിരികെ result;
       }
-      break;
+      നിർത്തുക;
     }
-    else if(nread == 0) {
+    അല്ലെങ്കിൽ എങ്കിൽ(nread == 0) {
       CURL_TRC_CF(data, cf, "server closed connection");
       ctx->conn_closed = TRUE;
-      break;
+      നിർത്തുക;
     }
 
-    result = proxy_h2_process_pending_input(cf, data);
-    if(result)
-      return result;
+    result = proxy_h2_process_pending_നിവേശം(cf, data);
+    എങ്കിൽ(result)
+      തിരികെ result;
   }
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode proxy_h2_progress_egress(struct Curl_cfilter *cf,
-                                         struct Curl_easy *data)
+സ്ഥിതം CURLcode proxy_h2_progress_egress(ഘടന Curl_cfilter *cf,
+                                         ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  int rv = 0;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  പൂർണ്ണസംഖ്യ rv = 0;
 
   ctx->nw_out_blocked = 0;
-  while(!rv && !ctx->nw_out_blocked &&
+  ആകുമ്പോൾ(!rv && !ctx->nw_out_blocked &&
         Curl_ngh2_session_want_write(&ctx->ngh2))
     rv = Curl_ngh2_session_send(&ctx->ngh2);
 
-  if(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
+  എങ്കിൽ(Curl_ngh2_is_fatal(&ctx->ngh2, rv)) {
     VERBOSE(rv = Curl_ngh2_fatal(&ctx->ngh2));
     CURL_TRC_CF(data, cf, "[0] nghttp2_session_send error (%s)%d",
                 nghttp2_strerror(rv), rv);
-    return CURLE_SEND_ERROR;
+    തിരികെ CURLE_SEND_ERROR;
   }
-  return proxy_h2_nw_out_flush(cf, data);
+  തിരികെ proxy_h2_nw_out_flush(cf, data);
 }
 
-static ssize_t on_session_send(nghttp2_session *h2,
-                               const uint8_t *buf, size_t blen, int flags,
-                               void *userp)
+സ്ഥിതം ssize_t on_session_send(nghttp2_session *h2,
+                               സ്ഥിരം uint8_t *buf, size_t blen, പൂർണ്ണസംഖ്യ flags,
+                               ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   size_t nwritten;
   CURLcode result = CURLE_OK;
 
-  (void)h2;
-  (void)flags;
+  (ശൂന്യം)h2;
+  (ശൂന്യം)flags;
   DEBUGASSERT(data);
 
   result = Curl_bufq_write_pass(&ctx->outbufq, buf, blen,
                                 proxy_h2_nw_out_writer, cf, &nwritten);
-  if(result) {
-    if(result == CURLE_AGAIN) {
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result == CURLE_AGAIN) {
       ctx->nw_out_blocked = 1;
-      return NGHTTP2_ERR_WOULDBLOCK;
+      തിരികെ NGHTTP2_ERR_WOULDBLOCK;
     }
     failf(data, "Failed sending HTTP2 data");
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(!nwritten)
-    return NGHTTP2_ERR_WOULDBLOCK;
+  എങ്കിൽ(!nwritten)
+    തിരികെ NGHTTP2_ERR_WOULDBLOCK;
 
-  return (nwritten > SSIZE_MAX) ?
+  തിരികെ (nwritten > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nwritten;
 }
 
 #ifdef CURLVERBOSE
-static int proxy_h2_on_frame_send(nghttp2_session *session,
-                                  const nghttp2_frame *frame,
-                                  void *userp)
+സ്ഥിതം പൂർണ്ണസംഖ്യ proxy_h2_on_frame_send(nghttp2_session *session,
+                                  സ്ഥിരം nghttp2_frame *frame,
+                                  ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
 
-  (void)session;
+  (ശൂന്യം)session;
   DEBUGASSERT(data);
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+  എങ്കിൽ(Curl_trc_cf_is_verbose(cf, data)) {
+    അക്ഷരം buffer[256];
+    പൂർണ്ണസംഖ്യ len;
+    len = Curl_nghttp2_fr_print(frame, buffer, വലുപ്പം(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] -> %s", frame->hd.stream_id, buffer);
   }
-  return 0;
+  തിരികെ 0;
 }
 #endif /* CURLVERBOSE */
 
-static int proxy_h2_on_frame_recv(nghttp2_session *session,
-                                  const nghttp2_frame *frame,
-                                  void *userp)
+സ്ഥിതം പൂർണ്ണസംഖ്യ proxy_h2_on_frame_recv(nghttp2_session *session,
+                                  സ്ഥിരം nghttp2_frame *frame,
+                                  ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   int32_t stream_id = frame->hd.stream_id;
 
-  (void)session;
+  (ശൂന്യം)session;
   DEBUGASSERT(data);
 #ifdef CURLVERBOSE
-  if(Curl_trc_cf_is_verbose(cf, data)) {
-    char buffer[256];
-    int len;
-    len = Curl_nghttp2_fr_print(frame, buffer, sizeof(buffer) - 1);
+  എങ്കിൽ(Curl_trc_cf_is_verbose(cf, data)) {
+    അക്ഷരം buffer[256];
+    പൂർണ്ണസംഖ്യ len;
+    len = Curl_nghttp2_fr_print(frame, buffer, വലുപ്പം(buffer) - 1);
     buffer[len] = 0;
     CURL_TRC_CF(data, cf, "[%d] <- %s", frame->hd.stream_id, buffer);
   }
 #endif /* CURLVERBOSE */
 
-  if(!stream_id) {
+  എങ്കിൽ(!stream_id) {
     /* stream ID zero is for connection-oriented stuff */
     DEBUGASSERT(data);
-    switch(frame->hd.type) {
-    case NGHTTP2_SETTINGS:
+    തിരഞ്ഞെടുപ്പ്(frame->hd.type) {
+    അവസ്ഥ NGHTTP2_SETTINGS:
       /* Since the initial stream window is 64K, a request might be on HOLD,
        * due to exhaustion. The (initial) SETTINGS may announce a much larger
        * window and *assume* that we treat this like a WINDOW_UPDATE. Some
        * servers send an explicit WINDOW_UPDATE, but not all seem to do that.
        * To be safe, we UNHOLD a stream in order not to stall. */
-      if(CURL_REQ_WANT_SEND(data)) {
+      എങ്കിൽ(CURL_REQ_WANT_SEND(data)) {
         drain_tunnel(cf, data, &ctx->tunnel);
       }
-      break;
-    case NGHTTP2_GOAWAY:
+      നിർത്തുക;
+    അവസ്ഥ NGHTTP2_GOAWAY:
       ctx->rcvd_goaway = TRUE;
       ctx->remote_max_sid = frame->goaway.last_stream_id;
-      if(data) {
+      എങ്കിൽ(data) {
         infof(data, "received GOAWAY, error=%u, last_stream=%d",
               frame->goaway.error_code, ctx->remote_max_sid);
       }
-      break;
-    default:
-      break;
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
+      നിർത്തുക;
     }
-    return 0;
+    തിരികെ 0;
   }
 
-  if(stream_id != ctx->tunnel.stream_id) {
+  എങ്കിൽ(stream_id != ctx->tunnel.stream_id) {
     CURL_TRC_CF(data, cf, "[%d] rcvd FRAME not for tunnel", stream_id);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  switch(frame->hd.type) {
-  case NGHTTP2_HEADERS:
+  തിരഞ്ഞെടുപ്പ്(frame->hd.type) {
+  അവസ്ഥ NGHTTP2_HEADERS:
     /* nghttp2 guarantees that :status is received, and we store it to
        stream->status_code. Fuzzing has proven this can still be reached
        without status code having been set. */
-    if(!ctx->tunnel.resp)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+    എങ്കിൽ(!ctx->tunnel.resp)
+      തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
     /* Only final status code signals the end of header */
     CURL_TRC_CF(data, cf, "[%d] got http status: %d",
                 stream_id, ctx->tunnel.resp->status);
-    if(!ctx->tunnel.has_final_response && ctx->tunnel.resp->status / 100 != 1)
+    എങ്കിൽ(!ctx->tunnel.has_final_response && ctx->tunnel.resp->status / 100 != 1)
       ctx->tunnel.has_final_response = TRUE;
-    break;
-  case NGHTTP2_WINDOW_UPDATE:
-    if(CURL_REQ_WANT_SEND(data)) {
+    നിർത്തുക;
+  അവസ്ഥ NGHTTP2_WINDOW_UPDATE:
+    എങ്കിൽ(CURL_REQ_WANT_SEND(data)) {
       drain_tunnel(cf, data, &ctx->tunnel);
     }
-    break;
-  case NGHTTP2_RST_STREAM:
-    if(frame->rst_stream.error_code)
+    നിർത്തുക;
+  അവസ്ഥ NGHTTP2_RST_STREAM:
+    എങ്കിൽ(frame->rst_stream.error_code)
       ctx->tunnel.reset = TRUE;
-    break;
-  default:
-    break;
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return 0;
+  തിരികെ 0;
 }
 
-static int proxy_h2_on_header(nghttp2_session *session,
-                              const nghttp2_frame *frame,
-                              const uint8_t *name, size_t namelen,
-                              const uint8_t *value, size_t valuelen,
+സ്ഥിതം പൂർണ്ണസംഖ്യ proxy_h2_on_header(nghttp2_session *session,
+                              സ്ഥിരം nghttp2_frame *frame,
+                              സ്ഥിരം uint8_t *name, size_t namelen,
+                              സ്ഥിരം uint8_t *മൂല്യം, size_t valuelen,
                               uint8_t flags,
-                              void *userp)
+                              ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
   int32_t stream_id = frame->hd.stream_id;
   CURLcode result;
 
-  (void)flags;
-  (void)session;
+  (ശൂന്യം)flags;
+  (ശൂന്യം)session;
   DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
-  if(stream_id != ctx->tunnel.stream_id) {
+  എങ്കിൽ(stream_id != ctx->tunnel.stream_id) {
     CURL_TRC_CF(data, cf, "[%d] header for non-tunnel stream: "
                 "%.*s: %.*s", stream_id,
-                (int)namelen, name, (int)valuelen, value);
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+                (പൂർണ്ണസംഖ്യ)namelen, name, (പൂർണ്ണസംഖ്യ)valuelen, മൂല്യം);
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
   }
 
-  if(frame->hd.type == NGHTTP2_PUSH_PROMISE)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  എങ്കിൽ(frame->hd.type == NGHTTP2_തള്ളുക_PROMISE)
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
 
-  if(ctx->tunnel.has_final_response) {
+  എങ്കിൽ(ctx->tunnel.has_final_response) {
     /* we do not do anything with trailers for tunnel streams */
-    return 0;
+    തിരികെ 0;
   }
 
-  if(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
+  എങ്കിൽ(namelen == CURL_CSTRLEN(HTTP_PSEUDO_STATUS) &&
      !memcmp(HTTP_PSEUDO_STATUS, name, namelen)) {
     int32_t http_status;
-    struct http_resp *resp;
+    ഘടന http_resp *resp;
 
     /* status: always comes first, we might get more than one response,
      * discard previous, interim responses */
     result = Curl_http_decode_status(&http_status,
-                                    (const char *)value, valuelen);
-    if(result)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    result = Curl_http_resp_make(&resp, http_status, NULL);
-    if(result)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    if(ctx->tunnel.resp)
+                                    (സ്ഥിരം അക്ഷരം *)മൂല്യം, valuelen);
+    എങ്കിൽ(result)
+      തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
+    result = Curl_http_resp_make(&resp, http_status, ശൂന്യ);
+    എങ്കിൽ(result)
+      തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
+    എങ്കിൽ(ctx->tunnel.resp)
       Curl_http_resp_free(ctx->tunnel.resp);
     ctx->tunnel.resp = resp;
     CURL_TRC_CF(data, cf, "[%d] status: HTTP/2 %03d",
                 stream_id, ctx->tunnel.resp->status);
-    return 0;
+    തിരികെ 0;
   }
 
-  if(!ctx->tunnel.resp)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  എങ്കിൽ(!ctx->tunnel.resp)
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
 
   result = Curl_dynhds_add(&ctx->tunnel.resp->headers,
-                           (const char *)name, namelen,
-                           (const char *)value, valuelen);
-  if(result)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+                           (സ്ഥിരം അക്ഷരം *)name, namelen,
+                           (സ്ഥിരം അക്ഷരം *)മൂല്യം, valuelen);
+  എങ്കിൽ(result)
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
 
   CURL_TRC_CF(data, cf, "[%d] header: %.*s: %.*s",
-              stream_id, (int)namelen, name, (int)valuelen, value);
+              stream_id, (പൂർണ്ണസംഖ്യ)namelen, name, (പൂർണ്ണസംഖ്യ)valuelen, മൂല്യം);
 
-  return 0; /* 0 is successful */
+  തിരികെ 0; /* 0 is successful */
 }
 
-static ssize_t tunnel_send_callback(nghttp2_session *session,
+സ്ഥിതം ssize_t tunnel_send_callback(nghttp2_session *session,
                                     int32_t stream_id,
                                     uint8_t *buf, size_t length,
                                     uint32_t *data_flags,
                                     nghttp2_data_source *source,
-                                    void *userp)
+                                    ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
-  struct tunnel_stream *ts;
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന tunnel_stream *ts;
   CURLcode result;
   size_t nread;
 
-  (void)session;
-  (void)source;
-  (void)ctx;
+  (ശൂന്യം)session;
+  (ശൂന്യം)source;
+  (ശൂന്യം)ctx;
 
-  if(!stream_id)
-    return NGHTTP2_ERR_INVALID_ARGUMENT;
+  എങ്കിൽ(!stream_id)
+    തിരികെ NGHTTP2_ERR_INVALID_ARGUMENT;
 
   ts = Curl_ngh2_session_get_stream_user_data(&ctx->ngh2, stream_id);
-  if(!ts)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  എങ്കിൽ(!ts)
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
   DEBUGASSERT(ts == &ctx->tunnel);
 
   result = Curl_bufq_read(&ts->sendbuf, buf, length, &nread);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
-    return NGHTTP2_ERR_DEFERRED;
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result != CURLE_AGAIN)
+      തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
+    തിരികെ NGHTTP2_ERR_DEFERRED;
   }
-  if(ts->closed && Curl_bufq_is_empty(&ts->sendbuf))
+  എങ്കിൽ(ts->closed && Curl_bufq_is_empty(&ts->sendbuf))
     *data_flags = NGHTTP2_DATA_FLAG_EOF;
 
   CURL_TRC_CF(data, cf, "[%d] tunnel_send_callback -> %zu",
               ts->stream_id, nread);
-  return (nread  > SSIZE_MAX) ?
+  തിരികെ (nread  > SSIZE_MAX) ?
     NGHTTP2_ERR_CALLBACK_FAILURE : (ssize_t)nread;
 }
 
-static int tunnel_recv_callback(nghttp2_session *session, uint8_t flags,
+സ്ഥിതം പൂർണ്ണസംഖ്യ tunnel_recv_callback(nghttp2_session *session, uint8_t flags,
                                 int32_t stream_id,
-                                const uint8_t *mem, size_t len, void *userp)
+                                സ്ഥിരം uint8_t *mem, size_t len, ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   size_t nwritten;
   CURLcode result;
 
-  (void)flags;
-  (void)session;
+  (ശൂന്യം)flags;
+  (ശൂന്യം)session;
   DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
 
-  if(stream_id != ctx->tunnel.stream_id)
-    return NGHTTP2_ERR_CALLBACK_FAILURE;
+  എങ്കിൽ(stream_id != ctx->tunnel.stream_id)
+    തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
 
   result = Curl_bufq_write(&ctx->tunnel.recvbuf, mem, len, &nwritten);
-  if(result) {
-    if(result != CURLE_AGAIN)
-      return NGHTTP2_ERR_CALLBACK_FAILURE;
+  എങ്കിൽ(result) {
+    എങ്കിൽ(result != CURLE_AGAIN)
+      തിരികെ NGHTTP2_ERR_CALLBACK_FAILURE;
 #ifdef DEBUGBUILD
     nwritten = 0;
 #endif
   }
   /* tunnel.recbuf has soft limit, any success MUST add all data */
   DEBUGASSERT(nwritten == len);
-  return 0;
+  തിരികെ 0;
 }
 
-static int proxy_h2_on_stream_close(nghttp2_session *session,
+സ്ഥിതം പൂർണ്ണസംഖ്യ proxy_h2_on_stream_close(nghttp2_session *session,
                                     int32_t stream_id,
-                                    uint32_t error_code, void *userp)
+                                    uint32_t error_code, ശൂന്യം *userp)
 {
-  struct Curl_cfilter *cf = userp;
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct Curl_easy *data = CF_DATA_CURRENT(cf);
+  ഘടന Curl_cfilter *cf = userp;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന Curl_easy *data = CF_DATA_CURRENT(cf);
 
-  (void)session;
+  (ശൂന്യം)session;
 
-  if(stream_id != ctx->tunnel.stream_id)
-    return 0;
+  എങ്കിൽ(stream_id != ctx->tunnel.stream_id)
+    തിരികെ 0;
 
   CURL_TRC_CF(data, cf, "[%d] proxy_h2_on_stream_close, %s (err %u)",
               stream_id, nghttp2_http2_strerror(error_code), error_code);
   ctx->tunnel.closed = TRUE;
   ctx->tunnel.error = error_code;
-  if(error_code)
+  എങ്കിൽ(error_code)
     ctx->tunnel.reset = TRUE;
 
-  return 0;
+  തിരികെ 0;
 }
 
-static CURLcode proxy_h2_submit(
+സ്ഥിതം CURLcode proxy_h2_submit(
   int32_t *pstream_id,
-  struct Curl_cfilter *cf,
-  struct Curl_easy *data,
-  struct curl_ngh2 *ngh2,
-  struct httpreq *req,
-  const nghttp2_priority_spec *pri_spec,
-  void *stream_user_data,
+  ഘടന Curl_cfilter *cf,
+  ഘടന Curl_easy *data,
+  ഘടന curl_ngh2 *ngh2,
+  ഘടന httpreq *req,
+  സ്ഥിരം nghttp2_priority_spec *pri_spec,
+  ശൂന്യം *stream_user_data,
   nghttp2_data_source_read_callback read_callback,
-  void *read_ctx)
+  ശൂന്യം *read_ctx)
 {
-  struct dynhds h2_headers;
-  nghttp2_nv *nva = NULL;
+  ഘടന dynhds h2_headers;
+  nghttp2_nv *nva = ശൂന്യ;
   int32_t stream_id = -1;
   size_t nheader;
   CURLcode result;
 
-  (void)cf;
-  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_COUNT, DYN_HTTP_REQUEST);
+  (ശൂന്യം)cf;
+  Curl_dynhds_init(&h2_headers, MAX_HTTP_RESP_HEADER_എണ്ണം, DYN_HTTP_REQUEST);
   result = Curl_http_req_to_h2(&h2_headers, req, data);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   nva = Curl_dynhds_to_nva(&h2_headers, &nheader);
-  if(!nva) {
+  എങ്കിൽ(!nva) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
 
-  if(read_callback) {
+  എങ്കിൽ(read_callback) {
     nghttp2_data_provider data_prd;
 
     data_prd.read_callback = read_callback;
@@ -747,16 +747,16 @@ static CURLcode proxy_h2_submit(
     stream_id = Curl_ngh2_submit_request(
       ngh2, pri_spec, nva, nheader, &data_prd, stream_user_data);
   }
-  else {
+  അല്ലെങ്കിൽ {
     stream_id = Curl_ngh2_submit_request(
-      ngh2, pri_spec, nva, nheader, NULL, stream_user_data);
+      ngh2, pri_spec, nva, nheader, ശൂന്യ, stream_user_data);
   }
 
-  if(stream_id < 0) {
+  എങ്കിൽ(stream_id < 0) {
     failf(data, "nghttp2_session_upgrade2() failed: %s(%d)",
           nghttp2_strerror(stream_id), stream_id);
     result = CURLE_SEND_ERROR;
-    goto out;
+    പോകുക out;
   }
   result = CURLE_OK;
 
@@ -764,170 +764,170 @@ out:
   curlx_free(nva);
   Curl_dynhds_free(&h2_headers);
   *pstream_id = stream_id;
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode submit_CONNECT(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct tunnel_stream *ts)
+സ്ഥിതം CURLcode submit_CONNECT(ഘടന Curl_cfilter *cf,
+                               ഘടന Curl_easy *data,
+                               ഘടന tunnel_stream *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   CURLcode result;
-  struct httpreq *req = NULL;
+  ഘടന httpreq *req = ശൂന്യ;
 
   result = Curl_http_proxy_create_tunnel_request(&req, cf, data,
                                                  ctx->peer, ctx->dest,
                                                   PROXY_HTTP_V2,
                                                   (bool)ctx->udp_tunnel);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
   result = Curl_creader_set_null(data);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   result = proxy_h2_submit(&ts->stream_id, cf, data, &ctx->ngh2, req,
-                           NULL, ts, tunnel_send_callback, cf);
-  if(result) {
+                           ശൂന്യ, ts, tunnel_send_callback, cf);
+  എങ്കിൽ(result) {
     CURL_TRC_CF(data, cf, "[%d] send, nghttp2_submit_request error: %s",
                 ts->stream_id, nghttp2_strerror(ts->stream_id));
   }
 
 out:
-  if(req)
+  എങ്കിൽ(req)
     Curl_http_req_free(req);
-  if(result)
+  എങ്കിൽ(result)
     failf(data, "Failed sending CONNECT to proxy");
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode inspect_response(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct tunnel_stream *ts)
+സ്ഥിതം CURLcode inspect_response(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 ഘടന tunnel_stream *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   proxy_inspect_result res;
   CURLcode result;
 
   result = Curl_http_proxy_inspect_tunnel_response(
       cf, data, ts->resp, (bool)ctx->udp_tunnel, &res);
-  if(result)
-    return result;
-  switch(res) {
-  case PROXY_INSPECT_OK:
+  എങ്കിൽ(result)
+    തിരികെ result;
+  തിരഞ്ഞെടുപ്പ്(res) {
+  അവസ്ഥ PROXY_INSPECT_OK:
     h2_tunnel_go_state(cf, ts, H2_TUNNEL_ESTABLISHED, data,
                        (bool)ctx->udp_tunnel);
-    break;
-  case PROXY_INSPECT_FAILED:
+    നിർത്തുക;
+  അവസ്ഥ PROXY_INSPECT_FAILED:
     h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
                        (bool)ctx->udp_tunnel);
     result = CURLE_COULDNT_CONNECT;
-    break;
-  case PROXY_INSPECT_AUTH_RETRY:
+    നിർത്തുക;
+  അവസ്ഥ PROXY_INSPECT_AUTH_RETRY:
     h2_tunnel_go_state(cf, ts, H2_TUNNEL_INIT, data,
                        (bool)ctx->udp_tunnel);
-    break;
+    നിർത്തുക;
   }
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode H2_CONNECT(struct Curl_cfilter *cf,
-                           struct Curl_easy *data,
-                           struct tunnel_stream *ts)
+സ്ഥിതം CURLcode H2_CONNECT(ഘടന Curl_cfilter *cf,
+                           ഘടന Curl_easy *data,
+                           ഘടന tunnel_stream *ts)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(ts);
   DEBUGASSERT(ts->authority);
-  if(ctx->conn_closed) {
+  എങ്കിൽ(ctx->conn_closed) {
     failf(data, "proxy closed connection");
-    return CURLE_COULDNT_CONNECT;
+    തിരികെ CURLE_COULDNT_CONNECT;
   }
 
-  do {
-    switch(ts->state) {
-    case H2_TUNNEL_INIT:
+  ചെയ്യുക {
+    തിരഞ്ഞെടുപ്പ്(ts->state) {
+    അവസ്ഥ H2_TUNNEL_INIT:
       /* Prepare the CONNECT request and make a first attempt to send. */
       CURL_TRC_CF(data, cf, "[0] CONNECT start for %s", ts->authority);
       result = submit_CONNECT(cf, data, ts);
-      if(result)
-        goto out;
+      എങ്കിൽ(result)
+        പോകുക out;
       h2_tunnel_go_state(cf, ts, H2_TUNNEL_CONNECT, data,
                          (bool)ctx->udp_tunnel);
       FALLTHROUGH();
 
-    case H2_TUNNEL_CONNECT:
+    അവസ്ഥ H2_TUNNEL_CONNECT:
       /* see that the request is completely sent */
       result = proxy_h2_progress_ingress(cf, data);
-      if(!result)
+      എങ്കിൽ(!result)
         result = proxy_h2_progress_egress(cf, data);
-      if(result && result != CURLE_AGAIN) {
+      എങ്കിൽ(result && result != CURLE_AGAIN) {
         h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
                            (bool)ctx->udp_tunnel);
-        break;
+        നിർത്തുക;
       }
 
-      if(ts->has_final_response) {
+      എങ്കിൽ(ts->has_final_response) {
         h2_tunnel_go_state(cf, ts, H2_TUNNEL_RESPONSE, data,
                            (bool)ctx->udp_tunnel);
       }
-      else {
+      അല്ലെങ്കിൽ {
         result = CURLE_OK;
-        goto out;
+        പോകുക out;
       }
       FALLTHROUGH();
 
-    case H2_TUNNEL_RESPONSE:
+    അവസ്ഥ H2_TUNNEL_RESPONSE:
       DEBUGASSERT(ts->has_final_response);
       result = inspect_response(cf, data, ts);
-      if(result)
-        goto out;
-      break;
+      എങ്കിൽ(result)
+        പോകുക out;
+      നിർത്തുക;
 
-    case H2_TUNNEL_ESTABLISHED:
-      return CURLE_OK;
+    അവസ്ഥ H2_TUNNEL_ESTABLISHED:
+      തിരികെ CURLE_OK;
 
-    case H2_TUNNEL_FAILED:
-      return CURLE_RECV_ERROR;
+    അവസ്ഥ H2_TUNNEL_FAILED:
+      തിരികെ CURLE_RECV_ERROR;
 
-    default:
-      break;
+    സ്ഥിരസ്ഥിതി:
+      നിർത്തുക;
     }
 
-  } while(ts->state == H2_TUNNEL_INIT);
+  } ആകുമ്പോൾ(ts->state == H2_TUNNEL_INIT);
 
 out:
-  if((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
+  എങ്കിൽ((result && (result != CURLE_AGAIN)) || ctx->tunnel.closed)
     h2_tunnel_go_state(cf, ts, H2_TUNNEL_FAILED, data,
                        (bool)ctx->udp_tunnel);
-  return result;
+  തിരികെ result;
 }
 
 /*
  * Initialize the cfilter context
  */
-static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data)
+സ്ഥിതം CURLcode cf_h2_proxy_ctx_init(ഘടന Curl_cfilter *cf,
+                                     ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
-  nghttp2_session_callbacks *cbs = NULL;
-  int rc;
+  nghttp2_session_callbacks *cbs = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ rc;
 
   DEBUGASSERT(!ctx->ngh2.s);
-  memset(&ctx->tunnel, 0, sizeof(ctx->tunnel));
+  memset(&ctx->tunnel, 0, വലുപ്പം(ctx->tunnel));
 
   Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_RECV_CHUNKS);
   Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_SEND_CHUNKS);
   ctx->remote_max_sid = INT32_MAX;
 
-  if(tunnel_stream_init(&ctx->tunnel, ctx->dest))
-    goto out;
+  എങ്കിൽ(tunnel_stream_init(&ctx->tunnel, ctx->dest))
+    പോകുക out;
 
   rc = nghttp2_session_callbacks_new(&cbs);
-  if(rc) {
+  എങ്കിൽ(rc) {
     failf(data, "Could not initialize nghttp2 callbacks");
-    goto out;
+    പോകുക out;
   }
 
   nghttp2_session_callbacks_set_send_callback(cbs, on_session_send);
@@ -945,83 +945,83 @@ static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter *cf,
 
   /* The nghttp2 session is not yet setup, do it */
   rc = proxy_h2_client_new(cf, cbs);
-  if(rc) {
+  എങ്കിൽ(rc) {
     failf(data, "Could not initialize nghttp2");
-    goto out;
+    പോകുക out;
   }
 
   {
     nghttp2_settings_entry iv[3];
 
     iv[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-    iv[0].value = Curl_multi_max_concurrent_streams(data->multi);
+    iv[0].മൂല്യം = Curl_multi_max_concurrent_streams(data->multi);
     iv[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
-    iv[1].value = H2_TUNNEL_WINDOW_SIZE;
-    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_PUSH;
-    iv[2].value = 0;
+    iv[1].മൂല്യം = H2_TUNNEL_WINDOW_SIZE;
+    iv[2].settings_id = NGHTTP2_SETTINGS_ENABLE_തള്ളുക;
+    iv[2].മൂല്യം = 0;
     rc = Curl_ngh2_submit_settings(&ctx->ngh2, NGHTTP2_FLAG_NONE, iv, 3);
-    if(rc) {
+    എങ്കിൽ(rc) {
       failf(data, "nghttp2_submit_settings() failed: %s(%d)",
             nghttp2_strerror(rc), rc);
       result = CURLE_HTTP2;
-      goto out;
+      പോകുക out;
     }
   }
 
   rc = Curl_ngh2_session_set_local_window_size(
     &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, PROXY_HTTP2_HUGE_WINDOW_SIZE);
-  if(rc) {
+  എങ്കിൽ(rc) {
     failf(data, "nghttp2_session_set_local_window_size() failed: %s(%d)",
           nghttp2_strerror(rc), rc);
     result = CURLE_HTTP2;
-    goto out;
+    പോകുക out;
   }
 
   /* all set, traffic will be send on connect */
   result = CURLE_OK;
 
 out:
-  if(cbs)
+  എങ്കിൽ(cbs)
     nghttp2_session_callbacks_del(cbs);
-  CURL_TRC_CF(data, cf, "[0] init proxy ctx -> %d", (int)result);
-  return result;
+  CURL_TRC_CF(data, cf, "[0] init proxy ctx -> %d", (പൂർണ്ണസംഖ്യ)result);
+  തിരികെ result;
 }
 
-static CURLcode cf_h2_proxy_connect(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+സ്ഥിതം CURLcode cf_h2_proxy_connect(ഘടന Curl_cfilter *cf,
+                                    ഘടന Curl_easy *data,
                                     bool *done)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_OK;
-  struct cf_call_data save;
-  struct tunnel_stream *ts = &ctx->tunnel;
+  ഘടന cf_call_data save;
+  ഘടന tunnel_stream *ts = &ctx->tunnel;
 
-  if(cf->connected) {
+  എങ്കിൽ(cf->connected) {
     *done = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   /* Connect the lower filters first */
-  if(!cf->next->connected) {
+  എങ്കിൽ(!cf->next->connected) {
     result = Curl_conn_cf_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    എങ്കിൽ(result || !*done)
+      തിരികെ result;
   }
 
   *done = FALSE;
 
   CF_DATA_SAVE(save, cf, data);
-  if(!ctx->ngh2.s) {
+  എങ്കിൽ(!ctx->ngh2.s) {
     result = cf_h2_proxy_ctx_init(cf, data);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
   DEBUGASSERT(ts->authority);
 
-  if(Curl_timeleft_ms(data) < 0) {
+  എങ്കിൽ(Curl_timeleft_ms(data) < 0) {
     failf(data, "Proxy CONNECT aborted due to timeout");
     result = CURLE_OPERATION_TIMEDOUT;
-    goto out;
+    പോകുക out;
   }
 
   /* for the secondary socket (FTP), use the "connect to host"
@@ -1031,61 +1031,61 @@ static CURLcode cf_h2_proxy_connect(struct Curl_cfilter *cf,
 
 out:
   *done = (result == CURLE_OK) && (ts->state == H2_TUNNEL_ESTABLISHED);
-  if(*done) {
+  എങ്കിൽ(*done) {
     cf->connected = TRUE;
     /* The real request will follow the CONNECT, reset request partially */
     Curl_req_soft_reset(&data->req, data);
     Curl_client_reset(data);
   }
   CF_DATA_RESTORE(cf, save);
-  return result;
+  തിരികെ result;
 }
 
-static void cf_h2_proxy_destroy(struct Curl_cfilter *cf,
-                                struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം cf_h2_proxy_destroy(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
 
-  (void)data;
-  if(ctx) {
+  (ശൂന്യം)data;
+  എങ്കിൽ(ctx) {
     cf_h2_proxy_ctx_free(ctx);
-    cf->ctx = NULL;
+    cf->ctx = ശൂന്യ;
   }
 }
 
-static CURLcode cf_h2_proxy_shutdown(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data, bool *done)
+സ്ഥിതം CURLcode cf_h2_proxy_shutdown(ഘടന Curl_cfilter *cf,
+                                     ഘടന Curl_easy *data, bool *done)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_call_data save;
   CURLcode result;
-  int rv;
+  പൂർണ്ണസംഖ്യ rv;
 
-  if(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
+  എങ്കിൽ(!cf->connected || !Curl_ngh2_valid(&ctx->ngh2) ||
      cf->shutdown || ctx->conn_closed) {
     *done = TRUE;
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
   }
 
   CF_DATA_SAVE(save, cf, data);
 
-  if(!ctx->sent_goaway) {
+  എങ്കിൽ(!ctx->sent_goaway) {
     rv = Curl_ngh2_submit_goaway(
       &ctx->ngh2, NGHTTP2_FLAG_NONE, 0, 0,
-      (const uint8_t *)"shutdown", sizeof("shutdown"));
-    if(rv) {
+      (സ്ഥിരം uint8_t *)"shutdown", വലുപ്പം("shutdown"));
+    എങ്കിൽ(rv) {
       failf(data, "nghttp2_submit_goaway() failed: %s(%d)",
             nghttp2_strerror(rv), rv);
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
     ctx->sent_goaway = TRUE;
   }
   /* GOAWAY submitted, process egress and ingress until nghttp2 is done. */
   result = CURLE_OK;
-  if(Curl_ngh2_session_want_write(&ctx->ngh2))
+  എങ്കിൽ(Curl_ngh2_session_want_write(&ctx->ngh2))
     result = proxy_h2_progress_egress(cf, data);
-  if(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
+  എങ്കിൽ(!result && Curl_ngh2_session_want_read(&ctx->ngh2))
     result = proxy_h2_progress_ingress(cf, data);
 
   *done = (ctx->conn_closed ||
@@ -1094,40 +1094,40 @@ static CURLcode cf_h2_proxy_shutdown(struct Curl_cfilter *cf,
 out:
   CF_DATA_RESTORE(cf, save);
   cf->shutdown = (result || *done);
-  return result;
+  തിരികെ result;
 }
 
-static bool cf_h2_proxy_data_pending(struct Curl_cfilter *cf,
-                                     const struct Curl_easy *data)
+സ്ഥിതം bool cf_h2_proxy_data_pending(ഘടന Curl_cfilter *cf,
+                                     സ്ഥിരം ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  if((ctx && !Curl_bufq_is_empty(&ctx->inbufq)) ||
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  എങ്കിൽ((ctx && !Curl_bufq_is_empty(&ctx->inbufq)) ||
      (ctx && ctx->tunnel.state == H2_TUNNEL_ESTABLISHED &&
       !Curl_bufq_is_empty(&ctx->tunnel.recvbuf)))
-    return TRUE;
-  return cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
+    തിരികെ TRUE;
+  തിരികെ cf->next ? cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-static CURLcode cf_h2_proxy_adjust_pollset(struct Curl_cfilter *cf,
-                                           struct Curl_easy *data,
-                                           struct easy_pollset *ps)
+സ്ഥിതം CURLcode cf_h2_proxy_adjust_pollset(ഘടന Curl_cfilter *cf,
+                                           ഘടന Curl_easy *data,
+                                           ഘടന easy_pollset *ps)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_call_data save;
   curl_socket_t sock = Curl_conn_cf_get_socket(cf, data);
   bool want_recv, want_send;
   CURLcode result = CURLE_OK;
 
-  if(!cf->connected && Curl_ngh2_valid(&ctx->ngh2)) {
+  എങ്കിൽ(!cf->connected && Curl_ngh2_valid(&ctx->ngh2)) {
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
                 !Curl_bufq_is_empty(&ctx->outbufq) ||
                 !Curl_bufq_is_empty(&ctx->tunnel.sendbuf);
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
   }
-  else
+  അല്ലെങ്കിൽ
     Curl_pollset_check(data, ps, sock, &want_recv, &want_send);
 
-  if(Curl_ngh2_valid(&ctx->ngh2) && (want_recv || want_send)) {
+  എങ്കിൽ(Curl_ngh2_valid(&ctx->ngh2) && (want_recv || want_send)) {
     bool c_exhaust, s_exhaust;
 
     CF_DATA_SAVE(save, cf, data);
@@ -1143,10 +1143,10 @@ static CURLcode cf_h2_proxy_adjust_pollset(struct Curl_cfilter *cf,
 
     result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
     CURL_TRC_CF(data, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
-                want_recv, want_send, (int)result);
+                want_recv, want_send, (പൂർണ്ണസംഖ്യ)result);
     CF_DATA_RESTORE(cf, save);
   }
-  else if(ctx->sent_goaway && !cf->shutdown) {
+  അല്ലെങ്കിൽ എങ്കിൽ(ctx->sent_goaway && !cf->shutdown) {
     /* shutdown in progress */
     CF_DATA_SAVE(save, cf, data);
     want_send = Curl_ngh2_session_want_write(&ctx->ngh2) ||
@@ -1155,85 +1155,85 @@ static CURLcode cf_h2_proxy_adjust_pollset(struct Curl_cfilter *cf,
     want_recv = Curl_ngh2_session_want_read(&ctx->ngh2);
     result = Curl_pollset_set(data, ps, sock, want_recv, want_send);
     CURL_TRC_CF(data, cf, "adjust_pollset, want_recv=%d want_send=%d -> %d",
-                want_recv, want_send, (int)result);
+                want_recv, want_send, (പൂർണ്ണസംഖ്യ)result);
     CF_DATA_RESTORE(cf, save);
   }
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode h2_handle_tunnel_close(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+സ്ഥിതം CURLcode h2_handle_tunnel_close(ഘടന Curl_cfilter *cf,
+                                       ഘടന Curl_easy *data,
                                        size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
 
   *pnread = 0;
-  if(ctx->tunnel.error) {
+  എങ്കിൽ(ctx->tunnel.error) {
     failf(data, "HTTP/2 stream %d reset by %s (error 0x%x %s)",
           ctx->tunnel.stream_id, ctx->tunnel.reset ? "server" : "curl",
           ctx->tunnel.error, nghttp2_http2_strerror(ctx->tunnel.error));
-    return CURLE_RECV_ERROR;
+    തിരികെ CURLE_RECV_ERROR;
   }
 
   CURL_TRC_CF(data, cf, "[%d] handle_tunnel_close -> 0",
               ctx->tunnel.stream_id);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-static CURLcode tunnel_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
-                            char *buf, size_t len, size_t *pnread)
+സ്ഥിതം CURLcode tunnel_recv(ഘടന Curl_cfilter *cf, ഘടന Curl_easy *data,
+                            അക്ഷരം *buf, size_t len, size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   CURLcode result = CURLE_AGAIN;
 
   *pnread = 0;
-  if(!Curl_bufq_is_empty(&ctx->tunnel.recvbuf))
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->tunnel.recvbuf))
     result = Curl_bufq_cread(&ctx->tunnel.recvbuf, buf, len, pnread);
-  else {
-    if(ctx->tunnel.closed) {
+  അല്ലെങ്കിൽ {
+    എങ്കിൽ(ctx->tunnel.closed) {
       result = h2_handle_tunnel_close(cf, data, pnread);
     }
-    else if(ctx->tunnel.reset ||
+    അല്ലെങ്കിൽ എങ്കിൽ(ctx->tunnel.reset ||
             (ctx->conn_closed && Curl_bufq_is_empty(&ctx->inbufq)) ||
             (ctx->rcvd_goaway &&
              ctx->remote_max_sid < ctx->tunnel.stream_id)) {
       result = CURLE_RECV_ERROR;
     }
-    else
+    അല്ലെങ്കിൽ
       result = CURLE_AGAIN;
   }
 
   CURL_TRC_CF(data, cf, "[%d] tunnel_recv(len=%zu) -> %d, %zu",
-              ctx->tunnel.stream_id, len, (int)result, *pnread);
-  return result;
+              ctx->tunnel.stream_id, len, (പൂർണ്ണസംഖ്യ)result, *pnread);
+  തിരികെ result;
 }
 
-static CURLcode cf_h2_proxy_recv(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 char *buf, size_t len,
+സ്ഥിതം CURLcode cf_h2_proxy_recv(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 അക്ഷരം *buf, size_t len,
                                  size_t *pnread)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_call_data save;
   CURLcode result;
 
   *pnread = 0;
   CF_DATA_SAVE(save, cf, data);
 
-  if(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
+  എങ്കിൽ(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
     result = CURLE_RECV_ERROR;
-    goto out;
+    പോകുക out;
   }
 
-  if(Curl_bufq_is_empty(&ctx->tunnel.recvbuf)) {
+  എങ്കിൽ(Curl_bufq_is_empty(&ctx->tunnel.recvbuf)) {
     result = proxy_h2_progress_ingress(cf, data);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
   }
 
   result = tunnel_recv(cf, data, buf, len, pnread);
 
-  if(!result) {
+  എങ്കിൽ(!result) {
     CURL_TRC_CF(data, cf, "[%d] increase window by %zu",
                 ctx->tunnel.stream_id, *pnread);
     Curl_ngh2_session_consume(&ctx->ngh2, ctx->tunnel.stream_id, *pnread);
@@ -1242,7 +1242,7 @@ static CURLcode cf_h2_proxy_recv(struct Curl_cfilter *cf,
   result = Curl_1st_fatal(result, proxy_h2_progress_egress(cf, data));
 
 out:
-  if((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
+  എങ്കിൽ((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
       !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) &&
      (!result || (result == CURLE_AGAIN))) {
     /* data pending and no fatal error to report. Need to trigger
@@ -1250,66 +1250,66 @@ out:
     drain_tunnel(cf, data, &ctx->tunnel);
   }
   CURL_TRC_CF(data, cf, "[%d] cf_recv(len=%zu) -> %d, %zu",
-              ctx->tunnel.stream_id, len, (int)result, *pnread);
+              ctx->tunnel.stream_id, len, (പൂർണ്ണസംഖ്യ)result, *pnread);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode cf_h2_proxy_send(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const uint8_t *buf, size_t len, bool eos,
+സ്ഥിതം CURLcode cf_h2_proxy_send(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 സ്ഥിരം uint8_t *buf, size_t len, bool eos,
                                  size_t *pnwritten)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_call_data save;
   CURLcode result;
 
-  (void)eos;
+  (ശൂന്യം)eos;
   *pnwritten = 0;
   CF_DATA_SAVE(save, cf, data);
 
-  if(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
+  എങ്കിൽ(ctx->tunnel.state != H2_TUNNEL_ESTABLISHED) {
     result = CURLE_SEND_ERROR;
-    goto out;
+    പോകുക out;
   }
 
-  if(ctx->tunnel.closed) {
+  എങ്കിൽ(ctx->tunnel.closed) {
     result = CURLE_SEND_ERROR;
-    goto out;
+    പോകുക out;
   }
 
   result = Curl_bufq_write(&ctx->tunnel.sendbuf, buf, len, pnwritten);
-  CURL_TRC_CF(data, cf, "cf_send(), bufq_write %d, %zu", (int)result,
+  CURL_TRC_CF(data, cf, "cf_send(), bufq_write %d, %zu", (പൂർണ്ണസംഖ്യ)result,
               *pnwritten);
-  if(result && (result != CURLE_AGAIN))
-    goto out;
+  എങ്കിൽ(result && (result != CURLE_AGAIN))
+    പോകുക out;
 
-  if(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
     /* req body data is buffered, resume the potentially suspended stream */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    എങ്കിൽ(Curl_ngh2_is_fatal(&ctx->ngh2,
          Curl_ngh2_session_resume_data(&ctx->ngh2, ctx->tunnel.stream_id))) {
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
   }
 
   result = Curl_1st_fatal(result, proxy_h2_progress_ingress(cf, data));
   result = Curl_1st_fatal(result, proxy_h2_progress_egress(cf, data));
 
-  if(!result && proxy_h2_should_close_session(ctx)) {
+  എങ്കിൽ(!result && proxy_h2_should_close_session(ctx)) {
     /* nghttp2 thinks this session is done. If the stream has not been
      * closed, this is an error state for out transfer */
-    if(ctx->tunnel.closed) {
+    എങ്കിൽ(ctx->tunnel.closed) {
       result = CURLE_SEND_ERROR;
     }
-    else {
+    അല്ലെങ്കിൽ {
       CURL_TRC_CF(data, cf, "[0] send: nothing to do in this session");
       result = CURLE_HTTP2;
     }
   }
 
 out:
-  if((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
+  എങ്കിൽ((!Curl_bufq_is_empty(&ctx->tunnel.recvbuf) ||
       !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) &&
      (!result || (result == CURLE_AGAIN))) {
     /* data pending and no fatal error to report. Need to trigger
@@ -1318,30 +1318,30 @@ out:
   }
   CURL_TRC_CF(data, cf, "[%d] cf_send(len=%zu) -> %d, %zu, "
               "h2 windows %d-%d (stream-conn), buffers %zu-%zu (stream-conn)",
-              ctx->tunnel.stream_id, len, (int)result, *pnwritten,
+              ctx->tunnel.stream_id, len, (പൂർണ്ണസംഖ്യ)result, *pnwritten,
               Curl_ngh2_session_get_stream_remote_window_size(
                 &ctx->ngh2, ctx->tunnel.stream_id),
               Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
               Curl_bufq_len(&ctx->tunnel.sendbuf),
               Curl_bufq_len(&ctx->outbufq));
   CF_DATA_RESTORE(cf, save);
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode cf_h2_proxy_flush(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data)
+സ്ഥിതം CURLcode cf_h2_proxy_flush(ഘടന Curl_cfilter *cf,
+                                  ഘടന Curl_easy *data)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
-  struct cf_call_data save;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_call_data save;
   CURLcode result = CURLE_OK;
 
   CF_DATA_SAVE(save, cf, data);
-  if(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
     /* resume the potentially suspended tunnel */
-    if(Curl_ngh2_is_fatal(&ctx->ngh2,
+    എങ്കിൽ(Curl_ngh2_is_fatal(&ctx->ngh2,
          Curl_ngh2_session_resume_data(&ctx->ngh2, ctx->tunnel.stream_id))) {
       result = CURLE_SEND_ERROR;
-      goto out;
+      പോകുക out;
     }
   }
 
@@ -1350,128 +1350,128 @@ static CURLcode cf_h2_proxy_flush(struct Curl_cfilter *cf,
 out:
   CURL_TRC_CF(data, cf, "[%d] flush -> %d, "
               "h2 windows %d-%d (stream-conn), buffers %zu-%zu (stream-conn)",
-              ctx->tunnel.stream_id, (int)result,
+              ctx->tunnel.stream_id, (പൂർണ്ണസംഖ്യ)result,
               Curl_ngh2_session_get_stream_remote_window_size(
                 &ctx->ngh2, ctx->tunnel.stream_id),
               Curl_ngh2_session_get_remote_window_size(&ctx->ngh2),
               Curl_bufq_len(&ctx->tunnel.sendbuf),
               Curl_bufq_len(&ctx->outbufq));
   CF_DATA_RESTORE(cf, save);
-  return result;
+  തിരികെ result;
 }
 
-static bool proxy_h2_connisalive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *input_pending)
+സ്ഥിതം bool proxy_h2_connisalive(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 bool *നിവേശം_pending)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive = TRUE;
 
-  *input_pending = FALSE;
-  if(!cf->next || !cf->next->cft->is_alive(cf->next, data, input_pending))
-    return FALSE;
+  *നിവേശം_pending = FALSE;
+  എങ്കിൽ(!cf->next || !cf->next->cft->is_alive(cf->next, data, നിവേശം_pending))
+    തിരികെ FALSE;
 
-  if(*input_pending) {
+  എങ്കിൽ(*നിവേശം_pending) {
     /* This happens before we have sent off a request and the connection is
        not in use by any other transfer, there should not be any data here,
        only "protocol frames" */
     CURLcode result;
     size_t nread;
 
-    *input_pending = FALSE;
+    *നിവേശം_pending = FALSE;
     result = Curl_cf_recv_bufq(cf->next, data, &ctx->inbufq, 0, &nread);
-    if(!result) {
-      if(proxy_h2_process_pending_input(cf, data))
+    എങ്കിൽ(!result) {
+      എങ്കിൽ(proxy_h2_process_pending_നിവേശം(cf, data))
         /* immediate error, considered dead */
         alive = FALSE;
-      else {
+      അല്ലെങ്കിൽ {
         alive = !proxy_h2_should_close_session(ctx);
       }
     }
-    else if(result != CURLE_AGAIN) {
+    അല്ലെങ്കിൽ എങ്കിൽ(result != CURLE_AGAIN) {
       /* the read failed so let's say this is dead anyway */
       alive = FALSE;
     }
   }
 
-  return alive;
+  തിരികെ alive;
 }
 
-static bool cf_h2_proxy_is_alive(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 bool *input_pending)
+സ്ഥിതം bool cf_h2_proxy_is_alive(ഘടന Curl_cfilter *cf,
+                                 ഘടന Curl_easy *data,
+                                 bool *നിവേശം_pending)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
   bool alive;
-  struct cf_call_data save;
+  ഘടന cf_call_data save;
 
-  *input_pending = FALSE;
+  *നിവേശം_pending = FALSE;
   CF_DATA_SAVE(save, cf, data);
   alive = (ctx && Curl_ngh2_valid(&ctx->ngh2) &&
-          proxy_h2_connisalive(cf, data, input_pending));
+          proxy_h2_connisalive(cf, data, നിവേശം_pending));
   CURL_TRC_CF(data, cf, "[0] conn alive -> %d, input_pending=%d",
-              alive, *input_pending);
+              alive, *നിവേശം_pending);
   CF_DATA_RESTORE(cf, save);
-  return alive;
+  തിരികെ alive;
 }
 
-static CURLcode cf_h2_proxy_query(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int query, int *pres1, void *pres2)
+സ്ഥിതം CURLcode cf_h2_proxy_query(ഘടന Curl_cfilter *cf,
+                                  ഘടന Curl_easy *data,
+                                  പൂർണ്ണസംഖ്യ query, പൂർണ്ണസംഖ്യ *pres1, ശൂന്യം *pres2)
 {
-  struct cf_h2_proxy_ctx *ctx = cf->ctx;
+  ഘടന cf_h2_proxy_ctx *ctx = cf->ctx;
 
-  switch(query) {
-  case CF_QUERY_HOST_PORT:
-    *pres1 = (int)ctx->dest->port;
-    *((const char **)pres2) = ctx->dest->hostname;
-    return CURLE_OK;
-  case CF_QUERY_NEED_FLUSH: {
-    if(!Curl_bufq_is_empty(&ctx->outbufq) ||
+  തിരഞ്ഞെടുപ്പ്(query) {
+  അവസ്ഥ CF_QUERY_HOST_PORT:
+    *pres1 = (പൂർണ്ണസംഖ്യ)ctx->dest->port;
+    *((സ്ഥിരം അക്ഷരം **)pres2) = ctx->dest->hostname;
+    തിരികെ CURLE_OK;
+  അവസ്ഥ CF_QUERY_NEED_FLUSH: {
+    എങ്കിൽ(!Curl_bufq_is_empty(&ctx->outbufq) ||
        !Curl_bufq_is_empty(&ctx->tunnel.sendbuf)) {
       CURL_TRC_CF(data, cf, "needs flush");
       *pres1 = TRUE;
-      return CURLE_OK;
+      തിരികെ CURLE_OK;
     }
-    break;
+    നിർത്തുക;
   }
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+  അവസ്ഥ CF_QUERY_ALPN_NEGOTIATED: {
+    സ്ഥിരം അക്ഷരം **palpn = pres2;
     DEBUGASSERT(palpn);
-    *palpn = NULL;
-    return CURLE_OK;
+    *palpn = ശൂന്യ;
+    തിരികെ CURLE_OK;
   }
-  default:
-    break;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return cf->next ?
+  തിരികെ cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode cf_h2_proxy_cntrl(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  int event, int arg1, void *arg2)
+സ്ഥിതം CURLcode cf_h2_proxy_cntrl(ഘടന Curl_cfilter *cf,
+                                  ഘടന Curl_easy *data,
+                                  പൂർണ്ണസംഖ്യ event, പൂർണ്ണസംഖ്യ arg1, ശൂന്യം *arg2)
 {
   CURLcode result = CURLE_OK;
-  struct cf_call_data save;
+  ഘടന cf_call_data save;
 
-  (void)arg1;
-  (void)arg2;
+  (ശൂന്യം)arg1;
+  (ശൂന്യം)arg2;
 
-  switch(event) {
-  case CF_CTRL_FLUSH:
+  തിരഞ്ഞെടുപ്പ്(event) {
+  അവസ്ഥ CF_CTRL_FLUSH:
     CF_DATA_SAVE(save, cf, data);
     result = cf_h2_proxy_flush(cf, data);
     CF_DATA_RESTORE(cf, save);
-    break;
-  default:
-    break;
+    നിർത്തുക;
+  സ്ഥിരസ്ഥിതി:
+    നിർത്തുക;
   }
-  return result;
+  തിരികെ result;
 }
 
-struct Curl_cftype Curl_cft_h2_proxy = {
+ഘടന Curl_cftype Curl_cft_h2_proxy = {
   "H2-PROXY",
   CF_TYPE_IP_CONNECT | CF_TYPE_PROXY,
   CURL_LOG_LVL_NONE,
@@ -1488,33 +1488,33 @@ struct Curl_cftype Curl_cft_h2_proxy = {
   cf_h2_proxy_query,
 };
 
-CURLcode Curl_cf_h2_proxy_insert_after(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
-                                       struct Curl_peer *peer,
-                                       struct Curl_peer *dest,
+CURLcode Curl_cf_h2_proxy_തിരുകുക_after(ഘടന Curl_cfilter *cf,
+                                       ഘടന Curl_easy *data,
+                                       ഘടന Curl_peer *peer,
+                                       ഘടന Curl_peer *dest,
                                        bool udp_tunnel)
 {
-  struct Curl_cfilter *cf_h2_proxy = NULL;
-  struct cf_h2_proxy_ctx *ctx;
+  ഘടന Curl_cfilter *cf_h2_proxy = ശൂന്യ;
+  ഘടന cf_h2_proxy_ctx *ctx;
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    goto out;
+  (ശൂന്യം)data;
+  ctx = curlx_calloc(1, വലുപ്പം(*ctx));
+  എങ്കിൽ(!ctx)
+    പോകുക out;
   Curl_peer_link(&ctx->peer, peer);
   Curl_peer_link(&ctx->dest, dest);
   ctx->udp_tunnel = udp_tunnel;
 
   result = Curl_cf_create(&cf_h2_proxy, &Curl_cft_h2_proxy, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
-  Curl_conn_cf_insert_after(cf, cf_h2_proxy);
+  എങ്കിൽ(result)
+    പോകുക out;
+  ctx = ശൂന്യ;
+  Curl_conn_cf_തിരുകുക_after(cf, cf_h2_proxy);
 
 out:
   cf_h2_proxy_ctx_free(ctx);
-  return result;
+  തിരികെ result;
 }
 
 #endif /* !CURL_DISABLE_HTTP && !CURL_DISABLE_PROXY && USE_NGHTTP2 */

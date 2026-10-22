@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include "llist.h"
+#അന്തര്ഭാവ "llist.h"
 
 #ifdef DEBUGBUILD
 #define LLISTINIT 0x100cc001 /* random pattern */
@@ -31,23 +31,23 @@
 #define NODEREM   0x54321012 /* random pattern */
 
 #define VERIFYNODE(x) verifynode(x)
-static struct Curl_llist_node *verifynode(struct Curl_llist_node *n)
+സ്ഥിതം ഘടന Curl_llist_കണ്ണി *verifynode(ഘടന Curl_llist_കണ്ണി *n)
 {
   DEBUGASSERT(!n || (n->_init == NODEINIT));
-  return n;
+  തിരികെ n;
 }
-#else
+#അല്ലെങ്കിൽ
 #define VERIFYNODE(x) x
 #endif
 /*
  * @unittest 1300
  */
-void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
+ശൂന്യം Curl_llist_init(ഘടന Curl_llist *l, Curl_llist_dtor dtor)
 {
   l->_size = 0;
   l->_dtor = dtor;
-  l->_head = NULL;
-  l->_tail = NULL;
+  l->_head = ശൂന്യ;
+  l->_tail = ശൂന്യ;
 #ifdef DEBUGBUILD
   l->_init = LLISTINIT;
 #endif
@@ -64,13 +64,13 @@ void Curl_llist_init(struct Curl_llist *l, Curl_llist_dtor dtor)
  *
  * @unittest 1300
  */
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, const void *p,
-                                struct Curl_llist_node *ne);
-UNITTEST void llist_insert_next(struct Curl_llist *list,
-                                struct Curl_llist_node *e, /* may be NULL */
-                                const void *p,
-                                struct Curl_llist_node *ne)
+UNITTEST ശൂന്യം llist_തിരുകുക_next(ഘടന Curl_llist *list,
+                                ഘടന Curl_llist_കണ്ണി *e, സ്ഥിരം ശൂന്യം *p,
+                                ഘടന Curl_llist_കണ്ണി *ne);
+UNITTEST ശൂന്യം llist_തിരുകുക_next(ഘടന Curl_llist *list,
+                                ഘടന Curl_llist_കണ്ണി *e, /* may be NULL */
+                                സ്ഥിരം ശൂന്യം *p,
+                                ഘടന Curl_llist_കണ്ണി *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
@@ -81,27 +81,27 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
 #endif
   ne->_ptr = CURL_UNCONST(p);
   ne->_list = list;
-  if(list->_size == 0) {
+  എങ്കിൽ(list->_size == 0) {
     list->_head = ne;
-    list->_head->_prev = NULL;
-    list->_head->_next = NULL;
+    list->_head->_prev = ശൂന്യ;
+    list->_head->_next = ശൂന്യ;
     list->_tail = ne;
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* if 'e' is NULL here, we insert the new element first in the list */
     ne->_next = e ? e->_next : list->_head;
     ne->_prev = e;
-    if(!e) {
+    എങ്കിൽ(!e) {
       list->_head->_prev = ne;
       list->_head = ne;
     }
-    else if(e->_next) {
+    അല്ലെങ്കിൽ എങ്കിൽ(e->_next) {
       e->_next->_prev = ne;
     }
-    else {
+    അല്ലെങ്കിൽ {
       list->_tail = ne;
     }
-    if(e)
+    എങ്കിൽ(e)
       e->_next = ne;
   }
 
@@ -117,97 +117,97 @@ UNITTEST void llist_insert_next(struct Curl_llist *list,
  *
  * @unittest 1300
  */
-void Curl_llist_append(struct Curl_llist *list, const void *p,
-                       struct Curl_llist_node *ne)
+ശൂന്യം Curl_llist_append(ഘടന Curl_llist *list, സ്ഥിരം ശൂന്യം *p,
+                       ഘടന Curl_llist_കണ്ണി *ne)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(ne);
-  llist_insert_next(list, list->_tail, p, ne);
+  llist_തിരുകുക_next(list, list->_tail, p, ne);
 }
 
-void *Curl_node_take_elem(struct Curl_llist_node *e)
+ശൂന്യം *Curl_കണ്ണി_take_elem(ഘടന Curl_llist_കണ്ണി *e)
 {
-  void *ptr;
-  struct Curl_llist *list;
-  if(!e)
-    return NULL;
+  ശൂന്യം *ptr;
+  ഘടന Curl_llist *list;
+  എങ്കിൽ(!e)
+    തിരികെ ശൂന്യ;
 
   list = e->_list;
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
   DEBUGASSERT(list->_size);
   DEBUGASSERT(e->_init == NODEINIT);
-  if(list) {
-    if(e == list->_head) {
+  എങ്കിൽ(list) {
+    എങ്കിൽ(e == list->_head) {
       list->_head = e->_next;
 
-      if(!list->_head)
-        list->_tail = NULL;
-      else
-        e->_next->_prev = NULL;
+      എങ്കിൽ(!list->_head)
+        list->_tail = ശൂന്യ;
+      അല്ലെങ്കിൽ
+        e->_next->_prev = ശൂന്യ;
     }
-    else {
-      if(e->_prev)
+    അല്ലെങ്കിൽ {
+      എങ്കിൽ(e->_prev)
         e->_prev->_next = e->_next;
 
-      if(!e->_next)
+      എങ്കിൽ(!e->_next)
         list->_tail = e->_prev;
-      else
+      അല്ലെങ്കിൽ
         e->_next->_prev = e->_prev;
     }
     --list->_size;
   }
   ptr = e->_ptr;
 
-  e->_list = NULL;
-  e->_ptr  = NULL;
-  e->_prev = NULL;
-  e->_next = NULL;
+  e->_list = ശൂന്യ;
+  e->_ptr  = ശൂന്യ;
+  e->_prev = ശൂന്യ;
+  e->_next = ശൂന്യ;
 #ifdef DEBUGBUILD
   e->_init = NODEREM; /* specific pattern on remove - not zero */
 #endif
 
-  return ptr;
+  തിരികെ ptr;
 }
 
-static void node_uremove(struct Curl_llist_node *e, void *user)
+സ്ഥിതം ശൂന്യം കണ്ണി_uremove(ഘടന Curl_llist_കണ്ണി *e, ശൂന്യം *user)
 {
-  struct Curl_llist *list;
-  void *ptr;
-  if(!e)
-    return;
+  ഘടന Curl_llist *list;
+  ശൂന്യം *ptr;
+  എങ്കിൽ(!e)
+    തിരികെ;
 
   list = e->_list;
   DEBUGASSERT(list);
-  if(list) {
-    ptr = Curl_node_take_elem(e);
-    if(list->_dtor)
+  എങ്കിൽ(list) {
+    ptr = Curl_കണ്ണി_take_elem(e);
+    എങ്കിൽ(list->_dtor)
       list->_dtor(user, ptr);
   }
 }
 
-void Curl_node_remove(struct Curl_llist_node *e)
+ശൂന്യം Curl_കണ്ണി_remove(ഘടന Curl_llist_കണ്ണി *e)
 {
-  node_uremove(e, NULL);
+  കണ്ണി_uremove(e, ശൂന്യ);
 }
 
-void Curl_llist_destroy(struct Curl_llist *list, void *user)
+ശൂന്യം Curl_llist_destroy(ഘടന Curl_llist *list, ശൂന്യം *user)
 {
-  if(list) {
+  എങ്കിൽ(list) {
     DEBUGASSERT(list->_init == LLISTINIT);
-    while(list->_size > 0)
-      node_uremove(list->_tail, user);
+    ആകുമ്പോൾ(list->_size > 0)
+      കണ്ണി_uremove(list->_tail, user);
   }
 }
 
 /* Curl_llist_head() returns the first 'struct Curl_llist_node *', which
    might be NULL */
-struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
+ഘടന Curl_llist_കണ്ണി *Curl_llist_head(സ്ഥിരം ഘടന Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_head);
+  തിരികെ VERIFYNODE(list->_head);
 }
 
 #ifdef UNITTESTS
@@ -215,38 +215,38 @@ struct Curl_llist_node *Curl_llist_head(const struct Curl_llist *list)
    NULL
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list);
-UNITTEST struct Curl_llist_node *llist_tail(const struct Curl_llist *list)
+UNITTEST ഘടന Curl_llist_കണ്ണി *llist_tail(സ്ഥിരം ഘടന Curl_llist *list);
+UNITTEST ഘടന Curl_llist_കണ്ണി *llist_tail(സ്ഥിരം ഘടന Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return VERIFYNODE(list->_tail);
+  തിരികെ VERIFYNODE(list->_tail);
 }
 #endif
 
 /* Curl_llist_count() returns a size_t the number of nodes in the list */
-size_t Curl_llist_count(const struct Curl_llist *list)
+size_t Curl_llist_എണ്ണം(സ്ഥിരം ഘടന Curl_llist *list)
 {
   DEBUGASSERT(list);
   DEBUGASSERT(list->_init == LLISTINIT);
-  return list->_size;
+  തിരികെ list->_size;
 }
 
 /* Curl_node_elem() returns the custom data from a Curl_llist_node */
-void *Curl_node_elem(const struct Curl_llist_node *n)
+ശൂന്യം *Curl_കണ്ണി_elem(സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return n->_ptr;
+  തിരികെ n->_ptr;
 }
 
 /* Curl_node_next() returns the next element in a list from a given
    Curl_llist_node */
-struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
+ഘടന Curl_llist_കണ്ണി *Curl_കണ്ണി_next(സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_next);
+  തിരികെ VERIFYNODE(n->_next);
 }
 
 #ifdef UNITTESTS
@@ -254,20 +254,20 @@ struct Curl_llist_node *Curl_node_next(const struct Curl_llist_node *n)
    Curl_llist_node
 
    @unittest 1300 */
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n);
-UNITTEST struct Curl_llist_node *llist_node_prev(
-  const struct Curl_llist_node *n)
+UNITTEST ഘടന Curl_llist_കണ്ണി *llist_കണ്ണി_prev(
+  സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n);
+UNITTEST ഘടന Curl_llist_കണ്ണി *llist_കണ്ണി_prev(
+  സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(n->_init == NODEINIT);
-  return VERIFYNODE(n->_prev);
+  തിരികെ VERIFYNODE(n->_prev);
 }
 #endif
 
-struct Curl_llist *Curl_node_llist(const struct Curl_llist_node *n)
+ഘടന Curl_llist *Curl_കണ്ണി_llist(സ്ഥിരം ഘടന Curl_llist_കണ്ണി *n)
 {
   DEBUGASSERT(n);
   DEBUGASSERT(!n->_list || n->_init == NODEINIT);
-  return n->_list;
+  തിരികെ n->_list;
 }

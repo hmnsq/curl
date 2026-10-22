@@ -21,9 +21,9 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
+#എങ്കിൽ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HTTPSIG)
 
 /* Please keep the SSL backend-specific #if branches in this order:
  *
@@ -33,141 +33,141 @@
  * 4. USE_MBEDTLS
  */
 
-#include "curl_ed25519.h"
+#അന്തര്ഭാവ "curl_ed25519.h"
 
 #ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
+#അന്തര്ഭാവ <wolfssl/options.h>
+#അന്തര്ഭാവ <wolfssl/wolfcrypt/settings.h>
 #endif
 
 #ifdef USE_OPENSSL
-#include <openssl/evp.h>
+#അന്തര്ഭാവ <openssl/evp.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ, size_t keylen,
+                           സ്ഥിരം unsigned അക്ഷരം *സന്ദേശം, size_t msglen,
+                           unsigned അക്ഷരം *sig, size_t *siglen)
 {
   EVP_PKEY *pkey;
   EVP_MD_CTX *mdctx;
   size_t slen;
-  int rc;
+  പൂർണ്ണസംഖ്യ rc;
 
-  if(keylen != CURL_ED25519_KEYLEN)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(keylen != CURL_ED25519_KEYLEN)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  pkey = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, key, keylen);
-  if(!pkey)
-    return CURLE_AUTH_ERROR;
+  pkey = EVP_PKEY_new_raw_private_താക്കോൽ(EVP_PKEY_ED25519, ശൂന്യ, താക്കോൽ, keylen);
+  എങ്കിൽ(!pkey)
+    തിരികെ CURLE_AUTH_ERROR;
 
   mdctx = EVP_MD_CTX_new();
-  if(!mdctx) {
+  എങ്കിൽ(!mdctx) {
     EVP_PKEY_free(pkey);
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
   }
 
-  rc = EVP_DigestSignInit(mdctx, NULL, NULL, NULL, pkey);
-  if(rc != 1) {
+  rc = EVP_DigestSignInit(mdctx, ശൂന്യ, ശൂന്യ, ശൂന്യ, pkey);
+  എങ്കിൽ(rc != 1) {
     EVP_MD_CTX_free(mdctx);
     EVP_PKEY_free(pkey);
-    return CURLE_AUTH_ERROR;
+    തിരികെ CURLE_AUTH_ERROR;
   }
 
   slen = CURL_ED25519_SIGLEN;
-  rc = EVP_DigestSign(mdctx, sig, &slen, msg, msglen);
+  rc = EVP_DigestSign(mdctx, sig, &slen, സന്ദേശം, msglen);
 
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pkey);
 
-  if(rc != 1)
-    return CURLE_AUTH_ERROR;
+  എങ്കിൽ(rc != 1)
+    തിരികെ CURLE_AUTH_ERROR;
 
   *siglen = slen;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-#elif defined(USE_WOLFSSL) && \
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_WOLFSSL) && \
   (defined(HAVE_ED25519) || defined(WOLFSSL_CURVE25519_USE_ED25519)) && \
-  defined(HAVE_ED25519_KEY_IMPORT) && defined(HAVE_ED25519_SIGN)
-#include <wolfssl/wolfcrypt/ed25519.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
-#include <wolfssl/wolfcrypt/random.h>
+  defined(HAVE_ED25519_താക്കോൽ_IMPORT) && defined(HAVE_ED25519_SIGN)
+#അന്തര്ഭാവ <wolfssl/wolfcrypt/ed25519.h>
+#അന്തര്ഭാവ <wolfssl/wolfcrypt/error-crypt.h>
+#അന്തര്ഭാവ <wolfssl/wolfcrypt/random.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ, size_t keylen,
+                           സ്ഥിരം unsigned അക്ഷരം *സന്ദേശം, size_t msglen,
+                           unsigned അക്ഷരം *sig, size_t *siglen)
 {
-  int ret;
-  ed25519_key edkey;
+  പൂർണ്ണസംഖ്യ ret;
+  ed25519_താക്കോൽ edkey;
   word32 outlen;
-  unsigned char pubkey[ED25519_PUB_KEY_SIZE];
+  unsigned അക്ഷരം pubkey[ED25519_PUB_താക്കോൽ_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(keylen != ED25519_താക്കോൽ_SIZE)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
   ret = wc_ed25519_init(&edkey);
-  if(ret)
-    return CURLE_AUTH_ERROR;
+  എങ്കിൽ(ret)
+    തിരികെ CURLE_AUTH_ERROR;
 
-  ret = wc_ed25519_import_private_only(key, ED25519_KEY_SIZE, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_import_private_only(താക്കോൽ, ED25519_താക്കോൽ_SIZE, &edkey);
+  എങ്കിൽ(ret)
+    പോകുക fail;
 
-  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_KEY_SIZE);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_make_public(&edkey, pubkey, ED25519_PUB_താക്കോൽ_SIZE);
+  എങ്കിൽ(ret)
+    പോകുക fail;
 
-  ret = wc_ed25519_import_private_key(key, ED25519_KEY_SIZE,
-                                      pubkey, ED25519_PUB_KEY_SIZE, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_import_private_താക്കോൽ(താക്കോൽ, ED25519_താക്കോൽ_SIZE,
+                                      pubkey, ED25519_PUB_താക്കോൽ_SIZE, &edkey);
+  എങ്കിൽ(ret)
+    പോകുക fail;
 
   outlen = ED25519_SIG_SIZE;
-  ret = wc_ed25519_sign_msg(msg, (word32)msglen, sig, &outlen, &edkey);
-  if(ret)
-    goto fail;
+  ret = wc_ed25519_sign_സന്ദേശം(സന്ദേശം, (word32)msglen, sig, &outlen, &edkey);
+  എങ്കിൽ(ret)
+    പോകുക fail;
 
   *siglen = (size_t)outlen;
   wc_ed25519_free(&edkey);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 
 fail:
   wc_ed25519_free(&edkey);
-  return CURLE_AUTH_ERROR;
+  തിരികെ CURLE_AUTH_ERROR;
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/eddsa.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_GNUTLS)
+#അന്തര്ഭാവ <nettle/eddsa.h>
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ, size_t keylen,
+                           സ്ഥിരം unsigned അക്ഷരം *സന്ദേശം, size_t msglen,
+                           unsigned അക്ഷരം *sig, size_t *siglen)
 {
-  uint8_t pubkey[ED25519_KEY_SIZE];
+  uint8_t pubkey[ED25519_താക്കോൽ_SIZE];
 
-  if(keylen != ED25519_KEY_SIZE)
-    return CURLE_BAD_FUNCTION_ARGUMENT;
+  എങ്കിൽ(keylen != ED25519_താക്കോൽ_SIZE)
+    തിരികെ CURLE_BAD_FUNCTION_ARGUMENT;
 
-  nettle_ed25519_sha512_public_key(pubkey, key);
+  nettle_ed25519_sha512_public_താക്കോൽ(pubkey, താക്കോൽ);
 
-  nettle_ed25519_sha512_sign(pubkey, key, msglen, msg, sig);
+  nettle_ed25519_sha512_sign(pubkey, താക്കോൽ, msglen, സന്ദേശം, sig);
   *siglen = CURL_ED25519_SIGLEN;
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
-#else /* no Ed25519-capable backend */
+#അല്ലെങ്കിൽ /* no Ed25519-capable backend */
 
-CURLcode Curl_ed25519_sign(const unsigned char *key, size_t keylen,
-                           const unsigned char *msg, size_t msglen,
-                           unsigned char *sig, size_t *siglen)
+CURLcode Curl_ed25519_sign(സ്ഥിരം unsigned അക്ഷരം *താക്കോൽ, size_t keylen,
+                           സ്ഥിരം unsigned അക്ഷരം *സന്ദേശം, size_t msglen,
+                           unsigned അക്ഷരം *sig, size_t *siglen)
 {
-  (void)key;
-  (void)keylen;
-  (void)msg;
-  (void)msglen;
-  (void)sig;
-  (void)siglen;
-  return CURLE_NOT_BUILT_IN;
+  (ശൂന്യം)താക്കോൽ;
+  (ശൂന്യം)keylen;
+  (ശൂന്യം)സന്ദേശം;
+  (ശൂന്യം)msglen;
+  (ശൂന്യം)sig;
+  (ശൂന്യം)siglen;
+  തിരികെ CURLE_NOT_BUILT_IN;
 }
 
 #endif /* Ed25519 backends */

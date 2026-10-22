@@ -21,64 +21,64 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifndef CURL_DISABLE_WEBSOCKETS
 /* only used for this protocol, so far */
 
-#include "urldata.h"
-#include "bufq.h"
-#include "cfilters.h"
-#include "cf-recvbuf.h"
-#include "curl_trc.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "bufq.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "cf-recvbuf.h"
+#അന്തര്ഭാവ "curl_trc.h"
 
 #define CURL_CF_RECVBUF_CHUNK     (16 * 1024)
 
-struct cf_recvbuf_ctx {
-  struct bufq recvbuf;
+ഘടന cf_recvbuf_ctx {
+  ഘടന bufq recvbuf;
 };
 
-static void cf_recvbuf_destroy(struct Curl_cfilter *cf,
-                               struct Curl_easy *data)
+സ്ഥിതം ശൂന്യം cf_recvbuf_destroy(ഘടന Curl_cfilter *cf,
+                               ഘടന Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
-  (void)data;
-  if(ctx) {
+  ഘടന cf_recvbuf_ctx *ctx = cf->ctx;
+  (ശൂന്യം)data;
+  എങ്കിൽ(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
 }
 
-static CURLcode cf_recvbuf_recv(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                char *buf, size_t len,
+സ്ഥിതം CURLcode cf_recvbuf_recv(ഘടന Curl_cfilter *cf,
+                                ഘടന Curl_easy *data,
+                                അക്ഷരം *buf, size_t len,
                                 size_t *pnread)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  ഘടന cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf)) {
-    return Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->recvbuf)) {
+    തിരികെ Curl_bufq_cread(&ctx->recvbuf, buf, len, pnread);
   }
 
-  if(cf->next)
-    return cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
+  എങ്കിൽ(cf->next)
+    തിരികെ cf->next->cft->do_recv(cf->next, data, buf, len, pnread);
   *pnread = 0;
-  return CURLE_RECV_ERROR;
+  തിരികെ CURLE_RECV_ERROR;
 }
 
-static bool cf_recvbuf_data_pending(struct Curl_cfilter *cf,
-                                    const struct Curl_easy *data)
+സ്ഥിതം bool cf_recvbuf_data_pending(ഘടന Curl_cfilter *cf,
+                                    സ്ഥിരം ഘടന Curl_easy *data)
 {
-  struct cf_recvbuf_ctx *ctx = cf->ctx;
+  ഘടന cf_recvbuf_ctx *ctx = cf->ctx;
 
-  if(!Curl_bufq_is_empty(&ctx->recvbuf))
-    return TRUE;
+  എങ്കിൽ(!Curl_bufq_is_empty(&ctx->recvbuf))
+    തിരികെ TRUE;
 
-  return cf->next ?
+  തിരികെ cf->next ?
     cf->next->cft->has_data_pending(cf->next, data) : FALSE;
 }
 
-struct Curl_cftype Curl_cft_recvbuf = {
+ഘടന Curl_cftype Curl_cft_recvbuf = {
   "RECVBUF",
   0,
   CURL_LOG_LVL_NONE,
@@ -95,63 +95,63 @@ struct Curl_cftype Curl_cft_recvbuf = {
   Curl_cf_def_query,
 };
 
-static CURLcode cf_recvbuf_create(struct Curl_cfilter **pcf,
-                                  struct Curl_easy *data,
-                                  const uint8_t *buf, size_t blen)
+സ്ഥിതം CURLcode cf_recvbuf_create(ഘടന Curl_cfilter **pcf,
+                                  ഘടന Curl_easy *data,
+                                  സ്ഥിരം uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct cf_recvbuf_ctx *ctx;
+  ഘടന Curl_cfilter *cf = ശൂന്യ;
+  ഘടന cf_recvbuf_ctx *ctx;
   CURLcode result = CURLE_OK;
   size_t nwritten = 0;
 
-  (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx) {
+  (ശൂന്യം)data;
+  ctx = curlx_calloc(1, വലുപ്പം(*ctx));
+  എങ്കിൽ(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
-    goto out;
+    പോകുക out;
   }
   Curl_bufq_init2(&ctx->recvbuf, CURL_CF_RECVBUF_CHUNK,
                   (blen / CURL_CF_RECVBUF_CHUNK) + 1,
                   (BUFQ_OPT_SOFT_LIMIT | BUFQ_OPT_NO_SPARES));
   result = Curl_bufq_write(&ctx->recvbuf, buf, blen, &nwritten);
-  if(result)
-    goto out;
-  if(nwritten != blen) {
+  എങ്കിൽ(result)
+    പോകുക out;
+  എങ്കിൽ(nwritten != blen) {
     result = CURLE_FAILED_INIT;
-    goto out;
+    പോകുക out;
   }
 
   result = Curl_cf_create(&cf, &Curl_cft_recvbuf, ctx);
-  if(result)
-    goto out;
-  ctx = NULL;
+  എങ്കിൽ(result)
+    പോകുക out;
+  ctx = ശൂന്യ;
 
 out:
-  *pcf = result ? NULL : cf;
-  if(ctx) {
+  *pcf = result ? ശൂന്യ : cf;
+  എങ്കിൽ(ctx) {
     Curl_bufq_free(&ctx->recvbuf);
     curlx_free(ctx);
   }
-  return result;
+  തിരികെ result;
 }
 
-CURLcode Curl_cf_recvbuf_add(struct Curl_easy *data,
-                             struct connectdata *conn,
+CURLcode Curl_cf_recvbuf_add(ഘടന Curl_easy *data,
+                             ഘടന connectdata *conn,
                              int8_t sockindex,
-                             const uint8_t *buf, size_t blen)
+                             സ്ഥിരം uint8_t *buf, size_t blen)
 {
-  struct Curl_cfilter *cf;
+  ഘടന Curl_cfilter *cf;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(data);
   result = cf_recvbuf_create(&cf, data, buf, blen);
-  if(result)
-    goto out;
+  എങ്കിൽ(result)
+    പോകുക out;
 
   cf->connected = Curl_conn_is_connected(conn, sockindex);
   Curl_conn_cf_add(data, conn, sockindex, cf);
 out:
-  return result;
+  തിരികെ result;
 }
 
 #endif /* !CURL_DISABLE_WEBSOCKETS */

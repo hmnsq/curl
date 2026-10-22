@@ -23,20 +23,20 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifndef CURL_DISABLE_SOCKETPAIR
 
 /* return < 0 for failure to initialize */
-int Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking);
-void Curl_wakeup_destroy(curl_socket_t socks[2]);
+പൂർണ്ണസംഖ്യ Curl_wakeup_init(curl_socket_t socks[2], bool nonblocking);
+ശൂന്യം Curl_wakeup_destroy(curl_socket_t socks[2]);
 
 /* return 0 on success or errno on failure */
-int Curl_wakeup_signal(curl_socket_t socks[2]);
+പൂർണ്ണസംഖ്യ Curl_wakeup_signal(curl_socket_t socks[2]);
 
 CURLcode Curl_wakeup_consume(curl_socket_t socks[2], bool all);
 
-#else
+#അല്ലെങ്കിൽ
 #define Curl_wakeup_destroy(x) Curl_nop_stmt
 #endif
 

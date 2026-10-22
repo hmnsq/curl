@@ -21,85 +21,85 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef USE_CURL_NTLM_CORE
 
-#include "curl_md4.h"
+#അന്തര്ഭാവ "curl_md4.h"
 
 #ifdef USE_OPENSSL
-#include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L && !defined(USE_AMISSL)
+#അന്തര്ഭാവ <openssl/opensslv.h>
+#എങ്കിൽ OPENSSL_VERSION_സംഖ്യ >= 0x30000000L && !defined(USE_AMISSL)
 /* OpenSSL 3.0.0 marks the MD4 functions as deprecated */
 #define OPENSSL_NO_MD4
-#else
+#അല്ലെങ്കിൽ
 /* Cover also OPENSSL_NO_MD4 configured in OpenSSL */
-#include <openssl/opensslconf.h>
+#അന്തര്ഭാവ <openssl/opensslconf.h>
 #endif
 #endif /* USE_OPENSSL */
 
 #ifdef USE_WOLFSSL
-#include <wolfssl/options.h>
+#അന്തര്ഭാവ <wolfssl/options.h>
 #endif
 
-#if defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
-#include <openssl/evp.h>
+#എങ്കിൽ defined(USE_OPENSSL) && !defined(OPENSSL_NO_MD4)
+#അന്തര്ഭാവ <openssl/evp.h>
 
-typedef EVP_MD_CTX *my_md4_ctx;
+തരനിർവചനം EVP_MD_CTX *my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ my_md4_init(my_md4_ctx *ctx)
 {
   *ctx = EVP_MD_CTX_new();
-  if(!*ctx)
-    return 0;
+  എങ്കിൽ(!*ctx)
+    തിരികെ 0;
 
-  if(!EVP_DigestInit_ex(*ctx, EVP_md4(), NULL)) {
+  എങ്കിൽ(!EVP_DigestInit_ex(*ctx, EVP_md4(), ശൂന്യ)) {
     EVP_MD_CTX_free(*ctx);
-    return 0;
+    തിരികെ 0;
   }
-  return 1;
+  തിരികെ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const unsigned char *input, unsigned int len)
+സ്ഥിതം ശൂന്യം my_md4_update(my_md4_ctx *ctx,
+                          സ്ഥിരം unsigned അക്ഷരം *നിവേശം, unsigned പൂർണ്ണസംഖ്യ len)
 {
-  (void)EVP_DigestUpdate(*ctx, input, len);
+  (ശൂന്യം)EVP_DigestUpdate(*ctx, നിവേശം, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+സ്ഥിതം ശൂന്യം my_md4_final(unsigned അക്ഷരം *digest, my_md4_ctx *ctx)
 {
-  (void)EVP_DigestFinal_ex(*ctx, digest, NULL);
+  (ശൂന്യം)EVP_DigestFinal_ex(*ctx, digest, ശൂന്യ);
   EVP_MD_CTX_free(*ctx);
 }
 
-#elif defined(USE_WOLFSSL) && !defined(NO_MD4)
-#include <wolfssl/wolfcrypt/md4.h>
-#include <wolfssl/version.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_WOLFSSL) && !defined(NO_MD4)
+#അന്തര്ഭാവ <wolfssl/wolfcrypt/md4.h>
+#അന്തര്ഭാവ <wolfssl/version.h>
 
-#if LIBWOLFSSL_VERSION_HEX >= 0x05007006
-typedef wc_Md4 my_md4_ctx;
-#else
-typedef Md4 my_md4_ctx;
+#എങ്കിൽ LIBWOLFSSL_VERSION_HEX >= 0x05007006
+തരനിർവചനം wc_Md4 my_md4_ctx;
+#അല്ലെങ്കിൽ
+തരനിർവചനം Md4 my_md4_ctx;
 #endif
 
-static int my_md4_init(my_md4_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ my_md4_init(my_md4_ctx *ctx)
 {
   wc_InitMd4(ctx);
-  return 1;
+  തിരികെ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+സ്ഥിതം ശൂന്യം my_md4_update(my_md4_ctx *ctx,
+                          സ്ഥിരം ശൂന്യം *നിവേശം, unsigned long len)
 {
-  wc_Md4Update(ctx, input, (word32)len);
+  wc_Md4Update(ctx, നിവേശം, (word32)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+സ്ഥിതം ശൂന്യം my_md4_final(unsigned അക്ഷരം *digest, my_md4_ctx *ctx)
 {
   wc_Md4Final(ctx, digest);
 }
 
-#elif (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#അല്ലെങ്കിലെങ്കിൽ (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
                __MAC_OS_X_VERSION_MAX_ALLOWED >= 1040 && \
        defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
                __MAC_OS_X_VERSION_MIN_REQUIRED < 101500) || \
@@ -107,102 +107,102 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
                __IPHONE_OS_VERSION_MAX_ALLOWED >= 20000 && \
        defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
                __IPHONE_OS_VERSION_MIN_REQUIRED < 130000)
-#include <CommonCrypto/CommonDigest.h>
+#അന്തര്ഭാവ <CommonCrypto/CommonDigest.h>
 
-typedef CC_MD4_CTX my_md4_ctx;
+തരനിർവചനം CC_MD4_CTX my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ my_md4_init(my_md4_ctx *ctx)
 {
-  return CC_MD4_Init(ctx);  /* always returns 1 */
+  തിരികെ CC_MD4_Init(ctx);  /* always returns 1 */
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+സ്ഥിതം ശൂന്യം my_md4_update(my_md4_ctx *ctx,
+                          സ്ഥിരം ശൂന്യം *നിവേശം, unsigned long len)
 {
-  (void)CC_MD4_Update(ctx, input, (CC_LONG)len);
+  (ശൂന്യം)CC_MD4_Update(ctx, നിവേശം, (CC_LONG)len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+സ്ഥിതം ശൂന്യം my_md4_final(unsigned അക്ഷരം *digest, my_md4_ctx *ctx)
 {
-  (void)CC_MD4_Final(digest, ctx);
+  (ശൂന്യം)CC_MD4_Final(digest, ctx);
 }
 
-#elif defined(USE_WIN32_CRYPTO)
-#include <wincrypt.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_WIN32_CRYPTO)
+#അന്തര്ഭാവ <wincrypt.h>
 
-struct md4_ctx {
+ഘടന md4_ctx {
   HCRYPTPROV hCryptProv;
   HCRYPTHASH hHash;
 };
-typedef struct md4_ctx my_md4_ctx;
+തരനിർവചനം ഘടന md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ my_md4_init(my_md4_ctx *ctx)
 {
   ctx->hCryptProv = 0;
   ctx->hHash = 0;
 
-  if(!CryptAcquireContext(&ctx->hCryptProv, NULL, NULL, PROV_RSA_FULL,
+  എങ്കിൽ(!CryptAcquireContext(&ctx->hCryptProv, ശൂന്യ, ശൂന്യ, PROV_RSA_FULL,
                           CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    return 0;
+    തിരികെ 0;
 
-  if(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
+  എങ്കിൽ(!CryptCreateHash(ctx->hCryptProv, CALG_MD4, 0, 0, &ctx->hHash)) {
     CryptReleaseContext(ctx->hCryptProv, 0);
     ctx->hCryptProv = 0;
-    return 0;
+    തിരികെ 0;
   }
 
-  return 1;
+  തിരികെ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+സ്ഥിതം ശൂന്യം my_md4_update(my_md4_ctx *ctx,
+                          സ്ഥിരം ശൂന്യം *നിവേശം, unsigned long len)
 {
-  CryptHashData(ctx->hHash, (const BYTE *)input, (unsigned int)len, 0);
+  CryptHashData(ctx->hHash, (സ്ഥിരം BYTE *)നിവേശം, (unsigned പൂർണ്ണസംഖ്യ)len, 0);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+സ്ഥിതം ശൂന്യം my_md4_final(unsigned അക്ഷരം *digest, my_md4_ctx *ctx)
 {
   unsigned long length = 0;
 
-  CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
-  if(length == MD4_DIGEST_LENGTH)
+  CryptGetHashParam(ctx->hHash, HP_HASHVAL, ശൂന്യ, &length, 0);
+  എങ്കിൽ(length == MD4_DIGEST_LENGTH)
     CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
 
-  if(ctx->hHash)
+  എങ്കിൽ(ctx->hHash)
     CryptDestroyHash(ctx->hHash);
 
-  if(ctx->hCryptProv)
+  എങ്കിൽ(ctx->hCryptProv)
     CryptReleaseContext(ctx->hCryptProv, 0);
 }
 
-#elif defined(USE_GNUTLS)
-#include <nettle/md4.h>
-#include <nettle/version.h>
+#അല്ലെങ്കിലെങ്കിൽ defined(USE_GNUTLS)
+#അന്തര്ഭാവ <nettle/md4.h>
+#അന്തര്ഭാവ <nettle/version.h>
 
-typedef struct md4_ctx my_md4_ctx;
+തരനിർവചനം ഘടന md4_ctx my_md4_ctx;
 
-static int my_md4_init(my_md4_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ my_md4_init(my_md4_ctx *ctx)
 {
   md4_init(ctx);
-  return 1;
+  തിരികെ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+സ്ഥിതം ശൂന്യം my_md4_update(my_md4_ctx *ctx,
+                          സ്ഥിരം ശൂന്യം *നിവേശം, unsigned long len)
 {
-  md4_update(ctx, len, input);
+  md4_update(ctx, len, നിവേശം);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+സ്ഥിതം ശൂന്യം my_md4_final(unsigned അക്ഷരം *digest, my_md4_ctx *ctx)
 {
-#if NETTLE_VERSION_MAJOR >= 4
+#എങ്കിൽ NETTLE_VERSION_MAJOR >= 4
   md4_digest(ctx, digest);
-#else
+#അല്ലെങ്കിൽ
   md4_digest(ctx, MD4_DIGEST_SIZE, digest);
 #endif
 }
 
-#else
+#അല്ലെങ്കിൽ
 /* When no other crypto library is available, or the crypto library does not
  * support MD4, we use this code segment this implementation of it
  *
@@ -230,13 +230,13 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
  * (This is a heavily cut-down "BSD license".)
  */
 
-struct md4_ctx {
+ഘടന md4_ctx {
   uint32_t lo, hi;
   uint32_t a, b, c, d;
-  unsigned char buffer[64];
+  unsigned അക്ഷരം buffer[64];
   uint32_t block[16];
 };
-typedef struct md4_ctx my_md4_ctx;
+തരനിർവചനം ഘടന md4_ctx my_md4_ctx;
 
 /*
  * The basic MD4 functions.
@@ -262,10 +262,10 @@ typedef struct md4_ctx my_md4_ctx;
  * The check for little-endian architectures that tolerate unaligned memory
  * accesses is an optimization. Nothing will break if it does not work.
  */
-#if defined(__i386__) || defined(__x86_64__) || defined(__vax__)
-#define MD4_SET(n) (*(const uint32_t *)(const void *)&ptr[(n) * 4])
+#എങ്കിൽ defined(__i386__) || defined(__x86_64__) || defined(__vax__)
+#define MD4_SET(n) (*(സ്ഥിരം uint32_t *)(സ്ഥിരം ശൂന്യം *)&ptr[(n) * 4])
 #define MD4_GET(n) MD4_SET(n)
-#else
+#അല്ലെങ്കിൽ
 #define MD4_SET(n) (ctx->block[n] =      \
    (uint32_t)ptr[(n) * 4]              | \
   ((uint32_t)ptr[((n) * 4) + 1] <<  8) | \
@@ -278,20 +278,20 @@ typedef struct md4_ctx my_md4_ctx;
  * This processes one or more 64-byte data blocks, but does NOT update
  * the bit counters. There are no alignment requirements.
  */
-static const void *my_md4_body(my_md4_ctx *ctx,
-                               const void *input, unsigned long size)
+സ്ഥിതം സ്ഥിരം ശൂന്യം *my_md4_body(my_md4_ctx *ctx,
+                               സ്ഥിരം ശൂന്യം *നിവേശം, unsigned long size)
 {
-  const unsigned char *ptr;
+  സ്ഥിരം unsigned അക്ഷരം *ptr;
   uint32_t a, b, c, d;
 
-  ptr = (const unsigned char *)input;
+  ptr = (സ്ഥിരം unsigned അക്ഷരം *)നിവേശം;
 
   a = ctx->a;
   b = ctx->b;
   c = ctx->c;
   d = ctx->d;
 
-  do {
+  ചെയ്യുക {
     uint32_t saved_a, saved_b, saved_c, saved_d;
 
     saved_a = a;
@@ -359,17 +359,17 @@ static const void *my_md4_body(my_md4_ctx *ctx,
     d += saved_d;
 
     ptr += 64;
-  } while(size -= 64);
+  } ആകുമ്പോൾ(size -= 64);
 
   ctx->a = a;
   ctx->b = b;
   ctx->c = c;
   ctx->d = d;
 
-  return ptr;
+  തിരികെ ptr;
 }
 
-static int my_md4_init(my_md4_ctx *ctx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ my_md4_init(my_md4_ctx *ctx)
 {
   ctx->a = 0x67452301;
   ctx->b = 0xefcdab89;
@@ -379,46 +379,46 @@ static int my_md4_init(my_md4_ctx *ctx)
   ctx->lo = 0;
   ctx->hi = 0;
 
-  return 1;
+  തിരികെ 1;
 }
 
-static void my_md4_update(my_md4_ctx *ctx,
-                          const void *input, unsigned long len)
+സ്ഥിതം ശൂന്യം my_md4_update(my_md4_ctx *ctx,
+                          സ്ഥിരം ശൂന്യം *നിവേശം, unsigned long len)
 {
   uint32_t saved_lo;
   unsigned long used;
 
   saved_lo = ctx->lo;
   ctx->lo = (saved_lo + len) & 0x1fffffff;
-  if(ctx->lo < saved_lo)
+  എങ്കിൽ(ctx->lo < saved_lo)
     ctx->hi++;
   ctx->hi += (uint32_t)len >> 29;
 
   used = saved_lo & 0x3f;
 
-  if(used) {
+  എങ്കിൽ(used) {
     unsigned long available = 64 - used;
 
-    if(len < available) {
-      memcpy(&ctx->buffer[used], input, len);
-      return;
+    എങ്കിൽ(len < available) {
+      memcpy(&ctx->buffer[used], നിവേശം, len);
+      തിരികെ;
     }
 
-    memcpy(&ctx->buffer[used], input, available);
-    input = (const unsigned char *)input + available;
+    memcpy(&ctx->buffer[used], നിവേശം, available);
+    നിവേശം = (സ്ഥിരം unsigned അക്ഷരം *)നിവേശം + available;
     len -= available;
     my_md4_body(ctx, ctx->buffer, 64);
   }
 
-  if(len >= 64) {
-    input = my_md4_body(ctx, input, len & ~(unsigned long)0x3f);
+  എങ്കിൽ(len >= 64) {
+    നിവേശം = my_md4_body(ctx, നിവേശം, len & ~(unsigned long)0x3f);
     len &= 0x3f;
   }
 
-  memcpy(ctx->buffer, input, len);
+  memcpy(ctx->buffer, നിവേശം, len);
 }
 
-static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
+സ്ഥിതം ശൂന്യം my_md4_final(unsigned അക്ഷരം *digest, my_md4_ctx *ctx)
 {
   unsigned long used, available;
 
@@ -428,7 +428,7 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
 
   available = 64 - used;
 
-  if(available < 8) {
+  എങ്കിൽ(available < 8) {
     memset(&ctx->buffer[used], 0, available);
     my_md4_body(ctx, ctx->buffer, 64);
     used = 0;
@@ -466,20 +466,20 @@ static void my_md4_final(unsigned char *digest, my_md4_ctx *ctx)
   digest[14] = curlx_ultouc((ctx->d >> 16) & 0xff);
   digest[15] = curlx_ultouc(ctx->d >> 24);
 
-  memset(ctx, 0, sizeof(*ctx));
+  memset(ctx, 0, വലുപ്പം(*ctx));
 }
 
 #endif /* CRYPTO LIBS */
 
-CURLcode Curl_md4it(unsigned char *output,
-                    const unsigned char *input, const size_t len)
+CURLcode Curl_md4it(unsigned അക്ഷരം *output,
+                    സ്ഥിരം unsigned അക്ഷരം *നിവേശം, സ്ഥിരം size_t len)
 {
   my_md4_ctx ctx;
-  if(!my_md4_init(&ctx))
-    return CURLE_FAILED_INIT;
-  my_md4_update(&ctx, input, curlx_uztoui(len));
+  എങ്കിൽ(!my_md4_init(&ctx))
+    തിരികെ CURLE_FAILED_INIT;
+  my_md4_update(&ctx, നിവേശം, curlx_uztoui(len));
   my_md4_final(output, &ctx);
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 #endif /* USE_CURL_NTLM_CORE */

@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */);
+പൂർണ്ണസംഖ്യ curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   പൂർണ്ണസംഖ്യ nonblock   /* TRUE or FALSE */);
 
 #endif /* HEADER_CURL_NONBLOCK_H */

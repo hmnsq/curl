@@ -21,12 +21,12 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include <stddef.h> /* for offsetof() */
+#അന്തര്ഭാവ <stddef.h> /* for offsetof() */
 
-#include "hash.h"
-#include "rand.h"
+#അന്തര്ഭാവ "hash.h"
+#അന്തര്ഭാവ "rand.h"
 
 /* random patterns for API verification */
 #ifdef DEBUGBUILD
@@ -35,169 +35,169 @@
 #endif
 
 
-typedef size_t (*hash_function)(const void *key,
-                                size_t key_length,
-                                size_t slots_num);
+തരനിർവചനം size_t (*hash_function)(സ്ഥിരം ശൂന്യം *താക്കോൽ,
+                                size_t താക്കോൽ_length,
+                                size_t slots_അക്കം);
 
-typedef size_t (*comp_function)(const void *key1,
+തരനിർവചനം size_t (*comp_function)(സ്ഥിരം ശൂന്യം *key1,
                                 size_t key1_len,
-                                const void *key2,
+                                സ്ഥിരം ശൂന്യം *key2,
                                 size_t key2_len);
 
 /* Curl_hash stores its type in a uint8_t. */
-typedef char hash_types_fit_uint8[
+തരനിർവചനം അക്ഷരം hash_types_fit_uint8[
   ((CURL_HASH_TYPE_LAST - 1) <= UINT8_MAX) ? 1 : -1];
 
-struct hash_functions {
+ഘടന hash_functions {
   hash_function hash;
   comp_function compare;
 };
 
 /* set at global init, read-only afterwards */
-static size_t hash_seed;
+സ്ഥിതം size_t hash_seed;
 
-CURLcode Curl_hash_global_init(void)
+CURLcode Curl_hash_global_init(ശൂന്യം)
 {
-  static bool seeded;
-  unsigned char buf[sizeof(size_t)];
+  സ്ഥിതം bool seeded;
+  unsigned അക്ഷരം buf[വലുപ്പം(size_t)];
   size_t seed = 0;
   size_t i;
   CURLcode result;
 
-  if(seeded)
-    return CURLE_OK;
+  എങ്കിൽ(seeded)
+    തിരികെ CURLE_OK;
 
-  result = Curl_rand_bytes(NULL,
+  result = Curl_rand_bytes(ശൂന്യ,
 #ifdef DEBUGBUILD
                            FALSE,
 #endif
-                           buf, sizeof(buf));
-  if(result)
-    return result;
+                           buf, വലുപ്പം(buf));
+  എങ്കിൽ(result)
+    തിരികെ result;
 
-  for(i = 0; i < sizeof(buf); i++)
+  വേണ്ടി(i = 0; i < വലുപ്പം(buf); i++)
     seed = (seed << 8) | buf[i];
 
   hash_seed = seed ? seed : 1;
   seeded = TRUE;
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed);
-UNITTEST size_t hash_str_seeded(const void *key, size_t key_length,
-                                size_t slots_num, size_t seed)
+UNITTEST size_t hash_str_seeded(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_length,
+                                size_t slots_അക്കം, size_t seed);
+UNITTEST size_t hash_str_seeded(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_length,
+                                size_t slots_അക്കം, size_t seed)
 {
-  const char *key_str = (const char *)key;
-  const char *end = key_str + key_length;
+  സ്ഥിരം അക്ഷരം *താക്കോൽ_str = (സ്ഥിരം അക്ഷരം *)താക്കോൽ;
+  സ്ഥിരം അക്ഷരം *end = താക്കോൽ_str + താക്കോൽ_length;
   size_t h = 5381 ^ seed;
 
-  while(key_str < end) {
-    size_t j = (size_t)*key_str++;
+  ആകുമ്പോൾ(താക്കോൽ_str < end) {
+    size_t j = (size_t)*താക്കോൽ_str++;
     h += h << 5;
     h ^= j;
   }
 
-  return (h % slots_num);
+  തിരികെ (h % slots_അക്കം);
 }
 
 /* @unittest 1603
  */
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num);
-UNITTEST size_t hash_str(const void *key, size_t key_length, size_t slots_num)
+UNITTEST size_t hash_str(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_length, size_t slots_അക്കം);
+UNITTEST size_t hash_str(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_length, size_t slots_അക്കം)
 {
-  return hash_str_seeded(key, key_length, slots_num, hash_seed);
+  തിരികെ hash_str_seeded(താക്കോൽ, താക്കോൽ_length, slots_അക്കം, hash_seed);
 }
 
 /* Avoid treating the variable-length key[1] as a one-byte object. */
-static char *hash_elem_key(struct Curl_hash_element *he)
+സ്ഥിതം അക്ഷരം *hash_elem_താക്കോൽ(ഘടന Curl_hash_element *he)
 {
-  return (char *)he + offsetof(struct Curl_hash_element, key);
+  തിരികെ (അക്ഷരം *)he + offsetof(ഘടന Curl_hash_element, താക്കോൽ);
 }
 
-static size_t hash_socket(const void *key, size_t key_length,
-                          size_t slots_num)
+സ്ഥിതം size_t hash_socket(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_length,
+                          size_t slots_അക്കം)
 {
   curl_socket_t socket;
 
-  DEBUGASSERT(key_length == sizeof(socket));
-  if(key_length != sizeof(socket))
-    return 0;
-  memcpy(&socket, key, sizeof(socket));
-  return (size_t)(socket % (curl_socket_t)slots_num);
+  DEBUGASSERT(താക്കോൽ_length == വലുപ്പം(socket));
+  എങ്കിൽ(താക്കോൽ_length != വലുപ്പം(socket))
+    തിരികെ 0;
+  memcpy(&socket, താക്കോൽ, വലുപ്പം(socket));
+  തിരികെ (size_t)(socket % (curl_socket_t)slots_അക്കം);
 }
 
-static size_t compare_socket(const void *key1, size_t key1_len,
-                             const void *key2, size_t key2_len)
+സ്ഥിതം size_t compare_socket(സ്ഥിരം ശൂന്യം *key1, size_t key1_len,
+                             സ്ഥിരം ശൂന്യം *key2, size_t key2_len)
 {
   curl_socket_t socket1;
   curl_socket_t socket2;
 
-  if((key1_len != sizeof(socket1)) || (key2_len != sizeof(socket2)))
-    return 0;
-  memcpy(&socket1, key1, sizeof(socket1));
-  memcpy(&socket2, key2, sizeof(socket2));
-  return socket1 == socket2;
+  എങ്കിൽ((key1_len != വലുപ്പം(socket1)) || (key2_len != വലുപ്പം(socket2)))
+    തിരികെ 0;
+  memcpy(&socket1, key1, വലുപ്പം(socket1));
+  memcpy(&socket2, key2, വലുപ്പം(socket2));
+  തിരികെ socket1 == socket2;
 }
 
-static size_t compare_bytes(const void *key1, size_t key1_len,
-                            const void *key2, size_t key2_len)
+സ്ഥിതം size_t compare_bytes(സ്ഥിരം ശൂന്യം *key1, size_t key1_len,
+                            സ്ഥിരം ശൂന്യം *key2, size_t key2_len)
 {
-  return (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
+  തിരികെ (key1_len == key2_len) && !memcmp(key1, key2, key1_len);
 }
 
-static const struct hash_functions hash_functions[] = {
+സ്ഥിതം സ്ഥിരം ഘടന hash_functions hash_functions[] = {
   { hash_str, compare_bytes },
   { hash_socket, compare_socket }
 };
 
-static const struct hash_functions *hash_get_functions(uint8_t type)
+സ്ഥിതം സ്ഥിരം ഘടന hash_functions *hash_get_functions(uint8_t type)
 {
   DEBUGASSERT(CURL_ARRAYSIZE(hash_functions) == CURL_HASH_TYPE_LAST);
-  if((unsigned int)type >= CURL_HASH_TYPE_LAST)
+  എങ്കിൽ((unsigned പൂർണ്ണസംഖ്യ)type >= CURL_HASH_TYPE_LAST)
     type = CURL_HASH_TYPE_BYTES;
-  return &hash_functions[type];
+  തിരികെ &hash_functions[type];
 }
 
-static bool hash_key_is_valid(uint8_t type, size_t key_len)
+സ്ഥിതം bool hash_താക്കോൽ_is_valid(uint8_t type, size_t താക്കോൽ_len)
 {
-  return (type == CURL_HASH_TYPE_BYTES) ||
+  തിരികെ (type == CURL_HASH_TYPE_BYTES) ||
     ((type == CURL_HASH_TYPE_SOCKET) &&
-     (key_len == sizeof(curl_socket_t)));
+     (താക്കോൽ_len == വലുപ്പം(curl_socket_t)));
 }
 
-#if 0 /* useful function for debugging hashes and their contents */
-void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
+#എങ്കിൽ 0 /* useful function for debugging hashes and their contents */
+ശൂന്യം Curl_hash_print(ഘടന Curl_hash *h, ശൂന്യം (*func)(ശൂന്യം *))
 {
-  struct Curl_hash_iterator iter;
-  struct Curl_hash_element *he;
+  ഘടന Curl_hash_iterator iter;
+  ഘടന Curl_hash_element *he;
   size_t last_index = UINT_MAX;
 
-  if(!h)
-    return;
+  എങ്കിൽ(!h)
+    തിരികെ;
 
   curl_mfprintf(stderr, "=Hash dump=\n");
 
   Curl_hash_start_iterate(h, &iter);
 
   he = Curl_hash_next_element(&iter);
-  while(he) {
-    if(iter.slot_index != last_index) {
-      curl_mfprintf(stderr, "index %d:", (int)iter.slot_index);
-      if(last_index != UINT_MAX) {
+  ആകുമ്പോൾ(he) {
+    എങ്കിൽ(iter.slot_index != last_index) {
+      curl_mfprintf(stderr, "index %d:", (പൂർണ്ണസംഖ്യ)iter.slot_index);
+      എങ്കിൽ(last_index != UINT_MAX) {
         curl_mfprintf(stderr, "\n");
       }
       last_index = iter.slot_index;
     }
 
-    if(func)
+    എങ്കിൽ(func)
       func(he->ptr);
-    else
+    അല്ലെങ്കിൽ
       curl_mfprintf(stderr, " [key=%.*s, he=%p, ptr=%p]",
-                    (int)he->key_len, hash_elem_key(he),
-                    (void *)he, (void *)he->ptr);
+                    (പൂർണ്ണസംഖ്യ)he->താക്കോൽ_len, hash_elem_താക്കോൽ(he),
+                    (ശൂന്യം *)he, (ശൂന്യം *)he->ptr);
 
     he = Curl_hash_next_element(&iter);
   }
@@ -210,17 +210,17 @@ void Curl_hash_print(struct Curl_hash *h, void (*func)(void *))
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_init(struct Curl_hash *h,
+ശൂന്യം Curl_hash_init(ഘടന Curl_hash *h,
                     size_t slots,
                     Curl_hash_type type,
                     Curl_hash_dtor dtor)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(slots);
-  DEBUGASSERT((unsigned int)type < CURL_HASH_TYPE_LAST);
+  DEBUGASSERT((unsigned പൂർണ്ണസംഖ്യ)type < CURL_HASH_TYPE_LAST);
   DEBUGASSERT(dtor);
 
-  h->table = NULL;
+  h->table = ശൂന്യ;
   h->dtor = dtor;
   h->size = 0;
   h->slots = slots;
@@ -230,100 +230,100 @@ void Curl_hash_init(struct Curl_hash *h,
 #endif
 }
 
-static struct Curl_hash_element *hash_elem_create(const void *key,
-                                                  size_t key_len,
-                                                  void *p,
+സ്ഥിതം ഘടന Curl_hash_element *hash_elem_create(സ്ഥിരം ശൂന്യം *താക്കോൽ,
+                                                  size_t താക്കോൽ_len,
+                                                  ശൂന്യം *p,
                                                   Curl_hash_elem_dtor dtor)
 {
-  struct Curl_hash_element *he;
+  ഘടന Curl_hash_element *he;
 
   /* allocate the struct plus memory after it to store the key */
-  he = curlx_malloc(sizeof(struct Curl_hash_element) + key_len);
-  if(he) {
-    he->next = NULL;
+  he = curlx_malloc(വലുപ്പം(ഘടന Curl_hash_element) + താക്കോൽ_len);
+  എങ്കിൽ(he) {
+    he->next = ശൂന്യ;
     /* copy the key */
-    memcpy(hash_elem_key(he), key, key_len);
-    he->key_len = key_len;
+    memcpy(hash_elem_താക്കോൽ(he), താക്കോൽ, താക്കോൽ_len);
+    he->താക്കോൽ_len = താക്കോൽ_len;
     he->ptr = p;
     he->dtor = dtor;
   }
-  return he;
+  തിരികെ he;
 }
 
-static void hash_elem_clear_ptr(struct Curl_hash *h,
-                                struct Curl_hash_element *he)
+സ്ഥിതം ശൂന്യം hash_elem_clear_ptr(ഘടന Curl_hash *h,
+                                ഘടന Curl_hash_element *he)
 {
   DEBUGASSERT(h);
   DEBUGASSERT(he);
-  if(he->ptr) {
-    if(he->dtor)
-      he->dtor(hash_elem_key(he), he->key_len, he->ptr);
-    else
+  എങ്കിൽ(he->ptr) {
+    എങ്കിൽ(he->dtor)
+      he->dtor(hash_elem_താക്കോൽ(he), he->താക്കോൽ_len, he->ptr);
+    അല്ലെങ്കിൽ
       h->dtor(he->ptr);
-    he->ptr = NULL;
+    he->ptr = ശൂന്യ;
   }
 }
 
-static void hash_elem_destroy(struct Curl_hash *h,
-                              struct Curl_hash_element *he)
+സ്ഥിതം ശൂന്യം hash_elem_destroy(ഘടന Curl_hash *h,
+                              ഘടന Curl_hash_element *he)
 {
   hash_elem_clear_ptr(h, he);
   curlx_free(he);
 }
 
-static void hash_elem_unlink(struct Curl_hash *h,
-                             struct Curl_hash_element **he_anchor,
-                             struct Curl_hash_element *he)
+സ്ഥിതം ശൂന്യം hash_elem_unlink(ഘടന Curl_hash *h,
+                             ഘടന Curl_hash_element **he_anchor,
+                             ഘടന Curl_hash_element *he)
 {
   *he_anchor = he->next;
   --h->size;
 }
 
-static void hash_elem_link(struct Curl_hash *h,
-                           struct Curl_hash_element **he_anchor,
-                           struct Curl_hash_element *he)
+സ്ഥിതം ശൂന്യം hash_elem_link(ഘടന Curl_hash *h,
+                           ഘടന Curl_hash_element **he_anchor,
+                           ഘടന Curl_hash_element *he)
 {
   he->next = *he_anchor;
   *he_anchor = he;
   ++h->size;
 }
 
-void *Curl_hash_add2(struct Curl_hash *h,
-                     const void *key, size_t key_len, void *p,
+ശൂന്യം *Curl_hash_add2(ഘടന Curl_hash *h,
+                     സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_len, ശൂന്യം *p,
                      Curl_hash_elem_dtor dtor)
 {
-  const struct hash_functions *functions;
-  struct Curl_hash_element *he, **slot;
+  സ്ഥിരം ഘടന hash_functions *functions;
+  ഘടന Curl_hash_element *he, **slot;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(!h->table) {
-    h->table = curlx_calloc(h->slots, sizeof(struct Curl_hash_element *));
-    if(!h->table)
-      return NULL; /* OOM */
+  എങ്കിൽ(!hash_താക്കോൽ_is_valid(h->type, താക്കോൽ_len))
+    തിരികെ ശൂന്യ;
+  എങ്കിൽ(!h->table) {
+    h->table = curlx_calloc(h->slots, വലുപ്പം(ഘടന Curl_hash_element *));
+    എങ്കിൽ(!h->table)
+      തിരികെ ശൂന്യ; /* OOM */
   }
 
   functions = hash_get_functions(h->type);
-  slot = &h->table[functions->hash(key, key_len, h->slots)];
-  for(he = *slot; he; he = he->next) {
-    if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+  slot = &h->table[functions->hash(താക്കോൽ, താക്കോൽ_len, h->slots)];
+  വേണ്ടി(he = *slot; he; he = he->next) {
+    എങ്കിൽ(functions->compare(hash_elem_താക്കോൽ(he), he->താക്കോൽ_len, താക്കോൽ, താക്കോൽ_len)) {
       /* existing key entry, overwrite by clearing old pointer */
       hash_elem_clear_ptr(h, he);
       he->ptr = p;
       he->dtor = dtor;
-      return p;
+      തിരികെ p;
     }
   }
 
-  he = hash_elem_create(key, key_len, p, dtor);
-  if(!he)
-    return NULL; /* OOM */
+  he = hash_elem_create(താക്കോൽ, താക്കോൽ_len, p, dtor);
+  എങ്കിൽ(!he)
+    തിരികെ ശൂന്യ; /* OOM */
 
   hash_elem_link(h, slot, he);
-  return p; /* return the new entry */
+  തിരികെ p; /* return the new entry */
 }
 
 /* Insert the data in the hash. If there already was a match in the hash, that
@@ -334,10 +334,10 @@ void *Curl_hash_add2(struct Curl_hash *h,
  * @unittest: 1602
  * @unittest: 1603
  */
-void *Curl_hash_add(struct Curl_hash *h,
-                    const void *key, size_t key_len, void *p)
+ശൂന്യം *Curl_hash_add(ഘടന Curl_hash *h,
+                    സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_len, ശൂന്യം *p)
 {
-  return Curl_hash_add2(h, key, key_len, p, NULL);
+  തിരികെ Curl_hash_add2(h, താക്കോൽ, താക്കോൽ_len, p, ശൂന്യ);
 }
 
 /* Remove the identified hash entry.
@@ -345,58 +345,58 @@ void *Curl_hash_add(struct Curl_hash *h,
  *
  * @unittest: 1603
  */
-int Curl_hash_delete(struct Curl_hash *h, const void *key, size_t key_len)
+പൂർണ്ണസംഖ്യ Curl_hash_delete(ഘടന Curl_hash *h, സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_len)
 {
-  const struct hash_functions *functions;
+  സ്ഥിരം ഘടന hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->slots);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return 1;
-  if(h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  എങ്കിൽ(!hash_താക്കോൽ_is_valid(h->type, താക്കോൽ_len))
+    തിരികെ 1;
+  എങ്കിൽ(h->table) {
+    ഘടന Curl_hash_element *he, **he_anchor;
 
     functions = hash_get_functions(h->type);
-    he_anchor = &h->table[functions->hash(key, key_len, h->slots)];
-    while(*he_anchor) {
+    he_anchor = &h->table[functions->hash(താക്കോൽ, താക്കോൽ_len, h->slots)];
+    ആകുമ്പോൾ(*he_anchor) {
       he = *he_anchor;
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
+      എങ്കിൽ(functions->compare(hash_elem_താക്കോൽ(he), he->താക്കോൽ_len, താക്കോൽ, താക്കോൽ_len)) {
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
-        return 0;
+        തിരികെ 0;
       }
       he_anchor = &he->next;
     }
   }
-  return 1;
+  തിരികെ 1;
 }
 
 /* Retrieves a hash element.
  *
  * @unittest: 1603
  */
-void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
+ശൂന്യം *Curl_hash_pick(ഘടന Curl_hash *h, സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t താക്കോൽ_len)
 {
-  const struct hash_functions *functions;
+  സ്ഥിരം ഘടന hash_functions *functions;
 
   DEBUGASSERT(h);
   DEBUGASSERT(h->init == HASHINIT);
-  if(!hash_key_is_valid(h->type, key_len))
-    return NULL;
-  if(h->table) {
-    struct Curl_hash_element *he;
+  എങ്കിൽ(!hash_താക്കോൽ_is_valid(h->type, താക്കോൽ_len))
+    തിരികെ ശൂന്യ;
+  എങ്കിൽ(h->table) {
+    ഘടന Curl_hash_element *he;
     DEBUGASSERT(h->slots);
     functions = hash_get_functions(h->type);
-    he = h->table[functions->hash(key, key_len, h->slots)];
-    while(he) {
-      if(functions->compare(hash_elem_key(he), he->key_len, key, key_len)) {
-        return he->ptr;
+    he = h->table[functions->hash(താക്കോൽ, താക്കോൽ_len, h->slots)];
+    ആകുമ്പോൾ(he) {
+      എങ്കിൽ(functions->compare(hash_elem_താക്കോൽ(he), he->താക്കോൽ_len, താക്കോൽ, താക്കോൽ_len)) {
+        തിരികെ he->ptr;
       }
       he = he->next;
     }
   }
-  return NULL;
+  തിരികെ ശൂന്യ;
 }
 
 /* Destroys all the entries in the given hash and resets its attributes,
@@ -406,10 +406,10 @@ void *Curl_hash_pick(struct Curl_hash *h, const void *key, size_t key_len)
  * @unittest: 1602
  * @unittest: 1603
  */
-void Curl_hash_destroy(struct Curl_hash *h)
+ശൂന്യം Curl_hash_destroy(ഘടന Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  if(h->table) {
+  എങ്കിൽ(h->table) {
     Curl_hash_clean(h);
     curlx_safefree(h->table);
   }
@@ -421,15 +421,15 @@ void Curl_hash_destroy(struct Curl_hash *h)
  *
  * @unittest: 1602
  */
-void Curl_hash_clean(struct Curl_hash *h)
+ശൂന്യം Curl_hash_clean(ഘടന Curl_hash *h)
 {
-  if(h && h->table) {
-    struct Curl_hash_element *he, **he_anchor;
+  എങ്കിൽ(h && h->table) {
+    ഘടന Curl_hash_element *he, **he_anchor;
     size_t i;
     DEBUGASSERT(h->init == HASHINIT);
-    for(i = 0; i < h->slots; ++i) {
+    വേണ്ടി(i = 0; i < h->slots; ++i) {
       he_anchor = &h->table[i];
-      while(*he_anchor) {
+      ആകുമ്പോൾ(*he_anchor) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
@@ -438,73 +438,73 @@ void Curl_hash_clean(struct Curl_hash *h)
   }
 }
 
-size_t Curl_hash_count(struct Curl_hash *h)
+size_t Curl_hash_എണ്ണം(ഘടന Curl_hash *h)
 {
   DEBUGASSERT(h->init == HASHINIT);
-  return h->size;
+  തിരികെ h->size;
 }
 
 /* Cleans all entries that pass the comp function criteria. */
-void Curl_hash_clean_with_criterium(struct Curl_hash *h, void *user,
-                                    int (*comp)(void *, void *))
+ശൂന്യം Curl_hash_clean_with_criterium(ഘടന Curl_hash *h, ശൂന്യം *user,
+                                    പൂർണ്ണസംഖ്യ (*comp)(ശൂന്യം *, ശൂന്യം *))
 {
   size_t i;
 
-  if(!h || !h->table)
-    return;
+  എങ്കിൽ(!h || !h->table)
+    തിരികെ;
 
   DEBUGASSERT(h->init == HASHINIT);
-  for(i = 0; i < h->slots; ++i) {
-    struct Curl_hash_element *he, **he_anchor = &h->table[i];
-    while(*he_anchor) {
+  വേണ്ടി(i = 0; i < h->slots; ++i) {
+    ഘടന Curl_hash_element *he, **he_anchor = &h->table[i];
+    ആകുമ്പോൾ(*he_anchor) {
       /* ask the callback function if we shall remove this entry or not */
-      if(!comp || comp(user, (*he_anchor)->ptr)) {
+      എങ്കിൽ(!comp || comp(user, (*he_anchor)->ptr)) {
         he = *he_anchor;
         hash_elem_unlink(h, he_anchor, he);
         hash_elem_destroy(h, he);
       }
-      else
+      അല്ലെങ്കിൽ
         he_anchor = &(*he_anchor)->next;
     }
   }
 }
 
-void Curl_hash_start_iterate(struct Curl_hash *hash,
-                             struct Curl_hash_iterator *iter)
+ശൂന്യം Curl_hash_start_iterate(ഘടന Curl_hash *hash,
+                             ഘടന Curl_hash_iterator *iter)
 {
   DEBUGASSERT(hash->init == HASHINIT);
   iter->hash = hash;
   iter->slot_index = 0;
-  iter->current = NULL;
+  iter->current = ശൂന്യ;
 #ifdef DEBUGBUILD
   iter->init = ITERINIT;
 #endif
 }
 
-struct Curl_hash_element *Curl_hash_next_element(
-  struct Curl_hash_iterator *iter)
+ഘടന Curl_hash_element *Curl_hash_next_element(
+  ഘടന Curl_hash_iterator *iter)
 {
-  struct Curl_hash *h;
+  ഘടന Curl_hash *h;
   DEBUGASSERT(iter->init == ITERINIT);
   h = iter->hash;
-  if(!h->table)
-    return NULL; /* empty hash, nothing to return */
+  എങ്കിൽ(!h->table)
+    തിരികെ ശൂന്യ; /* empty hash, nothing to return */
 
   /* Get the next element in the current list, if any */
-  if(iter->current)
+  എങ്കിൽ(iter->current)
     iter->current = iter->current->next;
 
   /* If we have reached the end of the list, find the next one */
-  if(!iter->current) {
+  എങ്കിൽ(!iter->current) {
     size_t i;
-    for(i = iter->slot_index; i < h->slots; i++) {
-      if(h->table[i]) {
+    വേണ്ടി(i = iter->slot_index; i < h->slots; i++) {
+      എങ്കിൽ(h->table[i]) {
         iter->current = h->table[i];
         iter->slot_index = i + 1;
-        break;
+        നിർത്തുക;
       }
     }
   }
 
-  return iter->current;
+  തിരികെ iter->current;
 }

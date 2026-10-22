@@ -36,41 +36,41 @@
  * Draft   LOGIN SASL Mechanism <draft-murchison-sasl-login-00.txt>
  *
  ***************************************************************************/
-#include "curl_setup.h"
-#include "urldata.h"
-#include "pop3.h"
+#അന്തര്ഭാവ "curl_setup.h"
+#അന്തര്ഭാവ "urldata.h"
+#അന്തര്ഭാവ "pop3.h"
 
 #ifndef CURL_DISABLE_POP3
 
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#അന്തര്ഭാവ <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+#അന്തര്ഭാവ <arpa/inet.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+#അന്തര്ഭാവ <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+#അന്തര്ഭാവ <in.h>
+#അന്തര്ഭാവ <inet.h>
 #endif
 
-#include "sendf.h"
-#include "curl_trc.h"
-#include "progress.h"
-#include "transfer.h"
-#include "escape.h"
-#include "pingpong.h"
-#include "vtls/vtls.h"
-#include "cfilters.h"
-#include "connect.h"
-#include "select.h"
-#include "url.h"
-#include "bufref.h"
-#include "curl_sasl.h"
-#include "curl_md5.h"
-#include "curlx/strdup.h"
+#അന്തര്ഭാവ "sendf.h"
+#അന്തര്ഭാവ "curl_trc.h"
+#അന്തര്ഭാവ "progress.h"
+#അന്തര്ഭാവ "transfer.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "pingpong.h"
+#അന്തര്ഭാവ "vtls/vtls.h"
+#അന്തര്ഭാവ "cfilters.h"
+#അന്തര്ഭാവ "connect.h"
+#അന്തര്ഭാവ "select.h"
+#അന്തര്ഭാവ "url.h"
+#അന്തര്ഭാവ "bufref.h"
+#അന്തര്ഭാവ "curl_sasl.h"
+#അന്തര്ഭാവ "curl_md5.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
 
 /* Authentication type flags */
 #define POP3_TYPE_CLEARTEXT (1 << 0)
@@ -93,16 +93,16 @@
 /*
  * POP3 easy handle state
  */
-struct POP3 {
+ഘടന POP3 {
   curl_pp_transfer transfer;
-  char *id;               /* Message ID */
-  char *custom;           /* Custom Request */
+  അക്ഷരം *id;               /* Message ID */
+  അക്ഷരം *custom;           /* Custom Request */
 };
 
 /*
  * POP3 connection state
  */
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   POP3_STOP,         /* do nothing state, stops the state machine */
   POP3_SERVERGREET,  /* waiting for the initial greeting immediately after
                         a connect */
@@ -119,29 +119,29 @@ typedef enum {
   POP3_LAST          /* never used */
 } pop3state;
 
-struct pop3_conn {
-  struct pingpong pp;
+ഘടന pop3_conn {
+  ഘടന pingpong pp;
   pop3state state;        /* Always use pop3.c:state() to change state! */
   size_t eob;             /* Number of bytes of the EOB (End Of Body) that
                              have been received so far */
   size_t strip;           /* Number of bytes from the start to ignore as
                              non-body */
-  struct SASL sasl;       /* SASL-related storage */
-  char *apoptimestamp;    /* APOP timestamp from the server greeting */
-  unsigned char authtypes; /* Accepted authentication types */
-  unsigned char preftype;  /* Preferred authentication type */
+  ഘടന SASL sasl;       /* SASL-related storage */
+  അക്ഷരം *apoptimestamp;    /* APOP timestamp from the server greeting */
+  unsigned അക്ഷരം authtypes; /* Accepted authentication types */
+  unsigned അക്ഷരം preftype;  /* Preferred authentication type */
   BIT(ssldone);           /* Is connect() over SSL done? */
   BIT(tls_supported);     /* StartTLS capability supported by server */
 };
 
-struct pop3_cmd {
-  const char *name;
+ഘടന pop3_cmd {
+  സ്ഥിരം അക്ഷരം *name;
   unsigned short nlen;
   BIT(multiline); /* response is multi-line with last '.' line */
   BIT(multiline_with_args); /* is multi-line when command has args */
 };
 
-static const struct pop3_cmd pop3cmds[] = {
+സ്ഥിതം സ്ഥിരം ഘടന pop3_cmd pop3cmds[] = {
   { "APOP", 4, FALSE, FALSE },
   { "AUTH", 4, FALSE, FALSE },
   { "CAPA", 4, TRUE, TRUE },
@@ -168,58 +168,58 @@ static const struct pop3_cmd pop3cmds[] = {
  *
  * Parse the URL login options.
  */
-static CURLcode pop3_parse_url_options(struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_parse_url_options(ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
-  const char *ptr = conn->options;
+  സ്ഥിരം അക്ഷരം *ptr = conn->options;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  while(!result && ptr && *ptr) {
-    const char *key = ptr;
-    const char *value;
+  ആകുമ്പോൾ(!result && ptr && *ptr) {
+    സ്ഥിരം അക്ഷരം *താക്കോൽ = ptr;
+    സ്ഥിരം അക്ഷരം *മൂല്യം;
 
-    while(*ptr && *ptr != '=')
+    ആകുമ്പോൾ(*ptr && *ptr != '=')
       ptr++;
 
-    value = ptr + 1;
+    മൂല്യം = ptr + 1;
 
-    while(*ptr && *ptr != ';')
+    ആകുമ്പോൾ(*ptr && *ptr != ';')
       ptr++;
 
-    if(curl_strnequal(key, "AUTH=", 5)) {
+    എങ്കിൽ(curl_strnequal(താക്കോൽ, "AUTH=", 5)) {
       result = Curl_sasl_parse_url_auth_option(&pop3c->sasl,
-                                               value, ptr - value);
+                                               മൂല്യം, ptr - മൂല്യം);
 
-      if(result && curl_strnequal(value, "+APOP", ptr - value)) {
+      എങ്കിൽ(result && curl_strnequal(മൂല്യം, "+APOP", ptr - മൂല്യം)) {
         pop3c->preftype = POP3_TYPE_APOP;
         pop3c->sasl.prefmech = SASL_AUTH_NONE;
         result = CURLE_OK;
       }
     }
-    else
+    അല്ലെങ്കിൽ
       result = CURLE_URL_MALFORMAT;
 
-    if(*ptr == ';')
+    എങ്കിൽ(*ptr == ';')
       ptr++;
   }
 
-  if(pop3c->preftype != POP3_TYPE_APOP)
-    switch(pop3c->sasl.prefmech) {
-    case SASL_AUTH_NONE:
+  എങ്കിൽ(pop3c->preftype != POP3_TYPE_APOP)
+    തിരഞ്ഞെടുപ്പ്(pop3c->sasl.prefmech) {
+    അവസ്ഥ SASL_AUTH_NONE:
       pop3c->preftype = POP3_TYPE_NONE;
-      break;
-    case SASL_AUTH_DEFAULT:
+      നിർത്തുക;
+    അവസ്ഥ SASL_AUTH_DEFAULT:
       pop3c->preftype = POP3_TYPE_ANY;
-      break;
-    default:
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
       pop3c->preftype = POP3_TYPE_SASL;
-      break;
+      നിർത്തുക;
     }
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -228,16 +228,16 @@ static CURLcode pop3_parse_url_options(struct connectdata *conn)
  *
  * Parse the URL path into separate path components.
  */
-static CURLcode pop3_parse_url_path(struct Curl_easy *data)
+സ്ഥിതം CURLcode pop3_parse_url_path(ഘടന Curl_easy *data)
 {
   /* The POP3 struct is already initialized in pop3_connect() */
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  const char *path = &data->state.up.path[1]; /* skip leading path */
+  ഘടന POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  സ്ഥിരം അക്ഷരം *path = &data->state.up.path[1]; /* skip leading path */
 
-  if(!pop3)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3)
+    തിരികെ CURLE_FAILED_INIT;
   /* URL decode the path for the message ID */
-  return Curl_urldecode(path, 0, &pop3->id, NULL, REJECT_CTRL);
+  തിരികെ Curl_urldecode(path, 0, &pop3->id, ശൂന്യ, REJECT_CTRL);
 }
 
 /***********************************************************************
@@ -246,38 +246,38 @@ static CURLcode pop3_parse_url_path(struct Curl_easy *data)
  *
  * Parse the custom request.
  */
-static CURLcode pop3_parse_custom_request(struct Curl_easy *data)
+സ്ഥിതം CURLcode pop3_parse_custom_request(ഘടന Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  const char *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
+  ഘടന POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  സ്ഥിരം അക്ഷരം *custom = CURL_EASY_STR(data, STRING_CUSTOMREQUEST);
 
-  if(!pop3)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3)
+    തിരികെ CURLE_FAILED_INIT;
   /* URL decode the custom request */
-  if(custom)
-    result = Curl_urldecode(custom, 0, &pop3->custom, NULL, REJECT_CTRL);
+  എങ്കിൽ(custom)
+    result = Curl_urldecode(custom, 0, &pop3->custom, ശൂന്യ, REJECT_CTRL);
 
-  return result;
+  തിരികെ result;
 }
 
 /* Return iff a command is defined as "multi-line" (RFC 1939),
  * has a response terminated by a last line with a '.'.
  */
-static bool pop3_is_multiline(const char *cmdline)
+സ്ഥിതം bool pop3_is_multiline(സ്ഥിരം അക്ഷരം *cmdline)
 {
   size_t i;
-  for(i = 0; i < CURL_ARRAYSIZE(pop3cmds); ++i) {
-    if(curl_strnequal(pop3cmds[i].name, cmdline, pop3cmds[i].nlen)) {
-      if(!cmdline[pop3cmds[i].nlen])
-        return (bool)pop3cmds[i].multiline;
-      else if(cmdline[pop3cmds[i].nlen] == ' ')
-        return (bool)pop3cmds[i].multiline_with_args;
+  വേണ്ടി(i = 0; i < CURL_ARRAYSIZE(pop3cmds); ++i) {
+    എങ്കിൽ(curl_strnequal(pop3cmds[i].name, cmdline, pop3cmds[i].nlen)) {
+      എങ്കിൽ(!cmdline[pop3cmds[i].nlen])
+        തിരികെ (bool)pop3cmds[i].multiline;
+      അല്ലെങ്കിൽ എങ്കിൽ(cmdline[pop3cmds[i].nlen] == ' ')
+        തിരികെ (bool)pop3cmds[i].multiline_with_args;
     }
   }
   /* Unknown command, assume multi-line for backward compatibility with
    * earlier curl versions that only could do multi-line responses. */
-  return TRUE;
+  തിരികെ TRUE;
 }
 
 /***********************************************************************
@@ -289,52 +289,52 @@ static bool pop3_is_multiline(const char *cmdline)
  * capabilities from the CAPA response including the supported authentication
  * types and allowed SASL mechanisms.
  */
-static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
-                           const char *line, size_t len, int *resp)
+സ്ഥിതം bool pop3_endofresp(ഘടന Curl_easy *data, ഘടന connectdata *conn,
+                           സ്ഥിരം അക്ഷരം *വരി, size_t len, പൂർണ്ണസംഖ്യ *resp)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  (void)data;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  (ശൂന്യം)data;
   DEBUGASSERT(pop3c);
-  if(!pop3c) /* internal error */
-    return TRUE;
+  എങ്കിൽ(!pop3c) /* internal error */
+    തിരികെ TRUE;
 
   /* Do we have an error response? */
-  if(len >= 4 && !memcmp("-ERR", line, 4)) {
+  എങ്കിൽ(len >= 4 && !memcmp("-ERR", വരി, 4)) {
     *resp = '-';
 
-    return TRUE;
+    തിരികെ TRUE;
   }
 
   /* Are we processing CAPA command responses? */
-  if(pop3c->state == POP3_CAPA) {
+  എങ്കിൽ(pop3c->state == POP3_CAPA) {
     /* Do we have the terminating line? Per RFC 2449 this is a line
        containing only a single dot */
-    if((len == 3 && line[0] == '.' && line[1] == '\r') ||
-       (len == 2 && line[0] == '.' && line[1] == '\n'))
+    എങ്കിൽ((len == 3 && വരി[0] == '.' && വരി[1] == '\r') ||
+       (len == 2 && വരി[0] == '.' && വരി[1] == '\n'))
       /* Treat the response as a success */
       *resp = '+';
-    else
+    അല്ലെങ്കിൽ
       /* Treat the response as an untagged continuation */
       *resp = '*';
 
-    return TRUE;
+    തിരികെ TRUE;
   }
 
   /* Do we have a success response? */
-  if(len >= 3 && !memcmp("+OK", line, 3)) {
+  എങ്കിൽ(len >= 3 && !memcmp("+OK", വരി, 3)) {
     *resp = '+';
 
-    return TRUE;
+    തിരികെ TRUE;
   }
 
   /* Do we have a continuation response? */
-  if(len >= 1 && line[0] == '+') {
+  എങ്കിൽ(len >= 1 && വരി[0] == '+') {
     *resp = '*';
 
-    return TRUE;
+    തിരികെ TRUE;
   }
 
-  return FALSE; /* Nothing for us */
+  തിരികെ FALSE; /* Nothing for us */
 }
 
 /***********************************************************************
@@ -343,37 +343,37 @@ static bool pop3_endofresp(struct Curl_easy *data, struct connectdata *conn,
  *
  * Gets the authentication message from the response buffer.
  */
-static CURLcode pop3_get_message(struct Curl_easy *data, struct bufref *out)
+സ്ഥിതം CURLcode pop3_get_message(ഘടന Curl_easy *data, ഘടന bufref *out)
 {
-  struct pop3_conn *pop3c =
+  ഘടന pop3_conn *pop3c =
     Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  char *message;
+  അക്ഷരം *message;
   size_t len;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
   message = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
-  if(len > 2) {
+  എങ്കിൽ(len > 2) {
     /* Find the start of the message */
     len -= 2;
-    for(message += 2; ISBLANK(*message); message++, len--)
+    വേണ്ടി(message += 2; ISBLANK(*message); message++, len--)
       ;
 
     /* Find the end of the message */
-    while(len--)
-      if(!ISBLANK(message[len]) && !ISNEWLINE(message[len]))
-        break;
+    ആകുമ്പോൾ(len--)
+      എങ്കിൽ(!ISBLANK(message[len]) && !ISNEWLINE(message[len]))
+        നിർത്തുക;
 
     /* Terminate the message */
     message[++len] = '\0';
-    Curl_bufref_set(out, message, len, NULL);
+    Curl_bufref_set(out, message, len, ശൂന്യ);
   }
-  else
+  അല്ലെങ്കിൽ
     /* junk input => zero length output */
-    Curl_bufref_set(out, "", 0, NULL);
+    Curl_bufref_set(out, "", 0, ശൂന്യ);
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /***********************************************************************
@@ -382,14 +382,14 @@ static CURLcode pop3_get_message(struct Curl_easy *data, struct bufref *out)
  *
  * This is the ONLY way to change POP3 state!
  */
-static void pop3_state(struct Curl_easy *data, pop3state newstate)
+സ്ഥിതം ശൂന്യം pop3_state(ഘടന Curl_easy *data, pop3state newstate)
 {
-  struct pop3_conn *pop3c =
+  ഘടന pop3_conn *pop3c =
     Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  if(pop3c) {
-#if defined(DEBUGBUILD) && defined(CURLVERBOSE)
+  എങ്കിൽ(pop3c) {
+#എങ്കിൽ defined(DEBUGBUILD) && defined(CURLVERBOSE)
     /* for debug purposes */
-    static const char * const names[] = {
+    സ്ഥിതം സ്ഥിരം അക്ഷരം * സ്ഥിരം names[] = {
       "STOP",
       "SERVERGREET",
       "CAPA",
@@ -404,9 +404,9 @@ static void pop3_state(struct Curl_easy *data, pop3state newstate)
       /* LAST */
     };
 
-    if(pop3c->state != newstate)
+    എങ്കിൽ(pop3c->state != newstate)
       infof(data, "POP3 %p state change from %s to %s",
-            (void *)pop3c, names[pop3c->state], names[newstate]);
+            (ശൂന്യം *)pop3c, names[pop3c->state], names[newstate]);
 #endif
 
     pop3c->state = newstate;
@@ -420,14 +420,14 @@ static void pop3_state(struct Curl_easy *data, pop3state newstate)
  * Sends the CAPA command in order to obtain a list of server side supported
  * capabilities.
  */
-static CURLcode pop3_perform_capa(struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_capa(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   pop3c->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanisms yet */
   pop3c->sasl.authused = SASL_AUTH_NONE;  /* Clear the auth. mechanism used */
@@ -436,10 +436,10 @@ static CURLcode pop3_perform_capa(struct Curl_easy *data,
   /* Send the CAPA command */
   result = Curl_pp_sendf(data, &pop3c->pp, "%s", "CAPA");
 
-  if(!result)
+  എങ്കിൽ(!result)
     pop3_state(data, POP3_CAPA);
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -448,21 +448,21 @@ static CURLcode pop3_perform_capa(struct Curl_easy *data,
  *
  * Sends the STLS command to start the upgrade to TLS.
  */
-static CURLcode pop3_perform_starttls(struct Curl_easy *data,
-                                      struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_starttls(ഘടന Curl_easy *data,
+                                      ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Send the STLS command */
   result = Curl_pp_sendf(data, &pop3c->pp, "%s", "STLS");
-  if(!result)
+  എങ്കിൽ(!result)
     pop3_state(data, POP3_STARTTLS);
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -471,23 +471,23 @@ static CURLcode pop3_perform_starttls(struct Curl_easy *data,
  *
  * Performs the upgrade to TLS.
  */
-static CURLcode pop3_perform_upgrade_tls(struct Curl_easy *data,
-                                         struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_upgrade_tls(ഘടന Curl_easy *data,
+                                         ഘടന connectdata *conn)
 {
 #ifdef USE_SSL
   /* Start the SSL connection */
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result;
   bool ssldone = FALSE;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  if(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
+  എങ്കിൽ(!Curl_conn_is_ssl(conn, FIRSTSOCKET)) {
     result = Curl_ssl_cfilter_add(
       data, Curl_conn_get_origin(conn, FIRSTSOCKET), conn, FIRSTSOCKET);
-    if(result)
-      goto out;
+    എങ്കിൽ(result)
+      പോകുക out;
     /* Change the connection handler */
     conn->scheme = &Curl_scheme_pop3s;
   }
@@ -495,18 +495,18 @@ static CURLcode pop3_perform_upgrade_tls(struct Curl_easy *data,
   DEBUGASSERT(!pop3c->ssldone);
   result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &ssldone);
   DEBUGF(infof(data, "pop3_perform_upgrade_tls, connect -> %d, %d",
-               (int)result, ssldone));
-  if(!result && ssldone) {
+               (പൂർണ്ണസംഖ്യ)result, ssldone));
+  എങ്കിൽ(!result && ssldone) {
     pop3c->ssldone = ssldone;
     /* perform CAPA now, changes pop3c->state out of POP3_UPGRADETLS */
     result = pop3_perform_capa(data, conn);
   }
 out:
-  return result;
-#else
-  (void)data;
-  (void)conn;
-  return CURLE_NOT_BUILT_IN;
+  തിരികെ result;
+#അല്ലെങ്കിൽ
+  (ശൂന്യം)data;
+  (ശൂന്യം)conn;
+  തിരികെ CURLE_NOT_BUILT_IN;
 #endif
 }
 
@@ -516,30 +516,30 @@ out:
  *
  * Sends a clear text USER command to authenticate with.
  */
-static CURLcode pop3_perform_user(struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_user(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!conn->creds) {
+  എങ്കിൽ(!conn->creds) {
     pop3_state(data, POP3_STOP);
 
-    return result;
+    തിരികെ result;
   }
 
   /* Send the USER command */
   result = Curl_pp_sendf(data, &pop3c->pp, "USER %s",
                          Curl_creds_user(conn->creds));
-  if(!result)
+  എങ്കിൽ(!result)
     pop3_state(data, POP3_USER);
 
-  return result;
+  തിരികെ result;
 }
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
@@ -549,52 +549,52 @@ static CURLcode pop3_perform_user(struct Curl_easy *data,
  *
  * Sends an APOP command to authenticate with.
  */
-static CURLcode pop3_perform_apop(struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_apop(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
   size_t i;
-  struct MD5_context *ctxt;
-  unsigned char digest[MD5_DIGEST_LEN];
-  char secret[(2 * MD5_DIGEST_LEN) + 1];
+  ഘടന MD5_context *ctxt;
+  unsigned അക്ഷരം digest[MD5_DIGEST_LEN];
+  അക്ഷരം secret[(2 * MD5_DIGEST_LEN) + 1];
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Check we have a username and password to authenticate with and end the
      connect phase if we do not */
-  if(!data->state.creds) {
+  എങ്കിൽ(!data->state.creds) {
     pop3_state(data, POP3_STOP);
 
-    return result;
+    തിരികെ result;
   }
 
   /* Create the digest */
   ctxt = Curl_MD5_init(&Curl_DIGEST_MD5);
-  if(!ctxt)
-    return CURLE_OUT_OF_MEMORY;
+  എങ്കിൽ(!ctxt)
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  Curl_MD5_update(ctxt, (const unsigned char *)pop3c->apoptimestamp,
+  Curl_MD5_update(ctxt, (സ്ഥിരം unsigned അക്ഷരം *)pop3c->apoptimestamp,
                   curlx_uztoui(strlen(pop3c->apoptimestamp)));
 
-  Curl_MD5_update(ctxt, (const unsigned char *)Curl_creds_passwd(conn->creds),
+  Curl_MD5_update(ctxt, (സ്ഥിരം unsigned അക്ഷരം *)Curl_creds_passwd(conn->creds),
                   curlx_uztoui(strlen(Curl_creds_passwd(conn->creds))));
 
   /* Finalise the digest */
   Curl_MD5_final(ctxt, digest);
 
   /* Convert the calculated 16 octet digest into a 32-byte hex string */
-  for(i = 0; i < MD5_DIGEST_LEN; i++)
+  വേണ്ടി(i = 0; i < MD5_DIGEST_LEN; i++)
     curl_msnprintf(&secret[2 * i], 3, "%02x", digest[i]);
 
   result = Curl_pp_sendf(data, &pop3c->pp, "APOP %s %s",
                          Curl_creds_user(conn->creds), secret);
 
-  if(!result)
+  എങ്കിൽ(!result)
     pop3_state(data, POP3_APOP);
 
-  return result;
+  തിരികെ result;
 }
 #endif
 
@@ -605,29 +605,29 @@ static CURLcode pop3_perform_apop(struct Curl_easy *data,
  * Sends an AUTH command allowing the client to login with the given SASL
  * authentication mechanism.
  */
-static CURLcode pop3_perform_auth(struct Curl_easy *data,
-                                  const char *mech,
-                                  const struct bufref *initresp)
+സ്ഥിതം CURLcode pop3_perform_auth(ഘടന Curl_easy *data,
+                                  സ്ഥിരം അക്ഷരം *mech,
+                                  സ്ഥിരം ഘടന bufref *initresp)
 {
-  struct pop3_conn *pop3c =
+  ഘടന pop3_conn *pop3c =
     Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
-  const char *ir = Curl_bufref_ptr(initresp);
+  സ്ഥിരം അക്ഷരം *ir = Curl_bufref_ptr(initresp);
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  if(ir) {                                  /* AUTH <mech> ...<crlf> */
+  എങ്കിൽ(ir) {                                  /* AUTH <mech> ...<crlf> */
     /* Send the AUTH command with the initial response */
     result = Curl_pp_sendf(data, &pop3c->pp, "AUTH %s %s",
                            mech, *ir ? ir : "=");
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* Send the AUTH command */
     result = Curl_pp_sendf(data, &pop3c->pp, "AUTH %s", mech);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -636,18 +636,18 @@ static CURLcode pop3_perform_auth(struct Curl_easy *data,
  *
  * Sends SASL continuation data.
  */
-static CURLcode pop3_continue_auth(struct Curl_easy *data,
-                                   const char *mech,
-                                   const struct bufref *resp)
+സ്ഥിതം CURLcode pop3_continue_auth(ഘടന Curl_easy *data,
+                                   സ്ഥിരം അക്ഷരം *mech,
+                                   സ്ഥിരം ഘടന bufref *resp)
 {
-  struct pop3_conn *pop3c =
+  ഘടന pop3_conn *pop3c =
     Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
 
-  (void)mech;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (ശൂന്യം)mech;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  return Curl_pp_sendf(data, &pop3c->pp, "%s", Curl_bufref_ptr(resp));
+  തിരികെ Curl_pp_sendf(data, &pop3c->pp, "%s", Curl_bufref_ptr(resp));
 }
 
 /***********************************************************************
@@ -656,16 +656,16 @@ static CURLcode pop3_continue_auth(struct Curl_easy *data,
  *
  * Sends SASL cancellation.
  */
-static CURLcode pop3_cancel_auth(struct Curl_easy *data, const char *mech)
+സ്ഥിതം CURLcode pop3_cancel_auth(ഘടന Curl_easy *data, സ്ഥിരം അക്ഷരം *mech)
 {
-  struct pop3_conn *pop3c =
+  ഘടന pop3_conn *pop3c =
     Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
 
-  (void)mech;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (ശൂന്യം)mech;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  return Curl_pp_sendf(data, &pop3c->pp, "*");
+  തിരികെ Curl_pp_sendf(data, &pop3c->pp, "*");
 }
 
 /***********************************************************************
@@ -676,46 +676,46 @@ static CURLcode pop3_cancel_auth(struct Curl_easy *data, const char *mech)
  * authentication mechanism, falling back to APOP and clear text should a
  * common mechanism not be available between the client and server.
  */
-static CURLcode pop3_perform_authentication(struct Curl_easy *data,
-                                            struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_authentication(ഘടന Curl_easy *data,
+                                            ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
   saslprogress progress = SASL_IDLE;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Check we have enough data to authenticate with and end the
      connect phase if we do not */
-  if(!Curl_sasl_can_authenticate(&pop3c->sasl, data)) {
+  എങ്കിൽ(!Curl_sasl_can_authenticate(&pop3c->sasl, data)) {
     pop3_state(data, POP3_STOP);
-    return result;
+    തിരികെ result;
   }
 
-  if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_SASL) {
+  എങ്കിൽ(pop3c->authtypes & pop3c->preftype & POP3_TYPE_SASL) {
     /* Calculate the SASL login details */
     result = Curl_sasl_start(&pop3c->sasl, data, FALSE, &progress);
 
-    if(!result && progress == SASL_INPROGRESS)
+    എങ്കിൽ(!result && progress == SASL_INPROGRESS)
       pop3_state(data, POP3_AUTH);
   }
 
-  if(!result && progress == SASL_IDLE) {
+  എങ്കിൽ(!result && progress == SASL_IDLE) {
 #ifndef CURL_DISABLE_DIGEST_AUTH
-    if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
+    എങ്കിൽ(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
       /* Perform APOP authentication */
       result = pop3_perform_apop(data, conn);
-    else
+    അല്ലെങ്കിൽ
 #endif
-    if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
+    എങ്കിൽ(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
       /* Perform clear text authentication */
       result = pop3_perform_user(data, conn);
-    else
+    അല്ലെങ്കിൽ
       result = Curl_sasl_is_blocked(&pop3c->sasl, data);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -724,43 +724,43 @@ static CURLcode pop3_perform_authentication(struct Curl_easy *data,
  *
  * Sends a POP3 based command.
  */
-static CURLcode pop3_perform_command(struct Curl_easy *data)
+സ്ഥിതം CURLcode pop3_perform_command(ഘടന Curl_easy *data)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *command = NULL;
+  ഘടന connectdata *conn = data->conn;
+  ഘടന POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  സ്ഥിരം അക്ഷരം *command = ശൂന്യ;
 
-  if(!pop3 || !pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3 || !pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Calculate the default command */
-  if(pop3->id[0] == '\0' || data->set.list_only) {
+  എങ്കിൽ(pop3->id[0] == '\0' || data->set.list_only) {
     command = "LIST";
 
-    if(pop3->id[0] != '\0')
+    എങ്കിൽ(pop3->id[0] != '\0')
       /* Message specific LIST so skip the BODY transfer */
       pop3->transfer = PPTRANSFER_INFO;
   }
-  else
+  അല്ലെങ്കിൽ
     command = "RETR";
 
-  if(pop3->custom && pop3->custom[0] != '\0')
+  എങ്കിൽ(pop3->custom && pop3->custom[0] != '\0')
     command = pop3->custom;
 
   /* Send the command */
-  if(pop3->id[0] != '\0')
+  എങ്കിൽ(pop3->id[0] != '\0')
     result = Curl_pp_sendf(data, &pop3c->pp, "%s %s", command, pop3->id);
-  else
+  അല്ലെങ്കിൽ
     result = Curl_pp_sendf(data, &pop3c->pp, "%s", command);
 
-  if(!result) {
+  എങ്കിൽ(!result) {
     pop3_state(data, POP3_COMMAND);
     data->req.no_body = !pop3_is_multiline(command);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -769,300 +769,300 @@ static CURLcode pop3_perform_command(struct Curl_easy *data)
  *
  * Performs the quit action prior to sclose() be called.
  */
-static CURLcode pop3_perform_quit(struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_perform_quit(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Send the QUIT command */
   result = Curl_pp_sendf(data, &pop3c->pp, "%s", "QUIT");
-  if(!result)
+  എങ്കിൽ(!result)
     pop3_state(data, POP3_QUIT);
 
-  return result;
+  തിരികെ result;
 }
 
 /* For the initial server greeting */
-static CURLcode pop3_state_servergreet_resp(struct Curl_easy *data,
-                                            int pop3code,
+സ്ഥിതം CURLcode pop3_state_servergreet_resp(ഘടന Curl_easy *data,
+                                            പൂർണ്ണസംഖ്യ pop3code,
                                             pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *line;
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  സ്ഥിരം അക്ഷരം *വരി;
   size_t len;
 
-  (void)instate;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (ശൂന്യം)instate;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  line = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  വരി = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
 
-  if(pop3code != '+') {
+  എങ്കിൽ(pop3code != '+') {
     failf(data, "Got unexpected pop3-server response");
     result = CURLE_WEIRD_SERVER_REPLY;
   }
-  else if(len > 3) {
+  അല്ലെങ്കിൽ എങ്കിൽ(len > 3) {
     /* Does the server support APOP authentication? */
-    const char *lt;
-    const char *gt = NULL;
+    സ്ഥിരം അക്ഷരം *lt;
+    സ്ഥിരം അക്ഷരം *gt = ശൂന്യ;
 
     /* Look for the APOP timestamp */
-    lt = memchr(line, '<', len);
-    if(lt)
+    lt = memchr(വരി, '<', len);
+    എങ്കിൽ(lt)
       /* search the remainder for '>' */
-      gt = memchr(lt, '>', len - (lt - line));
-    if(gt) {
+      gt = memchr(lt, '>', len - (lt - വരി));
+    എങ്കിൽ(gt) {
       /* the length of the timestamp, including the brackets */
       size_t timestamplen = gt - lt + 1;
-      const char *at = memchr(lt, '@', timestamplen);
+      സ്ഥിരം അക്ഷരം *at = memchr(lt, '@', timestamplen);
       /* If the timestamp does not contain '@' it is not (as required by
          RFC-1939) conformant to the RFC-822 message id syntax, and we
          therefore do not use APOP authentication. */
-      if(at) {
+      എങ്കിൽ(at) {
         /* dupe the timestamp */
         pop3c->apoptimestamp = curlx_memdup0(lt, timestamplen);
-        if(!pop3c->apoptimestamp)
-          return CURLE_OUT_OF_MEMORY;
+        എങ്കിൽ(!pop3c->apoptimestamp)
+          തിരികെ CURLE_OUT_OF_MEMORY;
         /* Store the APOP capability */
         pop3c->authtypes |= POP3_TYPE_APOP;
       }
     }
 
-    if(!result)
+    എങ്കിൽ(!result)
       result = pop3_perform_capa(data, conn);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /* For CAPA responses */
-static CURLcode pop3_state_capa_resp(struct Curl_easy *data, int pop3code,
+സ്ഥിതം CURLcode pop3_state_capa_resp(ഘടന Curl_easy *data, പൂർണ്ണസംഖ്യ pop3code,
                                      pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  const char *line;
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  സ്ഥിരം അക്ഷരം *വരി;
   size_t len;
 
-  (void)instate;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (ശൂന്യം)instate;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  line = curlx_dyn_ptr(&pop3c->pp.recvbuf);
+  വരി = curlx_dyn_ptr(&pop3c->pp.recvbuf);
   len = pop3c->pp.nfinal;
 
   /* Do we have an untagged continuation response? */
-  if(pop3code == '*') {
+  എങ്കിൽ(pop3code == '*') {
     /* Does the server support the STLS capability? */
-    if(len >= 4 && curl_strnequal(line, "STLS", 4))
+    എങ്കിൽ(len >= 4 && curl_strnequal(വരി, "STLS", 4))
       pop3c->tls_supported = TRUE;
 
     /* Does the server support clear text authentication? */
-    else if(len >= 4 && curl_strnequal(line, "USER", 4))
+    അല്ലെങ്കിൽ എങ്കിൽ(len >= 4 && curl_strnequal(വരി, "USER", 4))
       pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
 
     /* Does the server support SASL based authentication? */
-    else if(len >= 5 && curl_strnequal(line, "SASL ", 5)) {
+    അല്ലെങ്കിൽ എങ്കിൽ(len >= 5 && curl_strnequal(വരി, "SASL ", 5)) {
       pop3c->authtypes |= POP3_TYPE_SASL;
 
       /* Advance past the SASL keyword */
-      line += 5;
+      വരി += 5;
       len -= 5;
 
       /* Loop through the data line */
-      for(;;) {
+      വേണ്ടി(;;) {
         size_t llen;
         size_t wordlen = 0;
         unsigned short mechbit;
 
-        while(len && (ISBLANK(*line) || ISNEWLINE(*line))) {
-          line++;
+        ആകുമ്പോൾ(len && (ISBLANK(*വരി) || ISNEWLINE(*വരി))) {
+          വരി++;
           len--;
         }
 
-        if(!len)
-          break;
+        എങ്കിൽ(!len)
+          നിർത്തുക;
 
         /* Extract the word */
-        while(wordlen < len && !ISBLANK(line[wordlen]) &&
-              !ISNEWLINE(line[wordlen]))
+        ആകുമ്പോൾ(wordlen < len && !ISBLANK(വരി[wordlen]) &&
+              !ISNEWLINE(വരി[wordlen]))
           wordlen++;
 
         /* Test the word for a matching authentication mechanism */
-        mechbit = Curl_sasl_decode_mech(line, wordlen, &llen);
-        if(mechbit && llen == wordlen)
+        mechbit = Curl_sasl_decode_mech(വരി, wordlen, &llen);
+        എങ്കിൽ(mechbit && llen == wordlen)
           pop3c->sasl.authmechs |= mechbit;
 
-        line += wordlen;
+        വരി += wordlen;
         len -= wordlen;
       }
     }
   }
-  else {
+  അല്ലെങ്കിൽ {
     /* Clear text is supported when CAPA is not recognised */
-    if(pop3code != '+')
+    എങ്കിൽ(pop3code != '+')
       pop3c->authtypes |= POP3_TYPE_CLEARTEXT;
 
-    if(!data->set.use_ssl || Curl_conn_is_ssl(conn, FIRSTSOCKET))
+    എങ്കിൽ(!data->set.use_ssl || Curl_conn_is_ssl(conn, FIRSTSOCKET))
       result = pop3_perform_authentication(data, conn);
-    else if(pop3code == '+' && pop3c->tls_supported)
+    അല്ലെങ്കിൽ എങ്കിൽ(pop3code == '+' && pop3c->tls_supported)
       /* Switch to TLS connection now */
       result = pop3_perform_starttls(data, conn);
-    else if(data->set.use_ssl <= CURLUSESSL_TRY)
+    അല്ലെങ്കിൽ എങ്കിൽ(data->set.use_ssl <= CURLUSESSL_TRY)
       /* Fallback and carry on with authentication */
       result = pop3_perform_authentication(data, conn);
-    else {
+    അല്ലെങ്കിൽ {
       failf(data, "STLS not supported.");
       result = CURLE_USE_SSL_FAILED;
     }
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /* For STARTTLS responses */
-static CURLcode pop3_state_starttls_resp(struct Curl_easy *data,
-                                         struct connectdata *conn,
-                                         int pop3code,
+സ്ഥിതം CURLcode pop3_state_starttls_resp(ഘടന Curl_easy *data,
+                                         ഘടന connectdata *conn,
+                                         പൂർണ്ണസംഖ്യ pop3code,
                                          pop3state instate)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (ശൂന്യം)instate;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Pipelining in response is forbidden. */
-  if(pop3c->pp.overflow)
-    return CURLE_WEIRD_SERVER_REPLY;
+  എങ്കിൽ(pop3c->pp.overflow)
+    തിരികെ CURLE_WEIRD_SERVER_REPLY;
 
-  if(pop3code != '+') {
-    if(data->set.use_ssl != CURLUSESSL_TRY) {
+  എങ്കിൽ(pop3code != '+') {
+    എങ്കിൽ(data->set.use_ssl != CURLUSESSL_TRY) {
       failf(data, "STARTTLS denied");
       result = CURLE_USE_SSL_FAILED;
     }
-    else
+    അല്ലെങ്കിൽ
       result = pop3_perform_authentication(data, conn);
   }
-  else
+  അല്ലെങ്കിൽ
     pop3_state(data, POP3_UPGRADETLS);
 
-  return result;
+  തിരികെ result;
 }
 
 /* For SASL authentication responses */
-static CURLcode pop3_state_auth_resp(struct Curl_easy *data,
-                                     int pop3code,
+സ്ഥിതം CURLcode pop3_state_auth_resp(ഘടന Curl_easy *data,
+                                     പൂർണ്ണസംഖ്യ pop3code,
                                      pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   saslprogress progress;
 
-  (void)instate;
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  (ശൂന്യം)instate;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   result = Curl_sasl_continue(&pop3c->sasl, data, pop3code, &progress);
-  if(!result)
-    switch(progress) {
-    case SASL_DONE:
+  എങ്കിൽ(!result)
+    തിരഞ്ഞെടുപ്പ്(progress) {
+    അവസ്ഥ SASL_DONE:
       pop3_state(data, POP3_STOP);  /* Authenticated */
-      break;
-    case SASL_IDLE:            /* No mechanism left after cancellation */
+      നിർത്തുക;
+    അവസ്ഥ SASL_IDLE:            /* No mechanism left after cancellation */
 #ifndef CURL_DISABLE_DIGEST_AUTH
-      if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
+      എങ്കിൽ(pop3c->authtypes & pop3c->preftype & POP3_TYPE_APOP)
         /* Perform APOP authentication */
         result = pop3_perform_apop(data, conn);
-      else
+      അല്ലെങ്കിൽ
 #endif
-      if(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
+      എങ്കിൽ(pop3c->authtypes & pop3c->preftype & POP3_TYPE_CLEARTEXT)
         /* Perform clear text authentication */
         result = pop3_perform_user(data, conn);
-      else {
+      അല്ലെങ്കിൽ {
         failf(data, "Authentication cancelled");
         result = CURLE_LOGIN_DENIED;
       }
-      break;
-    default:
-      break;
+      നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
+      നിർത്തുക;
     }
 
-  return result;
+  തിരികെ result;
 }
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
 /* For APOP responses */
-static CURLcode pop3_state_apop_resp(struct Curl_easy *data, int pop3code,
+സ്ഥിതം CURLcode pop3_state_apop_resp(ഘടന Curl_easy *data, പൂർണ്ണസംഖ്യ pop3code,
                                      pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (ശൂന്യം)instate;
 
-  if(pop3code != '+') {
+  എങ്കിൽ(pop3code != '+') {
     failf(data, "Authentication failed: %d", pop3code);
     result = CURLE_LOGIN_DENIED;
   }
-  else
+  അല്ലെങ്കിൽ
     /* End of connect phase */
     pop3_state(data, POP3_STOP);
 
-  return result;
+  തിരികെ result;
 }
 #endif
 
 /* For USER responses */
-static CURLcode pop3_state_user_resp(struct Curl_easy *data, int pop3code,
+സ്ഥിതം CURLcode pop3_state_user_resp(ഘടന Curl_easy *data, പൂർണ്ണസംഖ്യ pop3code,
                                      pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  (void)instate;
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  (ശൂന്യം)instate;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  if(pop3code != '+') {
+  എങ്കിൽ(pop3code != '+') {
     failf(data, "Access denied. %c", pop3code);
     result = CURLE_LOGIN_DENIED;
   }
-  else
+  അല്ലെങ്കിൽ
     /* Send the PASS command */
     result = Curl_pp_sendf(data, &pop3c->pp, "PASS %s",
                            Curl_creds_passwd(conn->creds));
-  if(!result)
+  എങ്കിൽ(!result)
     pop3_state(data, POP3_PASS);
 
-  return result;
+  തിരികെ result;
 }
 
 /* For PASS responses */
-static CURLcode pop3_state_pass_resp(struct Curl_easy *data, int pop3code,
+സ്ഥിതം CURLcode pop3_state_pass_resp(ഘടന Curl_easy *data, പൂർണ്ണസംഖ്യ pop3code,
                                      pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  (void)instate;
+  (ശൂന്യം)instate;
 
-  if(pop3code != '+') {
+  എങ്കിൽ(pop3code != '+') {
     failf(data, "Access denied. %c", pop3code);
     result = CURLE_LOGIN_DENIED;
   }
-  else
+  അല്ലെങ്കിൽ
     /* End of connect phase */
     pop3_state(data, POP3_STOP);
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -1072,107 +1072,107 @@ static CURLcode pop3_state_pass_resp(struct Curl_easy *data, int pop3code,
  * This function scans the body after the end-of-body and writes everything
  * until the end is found.
  */
-static CURLcode pop3_write(struct Curl_easy *data, const char *str,
+സ്ഥിതം CURLcode pop3_write(ഘടന Curl_easy *data, സ്ഥിരം അക്ഷരം *str,
                            size_t nread, bool is_eos)
 {
   /* This code could be made into a special function in the handler struct */
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   bool strip_dot = FALSE;
   size_t last = 0;
   size_t i;
-  (void)is_eos;
+  (ശൂന്യം)is_eos;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* Search through the buffer looking for the end-of-body marker which is
      5 bytes (0d 0a 2e 0d 0a). Note that a line starting with a dot matches
      the eob so the server will have prefixed it with an extra dot which we
      need to strip out. Additionally the marker could of course be spread out
      over 5 different data chunks. */
-  for(i = 0; i < nread; i++) {
+  വേണ്ടി(i = 0; i < nread; i++) {
     size_t prev = pop3c->eob;
 
-    switch(str[i]) {
-    case 0x0d:
-      if(pop3c->eob == 0) {
+    തിരഞ്ഞെടുപ്പ്(str[i]) {
+    അവസ്ഥ 0x0d:
+      എങ്കിൽ(pop3c->eob == 0) {
         pop3c->eob++;
 
-        if(i) {
+        എങ്കിൽ(i) {
           /* Write out the body part that did not match */
           result = Curl_client_write(data, CLIENTWRITE_BODY, &str[last],
                                      i - last);
 
-          if(result)
-            return result;
+          എങ്കിൽ(result)
+            തിരികെ result;
 
           last = i;
         }
       }
-      else if(pop3c->eob == 3)
+      അല്ലെങ്കിൽ എങ്കിൽ(pop3c->eob == 3)
         pop3c->eob++;
-      else
+      അല്ലെങ്കിൽ
         /* If the character match was not at position 0 or 3 then restart the
            pattern matching */
         pop3c->eob = 1;
-      break;
+      നിർത്തുക;
 
-    case 0x0a:
-      if(pop3c->eob == 1 || pop3c->eob == 4)
+    അവസ്ഥ 0x0a:
+      എങ്കിൽ(pop3c->eob == 1 || pop3c->eob == 4)
         pop3c->eob++;
-      else
+      അല്ലെങ്കിൽ
         /* If the character match was not at position 1 or 4 then start the
            search again */
         pop3c->eob = 0;
-      break;
+      നിർത്തുക;
 
-    case 0x2e:
-      if(pop3c->eob == 2)
+    അവസ്ഥ 0x2e:
+      എങ്കിൽ(pop3c->eob == 2)
         pop3c->eob++;
-      else if(pop3c->eob == 3) {
+      അല്ലെങ്കിൽ എങ്കിൽ(pop3c->eob == 3) {
         /* We have an extra dot after the CRLF which we need to strip off */
         strip_dot = TRUE;
         pop3c->eob = 0;
       }
-      else
+      അല്ലെങ്കിൽ
         /* If the character match was not at position 2 then start the search
            again */
         pop3c->eob = 0;
-      break;
+      നിർത്തുക;
 
-    default:
+    സ്ഥിരസ്ഥിതി:
       pop3c->eob = 0;
-      break;
+      നിർത്തുക;
     }
 
     /* Did we have a partial match which has subsequently failed? */
-    if(prev && prev >= pop3c->eob) {
+    എങ്കിൽ(prev && prev >= pop3c->eob) {
       /* Strip can only be non-zero for the first mismatch after CRLF and
          then both prev and strip are equal and nothing will be output below */
-      while(prev && pop3c->strip) {
+      ആകുമ്പോൾ(prev && pop3c->strip) {
         prev--;
         pop3c->strip--;
       }
 
-      if(prev) {
+      എങ്കിൽ(prev) {
         /* If the partial match was the CRLF and dot then only write the CRLF
            as the server would have inserted the dot */
-        if(strip_dot && prev - 1 > 0) {
+        എങ്കിൽ(strip_dot && prev - 1 > 0) {
           result = Curl_client_write(data, CLIENTWRITE_BODY, POP3_EOB,
                                      prev - 1);
         }
-        else if(!strip_dot) {
+        അല്ലെങ്കിൽ എങ്കിൽ(!strip_dot) {
           result = Curl_client_write(data, CLIENTWRITE_BODY, POP3_EOB,
                                      prev);
         }
-        else {
+        അല്ലെങ്കിൽ {
           result = CURLE_OK;
         }
 
-        if(result)
-          return result;
+        എങ്കിൽ(result)
+          തിരികെ result;
 
         last = i;
         strip_dot = FALSE;
@@ -1180,7 +1180,7 @@ static CURLcode pop3_write(struct Curl_easy *data, const char *str,
     }
   }
 
-  if(pop3c->eob == POP3_EOB_LEN) {
+  എങ്കിൽ(pop3c->eob == POP3_EOB_LEN) {
     /* We have a full match so the transfer is done, however we must transfer
     the CRLF at the start of the EOB as this is considered to be part of the
     message as per RFC-1939, sect. 3 */
@@ -1189,40 +1189,40 @@ static CURLcode pop3_write(struct Curl_easy *data, const char *str,
     CURL_REQ_CLEAR_RECV(data);
     pop3c->eob = 0;
 
-    return result;
+    തിരികെ result;
   }
 
-  if(pop3c->eob)
+  എങ്കിൽ(pop3c->eob)
     /* While EOB is matching nothing should be output */
-    return CURLE_OK;
+    തിരികെ CURLE_OK;
 
-  if(nread - last) {
+  എങ്കിൽ(nread - last) {
     result = Curl_client_write(data, CLIENTWRITE_BODY, &str[last],
                                nread - last);
   }
 
-  return result;
+  തിരികെ result;
 }
 
 /* For command responses */
-static CURLcode pop3_state_command_resp(struct Curl_easy *data,
-                                        int pop3code,
+സ്ഥിതം CURLcode pop3_state_command_resp(ഘടന Curl_easy *data,
+                                        പൂർണ്ണസംഖ്യ pop3code,
                                         pop3state instate)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  struct pingpong *pp;
+  ഘടന connectdata *conn = data->conn;
+  ഘടന POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pingpong *pp;
 
-  (void)instate;
-  if(!pop3 || !pop3c)
-    return CURLE_FAILED_INIT;
+  (ശൂന്യം)instate;
+  എങ്കിൽ(!pop3 || !pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   pp = &pop3c->pp;
-  if(pop3code != '+') {
+  എങ്കിൽ(pop3code != '+') {
     pop3_state(data, POP3_STOP);
-    return CURLE_WEIRD_SERVER_REPLY;
+    തിരികെ CURLE_WEIRD_SERVER_REPLY;
   }
 
   /* This 'OK' line ends with a CR LF pair which is the two first bytes of the
@@ -1235,11 +1235,11 @@ static CURLcode pop3_state_command_resp(struct Curl_easy *data,
      the strip counter here so that these bytes will not be delivered. */
   pop3c->strip = 2;
 
-  if(pop3->transfer == PPTRANSFER_BODY) {
+  എങ്കിൽ(pop3->transfer == PPTRANSFER_BODY) {
     /* POP3 download */
     Curl_xfer_setup_recv(data, FIRSTSOCKET, -1);
 
-    if(pp->overflow) {
+    എങ്കിൽ(pp->overflow) {
       /* The recv buffer contains data that is actually body content so send
          it as such. Note that there may even be additional "headers" after
          the body */
@@ -1248,11 +1248,11 @@ static CURLcode pop3_state_command_resp(struct Curl_easy *data,
       curlx_dyn_tail(&pp->recvbuf, pp->overflow);
       pp->nfinal = 0; /* done */
 
-      if(!data->req.no_body) {
+      എങ്കിൽ(!data->req.no_body) {
         result = pop3_write(data, curlx_dyn_ptr(&pp->recvbuf),
                             curlx_dyn_len(&pp->recvbuf), FALSE);
-        if(result)
-          return result;
+        എങ്കിൽ(result)
+          തിരികെ result;
       }
 
       /* reset the buffer */
@@ -1260,146 +1260,146 @@ static CURLcode pop3_state_command_resp(struct Curl_easy *data,
       pp->overflow = 0;
     }
   }
-  else
+  അല്ലെങ്കിൽ
     pp->overflow = 0;
 
   /* End of DO phase */
   pop3_state(data, POP3_STOP);
 
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode pop3_statemachine(struct Curl_easy *data,
-                                  struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_statemachine(ഘടന Curl_easy *data,
+                                  ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
   CURLcode result = CURLE_OK;
-  int pop3code;
-  struct pingpong *pp;
+  പൂർണ്ണസംഖ്യ pop3code;
+  ഘടന pingpong *pp;
   size_t nread = 0;
-  (void)data;
+  (ശൂന്യം)data;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   pp = &pop3c->pp;
   /* Busy upgrading the connection; right now all I/O is SSL/TLS, not POP3 */
 upgrade_tls:
-  if(pop3c->state == POP3_UPGRADETLS) {
+  എങ്കിൽ(pop3c->state == POP3_UPGRADETLS) {
     result = pop3_perform_upgrade_tls(data, conn);
-    if(result || (pop3c->state == POP3_UPGRADETLS))
-      return result;
+    എങ്കിൽ(result || (pop3c->state == POP3_UPGRADETLS))
+      തിരികെ result;
   }
 
   /* Flush any data that needs to be sent */
-  if(pp->sendleft)
-    return Curl_pp_flushsend(data, pp);
+  എങ്കിൽ(pp->sendleft)
+    തിരികെ Curl_pp_flushsend(data, pp);
 
-  do {
+  ചെയ്യുക {
      /* Read the response from the server */
     result = Curl_pp_readresp(data, FIRSTSOCKET, pp, &pop3code, &nread);
-    if(result)
-      return result;
+    എങ്കിൽ(result)
+      തിരികെ result;
 
-    if(!pop3code)
-      break;
+    എങ്കിൽ(!pop3code)
+      നിർത്തുക;
 
     /* We have now received a full POP3 server response */
-    switch(pop3c->state) {
-    case POP3_SERVERGREET:
+    തിരഞ്ഞെടുപ്പ്(pop3c->state) {
+    അവസ്ഥ POP3_SERVERGREET:
       result = pop3_state_servergreet_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 
-    case POP3_CAPA:
+    അവസ്ഥ POP3_CAPA:
       result = pop3_state_capa_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 
-    case POP3_STARTTLS:
+    അവസ്ഥ POP3_STARTTLS:
       result = pop3_state_starttls_resp(data, conn, pop3code, pop3c->state);
       /* During UPGRADETLS, leave the read loop as we need to connect
        * (e.g. TLS handshake) before we continue sending/receiving. */
-      if(!result && (pop3c->state == POP3_UPGRADETLS))
-        goto upgrade_tls;
-      break;
+      എങ്കിൽ(!result && (pop3c->state == POP3_UPGRADETLS))
+        പോകുക upgrade_tls;
+      നിർത്തുക;
 
-    case POP3_AUTH:
+    അവസ്ഥ POP3_AUTH:
       result = pop3_state_auth_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 
 #ifndef CURL_DISABLE_DIGEST_AUTH
-    case POP3_APOP:
+    അവസ്ഥ POP3_APOP:
       result = pop3_state_apop_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 #endif
 
-    case POP3_USER:
+    അവസ്ഥ POP3_USER:
       result = pop3_state_user_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 
-    case POP3_PASS:
+    അവസ്ഥ POP3_PASS:
       result = pop3_state_pass_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 
-    case POP3_COMMAND:
+    അവസ്ഥ POP3_COMMAND:
       result = pop3_state_command_resp(data, pop3code, pop3c->state);
-      break;
+      നിർത്തുക;
 
-    case POP3_QUIT:
+    അവസ്ഥ POP3_QUIT:
       pop3_state(data, POP3_STOP);
-      break;
+      നിർത്തുക;
 
-    default:
+    സ്ഥിരസ്ഥിതി:
       /* internal error */
       pop3_state(data, POP3_STOP);
-      break;
+      നിർത്തുക;
     }
-  } while(!result && pop3c->state != POP3_STOP && Curl_pp_moredata(pp));
+  } ആകുമ്പോൾ(!result && pop3c->state != POP3_STOP && Curl_pp_moredata(pp));
 
-  return result;
+  തിരികെ result;
 }
 
 /* Called repeatedly until done from multi.c */
-static CURLcode pop3_multi_statemach(struct Curl_easy *data, bool *done)
+സ്ഥിതം CURLcode pop3_multi_statemach(ഘടന Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
   result = Curl_pp_statemach(data, &pop3c->pp, FALSE, FALSE);
   *done = (pop3c->state == POP3_STOP);
 
-  return result;
+  തിരികെ result;
 }
 
-static CURLcode pop3_block_statemach(struct Curl_easy *data,
-                                     struct connectdata *conn,
+സ്ഥിതം CURLcode pop3_block_statemach(ഘടന Curl_easy *data,
+                                     ഘടന connectdata *conn,
                                      bool disconnecting)
 {
   CURLcode result = CURLE_OK;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
-  while(pop3c->state != POP3_STOP && !result)
+  ആകുമ്പോൾ(pop3c->state != POP3_STOP && !result)
     result = Curl_pp_statemach(data, &pop3c->pp, TRUE, disconnecting);
 
-  return result;
+  തിരികെ result;
 }
 
 /* For the POP3 "protocol connect" and "doing" phases only */
-static CURLcode pop3_pollset(struct Curl_easy *data,
-                             struct easy_pollset *ps)
+സ്ഥിതം CURLcode pop3_pollset(ഘടന Curl_easy *data,
+                             ഘടന easy_pollset *ps)
 {
-  struct pop3_conn *pop3c =
+  ഘടന pop3_conn *pop3c =
     Curl_conn_meta_get(data->conn, CURL_META_POP3_CONN);
-  return pop3c ? Curl_pp_pollset(data, &pop3c->pp, ps) : CURLE_OK;
+  തിരികെ pop3c ? Curl_pp_pollset(data, &pop3c->pp, ps) : CURLE_OK;
 }
 
 /* SASL parameters for the pop3 protocol */
-static const struct SASLproto saslpop3 = {
+സ്ഥിതം സ്ഥിരം ഘടന SASLproto saslpop3 = {
   "pop",                /* The service name */
   pop3_perform_auth,    /* Send authentication command */
   pop3_continue_auth,   /* Send authentication continuation */
@@ -1422,16 +1422,16 @@ static const struct SASLproto saslpop3 = {
  * The variable 'done' points to will be TRUE if the protocol-layer connect
  * phase is done when this function returns, or FALSE if not.
  */
-static CURLcode pop3_connect(struct Curl_easy *data, bool *done)
+സ്ഥിതം CURLcode pop3_connect(ഘടന Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
-  struct connectdata *conn = data->conn;
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  struct pingpong *pp = pop3c ? &pop3c->pp : NULL;
+  ഘടന connectdata *conn = data->conn;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  ഘടന pingpong *pp = pop3c ? &pop3c->pp : ശൂന്യ;
 
   *done = FALSE; /* default to not done yet */
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   PINGPONG_SETUP(pp, pop3_statemachine, pop3_endofresp);
 
@@ -1444,15 +1444,15 @@ static CURLcode pop3_connect(struct Curl_easy *data, bool *done)
 
   /* Parse the URL options */
   result = pop3_parse_url_options(conn);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   /* Start off waiting for the server greeting response */
   pop3_state(data, POP3_SERVERGREET);
 
   result = pop3_multi_statemach(data, done);
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -1464,18 +1464,18 @@ static CURLcode pop3_connect(struct Curl_easy *data, bool *done)
  *
  * Input argument is already checked for validity.
  */
-static CURLcode pop3_done(struct Curl_easy *data, CURLcode status,
+സ്ഥിതം CURLcode pop3_done(ഘടന Curl_easy *data, CURLcode status,
                           bool premature)
 {
   CURLcode result = CURLE_OK;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  ഘടന POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
 
-  (void)premature;
+  (ശൂന്യം)premature;
 
-  if(!pop3)
-    return CURLE_OK;
+  എങ്കിൽ(!pop3)
+    തിരികെ CURLE_OK;
 
-  if(status) {
+  എങ്കിൽ(status) {
     CURL_TRC_M(data, "POP3 done with bad status");
     connclose(data->conn);
     result = status;         /* use the already set error code */
@@ -1488,7 +1488,7 @@ static CURLcode pop3_done(struct Curl_easy *data, CURLcode status,
   /* Clear the transfer mode for the next request */
   pop3->transfer = PPTRANSFER_BODY;
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -1498,24 +1498,24 @@ static CURLcode pop3_done(struct Curl_easy *data, CURLcode status,
  * This is the actual DO function for POP3. Get a message/listing according to
  * the options previously setup.
  */
-static CURLcode pop3_perform(struct Curl_easy *data, bool *connected,
+സ്ഥിതം CURLcode pop3_perform(ഘടന Curl_easy *data, bool *connected,
                              bool *dophase_done)
 {
   /* This is POP3 and no proxy */
   CURLcode result = CURLE_OK;
-  struct POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
+  ഘടന POP3 *pop3 = Curl_meta_get(data, CURL_META_POP3_EASY);
 
-  if(!pop3)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3)
+    തിരികെ CURLE_FAILED_INIT;
 
   DEBUGF(infof(data, "DO phase starts"));
 
   /* Start the first command in the DO phase, may alter data->req.no_body */
   result = pop3_perform_command(data);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
-  if(data->req.no_body)
+  എങ്കിൽ(data->req.no_body)
     /* Requested no body means no transfer */
     pop3->transfer = PPTRANSFER_INFO;
 
@@ -1525,19 +1525,19 @@ static CURLcode pop3_perform(struct Curl_easy *data, bool *connected,
   result = pop3_multi_statemach(data, dophase_done);
   *connected = Curl_conn_is_connected(data->conn, FIRSTSOCKET);
 
-  if(*dophase_done)
+  എങ്കിൽ(*dophase_done)
     DEBUGF(infof(data, "DO phase is complete"));
 
-  return result;
+  തിരികെ result;
 }
 
 /* Call this when the DO phase has completed */
-static CURLcode pop3_dophase_done(struct Curl_easy *data, bool connected)
+സ്ഥിതം CURLcode pop3_dophase_done(ഘടന Curl_easy *data, bool connected)
 {
-  (void)data;
-  (void)connected;
+  (ശൂന്യം)data;
+  (ശൂന്യം)connected;
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /***********************************************************************
@@ -1549,7 +1549,7 @@ static CURLcode pop3_dophase_done(struct Curl_easy *data, bool connected)
  * Performs all commands done before a regular transfer between a local and a
  * remote host.
  */
-static CURLcode pop3_regular_transfer(struct Curl_easy *data,
+സ്ഥിതം CURLcode pop3_regular_transfer(ഘടന Curl_easy *data,
                                       bool *dophase_done)
 {
   CURLcode result = CURLE_OK;
@@ -1565,10 +1565,10 @@ static CURLcode pop3_regular_transfer(struct Curl_easy *data,
   result = pop3_perform(data, &connected, dophase_done);
 
   /* Perform post DO phase operations if necessary */
-  if(!result && *dophase_done)
+  എങ്കിൽ(!result && *dophase_done)
     result = pop3_dophase_done(data, connected);
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -1580,24 +1580,24 @@ static CURLcode pop3_regular_transfer(struct Curl_easy *data,
  *
  * The input argument is already checked for validity.
  */
-static CURLcode pop3_do(struct Curl_easy *data, bool *done)
+സ്ഥിതം CURLcode pop3_do(ഘടന Curl_easy *data, bool *done)
 {
   CURLcode result = CURLE_OK;
   *done = FALSE; /* default to false */
 
   /* Parse the URL path */
   result = pop3_parse_url_path(data);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   /* Parse the custom request */
   result = pop3_parse_custom_request(data);
-  if(result)
-    return result;
+  എങ്കിൽ(result)
+    തിരികെ result;
 
   result = pop3_regular_transfer(data, done);
 
-  return result;
+  തിരികെ result;
 }
 
 /***********************************************************************
@@ -1607,23 +1607,23 @@ static CURLcode pop3_do(struct Curl_easy *data, bool *done)
  * Disconnect from an POP3 server. Cleanup protocol-specific per-connection
  * resources. BLOCKING.
  */
-static CURLcode pop3_disconnect(struct Curl_easy *data,
-                                struct connectdata *conn, bool dead_connection)
+സ്ഥിതം CURLcode pop3_disconnect(ഘടന Curl_easy *data,
+                                ഘടന connectdata *conn, bool dead_connection)
 {
-  struct pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
-  (void)data;
+  ഘടന pop3_conn *pop3c = Curl_conn_meta_get(conn, CURL_META_POP3_CONN);
+  (ശൂന്യം)data;
 
-  if(!pop3c)
-    return CURLE_FAILED_INIT;
+  എങ്കിൽ(!pop3c)
+    തിരികെ CURLE_FAILED_INIT;
 
   /* We cannot send quit unconditionally. If this connection is stale or
      bad in any way, sending quit and waiting around here will make the
      disconnect wait in vain and cause more problems than we need to. */
 
-  if(!dead_connection && conn->bits.protoconnstart &&
+  എങ്കിൽ(!dead_connection && conn->bits.protoconnstart &&
      !Curl_pp_needs_flush(data, &pop3c->pp) &&
      !pop3_perform_quit(data, conn))
-    (void)pop3_block_statemach(data, conn, TRUE); /* ignore errors on QUIT */
+    (ശൂന്യം)pop3_block_statemach(data, conn, TRUE); /* ignore errors on QUIT */
 
   /* Disconnect from the server */
   Curl_pp_disconnect(&pop3c->pp);
@@ -1631,30 +1631,30 @@ static CURLcode pop3_disconnect(struct Curl_easy *data,
   /* Cleanup our connection based variables */
   curlx_safefree(pop3c->apoptimestamp);
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /* Called from multi.c while DOing */
-static CURLcode pop3_doing(struct Curl_easy *data, bool *dophase_done)
+സ്ഥിതം CURLcode pop3_doing(ഘടന Curl_easy *data, bool *dophase_done)
 {
   CURLcode result = pop3_multi_statemach(data, dophase_done);
 
-  if(result)
+  എങ്കിൽ(result)
     DEBUGF(infof(data, "DO phase failed"));
-  else if(*dophase_done) {
+  അല്ലെങ്കിൽ എങ്കിൽ(*dophase_done) {
     result = pop3_dophase_done(data, FALSE /* not connected */);
 
     DEBUGF(infof(data, "DO phase is complete"));
   }
 
-  return result;
+  തിരികെ result;
 }
 
-static void pop3_easy_dtor(const void *key, size_t klen, void *entry)
+സ്ഥിതം ശൂന്യം pop3_easy_dtor(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t klen, ശൂന്യം *entry)
 {
-  struct POP3 *pop3 = entry;
-  (void)key;
-  (void)klen;
+  ഘടന POP3 *pop3 = entry;
+  (ശൂന്യം)താക്കോൽ;
+  (ശൂന്യം)klen;
   DEBUGASSERT(pop3);
   /* Cleanup our per-request based variables */
   curlx_safefree(pop3->id);
@@ -1662,38 +1662,38 @@ static void pop3_easy_dtor(const void *key, size_t klen, void *entry)
   curlx_free(pop3);
 }
 
-static void pop3_conn_dtor(const void *key, size_t klen, void *entry)
+സ്ഥിതം ശൂന്യം pop3_conn_dtor(സ്ഥിരം ശൂന്യം *താക്കോൽ, size_t klen, ശൂന്യം *entry)
 {
-  struct pop3_conn *pop3c = entry;
-  (void)key;
-  (void)klen;
+  ഘടന pop3_conn *pop3c = entry;
+  (ശൂന്യം)താക്കോൽ;
+  (ശൂന്യം)klen;
   DEBUGASSERT(pop3c);
   Curl_pp_disconnect(&pop3c->pp);
   curlx_safefree(pop3c->apoptimestamp);
   curlx_free(pop3c);
 }
 
-static CURLcode pop3_setup_connection(struct Curl_easy *data,
-                                      struct connectdata *conn)
+സ്ഥിതം CURLcode pop3_setup_connection(ഘടന Curl_easy *data,
+                                      ഘടന connectdata *conn)
 {
-  struct pop3_conn *pop3c;
-  struct POP3 *pop3 = curlx_calloc(1, sizeof(*pop3));
-  if(!pop3 ||
+  ഘടന pop3_conn *pop3c;
+  ഘടന POP3 *pop3 = curlx_calloc(1, വലുപ്പം(*pop3));
+  എങ്കിൽ(!pop3 ||
      Curl_meta_set(data, CURL_META_POP3_EASY, pop3, pop3_easy_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  pop3c = curlx_calloc(1, sizeof(*pop3c));
-  if(!pop3c ||
+  pop3c = curlx_calloc(1, വലുപ്പം(*pop3c));
+  എങ്കിൽ(!pop3c ||
      Curl_conn_meta_set(conn, CURL_META_POP3_CONN, pop3c, pop3_conn_dtor))
-    return CURLE_OUT_OF_MEMORY;
+    തിരികെ CURLE_OUT_OF_MEMORY;
 
-  return CURLE_OK;
+  തിരികെ CURLE_OK;
 }
 
 /*
  * POP3 protocol.
  */
-const struct Curl_protocol Curl_protocol_pop3 = {
+സ്ഥിരം ഘടന Curl_protocol Curl_protocol_pop3 = {
   pop3_setup_connection,            /* setup_connection */
   pop3_do,                          /* do_it */
   pop3_done,                        /* done */

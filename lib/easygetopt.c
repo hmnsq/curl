@@ -21,77 +21,77 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
-#include "easyoptions.h"
+#അന്തര്ഭാവ "easyoptions.h"
 
 #ifndef CURL_DISABLE_GETOPTIONS
 
 /* Lookups easy options at runtime */
-static const struct curl_easyoption *lookup(const char *name, CURLoption id)
+സ്ഥിതം സ്ഥിരം ഘടന curl_easyoption *lookup(സ്ഥിരം അക്ഷരം *name, CURLoption id)
 {
   DEBUGASSERT(name || id);
   DEBUGASSERT(!Curl_easyopts_check());
-  if(name || id) {
-    const struct curl_easyoption *o = &Curl_easyopts[0];
-    do {
-      if(name) {
-        if(curl_strequal(o->name, name))
-          return o;
+  എങ്കിൽ(name || id) {
+    സ്ഥിരം ഘടന curl_easyoption *o = &Curl_easyopts[0];
+    ചെയ്യുക {
+      എങ്കിൽ(name) {
+        എങ്കിൽ(curl_strequal(o->name, name))
+          തിരികെ o;
       }
-      else {
-        if((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
+      അല്ലെങ്കിൽ {
+        എങ്കിൽ((o->id == id) && !(o->flags & CURLOT_FLAG_ALIAS))
           /* do not match alias options */
-          return o;
+          തിരികെ o;
       }
       o++;
-    } while(o->name);
+    } ആകുമ്പോൾ(o->name);
   }
-  return NULL;
+  തിരികെ ശൂന്യ;
 }
 
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+സ്ഥിരം ഘടന curl_easyoption *curl_easy_option_by_name(സ്ഥിരം അക്ഷരം *name)
 {
   /* when name is used, the id argument is ignored */
-  return lookup(name, CURLOPT_LASTENTRY);
+  തിരികെ lookup(name, CURLOPT_LASTENTRY);
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+സ്ഥിരം ഘടന curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  return lookup(NULL, id);
+  തിരികെ lookup(ശൂന്യ, id);
 }
 
 /* Iterates over available options */
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+സ്ഥിരം ഘടന curl_easyoption *curl_easy_option_next(
+  സ്ഥിരം ഘടന curl_easyoption *prev)
 {
-  if(prev && prev->name) {
+  എങ്കിൽ(prev && prev->name) {
     prev++;
-    if(prev->name)
-      return prev;
+    എങ്കിൽ(prev->name)
+      തിരികെ prev;
   }
-  else if(!prev)
-    return &Curl_easyopts[0];
-  return NULL;
+  അല്ലെങ്കിൽ എങ്കിൽ(!prev)
+    തിരികെ &Curl_easyopts[0];
+  തിരികെ ശൂന്യ;
 }
 
-#else
-const struct curl_easyoption *curl_easy_option_by_name(const char *name)
+#അല്ലെങ്കിൽ
+സ്ഥിരം ഘടന curl_easyoption *curl_easy_option_by_name(സ്ഥിരം അക്ഷരം *name)
 {
-  (void)name;
-  return NULL;
+  (ശൂന്യം)name;
+  തിരികെ ശൂന്യ;
 }
 
-const struct curl_easyoption *curl_easy_option_by_id(CURLoption id)
+സ്ഥിരം ഘടന curl_easyoption *curl_easy_option_by_id(CURLoption id)
 {
-  (void)id;
-  return NULL;
+  (ശൂന്യം)id;
+  തിരികെ ശൂന്യ;
 }
 
-const struct curl_easyoption *curl_easy_option_next(
-  const struct curl_easyoption *prev)
+സ്ഥിരം ഘടന curl_easyoption *curl_easy_option_next(
+  സ്ഥിരം ഘടന curl_easyoption *prev)
 {
-  (void)prev;
-  return NULL;
+  (ശൂന്യം)prev;
+  തിരികെ ശൂന്യ;
 }
 #endif

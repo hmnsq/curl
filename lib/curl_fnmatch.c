@@ -21,15 +21,15 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifndef CURL_DISABLE_FTP
 
-#include "curl_fnmatch.h"
+#അന്തര്ഭാവ "curl_fnmatch.h"
 
 #ifndef HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
+#define CURLFNM_CHARSET_LEN (വലുപ്പം(അക്ഷരം) * 256)
 #define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
 
 #define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
@@ -45,18 +45,18 @@
 #define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
 #define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
   CCLASS_UPPER,
@@ -66,89 +66,89 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+സ്ഥിതം പൂർണ്ണസംഖ്യ parsekeyword(സ്ഥിരം unsigned അക്ഷരം **pattern, unsigned അക്ഷരം *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
+  അക്ഷരം keyword[10] = { 0 };
   size_t i;
-  const unsigned char *p = *pattern;
+  സ്ഥിരം unsigned അക്ഷരം *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
-    switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+  വേണ്ടി(i = 0; !found; i++) {
+    അക്ഷരം c = (അക്ഷരം)*p++;
+    എങ്കിൽ(i >= വലുപ്പം(keyword))
+      തിരികെ SETCHARSET_FAIL;
+    തിരഞ്ഞെടുപ്പ്(state) {
+    അവസ്ഥ CURLFNM_PKW_INIT:
+      എങ്കിൽ(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      അല്ലെങ്കിൽ എങ്കിൽ(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      അല്ലെങ്കിൽ
+        തിരികെ SETCHARSET_FAIL;
+      നിർത്തുക;
+    അവസ്ഥ CURLFNM_PKW_DDOT:
+      എങ്കിൽ(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      അല്ലെങ്കിൽ
+        തിരികെ SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  എങ്കിൽ(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  അല്ലെങ്കിൽ എങ്കിൽ(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  അല്ലെങ്കിൽ
+    തിരികെ SETCHARSET_FAIL;
+  തിരികെ SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+സ്ഥിതം char_class charclass(unsigned അക്ഷരം c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  എങ്കിൽ(ISUPPER(c))
+    തിരികെ CCLASS_UPPER;
+  എങ്കിൽ(ISLOWER(c))
+    തിരികെ CCLASS_LOWER;
+  എങ്കിൽ(ISDIGIT(c))
+    തിരികെ CCLASS_DIGIT;
+  തിരികെ CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+സ്ഥിതം ശൂന്യം setcharorrange(സ്ഥിരം unsigned അക്ഷരം **pp, unsigned അക്ഷരം *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  സ്ഥിരം unsigned അക്ഷരം *p = (*pp)++;
+  unsigned അക്ഷരം c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  എങ്കിൽ(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    unsigned അക്ഷരം endrange = *p++;
 
-    if(endrange == '\\')
+    എങ്കിൽ(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    എങ്കിൽ(endrange >= c && charclass(endrange) == cc) {
+      ആകുമ്പോൾ(c++ != endrange)
+        എങ്കിൽ(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,260 +156,260 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+സ്ഥിതം പൂർണ്ണസംഖ്യ setcharset(സ്ഥിരം unsigned അക്ഷരം **p, unsigned അക്ഷരം *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
-  unsigned char c;
+  unsigned അക്ഷരം c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  വേണ്ടി(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    എങ്കിൽ(!c)
+      തിരികെ SETCHARSET_FAIL;
 
-    switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+    തിരഞ്ഞെടുപ്പ്(state) {
+    അവസ്ഥ CURLFNM_SCHS_DEFAULT:
+      എങ്കിൽ(c == ']') {
+        എങ്കിൽ(something_found)
+          തിരികെ SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      അല്ലെങ്കിൽ എങ്കിൽ(c == '[') {
+        സ്ഥിരം unsigned അക്ഷരം *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        എങ്കിൽ(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        അല്ലെങ്കിൽ {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      അല്ലെങ്കിൽ എങ്കിൽ(c == '^' || c == '!') {
+        എങ്കിൽ(!something_found) {
+          എങ്കിൽ(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          അല്ലെങ്കിൽ
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        അല്ലെങ്കിൽ
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      അല്ലെങ്കിൽ എങ്കിൽ(c == '\\') {
         c = *(++(*p));
-        if(c)
+        എങ്കിൽ(c)
           setcharorrange(p, charset);
-        else
+        അല്ലെങ്കിൽ
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      അല്ലെങ്കിൽ {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      നിർത്തുക;
+    അവസ്ഥ CURLFNM_SCHS_RIGHTBR:
+      എങ്കിൽ(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      അല്ലെങ്കിൽ എങ്കിൽ(c == ']') {
+        തിരികെ SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      അല്ലെങ്കിൽ എങ്കിൽ(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      അല്ലെങ്കിൽ
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
-        goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+        പോകുക fail;
+      നിർത്തുക;
+    അവസ്ഥ CURLFNM_SCHS_RIGHTBRLEFTBR:
+      എങ്കിൽ(c == ']')
+        തിരികെ SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      നിർത്തുക;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  തിരികെ SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+സ്ഥിതം പൂർണ്ണസംഖ്യ matchtoken(സ്ഥിരം unsigned അക്ഷരം **pp, സ്ഥിരം unsigned അക്ഷരം **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  സ്ഥിരം unsigned അക്ഷരം *p = *pp;
+  സ്ഥിരം unsigned അക്ഷരം *s = *sp;
 
-  switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  തിരഞ്ഞെടുപ്പ്(*p) {
+  അവസ്ഥ '?':
+    നിർത്തുക;
+  അവസ്ഥ '\\':
+    എങ്കിൽ(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
+    എങ്കിൽ(*s != *p)
+      തിരികെ 0;
+    നിർത്തുക;
+  അവസ്ഥ '[': {
+    unsigned അക്ഷരം charset[CURLFNM_CHSET_SIZE];
+    സ്ഥിരം unsigned അക്ഷരം *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    എങ്കിൽ(!setcharset(&pp2, charset))
+      തിരികെ -1; /* Syntax error in set; mismatch! */
+    എങ്കിൽ(charset[(unsigned പൂർണ്ണസംഖ്യ)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    അല്ലെങ്കിൽ എങ്കിൽ(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    എങ്കിൽ(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    എങ്കിൽ(!found)
+      തിരികെ 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    തിരികെ 1;
   }
-  default:
-    if(*p != *s)
-      return 0;
-    break;
+  സ്ഥിരസ്ഥിതി:
+    എങ്കിൽ(*p != *s)
+      തിരികെ 0;
+    നിർത്തുക;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  തിരികെ 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+സ്ഥിതം പൂർണ്ണസംഖ്യ loop(സ്ഥിരം unsigned അക്ഷരം *pattern, സ്ഥിരം unsigned അക്ഷരം *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  സ്ഥിരം unsigned അക്ഷരം *p = pattern;
+  സ്ഥിരം unsigned അക്ഷരം *s = string;
+  സ്ഥിരം unsigned അക്ഷരം *star_p = ശൂന്യ;
+  സ്ഥിരം unsigned അക്ഷരം *star_s = ശൂന്യ;
+  പൂർണ്ണസംഖ്യ maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  ആകുമ്പോൾ(*s) {
+    എങ്കിൽ(*p == '*') {
+      എങ്കിൽ(!maxstars)
+        തിരികെ CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      വേണ്ടി(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        എങ്കിൽ(!*p)
+          തിരികെ CURL_FNMATCH_MATCH;
+        എങ്കിൽ(*p == '?') {
+          എങ്കിൽ(!*s)
+            തിരികെ CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        അല്ലെങ്കിൽ എങ്കിൽ(*p != '*')
+          നിർത്തുക;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    അല്ലെങ്കിൽ എങ്കിൽ(*p) {
+      സ്ഥിരം unsigned അക്ഷരം *np = p;
+      സ്ഥിരം unsigned അക്ഷരം *ns = s;
+      പൂർണ്ണസംഖ്യ r = matchtoken(&np, &ns);
+      എങ്കിൽ(r < 0)
+        തിരികെ CURL_FNMATCH_NOMATCH;
+      എങ്കിൽ(r) {
         p = np;
         s = ns;
-        continue;
+        തുടരുക;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      എങ്കിൽ(!star_p)
+        തിരികെ CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    അല്ലെങ്കിൽ എങ്കിൽ(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    അല്ലെങ്കിൽ
+      തിരികെ CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  ആകുമ്പോൾ(*p == '*') {
+    എങ്കിൽ(!maxstars)
+      തിരികെ CURL_FNMATCH_NOMATCH;
     maxstars--;
-    do {
+    ചെയ്യുക {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      എങ്കിൽ(*p == '?')
+        തിരികെ CURL_FNMATCH_NOMATCH;
+    } ആകുമ്പോൾ(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  തിരികെ *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+പൂർണ്ണസംഖ്യ Curl_fnmatch(ശൂന്യം *ptr, സ്ഥിരം അക്ഷരം *pattern, സ്ഥിരം അക്ഷരം *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (ശൂന്യം)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  എങ്കിൽ(!pattern || !string) {
+    തിരികെ CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  തിരികെ loop((സ്ഥിരം unsigned അക്ഷരം *)pattern,
+              (സ്ഥിരം unsigned അക്ഷരം *)string);
 }
-#else /* HAVE_FNMATCH */
+#അല്ലെങ്കിൽ /* HAVE_FNMATCH */
 
-#include <fnmatch.h>
+#അന്തര്ഭാവ <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+പൂർണ്ണസംഖ്യ Curl_fnmatch(ശൂന്യം *ptr, സ്ഥിരം അക്ഷരം *pattern, സ്ഥിരം അക്ഷരം *string)
 {
-  (void)ptr; /* the argument is specified by the curl_fnmatch_callback
+  (ശൂന്യം)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  എങ്കിൽ(!pattern || !string) {
+    തിരികെ CURL_FNMATCH_FAIL;
   }
 
-  switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
-  default:
-    return CURL_FNMATCH_FAIL;
+  തിരഞ്ഞെടുപ്പ്(fnmatch(pattern, string, 0)) {
+  അവസ്ഥ 0:
+    തിരികെ CURL_FNMATCH_MATCH;
+  അവസ്ഥ FNM_NOMATCH:
+    തിരികെ CURL_FNMATCH_NOMATCH;
+  സ്ഥിരസ്ഥിതി:
+    തിരികെ CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

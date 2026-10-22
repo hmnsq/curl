@@ -21,13 +21,13 @@
  * SPDX-License-Identifier: curl
  *
  ***************************************************************************/
-#include "curl_setup.h"
+#അന്തര്ഭാവ "curl_setup.h"
 
 #ifdef _WIN32
-#include <wchar.h>
+#അന്തര്ഭാവ <wchar.h>
 #endif
 
-#include "curlx/strdup.h"
+#അന്തര്ഭാവ "curlx/strdup.h"
 
 #ifdef _WIN32
 /***************************************************************************
@@ -40,14 +40,14 @@
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-wchar_t *curlx_wcsdup(const wchar_t *src)
+wchar_t *curlx_wcsdup(സ്ഥിരം wchar_t *src)
 {
   size_t length = wcslen(src);
 
-  if(length > (SIZE_MAX / sizeof(wchar_t)) - 1)
-    return (wchar_t *)NULL; /* integer overflow */
+  എങ്കിൽ(length > (SIZE_MAX / വലുപ്പം(wchar_t)) - 1)
+    തിരികെ (wchar_t *)ശൂന്യ; /* integer overflow */
 
-  return (wchar_t *)curlx_memdup(src, (length + 1) * sizeof(wchar_t));
+  തിരികെ (wchar_t *)curlx_memdup(src, (length + 1) * വലുപ്പം(wchar_t));
 }
 #endif
 
@@ -61,15 +61,15 @@ wchar_t *curlx_wcsdup(const wchar_t *src)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup(const void *src, size_t length)
+ശൂന്യം *curlx_memdup(സ്ഥിരം ശൂന്യം *src, size_t length)
 {
-  void *buffer = curlx_malloc(length);
-  if(!buffer)
-    return NULL; /* fail */
+  ശൂന്യം *buffer = curlx_malloc(length);
+  എങ്കിൽ(!buffer)
+    തിരികെ ശൂന്യ; /* fail */
 
   memcpy(buffer, src, length);
 
-  return buffer;
+  തിരികെ buffer;
 }
 
 /***************************************************************************
@@ -82,42 +82,42 @@ void *curlx_memdup(const void *src, size_t length)
  * Returns the new pointer or NULL on failure.
  *
  ***************************************************************************/
-void *curlx_memdup0(const char *src, size_t length)
+ശൂന്യം *curlx_memdup0(സ്ഥിരം അക്ഷരം *src, size_t length)
 {
-  char *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : NULL;
-  if(!buf)
-    return NULL;
-  if(length) {
+  അക്ഷരം *buf = (length < SIZE_MAX) ? curlx_malloc(length + 1) : ശൂന്യ;
+  എങ്കിൽ(!buf)
+    തിരികെ ശൂന്യ;
+  എങ്കിൽ(length) {
     DEBUGASSERT(src); /* must never be NULL */
     memcpy(buf, src, length);
   }
   buf[length] = 0;
-  return buf;
+  തിരികെ buf;
 }
 
 #ifdef USE_CURLX_MEMZERO
-static void *(* const volatile p_curlx_memset)(void *buf, int val,
+സ്ഥിതം ശൂന്യം *(* സ്ഥിരം അസ്ഥിര p_curlx_memset)(ശൂന്യം *buf, പൂർണ്ണസംഖ്യ val,
                                                size_t size) = memset;
 
 /* Local fallback in case there is no system function to securely zero a memory
    buffer. */
-void curlx_memzero_low(void *buf, size_t size)
+ശൂന്യം curlx_memzero_താഴെയുള്ള(ശൂന്യം *buf, size_t size)
 {
-  if(buf)
+  എങ്കിൽ(buf)
     p_curlx_memset(buf, 0, size);
 }
 #endif
 
 /* Fill 'buf' with zeroes. */
-void curlx_memzero(void *buf, size_t size)
+ശൂന്യം curlx_memzero(ശൂന്യം *buf, size_t size)
 {
-  if(buf)
-    curlx_memzero_low(buf, size);
+  എങ്കിൽ(buf)
+    curlx_memzero_താഴെയുള്ള(buf, size);
 }
 
 /* Fill 'buf' with zeroes, where 'buf' is null-terminated. */
-void curlx_strzero(void *buf)
+ശൂന്യം curlx_strzero(ശൂന്യം *buf)
 {
-  if(buf)
-    curlx_memzero_low(buf, strlen(buf));
+  എങ്കിൽ(buf)
+    curlx_memzero_താഴെയുള്ള(buf, strlen(buf));
 }
