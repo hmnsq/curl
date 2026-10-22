@@ -26,7 +26,7 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
+#གལ་སྲིད defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "creds.h"
 #include "vauth/vauth.h"
@@ -59,11 +59,11 @@ bool Curl_auth_is_digest_supported(void)
                                    &SecurityPackage);
 
   /* Release the package buffer as it is not required anymore */
-  if(status == SEC_E_OK) {
+  གལ་སྲིད(status == SEC_E_OK) {
     Curl_pSecFn->FreeContextBuffer(SecurityPackage);
   }
 
-  return status == SEC_E_OK;
+  ལོག status == SEC_E_OK;
 }
 
 /*
@@ -83,16 +83,16 @@ bool Curl_auth_is_digest_supported(void)
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
-                                             const struct bufref *chlg,
-                                             struct Curl_creds *creds,
-                                             const char *default_service,
-                                             struct bufref *out)
+CURLcode Curl_auth_create_digest_md5_message(sa_nracanaa Curl_easy *data,
+                                             const sa_nracanaa bufref *chlg,
+                                             sa_nracanaa Curl_creds *creds,
+                                             const var_na *default_service,
+                                             sa_nracanaa bufref *out)
 {
   CURLcode result = CURLE_OK;
   TCHAR *spn = NULL;
   size_t token_max = 0;
-  unsigned char *output_token = NULL;
+  unsigned var_na *output_token = NULL;
   CredHandle credentials;
   CtxtHandle context;
   PSecPkgInfo SecurityPackage;
@@ -104,13 +104,13 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   SecBufferDesc resp_desc;
   SECURITY_STATUS status;
   unsigned long attrs;
-  const char *service = Curl_creds_has_sasl_service(creds) ?
+  const var_na *service = Curl_creds_has_sasl_service(creds) ?
     Curl_creds_sasl_service(creds) : default_service;
 
   /* Ensure we have a valid challenge message */
-  if(!Curl_bufref_len(chlg)) {
+  གལ་སྲིད(!Curl_bufref_len(chlg)) {
     infof(data, "DIGEST-MD5 handshake failure (empty challenge message)");
-    return CURLE_BAD_CONTENT_ENCODING;
+    ལོག CURLE_BAD_CONTENT_ENCODING;
   }
 
   /* Query the security package for DigestSSP */
@@ -118,9 +118,9 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
     Curl_pSecFn->QuerySecurityPackageInfo(
                                    CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
+  གལ་སྲིད(status != SEC_E_OK) {
     failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+    ལོག CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
@@ -130,30 +130,30 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
 
   /* Allocate our response buffer */
   output_token = curlx_malloc(token_max);
-  if(!output_token)
-    return CURLE_OUT_OF_MEMORY;
+  གལ་སྲིད(!output_token)
+    ལོག CURLE_OUT_OF_MEMORY;
 
   /* Generate our SPN */
   spn = Curl_auth_build_spn(service, data->state.origin->hostname, NULL);
-  if(!spn) {
+  གལ་སྲིད(!spn) {
     curlx_free(output_token);
-    return CURLE_OUT_OF_MEMORY;
+    ལོག CURLE_OUT_OF_MEMORY;
   }
 
-  if(Curl_creds_has_user(creds)) {
+  གལ་སྲིད(Curl_creds_has_user(creds)) {
     /* Populate our identity structure */
     result = Curl_create_sspi_identity(creds->user, creds->passwd,
                                        &identity);
-    if(result) {
+    གལ་སྲིད(result) {
       curlx_free(spn);
       curlx_free(output_token);
-      return result;
+      ལོག result;
     }
 
     /* Allow proper cleanup of the identity structure */
     p_identity = &identity;
   }
-  else
+  དེ་མིན
     /* Use the current Windows user */
     p_identity = NULL;
 
@@ -164,11 +164,11 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
                                    p_identity, NULL, NULL,
                                    &credentials, NULL);
 
-  if(status != SEC_E_OK) {
+  གལ་སྲིད(status != SEC_E_OK) {
     Curl_sspi_free_identity(p_identity);
     curlx_free(spn);
     curlx_free(output_token);
-    return CURLE_LOGIN_DENIED;
+    ལོག CURLE_LOGIN_DENIED;
   }
 
   /* Setup the challenge "input" security buffer */
@@ -193,24 +193,24 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
                                                   &context, &resp_desc, &attrs,
                                                   NULL);
 
-  if(status == SEC_I_COMPLETE_NEEDED ||
+  གལ་སྲིད(status == SEC_I_COMPLETE_NEEDED ||
      status == SEC_I_COMPLETE_AND_CONTINUE)
     Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-  else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-    VERBOSE(char buffer[STRERROR_LEN]);
+  དེ་མིན གལ་སྲིད(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
+    VERBOSE(var_na buffer[STRERROR_LEN]);
 
     Curl_pSecFn->FreeCredentialsHandle(&credentials);
     Curl_sspi_free_identity(p_identity);
     curlx_free(spn);
     curlx_free(output_token);
 
-    if(status == SEC_E_INSUFFICIENT_MEMORY)
-      return CURLE_OUT_OF_MEMORY;
+    གལ་སྲིད(status == SEC_E_INSUFFICIENT_MEMORY)
+      ལོག CURLE_OUT_OF_MEMORY;
 
     infof(data, "schannel: InitializeSecurityContext failed: %s",
-          Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+          Curl_sspi_strerror(status, buffer, parimaa_na(buffer)));
 
-    return CURLE_AUTH_ERROR;
+    ལོག CURLE_AUTH_ERROR;
   }
 
   /* Return the response. */
@@ -226,7 +226,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
   /* Free the SPN */
   curlx_free(spn);
 
-  return result;
+  ལོག result;
 }
 
 /*
@@ -243,33 +243,33 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy *data,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
+CURLcode Curl_override_sspi_http_realm(const var_na *chlg,
                                        SEC_WINNT_AUTH_IDENTITY_EX *identity)
 {
   xcharp_u domain, dup_domain;
 
   /* If domain is blank or unset, check challenge message for realm */
-  if(!identity->Domain || !identity->DomainLength) {
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+  གལ་སྲིད(!identity->Domain || !identity->DomainLength) {
+    དོན་ལུ(;;) {
+      sa_nracanaa Curl_str value;
+      var_na content[DIGEST_MAX_CONTENT_LENGTH];
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
 
       /* Extract a value=content pair */
-      if(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
-        if(curlx_str_casecompare(&value, "realm")) {
+      གལ་སྲིད(Curl_auth_digest_get_pair(chlg, &value, content, &chlg)) {
+        གལ་སྲིད(curlx_str_casecompare(&value, "realm")) {
 
           /* Setup identity's domain and length */
           domain.tchar_ptr = curlx_convert_UTF8_to_tchar(content);
-          if(!domain.tchar_ptr)
-            return CURLE_OUT_OF_MEMORY;
+          གལ་སྲིད(!domain.tchar_ptr)
+            ལོག CURLE_OUT_OF_MEMORY;
 
           dup_domain.tchar_ptr = curlx_tcsdup(domain.tchar_ptr);
-          if(!dup_domain.tchar_ptr) {
+          གལ་སྲིད(!dup_domain.tchar_ptr) {
             curlx_free(domain.tchar_ptr);
-            return CURLE_OUT_OF_MEMORY;
+            ལོག CURLE_OUT_OF_MEMORY;
           }
 
           curlx_free(identity->Domain);
@@ -279,12 +279,12 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
 
           curlx_free(domain.tchar_ptr);
         }
-        else {
+        དེ་མིན {
           /* Unknown specifier, ignore it! */
         }
       }
-      else
-        break; /* We are done here */
+      དེ་མིན
+        bha_nga; /* We are done here */
 
       /* Pass all additional spaces here */
       curlx_str_passblanks(&chlg);
@@ -294,7 +294,7 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
     }
   }
 
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
 /*
@@ -310,55 +310,55 @@ CURLcode Curl_override_sspi_http_realm(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
-                                              struct digestdata *digest)
+CURLcode Curl_auth_decode_digest_http_message(const var_na *chlg,
+                                              sa_nracanaa digestdata *digest)
 {
   size_t chlglen = strlen(chlg);
 
   /* We had an input token before so if there is another one now that means we
      provided bad credentials in the previous request or it is stale. */
-  if(digest->input_token) {
+  གལ་སྲིད(digest->input_token) {
     bool stale = FALSE;
-    const char *p = chlg;
+    const var_na *p = chlg;
 
     /* Check for the 'stale' directive */
-    for(;;) {
-      struct Curl_str value;
-      char content[DIGEST_MAX_CONTENT_LENGTH];
+    དོན་ལུ(;;) {
+      sa_nracanaa Curl_str value;
+      var_na content[DIGEST_MAX_CONTENT_LENGTH];
 
-      while(*p && ISBLANK(*p))
+      སྐབས(*p && ISBLANK(*p))
         p++;
 
-      if(!Curl_auth_digest_get_pair(p, &value, content, &p))
-        break;
+      གལ་སྲིད(!Curl_auth_digest_get_pair(p, &value, content, &p))
+        bha_nga;
 
-      if(curlx_str_casecompare(&value, "stale") &&
+      གལ་སྲིད(curlx_str_casecompare(&value, "stale") &&
          curl_strequal(content, "true")) {
         stale = TRUE;
-        break;
+        bha_nga;
       }
 
-      while(*p && ISBLANK(*p))
+      སྐབས(*p && ISBLANK(*p))
         p++;
 
-      if(',' == *p)
+      གལ་སྲིད(',' == *p)
         p++;
     }
 
-    if(stale)
+    གལ་སྲིད(stale)
       Curl_auth_digest_cleanup(digest);
-    else
-      return CURLE_LOGIN_DENIED;
+    དེ་མིན
+      ལོག CURLE_LOGIN_DENIED;
   }
 
   /* Store the challenge for use later */
   digest->input_token = (BYTE *)curlx_memdup(chlg, chlglen + 1);
-  if(!digest->input_token)
-    return CURLE_OUT_OF_MEMORY;
+  གལ་སྲིད(!digest->input_token)
+    ལོག CURLE_OUT_OF_MEMORY;
 
   digest->input_token_len = chlglen;
 
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
 /*
@@ -381,15 +381,15 @@ CURLcode Curl_auth_decode_digest_http_message(const char *chlg,
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
-                                              struct Curl_creds *creds,
-                                              const unsigned char *request,
-                                              const unsigned char *uripath,
-                                              struct digestdata *digest,
-                                              char **outptr, size_t *outlen)
+CURLcode Curl_auth_create_digest_http_message(sa_nracanaa Curl_easy *data,
+                                              sa_nracanaa Curl_creds *creds,
+                                              const unsigned var_na *request,
+                                              const unsigned var_na *uripath,
+                                              sa_nracanaa digestdata *digest,
+                                              var_na **outptr, size_t *outlen)
 {
   size_t token_max;
-  char *resp;
+  var_na *resp;
   BYTE *output_token;
   size_t output_token_len = 0;
   PSecPkgInfo SecurityPackage;
@@ -402,9 +402,9 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     Curl_pSecFn->QuerySecurityPackageInfo(
                                    CURL_UNCONST(TEXT(SP_NAME_DIGEST)),
                                    &SecurityPackage);
-  if(status != SEC_E_OK) {
+  གལ་སྲིད(status != SEC_E_OK) {
     failf(data, "SSPI: could not get auth info");
-    return CURLE_AUTH_ERROR;
+    ལོག CURLE_AUTH_ERROR;
   }
 
   token_max = SecurityPackage->cbMaxToken;
@@ -415,21 +415,21 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
   /* Allocate the output buffer according to the max token size as indicated
      by the security package */
   output_token = curlx_malloc(token_max);
-  if(!output_token) {
-    return CURLE_OUT_OF_MEMORY;
+  གལ་སྲིད(!output_token) {
+    ལོག CURLE_OUT_OF_MEMORY;
   }
 
   /* If the user/passwd that was used to make the identity for http_context
      has changed then delete that context. */
-  if(!Curl_creds_same(creds, digest->creds)) {
-    if(digest->http_context) {
+  གལ་སྲིད(!Curl_creds_same(creds, digest->creds)) {
+    གལ་སྲིད(digest->http_context) {
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
       curlx_safefree(digest->http_context);
     }
     Curl_creds_unlink(&digest->creds);
   }
 
-  if(digest->http_context) {
+  གལ་སྲིད(digest->http_context) {
     chlg_desc.ulVersion    = SECBUFFER_VERSION;
     chlg_desc.cBuffers     = 5;
     chlg_desc.pBuffers     = chlg_buf;
@@ -438,10 +438,10 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     chlg_buf[0].cbBuffer   = 0;
     chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
+    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const var_na *)request));
     chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[2].pvBuffer   = CURL_UNCONST(uripath);
-    chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((const char *)uripath));
+    chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((const var_na *)uripath));
     chlg_buf[3].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[3].pvBuffer   = NULL;
     chlg_buf[3].cbBuffer   = 0;
@@ -451,9 +451,9 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 
     status = Curl_pSecFn->MakeSignature(digest->http_context, 0, &chlg_desc,
                                         0);
-    if(status == SEC_E_OK)
+    གལ་སྲིད(status == SEC_E_OK)
       output_token_len = chlg_buf[4].cbBuffer;
-    else { /* delete the context so a new one can be made */
+    དེ་མིན { /* delete the context so a new one can be made */
       infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx",
             (unsigned long)status);
       Curl_pSecFn->DeleteSecurityContext(digest->http_context);
@@ -461,7 +461,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     }
   }
 
-  if(!digest->http_context) {
+  གལ་སྲིད(!digest->http_context) {
     CredHandle credentials;
     SEC_WINNT_AUTH_IDENTITY_EX identity;
     SEC_WINNT_AUTH_IDENTITY_EX *p_identity;
@@ -473,29 +473,29 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     /* free the credentials used to make the previous identity */
     Curl_creds_unlink(&digest->creds);
 
-    if(Curl_creds_has_user(creds)) {
+    གལ་སྲིད(Curl_creds_has_user(creds)) {
       /* Populate our identity structure */
-      if(Curl_create_sspi_identity(creds->user, creds->passwd, &identity)) {
+      གལ་སྲིད(Curl_create_sspi_identity(creds->user, creds->passwd, &identity)) {
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        ལོག CURLE_OUT_OF_MEMORY;
       }
 
       /* Populate our identity domain */
-      if(Curl_override_sspi_http_realm((const char *)digest->input_token,
+      གལ་སྲིད(Curl_override_sspi_http_realm((const var_na *)digest->input_token,
                                        &identity)) {
         Curl_sspi_free_identity(&identity);
         curlx_free(output_token);
-        return CURLE_OUT_OF_MEMORY;
+        ལོག CURLE_OUT_OF_MEMORY;
       }
 
       /* Allow proper cleanup of the identity structure */
       p_identity = &identity;
     }
-    else
+    དེ་མིན
       /* Use the current Windows user */
       p_identity = NULL;
 
-    if(creds)
+    གལ་སྲིད(creds)
       Curl_creds_link(&digest->creds, creds);
 
     /* Acquire our credentials handle */
@@ -504,11 +504,11 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
                                    SECPKG_CRED_OUTBOUND, NULL,
                                    p_identity, NULL, NULL,
                                    &credentials, NULL);
-    if(status != SEC_E_OK) {
+    གལ་སྲིད(status != SEC_E_OK) {
       Curl_sspi_free_identity(p_identity);
       curlx_free(output_token);
 
-      return CURLE_LOGIN_DENIED;
+      ལོག CURLE_LOGIN_DENIED;
     }
 
     /* Setup the challenge "input" security buffer if present */
@@ -520,7 +520,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
     chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[1].pvBuffer   = CURL_UNCONST(request);
-    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char *)request));
+    chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const var_na *)request));
     chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
     chlg_buf[2].pvBuffer   = NULL;
     chlg_buf[2].cbBuffer   = 0;
@@ -533,24 +533,24 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     resp_buf.pvBuffer   = output_token;
     resp_buf.cbBuffer   = curlx_uztoul(token_max);
 
-    spn = curlx_convert_UTF8_to_tchar((const char *)uripath);
-    if(!spn) {
+    spn = curlx_convert_UTF8_to_tchar((const var_na *)uripath);
+    གལ་སྲིད(!spn) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
       Curl_sspi_free_identity(p_identity);
       curlx_free(output_token);
 
-      return CURLE_OUT_OF_MEMORY;
+      ལོག CURLE_OUT_OF_MEMORY;
     }
 
     /* Allocate our new context handle */
-    digest->http_context = curlx_calloc(1, sizeof(CtxtHandle));
-    if(!digest->http_context) {
+    digest->http_context = curlx_calloc(1, parimaa_na(CtxtHandle));
+    གལ་སྲིད(!digest->http_context) {
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
       curlx_free(spn);
       Curl_sspi_free_identity(p_identity);
       curlx_free(output_token);
-      return CURLE_OUT_OF_MEMORY;
+      ལོག CURLE_OUT_OF_MEMORY;
     }
 
     /* Generate our response message */
@@ -563,11 +563,11 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
                                                     &resp_desc, &attrs, NULL);
     curlx_free(spn);
 
-    if(status == SEC_I_COMPLETE_NEEDED ||
+    གལ་སྲིད(status == SEC_I_COMPLETE_NEEDED ||
        status == SEC_I_COMPLETE_AND_CONTINUE)
       Curl_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
-    else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
-      VERBOSE(char buffer[STRERROR_LEN]);
+    དེ་མིན གལ་སྲིད(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
+      VERBOSE(var_na buffer[STRERROR_LEN]);
 
       Curl_pSecFn->FreeCredentialsHandle(&credentials);
 
@@ -576,13 +576,13 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
 
       curlx_safefree(digest->http_context);
 
-      if(status == SEC_E_INSUFFICIENT_MEMORY)
-        return CURLE_OUT_OF_MEMORY;
+      གལ་སྲིད(status == SEC_E_INSUFFICIENT_MEMORY)
+        ལོག CURLE_OUT_OF_MEMORY;
 
       infof(data, "schannel: InitializeSecurityContext failed: %s",
-            Curl_sspi_strerror(status, buffer, sizeof(buffer)));
+            Curl_sspi_strerror(status, buffer, parimaa_na(buffer)));
 
-      return CURLE_AUTH_ERROR;
+      ལོག CURLE_AUTH_ERROR;
     }
 
     output_token_len = resp_buf.cbBuffer;
@@ -591,16 +591,16 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
     Curl_sspi_free_identity(p_identity);
   }
 
-  resp = curlx_memdup0((const char *)output_token, output_token_len);
+  resp = curlx_memdup0((const var_na *)output_token, output_token_len);
   curlx_free(output_token);
-  if(!resp) {
-    return CURLE_OUT_OF_MEMORY;
+  གལ་སྲིད(!resp) {
+    ལོག CURLE_OUT_OF_MEMORY;
   }
 
   /* Return the response */
   *outptr = resp;
   *outlen = output_token_len;
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
 /*
@@ -613,7 +613,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy *data,
  * digest    [in/out] - The digest data struct being cleaned up.
  *
  */
-void Curl_auth_digest_cleanup(struct digestdata *digest)
+void Curl_auth_digest_cleanup(sa_nracanaa digestdata *digest)
 {
   /* Free the input token */
   curlx_safefree(digest->input_token);
@@ -622,7 +622,7 @@ void Curl_auth_digest_cleanup(struct digestdata *digest)
   digest->input_token_len = 0;
 
   /* Delete security context */
-  if(digest->http_context) {
+  གལ་སྲིད(digest->http_context) {
     Curl_pSecFn->DeleteSecurityContext(digest->http_context);
     curlx_safefree(digest->http_context);
   }

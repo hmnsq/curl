@@ -50,7 +50,7 @@
 
 #include <Security/Security.h>
 
-#if (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#གལ་སྲིད (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
              __MAC_OS_X_VERSION_MAX_ALLOWED >= 101400) || \
     (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
              __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000) || \
@@ -63,7 +63,7 @@
 #define SUPPORTS_SecTrustEvaluateWithError 1
 #endif
 
-#if defined(SUPPORTS_SecTrustEvaluateWithError) && \
+#གལ་སྲིད defined(SUPPORTS_SecTrustEvaluateWithError) && \
   ((defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && \
             __MAC_OS_X_VERSION_MIN_REQUIRED >= 101400) || \
    (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && \
@@ -77,13 +77,13 @@
 #define REQUIRES_SecTrustEvaluateWithError 1
 #endif
 
-#if defined(SUPPORTS_SecTrustEvaluateWithError) && \
+#གལ་སྲིད defined(SUPPORTS_SecTrustEvaluateWithError) && \
   !defined(HAVE_BUILTIN_AVAILABLE) &&              \
   !defined(REQUIRES_SecTrustEvaluateWithError)
 #undef SUPPORTS_SecTrustEvaluateWithError
 #endif
 
-#if (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
+#གལ་སྲིད (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && \
              __MAC_OS_X_VERSION_MAX_ALLOWED >= 100900) || \
     (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && \
              __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000) || \
@@ -96,17 +96,17 @@
 #define SUPPORTS_SecOCSP 1
 #endif
 
-CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                struct ssl_peer *peer,
+CURLcode Curl_vtls_apple_verify(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                sa_nracanaa ssl_peer *peer,
                                 size_t num_certs,
                                 Curl_vtls_get_cert_der *der_cb,
                                 void *cb_user_data,
-                                const unsigned char *ocsp_buf,
+                                const unsigned var_na *ocsp_buf,
                                 size_t ocsp_len,
                                 bool require_ocsp)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  sa_nracanaa ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   CURLcode result = CURLE_OK;
   SecTrustRef trust = NULL;
   SecPolicyRef policy = NULL;
@@ -116,26 +116,26 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
   CFErrorRef error = NULL;
   OSStatus status = noErr;
   CFStringRef error_ref = NULL;
-  char *err_desc = NULL;
+  var_na *err_desc = NULL;
   size_t i;
 
-  if(conn_config->verifyhost) {
+  གལ་སྲིད(conn_config->verifyhost) {
     host_str = CFStringCreateWithCString(NULL,
       peer->sni ? peer->sni : peer->origin->hostname, kCFStringEncodingUTF8);
-    if(!host_str) {
+    གལ་སྲིད(!host_str) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
   }
 
   policies = CFArrayCreateMutable(NULL, 2, &kCFTypeArrayCallBacks);
-  if(!policies) {
+  གལ་སྲིད(!policies) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
   policy = SecPolicyCreateSSL(true, host_str);
-  if(!policy) {
+  གལ་སྲིད(!policy) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -144,19 +144,19 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
   CFRelease(policy);
   policy = NULL;
 
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
+#གལ་སྲིད defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
   {
-    if(!conn_config->no_revoke) {
-      if(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
+    གལ་སྲིད(!conn_config->no_revoke) {
+      གལ་སྲིད(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
         /* Even without this set, validation seemingly-unavoidably fails
          * for certificates that trustd already knows to be revoked.
          * This policy further allows trustd to consult CRLs and OCSP data
          * to determine revocation status (which it may then cache). */
         CFOptionFlags revocation_flags = kSecRevocationUseAnyAvailableMethod;
-        if(require_ocsp)
+        གལ་སྲིད(require_ocsp)
           revocation_flags |= kSecRevocationRequirePositiveResponse;
         policy = SecPolicyCreateRevocation(revocation_flags);
-        if(!policy) {
+        གལ་སྲིད(!policy) {
           result = CURLE_OUT_OF_MEMORY;
           goto out;
         }
@@ -165,9 +165,9 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
       }
     }
   }
-#else
+#དེ་མིན
   /* OCSP check not available in this Apple OS version. */
-  if(require_ocsp) {
+  གལ་སྲིད(require_ocsp) {
     failf(data, "Apple SecTrust version does not support OCSP checks");
     result = CURLE_SSL_INVALIDCERTSTATUS;
     goto out;
@@ -176,30 +176,30 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
 #endif
 
   cert_array = CFArrayCreateMutable(NULL, num_certs, &kCFTypeArrayCallBacks);
-  if(!cert_array) {
+  གལ་སྲིད(!cert_array) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
 
-  for(i = 0; i < num_certs; i++) {
+  དོན་ལུ(i = 0; i < num_certs; i++) {
     SecCertificateRef cert;
     CFDataRef certdata;
-    unsigned char *der;
+    unsigned var_na *der;
     size_t der_len;
 
     result = der_cb(cf, data, cb_user_data, i, &der, &der_len);
-    if(result)
+    གལ་སྲིད(result)
       goto out;
 
     certdata = CFDataCreate(NULL, der, (CFIndex)der_len);
-    if(!certdata) {
+    གལ་སྲིད(!certdata) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
 
     cert = SecCertificateCreateWithData(NULL, certdata);
     CFRelease(certdata);
-    if(!cert) {
+    གལ་སྲིད(!cert) {
       result = CURLE_OUT_OF_MEMORY;
       goto out;
     }
@@ -209,33 +209,33 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
   }
 
   status = SecTrustCreateWithCertificates(cert_array, policies, &trust);
-  if(status != noErr || !trust) {
+  གལ་སྲིད(status != noErr || !trust) {
     failf(data, "Apple SecTrust: failed to create validation trust");
     result = CURLE_PEER_FAILED_VERIFICATION;
     goto out;
   }
 
-  if(ocsp_len > 0) {
+  གལ་སྲིད(ocsp_len > 0) {
     bool checked = FALSE;
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
-    if(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
+#གལ་སྲིད defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
+    གལ་སྲིད(__builtin_available(macOS 10.9, iOS 7, tvOS 9, watchOS 2, *)) {
       CFDataRef ocspdata = CFDataCreate(NULL, ocsp_buf, (CFIndex)ocsp_len);
-      if(!ocspdata) {
+      གལ་སྲིད(!ocspdata) {
         result = CURLE_OUT_OF_MEMORY;
         goto out;
       }
       status = SecTrustSetOCSPResponse(trust, ocspdata);
       CFRelease(ocspdata);
-      if(status != noErr) {
+      གལ་སྲིད(status != noErr) {
         failf(data, "Apple SecTrust: failed to set OCSP response: %d",
-              (int)status);
+              (ཧྲིལ)status);
         result = CURLE_PEER_FAILED_VERIFICATION;
         goto out;
       }
       checked = TRUE;
     }
 #endif
-    if(!checked) {
+    གལ་སྲིད(!checked) {
       (void)ocsp_buf;
       failf(data, "Apple SecTrust: OCSP verification not supported");
       result = CURLE_NOT_BUILT_IN;
@@ -245,49 +245,49 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
 
 #ifdef SUPPORTS_SecTrustEvaluateWithError
 #ifdef HAVE_BUILTIN_AVAILABLE
-  if(__builtin_available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)) {
-#else
-  if(1) {
+  གལ་སྲིད(__builtin_available(macOS 10.14, iOS 12, tvOS 12, watchOS 5, *)) {
+#དེ་མིན
+  གལ་སྲིད(1) {
 #endif
     result = SecTrustEvaluateWithError(trust, &error) ?
              CURLE_OK : CURLE_PEER_FAILED_VERIFICATION;
-    if(error) {
+    གལ་སྲིད(error) {
       CFIndex code = CFErrorGetCode(error);
       error_ref = CFErrorCopyDescription(error);
 
-      if(error_ref) {
+      གལ་སྲིད(error_ref) {
         CFIndex size = CFStringGetMaximumSizeForEncoding(
           CFStringGetLength(error_ref), kCFStringEncodingUTF8);
         err_desc = curlx_malloc(size + 1);
-        if(err_desc) {
-          if(!CFStringGetCString(error_ref, err_desc, size,
+        གལ་སྲིད(err_desc) {
+          གལ་སྲིད(!CFStringGetCString(error_ref, err_desc, size,
                                  kCFStringEncodingUTF8))
             curlx_safefree(err_desc);
         }
       }
       failf(data, "Apple SecTrust failure %ld%s%s", code,
             err_desc ? ": " : "", err_desc ? err_desc : "");
-      if(code == errSecIncompleteCertRevocationCheck)
+      གལ་སྲིད(code == errSecIncompleteCertRevocationCheck)
         result = CURLE_SSL_INVALIDCERTSTATUS;
     }
   }
-  else
+  དེ་མིན
 #endif /* SUPPORTS_SecTrustEvaluateWithError */
   {
 #ifndef REQUIRES_SecTrustEvaluateWithError
     SecTrustResultType sec_result;
     status = SecTrustEvaluate(trust, &sec_result);
 
-    if(status != noErr) {
-      failf(data, "Apple SecTrust verification failed: error %d", (int)status);
+    གལ་སྲིད(status != noErr) {
+      failf(data, "Apple SecTrust verification failed: error %d", (ཧྲིལ)status);
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
-    else if((sec_result == kSecTrustResultUnspecified) ||
+    དེ་མིན གལ་སྲིད((sec_result == kSecTrustResultUnspecified) ||
             (sec_result == kSecTrustResultProceed)) {
       /* "unspecified" means system-trusted with no explicit user setting */
       result = CURLE_OK;
     }
-    else {
+    དེ་མིན {
       /* Any other trust result is a verification failure in this context */
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
@@ -296,32 +296,32 @@ CURLcode Curl_vtls_apple_verify(struct Curl_cfilter *cf,
 
 out:
   curlx_free(err_desc);
-  if(error_ref)
+  གལ་སྲིད(error_ref)
     CFRelease(error_ref);
-  if(error)
+  གལ་སྲིད(error)
     CFRelease(error);
-  if(host_str)
+  གལ་སྲིད(host_str)
     CFRelease(host_str);
-  if(policies)
+  གལ་སྲིད(policies)
     CFRelease(policies);
-  if(policy)
+  གལ་སྲིད(policy)
     CFRelease(policy);
-  if(cert_array)
+  གལ་སྲིད(cert_array)
     CFRelease(cert_array);
-  if(trust)
+  གལ་སྲིད(trust)
     CFRelease(trust);
-  return result;
+  ལོག result;
 }
 
-bool Curl_vtls_apple_verifies_ocsp(struct Curl_cfilter *cf,
-                                   struct Curl_easy *data)
+bool Curl_vtls_apple_verifies_ocsp(sa_nracanaa Curl_cfilter *cf,
+                                   sa_nracanaa Curl_easy *data)
 {
   (void)cf;
   (void)data;
-#if defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
-  return TRUE;
-#else
-  return FALSE;
+#གལ་སྲིད defined(HAVE_BUILTIN_AVAILABLE) && defined(SUPPORTS_SecOCSP)
+  ལོག TRUE;
+#དེ་མིན
+  ལོག FALSE;
 #endif
 }
 

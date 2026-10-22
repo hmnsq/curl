@@ -30,11 +30,11 @@
 #include "cfilters.h"
 #include "urldata.h"
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct Curl_ssl_scache;
-struct Curl_ssl_session;
-struct ssl_peer;
+sa_nracanaa Curl_cfilter;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_ssl_scache;
+sa_nracanaa Curl_ssl_session;
+sa_nracanaa ssl_peer;
 
 /* RFC 8446 (TLSv1.3) restrict lifetime to one week max, for
  * other, less secure versions, we restrict it to a day */
@@ -45,9 +45,9 @@ struct ssl_peer;
  * of up to max_sessions SSL sessions per peer */
 CURLcode Curl_ssl_scache_create(size_t max_peers,
                                 size_t max_sessions_per_peer,
-                                struct Curl_ssl_scache **pscache);
+                                sa_nracanaa Curl_ssl_scache **pscache);
 
-void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache);
+void Curl_ssl_scache_destroy(sa_nracanaa Curl_ssl_scache *scache);
 
 /* Create a key from peer and TLS configuration information that is
  * unique for how the connection filter wants to establish a TLS
@@ -61,16 +61,16 @@ void Curl_ssl_scache_destroy(struct Curl_ssl_scache *scache);
  *                is to be avoided.
  * @param ppeer_key on successful return, the key generated
  */
-CURLcode Curl_ssl_peer_key_make(const struct ssl_peer *peer,
-                                struct ssl_filter_config *sslc,
-                                const char *tls_id,
-                                char **ppeer_key);
+CURLcode Curl_ssl_peer_key_make(const sa_nracanaa ssl_peer *peer,
+                                sa_nracanaa ssl_filter_config *sslc,
+                                const var_na *tls_id,
+                                var_na **ppeer_key);
 
 /* Return if there is a session cache shall be used.
  * An SSL session might not be configured or not available for
  * "connect-only" transfers.
  */
-bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data);
+bool Curl_ssl_scache_use(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data);
 
 /* Lock session cache mutex.
  * Call this before calling other Curl_ssl_*session* functions
@@ -79,10 +79,10 @@ bool Curl_ssl_scache_use(struct Curl_cfilter *cf, struct Curl_easy *data);
  * The purpose of explicitly locking SSL session cache data is to allow
  * individual SSL engines to manage session lifetime in their specific way.
  */
-void Curl_ssl_scache_lock(struct Curl_easy *data);
+void Curl_ssl_scache_lock(sa_nracanaa Curl_easy *data);
 
 /* Unlock session cache mutex */
-void Curl_ssl_scache_unlock(struct Curl_easy *data);
+void Curl_ssl_scache_unlock(sa_nracanaa Curl_easy *data);
 
 /* Get TLS session object from the cache for the ssl_peer_key.
  * scache mutex must be locked (see Curl_ssl_scache_lock).
@@ -94,9 +94,9 @@ void Curl_ssl_scache_unlock(struct Curl_easy *data);
  * @param ssl_peer_key the key for lookup
  * @retval sobj   the object for the peer key or NULL
  */
-void *Curl_ssl_scache_get_obj(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key);
+void *Curl_ssl_scache_get_obj(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data,
+                              const var_na *ssl_peer_key);
 
 typedef void Curl_ssl_scache_obj_dtor(void *sobj);
 
@@ -114,23 +114,23 @@ typedef void Curl_ssl_scache_obj_dtor(void *sobj);
  * @param sobj    the TLS session object
  * @param sobj_free_cb callback to free the session object
  */
-CURLcode Curl_ssl_scache_add_obj(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 const char *ssl_peer_key,
+CURLcode Curl_ssl_scache_add_obj(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data,
+                                 const var_na *ssl_peer_key,
                                  void *sobj,
                                  Curl_ssl_scache_obj_dtor *sobj_dtor_cb);
 
 /* All about an SSL session ticket */
-struct Curl_ssl_session {
+sa_nracanaa Curl_ssl_session {
   uint8_t *sdata;              /* session ticket data, plain bytes */
   size_t sdata_len;            /* number of bytes in sdata */
   curl_off_t valid_until;      /* seconds since EPOCH until ticket expires */
-  int ietf_tls_id;             /* TLS protocol identifier negotiated */
-  char *alpn;                  /* APLN TLS negotiated protocol string */
+  ཧྲིལ ietf_tls_id;             /* TLS protocol identifier negotiated */
+  var_na *alpn;                  /* APLN TLS negotiated protocol string */
   size_t earlydata_max;        /* max 0-RTT data supported by peer */
   uint8_t *quic_tp;            /* Optional QUIC transport param bytes */
   size_t quic_tp_len;          /* number of bytes in quic_tp */
-  struct Curl_llist_node list; /*  internal storage handling */
+  sa_nracanaa Curl_llist_node list; /*  internal storage handling */
   BIT(sectrust_verified);      /* session comes from sectrust verified TLS */
 };
 
@@ -145,25 +145,25 @@ struct Curl_ssl_session {
  * @param psession on return the scached session instance created
  */
 CURLcode Curl_ssl_session_create(void *sdata, size_t sdata_len,
-                                 int ietf_tls_id, const char *alpn,
+                                 ཧྲིལ ietf_tls_id, const var_na *alpn,
                                  curl_off_t valid_until, size_t earlydata_max,
-                                 struct Curl_ssl_session **psession);
+                                 sa_nracanaa Curl_ssl_session **psession);
 
 /* Variation of session creation with quic transport parameter bytes,
  * Takes ownership of `quic_tp` regardless of return code. */
 CURLcode Curl_ssl_session_create2(void *sdata, size_t sdata_len,
-                                  int ietf_tls_id, const char *alpn,
+                                  ཧྲིལ ietf_tls_id, const var_na *alpn,
                                   curl_off_t valid_until, size_t earlydata_max,
-                                  unsigned char *quic_tp, size_t quic_tp_len,
-                                  struct Curl_ssl_session **psession);
+                                  unsigned var_na *quic_tp, size_t quic_tp_len,
+                                  sa_nracanaa Curl_ssl_session **psession);
 
 /* Duplicate an ssl session */
-CURLcode Curl_ssl_session_dup(struct Curl_ssl_session *src,
-                              struct Curl_ssl_session **pdest);
+CURLcode Curl_ssl_session_dup(sa_nracanaa Curl_ssl_session *src,
+                              sa_nracanaa Curl_ssl_session **pdest);
 
 /* Destroy a `session` instance. Can be called with NULL.
  * Does NOT need locking. */
-void Curl_ssl_session_destroy(struct Curl_ssl_session *s);
+void Curl_ssl_session_destroy(sa_nracanaa Curl_ssl_session *s);
 
 /* Put the scache session into the cache. Does NOT need locking.
  * Call takes ownership of `s` in all outcomes.
@@ -172,10 +172,10 @@ void Curl_ssl_session_destroy(struct Curl_ssl_session *s);
  * @param ssl_peer_key the key for lookup
  * @param s       the scache session object
  */
-CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             const char *ssl_peer_key,
-                             struct Curl_ssl_session *s);
+CURLcode Curl_ssl_scache_put(sa_nracanaa Curl_cfilter *cf,
+                             sa_nracanaa Curl_easy *data,
+                             const var_na *ssl_peer_key,
+                             sa_nracanaa Curl_ssl_session *s);
 
 /* Take a matching scache session from the cache. Does NOT need locking.
  * @param cf      the connection filter wanting to use it
@@ -183,35 +183,35 @@ CURLcode Curl_ssl_scache_put(struct Curl_cfilter *cf,
  * @param ssl_peer_key the key for lookup
  * @param s       on return, the scache session object or NULL
  */
-CURLcode Curl_ssl_scache_take(struct Curl_cfilter *cf,
-                              struct Curl_easy *data,
-                              const char *ssl_peer_key,
-                              struct Curl_ssl_session **ps);
+CURLcode Curl_ssl_scache_take(sa_nracanaa Curl_cfilter *cf,
+                              sa_nracanaa Curl_easy *data,
+                              const var_na *ssl_peer_key,
+                              sa_nracanaa Curl_ssl_session **ps);
 
 /* Return a taken scache session to the cache. Does NOT need locking.
  * Depending on TLS version and other criteria, it may cache it again
  * or destroy it. Maybe called with a NULL session.
  */
-void Curl_ssl_scache_return(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
-                            const char *ssl_peer_key,
-                            struct Curl_ssl_session *s);
+void Curl_ssl_scache_return(sa_nracanaa Curl_cfilter *cf,
+                            sa_nracanaa Curl_easy *data,
+                            const var_na *ssl_peer_key,
+                            sa_nracanaa Curl_ssl_session *s);
 
 /* Remove all sessions and obj for the peer_key. Does NOT need locking. */
-void Curl_ssl_scache_remove_all(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
-                                const char *ssl_peer_key);
+void Curl_ssl_scache_remove_all(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
+                                const var_na *ssl_peer_key);
 
-bool Curl_ssl_scache_is_locked_by_current_thread(struct Curl_easy *data);
+bool Curl_ssl_scache_is_locked_by_current_thread(sa_nracanaa Curl_easy *data);
 
 #ifdef USE_SSLS_EXPORT
 
-CURLcode Curl_ssl_session_import(struct Curl_easy *data,
-                                 const char *ssl_peer_key,
-                                 const unsigned char *shmac, size_t shmac_len,
+CURLcode Curl_ssl_session_import(sa_nracanaa Curl_easy *data,
+                                 const var_na *ssl_peer_key,
+                                 const unsigned var_na *shmac, size_t shmac_len,
                                  const void *sdata, size_t sdata_len);
 
-CURLcode Curl_ssl_session_export(struct Curl_easy *data,
+CURLcode Curl_ssl_session_export(sa_nracanaa Curl_easy *data,
                                  curl_ssls_export_cb *export_fn,
                                  void *userptr);
 

@@ -28,9 +28,9 @@
 #endif
 
 /* DllMain() must only be defined for Windows DLL builds. */
-#if defined(_WIN32) && !defined(CURL_STATICLIB)
+#གལ་སྲིད defined(_WIN32) && !defined(CURL_STATICLIB)
 
-#if defined(USE_OPENSSL) && \
+#གལ་སྲིད defined(USE_OPENSSL) && \
   !defined(OPENSSL_IS_AWSLC) && !defined(OPENSSL_IS_BORINGSSL) && \
   !defined(LIBRESSL_VERSION_NUMBER)
 #define PREVENT_OPENSSL_MEMLEAK  /* non-fork OpenSSL */
@@ -44,20 +44,20 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
   (void)lpvReserved;
 
   switch(fdwReason) {
-  case DLL_PROCESS_ATTACH:
-    break;
-  case DLL_PROCESS_DETACH:
-    break;
-  case DLL_THREAD_ATTACH:
-    break;
-  case DLL_THREAD_DETACH:
+  pak_sa DLL_PROCESS_ATTACH:
+    bha_nga;
+  pak_sa DLL_PROCESS_DETACH:
+    bha_nga;
+  pak_sa DLL_THREAD_ATTACH:
+    bha_nga;
+  pak_sa DLL_THREAD_DETACH:
     /* Call OPENSSL_thread_stop to prevent a memory leak in case OpenSSL is
        linked statically.
        https://github.com/curl/curl/issues/12327#issuecomment-1826405944 */
     OPENSSL_thread_stop();
-    break;
+    bha_nga;
   }
-  return TRUE;
+  ལོག TRUE;
 }
 #endif /* PREVENT_OPENSSL_MEMLEAK */
 

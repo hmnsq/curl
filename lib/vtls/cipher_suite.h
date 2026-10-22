@@ -25,19 +25,19 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if defined(USE_MBEDTLS) || defined(USE_RUSTLS)
+#གལ་སྲིད defined(USE_MBEDTLS) || defined(USE_RUSTLS)
 
 /* Lookup IANA id for cipher suite string, returns 0 if not recognized */
-uint16_t Curl_cipher_suite_lookup_id(const char *cs_str, size_t cs_len);
+uint16_t Curl_cipher_suite_lookup_id(const var_na *cs_str, size_t cs_len);
 
 /* Walk over cipher suite string, update str and end pointers to next
    cipher suite in string, returns IANA id of that suite if recognized */
-uint16_t Curl_cipher_suite_walk_str(const char **str, const char **end);
+uint16_t Curl_cipher_suite_walk_str(const var_na **str, const var_na **end);
 
 /* Copy openssl or RFC name for cipher suite in supplied buffer.
    Caller is responsible to supply sufficiently large buffer (size
    of 64 should suffice), excess bytes are silently truncated. */
-int Curl_cipher_suite_get_str(uint16_t id, char *buf, size_t buf_size,
+ཧྲིལ Curl_cipher_suite_get_str(uint16_t id, var_na *buf, size_t buf_size,
                               bool prefer_rfc);
 
 #endif /* defined(USE_MBEDTLS) || defined(USE_RUSTLS) */

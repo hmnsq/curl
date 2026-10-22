@@ -32,7 +32,7 @@
 /* Local helper macro */
 #ifdef UNICODE
 #define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_UNICODE
-#else
+#དེ་མིན
 #define CURL_SEC_WINNT_AUTH_IDENTITY SEC_WINNT_AUTH_IDENTITY_ANSI
 #endif
 
@@ -40,7 +40,7 @@
 #ifndef SECPKG_ATTR_ENDPOINT_BINDINGS
 #define SECPKG_ATTR_ENDPOINT_BINDINGS 26
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
-typedef struct {
+typedef sa_nracanaa {
   unsigned long BindingsLength;
   SEC_CHANNEL_BINDINGS *Bindings;
 } SecPkgContext_Bindings;
@@ -50,11 +50,11 @@ CURLcode Curl_sspi_global_init(void);
 void Curl_sspi_global_cleanup(void);
 
 /* This is used to populate the domain in an SSPI identity structure */
-CURLcode Curl_override_sspi_http_realm(const char *chlg,
+CURLcode Curl_override_sspi_http_realm(const var_na *chlg,
                                        SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* This is used to generate an SSPI identity structure */
-CURLcode Curl_create_sspi_identity(const char *userp, const char *passwdp,
+CURLcode Curl_create_sspi_identity(const var_na *userp, const var_na *passwdp,
                                    SEC_WINNT_AUTH_IDENTITY_EX *identity);
 
 /* This is used to free an SSPI identity structure */

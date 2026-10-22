@@ -25,7 +25,7 @@
 
 #include "curlx/warnless.h"
 
-#if defined(__INTEL_COMPILER) && defined(__unix__)
+#གལ་སྲིད defined(__INTEL_COMPILER) && defined(__unix__)
 
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -36,11 +36,11 @@
 
 #endif /* __INTEL_COMPILER && __unix__ */
 
-#define CURL_MASK_UCHAR   ((unsigned char)~0)
+#define CURL_MASK_UCHAR   ((unsigned var_na)~0)
 
 #define CURL_MASK_USHORT  ((unsigned short)~0)
 
-#define CURL_MASK_UINT    ((unsigned int)~0)
+#define CURL_MASK_UINT    ((unsigned ཧྲིལ)~0)
 #define CURL_MASK_SINT    (CURL_MASK_UINT >> 1)
 
 #define CURL_MASK_ULONG   ((unsigned long)~0)
@@ -56,19 +56,19 @@
 /*
  * unsigned long to unsigned char
  */
-unsigned char curlx_ultouc(unsigned long ulnum)
+unsigned var_na curlx_ultouc(unsigned long ulnum)
 {
   DEBUGASSERT(ulnum <= (unsigned long)CURL_MASK_UCHAR);
-  return (unsigned char)(ulnum & (unsigned long)CURL_MASK_UCHAR);
+  ལོག (unsigned var_na)(ulnum & (unsigned long)CURL_MASK_UCHAR);
 }
 
 /*
  * unsigned size_t to signed int
  */
-int curlx_uztosi(size_t uznum)
+ཧྲིལ curlx_uztosi(size_t uznum)
 {
   DEBUGASSERT(uznum <= (size_t)CURL_MASK_SINT);
-  return (int)(uznum & (size_t)CURL_MASK_SINT);
+  ལོག (ཧྲིལ)(uznum & (size_t)CURL_MASK_SINT);
 }
 
 /*
@@ -76,45 +76,45 @@ int curlx_uztosi(size_t uznum)
  */
 unsigned long curlx_uztoul(size_t uznum)
 {
-#if ULONG_MAX < SIZE_MAX
+#གལ་སྲིད ULONG_MAX < SIZE_MAX
   DEBUGASSERT(uznum <= (size_t)CURL_MASK_ULONG);
 #endif
-  return (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
+  ལོག (unsigned long)(uznum & (size_t)CURL_MASK_ULONG);
 }
 
 /*
  * unsigned size_t to unsigned int
  */
-unsigned int curlx_uztoui(size_t uznum)
+unsigned ཧྲིལ curlx_uztoui(size_t uznum)
 {
-#if UINT_MAX < SIZE_MAX
+#གལ་སྲིད UINT_MAX < SIZE_MAX
   DEBUGASSERT(uznum <= (size_t)CURL_MASK_UINT);
 #endif
-  return (unsigned int)(uznum & (size_t)CURL_MASK_UINT);
+  ལོག (unsigned ཧྲིལ)(uznum & (size_t)CURL_MASK_UINT);
 }
 
 /*
  * signed long to signed int
  */
-int curlx_sltosi(long slnum)
+ཧྲིལ curlx_sltosi(long slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if INT_MAX < LONG_MAX
+#གལ་སྲིད INT_MAX < LONG_MAX
   DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_SINT);
 #endif
-  return (int)(slnum & (long)CURL_MASK_SINT);
+  ལོག (ཧྲིལ)(slnum & (long)CURL_MASK_SINT);
 }
 
 /*
  * signed long to unsigned int
  */
-unsigned int curlx_sltoui(long slnum)
+unsigned ཧྲིལ curlx_sltoui(long slnum)
 {
   DEBUGASSERT(slnum >= 0);
-#if UINT_MAX < LONG_MAX
+#གལ་སྲིད UINT_MAX < LONG_MAX
   DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_UINT);
 #endif
-  return (unsigned int)(slnum & (long)CURL_MASK_UINT);
+  ལོག (unsigned ཧྲིལ)(slnum & (long)CURL_MASK_UINT);
 }
 
 /*
@@ -124,7 +124,7 @@ unsigned short curlx_sltous(long slnum)
 {
   DEBUGASSERT(slnum >= 0);
   DEBUGASSERT((unsigned long)slnum <= (unsigned long)CURL_MASK_USHORT);
-  return (unsigned short)(slnum & (long)CURL_MASK_USHORT);
+  ལོག (unsigned short)(slnum & (long)CURL_MASK_USHORT);
 }
 
 /*
@@ -133,7 +133,7 @@ unsigned short curlx_sltous(long slnum)
 ssize_t curlx_uztosz(size_t uznum)
 {
   DEBUGASSERT(uznum <= (size_t)CURL_MASK_SSIZE_T);
-  return (ssize_t)(uznum & (size_t)CURL_MASK_SSIZE_T);
+  ལོག (ssize_t)(uznum & (size_t)CURL_MASK_SSIZE_T);
 }
 
 /*
@@ -142,101 +142,101 @@ ssize_t curlx_uztosz(size_t uznum)
 size_t curlx_sotouz(curl_off_t sonum)
 {
   DEBUGASSERT(sonum >= 0);
-  return (size_t)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
+  ལོག (size_t)(sonum & (curl_off_t)CURL_MASK_USIZE_T);
 }
 
 /*
  * signed ssize_t to signed int
  */
-int curlx_sztosi(ssize_t sznum)
+ཧྲིལ curlx_sztosi(ssize_t sznum)
 {
   DEBUGASSERT(sznum >= 0);
-#if INT_MAX < SSIZE_MAX
+#གལ་སྲིད INT_MAX < SSIZE_MAX
   DEBUGASSERT((size_t)sznum <= (size_t)CURL_MASK_SINT);
 #endif
-  return (int)(sznum & (ssize_t)CURL_MASK_SINT);
+  ལོག (ཧྲིལ)(sznum & (ssize_t)CURL_MASK_SINT);
 }
 
 /*
  * unsigned int to unsigned short
  */
-unsigned short curlx_uitous(unsigned int uinum)
+unsigned short curlx_uitous(unsigned ཧྲིལ uinum)
 {
-  DEBUGASSERT(uinum <= (unsigned int)CURL_MASK_USHORT);
-  return (unsigned short)(uinum & (unsigned int)CURL_MASK_USHORT);
+  DEBUGASSERT(uinum <= (unsigned ཧྲིལ)CURL_MASK_USHORT);
+  ལོག (unsigned short)(uinum & (unsigned ཧྲིལ)CURL_MASK_USHORT);
 }
 
 /*
  * signed int to unsigned size_t
  */
-size_t curlx_sitouz(int sinum)
+size_t curlx_sitouz(ཧྲིལ sinum)
 {
   DEBUGASSERT(sinum >= 0);
-  return (size_t)sinum;
+  ལོག (size_t)sinum;
 }
 
 #ifdef __INTEL_COMPILER
 #pragma warning(pop)
 #endif
 
-size_t curlx_uitouz(unsigned int uinum)
+size_t curlx_uitouz(unsigned ཧྲིལ uinum)
 {
-  return (size_t)uinum;
+  ལོག (size_t)uinum;
 }
 
 size_t curlx_sotouz_range(curl_off_t sonum, size_t uzmin, size_t uzmax)
 {
-  if(sonum < 0)
-    return uzmin;
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX)
-    return uzmax;
+  གལ་སྲིད(sonum < 0)
+    ལོག uzmin;
+#གལ་སྲིད SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
+  གལ་སྲིད(sonum > SIZE_MAX)
+    ལོག uzmax;
 #endif
-  return CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
+  ལོག CURLMIN(CURLMAX((size_t)sonum, uzmin), uzmax);
 }
 
 bool curlx_sztouz(ssize_t sznum, size_t *puznum)
 {
-  if(sznum < 0) {
+  གལ་སྲིད(sznum < 0) {
     *puznum = 0;
-    return FALSE;
+    ལོག FALSE;
   }
   *puznum = (size_t)sznum;
-  return TRUE;
+  ལོག TRUE;
 }
 
 bool curlx_sotouz_fits(curl_off_t sonum, size_t *puznum)
 {
-  if(sonum < 0) {
+  གལ་སྲིད(sonum < 0) {
     *puznum = 0;
-    return FALSE;
+    ལོག FALSE;
   }
-#if SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
-  if(sonum > SIZE_MAX) {
+#གལ་སྲིད SIZEOF_CURL_OFF_T > SIZEOF_SIZE_T
+  གལ་སྲིད(sonum > SIZE_MAX) {
     *puznum = 0;
-    return FALSE;
+    ལོག FALSE;
   }
 #endif
   *puznum = (size_t)sonum;
-  return TRUE;
+  ལོག TRUE;
 }
 
 bool curlx_sltouz(long slnum, size_t *puznum)
 {
-  if(slnum < 0) {
+  གལ་སྲིད(slnum < 0) {
     *puznum = 0;
-    return FALSE;
+    ལོག FALSE;
   }
   /* We error in curl_setup.h if SIZEOF_LONG > SIZEOF_SIZE_T */
   *puznum = (size_t)slnum;
-  return TRUE;
+  ལོག TRUE;
 }
 
 curl_off_t curlx_uztoso(size_t uznum)
 {
-#if SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
-  if(uznum > (size_t)CURL_OFF_T_MAX)
-    return CURL_OFF_T_MAX;
+#གལ་སྲིད SIZEOF_SIZE_T >= SIZEOF_CURL_OFF_T
+  གལ་སྲིད(uznum > (size_t)CURL_OFF_T_MAX)
+    ལོག CURL_OFF_T_MAX;
 #endif
-  return (curl_off_t)uznum;
+  ལོག (curl_off_t)uznum;
 }

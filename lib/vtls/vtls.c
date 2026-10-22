@@ -76,64 +76,64 @@
 #endif
 
 #ifdef USE_SSL
-#if !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
-static const struct alpn_spec ALPN_SPEC_H11 = {
+#གལ་སྲིད !defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_PROXY)
+static const sa_nracanaa alpn_spec ALPN_SPEC_H11 = {
   { ALPN_HTTP_1_1 }, 1
 };
-static const struct alpn_spec ALPN_SPEC_H10_H11 = {
+static const sa_nracanaa alpn_spec ALPN_SPEC_H10_H11 = {
   { ALPN_HTTP_1_0, ALPN_HTTP_1_1 }, 2
 };
 #ifdef USE_HTTP2
-static const struct alpn_spec ALPN_SPEC_H2 = {
+static const sa_nracanaa alpn_spec ALPN_SPEC_H2 = {
   { ALPN_H2 }, 1
 };
-static const struct alpn_spec ALPN_SPEC_H2_H11 = {
+static const sa_nracanaa alpn_spec ALPN_SPEC_H2_H11 = {
   { ALPN_H2, ALPN_HTTP_1_1 }, 2
 };
-static const struct alpn_spec ALPN_SPEC_H11_H2 = {
+static const sa_nracanaa alpn_spec ALPN_SPEC_H11_H2 = {
   { ALPN_HTTP_1_1, ALPN_H2 }, 2
 };
 #endif /* USE_HTTP2 */
 
-static const struct alpn_spec *alpn_get_spec(http_majors wanted,
+static const sa_nracanaa alpn_spec *alpn_get_spec(http_majors wanted,
                                              http_majors preferred,
                                              bool only_http_10,
                                              bool use_alpn)
 {
-  if(!use_alpn)
-    return NULL;
+  གལ་སྲིད(!use_alpn)
+    ལོག NULL;
   /* If HTTP/1.0 is the wanted protocol then use ALPN http/1.0 and http/1.1.
      This is for compatibility reasons since some HTTP/1.0 servers with old
      ALPN implementations understand ALPN http/1.1 but not http/1.0. */
-  if(only_http_10 && (wanted & CURL_HTTP_V1x))
-    return &ALPN_SPEC_H10_H11;
+  གལ་སྲིད(only_http_10 && (wanted & CURL_HTTP_V1x))
+    ལོག &ALPN_SPEC_H10_H11;
 #ifdef USE_HTTP2
-  if(wanted & CURL_HTTP_V2x) {
-    if(wanted & CURL_HTTP_V1x)
-      return (preferred == CURL_HTTP_V1x) ?
+  གལ་སྲིད(wanted & CURL_HTTP_V2x) {
+    གལ་སྲིད(wanted & CURL_HTTP_V1x)
+      ལོག (preferred == CURL_HTTP_V1x) ?
         &ALPN_SPEC_H11_H2 : &ALPN_SPEC_H2_H11;
-    return &ALPN_SPEC_H2;
+    ལོག &ALPN_SPEC_H2;
   }
-#else
+#དེ་མིན
   (void)wanted;
   (void)preferred;
 #endif
-  return &ALPN_SPEC_H11;
+  ལོག &ALPN_SPEC_H11;
 }
 #endif /* !CURL_DISABLE_HTTP || !CURL_DISABLE_PROXY */
 #endif /* USE_SSL */
 
 #ifdef USE_SSL
-static int multissl_setup(const struct Curl_ssl *backend);
+static ཧྲིལ multissl_setup(const sa_nracanaa Curl_ssl *backend);
 #endif
 
 curl_sslbackend Curl_ssl_backend(void)
 {
 #ifdef USE_SSL
   multissl_setup(NULL);
-  return Curl_ssl->info.id;
-#else
-  return CURLSSLBACKEND_NONE;
+  ལོག Curl_ssl->info.id;
+#དེ་མིན
+  ལོག CURLSSLBACKEND_NONE;
 #endif
 }
 
@@ -148,67 +148,67 @@ static bool init_ssl = FALSE;
  * @retval 0 error initializing SSL
  * @retval 1 SSL initialized successfully
  */
-int Curl_ssl_init(void)
+ཧྲིལ Curl_ssl_init(void)
 {
   /* make sure this is only done once */
-  if(init_ssl)
-    return 1;
+  གལ་སྲིད(init_ssl)
+    ལོག 1;
   init_ssl = TRUE; /* never again */
 
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  གལ་སྲིད(Curl_ssl->init)
+    ལོག Curl_ssl->init();
+  ལོག 1;
 }
 
-static bool ssl_prefs_check(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+static bool ssl_prefs_check(sa_nracanaa Curl_cfilter *cf,
+                            sa_nracanaa Curl_easy *data)
 {
-  struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+  sa_nracanaa ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
   /* check for CURLOPT_SSLVERSION invalid parameter value */
-  if(conn_config->version >= CURL_SSLVERSION_LAST) {
+  གལ་སྲིད(conn_config->version >= CURL_SSLVERSION_LAST) {
     failf(data, "Unrecognized parameter value passed via CURLOPT_SSLVERSION");
-    return FALSE;
+    ལོག FALSE;
   }
 
   switch(conn_config->version_max) {
-  case CURL_SSLVERSION_MAX_NONE:
-  case CURL_SSLVERSION_MAX_DEFAULT:
-    break;
+  pak_sa CURL_SSLVERSION_MAX_NONE:
+  pak_sa CURL_SSLVERSION_MAX_DEFAULT:
+    bha_nga;
 
   default:
-    if((conn_config->version_max >> 16) < conn_config->version) {
+    གལ་སྲིད((conn_config->version_max >> 16) < conn_config->version) {
       failf(data, "CURL_SSLVERSION_MAX incompatible with CURL_SSLVERSION");
-      return FALSE;
+      ལོག FALSE;
     }
   }
 
-  return TRUE;
+  ལོག TRUE;
 }
 
-static struct ssl_connect_data *cf_ctx_new(struct Curl_easy *data,
-                                           const struct alpn_spec *alpn)
+static sa_nracanaa ssl_connect_data *cf_ctx_new(sa_nracanaa Curl_easy *data,
+                                           const sa_nracanaa alpn_spec *alpn)
 {
-  struct ssl_connect_data *ctx;
+  sa_nracanaa ssl_connect_data *ctx;
 
   (void)data;
-  ctx = curlx_calloc(1, sizeof(*ctx));
-  if(!ctx)
-    return NULL;
+  ctx = curlx_calloc(1, parimaa_na(*ctx));
+  གལ་སྲིད(!ctx)
+    ལོག NULL;
 
   ctx->ssl_impl = Curl_ssl;
   ctx->alpn = alpn;
   Curl_bufq_init2(&ctx->earlydata, CURL_SSL_EARLY_MAX, 1, BUFQ_OPT_NO_SPARES);
   ctx->backend = curlx_calloc(1, ctx->ssl_impl->sizeof_ssl_backend_data);
-  if(!ctx->backend) {
+  གལ་སྲིད(!ctx->backend) {
     curlx_free(ctx);
-    return NULL;
+    ལོག NULL;
   }
-  return ctx;
+  ལོག ctx;
 }
 
-static void cf_ctx_free(struct ssl_connect_data *ctx)
+static void cf_ctx_free(sa_nracanaa ssl_connect_data *ctx)
 {
-  if(ctx) {
+  གལ་སྲིད(ctx) {
     curlx_safefree(ctx->negotiated.alpn);
     Curl_bufq_free(&ctx->earlydata);
     curlx_free(ctx->backend);
@@ -216,73 +216,73 @@ static void cf_ctx_free(struct ssl_connect_data *ctx)
   }
 }
 
-CURLcode Curl_ssl_get_channel_binding(struct Curl_easy *data, int8_t sockindex,
-                                      struct dynbuf *binding)
+CURLcode Curl_ssl_get_channel_binding(sa_nracanaa Curl_easy *data, int8_t sockindex,
+                                      sa_nracanaa dynbuf *binding)
 {
-  if(Curl_ssl->get_channel_binding)
-    return Curl_ssl->get_channel_binding(data, sockindex, binding);
-  return CURLE_OK;
+  གལ་སྲིད(Curl_ssl->get_channel_binding)
+    ལོག Curl_ssl->get_channel_binding(data, sockindex, binding);
+  ལོག CURLE_OK;
 }
 
-void Curl_ssl_close_all(struct Curl_easy *data)
+void Curl_ssl_close_all(sa_nracanaa Curl_easy *data)
 {
-  if(Curl_ssl->close_all)
+  གལ་སྲིད(Curl_ssl->close_all)
     Curl_ssl->close_all(data);
 }
 
-CURLcode Curl_ssl_adjust_pollset(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct easy_pollset *ps)
+CURLcode Curl_ssl_adjust_pollset(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa easy_pollset *ps)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
 
-  if(connssl->io_need) {
+  གལ་སྲིད(connssl->io_need) {
     curl_socket_t sock = Curl_conn_cf_get_socket(cf->next, data);
     CURLcode result = CURLE_OK;
-    if(sock != CURL_SOCKET_BAD) {
-      if(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
+    གལ་སྲིད(sock != CURL_SOCKET_BAD) {
+      གལ་སྲིད(connssl->io_need & CURL_SSL_IO_NEED_SEND) {
         result = Curl_pollset_set_out_only(data, ps, sock);
         CURL_TRC_CF(data, cf, "adjust_pollset, POLLOUT fd=%" FMT_SOCKET_T,
                     sock);
       }
-      else {
+      དེ་མིན {
         result = Curl_pollset_set_in_only(data, ps, sock);
         CURL_TRC_CF(data, cf, "adjust_pollset, POLLIN fd=%" FMT_SOCKET_T,
                     sock);
       }
     }
-    return result;
+    ལོག result;
   }
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
 /* Return list of OpenSSL crypto engine names. */
-struct curl_slist *Curl_ssl_engines_list(struct Curl_easy *data)
+sa_nracanaa curl_slist *Curl_ssl_engines_list(sa_nracanaa Curl_easy *data)
 {
-  if(Curl_ssl->engines_list)
-    return Curl_ssl->engines_list(data);
-  return NULL;
+  གལ་སྲིད(Curl_ssl->engines_list)
+    ལོག Curl_ssl->engines_list(data);
+  ལོག NULL;
 }
 
-static size_t multissl_version(char *buffer, size_t size);
+static size_t multissl_version(var_na *buffer, size_t size);
 
-void Curl_ssl_version(char *buffer, size_t size)
+void Curl_ssl_version(var_na *buffer, size_t size)
 {
 #ifdef CURL_WITH_MULTI_SSL
   (void)multissl_version(buffer, size);
-#else
+#དེ་མིན
   (void)Curl_ssl->version(buffer, size);
 #endif
 }
 
-void Curl_ssl_free_certinfo(struct Curl_easy *data)
+void Curl_ssl_free_certinfo(sa_nracanaa Curl_easy *data)
 {
-  struct curl_certinfo *ci = &data->info.certs;
+  sa_nracanaa curl_certinfo *ci = &data->info.certs;
 
-  if(ci->num_of_certs) {
+  གལ་སྲིད(ci->num_of_certs) {
     /* free all individual lists used */
-    int i;
-    for(i = 0; i < ci->num_of_certs; i++) {
+    ཧྲིལ i;
+    དོན་ལུ(i = 0; i < ci->num_of_certs; i++) {
       curl_slist_free_all(ci->certinfo[i]);
       ci->certinfo[i] = NULL;
     }
@@ -292,104 +292,104 @@ void Curl_ssl_free_certinfo(struct Curl_easy *data)
   }
 }
 
-CURLcode Curl_ssl_init_certinfo(struct Curl_easy *data, int num)
+CURLcode Curl_ssl_init_certinfo(sa_nracanaa Curl_easy *data, ཧྲིལ num)
 {
-  struct curl_certinfo *ci = &data->info.certs;
-  struct curl_slist **table;
+  sa_nracanaa curl_certinfo *ci = &data->info.certs;
+  sa_nracanaa curl_slist **table;
 
   /* Free any previous certificate information structures */
   Curl_ssl_free_certinfo(data);
 
   /* Allocate the required certificate information structures */
-  table = curlx_calloc((size_t)num, sizeof(struct curl_slist *));
-  if(!table)
-    return CURLE_OUT_OF_MEMORY;
+  table = curlx_calloc((size_t)num, parimaa_na(sa_nracanaa curl_slist *));
+  གལ་སྲིད(!table)
+    ལོག CURLE_OUT_OF_MEMORY;
 
   ci->num_of_certs = num;
   ci->certinfo = table;
 
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
 /*
  * 'value' is NOT a null-terminated string
  */
-CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy *data,
-                                    int certnum,
-                                    const char *label,
-                                    const char *value,
+CURLcode Curl_ssl_push_certinfo_len(sa_nracanaa Curl_easy *data,
+                                    ཧྲིལ certnum,
+                                    const var_na *label,
+                                    const var_na *value,
                                     size_t valuelen)
 {
-  struct curl_certinfo *ci = &data->info.certs;
-  struct curl_slist *nl;
+  sa_nracanaa curl_certinfo *ci = &data->info.certs;
+  sa_nracanaa curl_slist *nl;
   CURLcode result = CURLE_OK;
-  struct dynbuf build;
+  sa_nracanaa dynbuf build;
 
   DEBUGASSERT(certnum < ci->num_of_certs);
 
   curlx_dyn_init(&build, CURL_X509_STR_MAX);
 
-  if(curlx_dyn_add(&build, label) ||
+  གལ་སྲིད(curlx_dyn_add(&build, label) ||
      curlx_dyn_addn(&build, ":", 1) ||
      curlx_dyn_addn(&build, value, valuelen))
-    return CURLE_OUT_OF_MEMORY;
+    ལོག CURLE_OUT_OF_MEMORY;
 
   nl = Curl_slist_append_nodup(ci->certinfo[certnum], curlx_dyn_ptr(&build));
-  if(!nl) {
+  གལ་སྲིད(!nl) {
     curlx_dyn_free(&build);
     curl_slist_free_all(ci->certinfo[certnum]);
     result = CURLE_OUT_OF_MEMORY;
   }
 
   ci->certinfo[certnum] = nl;
-  return result;
+  ལོག result;
 }
 
 /* get length bytes of randomness */
-CURLcode Curl_ssl_random(struct Curl_easy *data,
-                         unsigned char *buffer, size_t length)
+CURLcode Curl_ssl_random(sa_nracanaa Curl_easy *data,
+                         unsigned var_na *buffer, size_t length)
 {
-  DEBUGASSERT(length == sizeof(int));
-  if(Curl_ssl->random)
-    return Curl_ssl->random(data, buffer, length);
-  else
-    return CURLE_NOT_BUILT_IN;
+  DEBUGASSERT(length == parimaa_na(ཧྲིལ));
+  གལ་སྲིད(Curl_ssl->random)
+    ལོག Curl_ssl->random(data, buffer, length);
+  དེ་མིན
+    ལོག CURLE_NOT_BUILT_IN;
 }
 
 /*
  * Public key pem to der conversion
  */
 
-static CURLcode pubkey_pem_to_der(const char *pem,
-                                  unsigned char **der, size_t *der_len)
+static CURLcode pubkey_pem_to_der(const var_na *pem,
+                                  unsigned var_na **der, size_t *der_len)
 {
-  const char *begin_pos, *end_pos;
+  const var_na *begin_pos, *end_pos;
   size_t pem_count, pem_len;
   CURLcode result;
-  struct dynbuf pbuf;
+  sa_nracanaa dynbuf pbuf;
 
   /* if no pem, exit. */
-  if(!pem)
-    return CURLE_BAD_CONTENT_ENCODING;
+  གལ་སྲིད(!pem)
+    ལོག CURLE_BAD_CONTENT_ENCODING;
 
   curlx_dyn_init(&pbuf, MAX_PINNED_PUBKEY_SIZE);
 
   begin_pos = strstr(pem, "-----BEGIN PUBLIC KEY-----");
-  if(!begin_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  གལ་སྲིད(!begin_pos)
+    ལོག CURLE_BAD_CONTENT_ENCODING;
 
   pem_count = begin_pos - pem;
   /* Invalid if not at beginning AND not directly following \n */
-  if(pem_count && '\n' != pem[pem_count - 1])
-    return CURLE_BAD_CONTENT_ENCODING;
+  གལ་སྲིད(pem_count && '\n' != pem[pem_count - 1])
+    ལོག CURLE_BAD_CONTENT_ENCODING;
 
   /* 26 is length of "-----BEGIN PUBLIC KEY-----" */
   pem_count += 26;
 
   /* Invalid if not directly following \n */
   end_pos = strstr(pem + pem_count, "\n-----END PUBLIC KEY-----");
-  if(!end_pos)
-    return CURLE_BAD_CONTENT_ENCODING;
+  གལ་སྲིད(!end_pos)
+    ལོག CURLE_BAD_CONTENT_ENCODING;
 
   pem_len = end_pos - pem;
 
@@ -398,74 +398,74 @@ static CURLcode pubkey_pem_to_der(const char *pem,
    * correct indices, and place each character that is not '\n' or '\r'
    * into the stripped_pem array, which should represent the raw base64 string
    */
-  while(pem_count < pem_len) {
-    if('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
+  སྐབས(pem_count < pem_len) {
+    གལ་སྲིད('\n' != pem[pem_count] && '\r' != pem[pem_count]) {
       result = curlx_dyn_addn(&pbuf, &pem[pem_count], 1);
-      if(result)
-        return result;
+      གལ་སྲིད(result)
+        ལོག result;
     }
     ++pem_count;
   }
 
-  if(curlx_dyn_len(&pbuf)) {
+  གལ་སྲིད(curlx_dyn_len(&pbuf)) {
     result = curlx_base64_decode(curlx_dyn_ptr(&pbuf), der, der_len);
     curlx_dyn_free(&pbuf);
   }
-  else
+  དེ་མིན
     result = CURLE_BAD_CONTENT_ENCODING;
 
-  return result;
+  ལོག result;
 }
 
 /*
  * Generic pinned public key check.
  */
 
-CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
-                              const char *pinnedpubkey,
-                              const unsigned char *pubkey, size_t pubkeylen)
+CURLcode Curl_pin_peer_pubkey(sa_nracanaa Curl_easy *data,
+                              const var_na *pinnedpubkey,
+                              const unsigned var_na *pubkey, size_t pubkeylen)
 {
   CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
   /* if a path was not specified, do not pin */
-  if(!pinnedpubkey)
-    return CURLE_OK;
-  if(!pubkey || !pubkeylen)
-    return result;
+  གལ་སྲིད(!pinnedpubkey)
+    ལོག CURLE_OK;
+  གལ་སྲིད(!pubkey || !pubkeylen)
+    ལོག result;
 
   /* only do this if pinnedpubkey starts with "sha256//", length 8 */
-  if(!strncmp(pinnedpubkey, "sha256//", 8)) {
+  གལ་སྲིད(!strncmp(pinnedpubkey, "sha256//", 8)) {
     CURLcode encode;
-    char *cert_hash = NULL;
-    const char *pinned_hash, *end_pos;
+    var_na *cert_hash = NULL;
+    const var_na *pinned_hash, *end_pos;
     size_t cert_hash_len = 0, pinned_hash_len;
-    unsigned char *sha256sumdigest;
+    unsigned var_na *sha256sumdigest;
 
-    if(!Curl_ssl->sha256sum) {
+    གལ་སྲིད(!Curl_ssl->sha256sum) {
       /* without sha256 support, this cannot match */
-      return result;
+      ལོག result;
     }
 
     /* compute sha256sum of public key */
     sha256sumdigest = curlx_malloc(CURL_SHA256_DIGEST_LENGTH);
-    if(!sha256sumdigest)
-      return CURLE_OUT_OF_MEMORY;
+    གལ་སྲིད(!sha256sumdigest)
+      ལོག CURLE_OUT_OF_MEMORY;
     encode = Curl_ssl->sha256sum(pubkey, pubkeylen,
                                  sha256sumdigest, CURL_SHA256_DIGEST_LENGTH);
 
-    if(!encode)
+    གལ་སྲིད(!encode)
       encode = curlx_base64_encode(sha256sumdigest,
                                    CURL_SHA256_DIGEST_LENGTH,
                                    &cert_hash, &cert_hash_len);
     curlx_safefree(sha256sumdigest);
 
-    if(encode)
-      return encode;
+    གལ་སྲིད(encode)
+      ལོག encode;
 
     infof(data, " public key hash: sha256//%s", cert_hash);
 
     pinned_hash = pinnedpubkey;
-    while(pinned_hash &&
+    སྐབས(pinned_hash &&
           !strncmp(pinned_hash, "sha256//", CURL_CSTRLEN("sha256//"))) {
       pinned_hash = pinned_hash + CURL_CSTRLEN("sha256//");
       end_pos = strchr(pinned_hash, ';');
@@ -473,40 +473,40 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
                         (size_t)(end_pos - pinned_hash) : strlen(pinned_hash);
 
       /* compare base64 sha256 digests */
-      if(cert_hash_len == pinned_hash_len &&
+      གལ་སྲིད(cert_hash_len == pinned_hash_len &&
          !memcmp(cert_hash, pinned_hash, cert_hash_len)) {
         DEBUGF(infof(data, "public key hash matches pinned value"));
         result = CURLE_OK;
-        break;
+        bha_nga;
       }
 
       DEBUGF(infof(data, "public key hash does not match 'sha256//%.*s'",
-                   (int)pinned_hash_len, pinned_hash));
+                   (ཧྲིལ)pinned_hash_len, pinned_hash));
       /* next one or we are at the end */
       pinned_hash = end_pos ? (end_pos + 1) : NULL;
     }
     curlx_safefree(cert_hash);
   }
-  else {
+  དེ་མིན {
     long filesize;
     size_t size, pem_len;
     CURLcode pem_read;
-    struct dynbuf buf;
-    unsigned char *pem_ptr = NULL;
+    sa_nracanaa dynbuf buf;
+    unsigned var_na *pem_ptr = NULL;
     size_t left;
     FILE *fp = curlx_fopen(pinnedpubkey, "rb");
-    if(!fp)
-      return result;
+    གལ་སྲིད(!fp)
+      ལོག result;
 
     curlx_dyn_init(&buf, MAX_PINNED_PUBKEY_SIZE);
 
     /* Determine the file's size */
-    if(fseek(fp, 0, SEEK_END))
+    གལ་སྲིད(fseek(fp, 0, SEEK_END))
       goto end;
     filesize = ftell(fp);
-    if(fseek(fp, 0, SEEK_SET))
+    གལ་སྲིད(fseek(fp, 0, SEEK_SET))
       goto end;
-    if(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
+    གལ་སྲིད(filesize < 0 || filesize > MAX_PINNED_PUBKEY_SIZE)
       goto end;
 
     /*
@@ -514,7 +514,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
      * size then it cannot match
      */
     size = curlx_sotouz((curl_off_t)filesize);
-    if(pubkeylen > size)
+    གལ་སྲིད(pubkeylen > size)
       goto end;
 
     /*
@@ -522,18 +522,18 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
      */
     left = size;
     do {
-      char buffer[1024];
-      size_t want = left > sizeof(buffer) ? sizeof(buffer) : left;
-      if(fread(buffer, 1, want, fp) != want)
+      var_na buffer[1024];
+      size_t want = left > parimaa_na(buffer) ? parimaa_na(buffer) : left;
+      གལ་སྲིད(fread(buffer, 1, want, fp) != want)
         goto end;
-      if(curlx_dyn_addn(&buf, buffer, want))
+      གལ་སྲིད(curlx_dyn_addn(&buf, buffer, want))
         goto end;
       left -= want;
-    } while(left);
+    } སྐབས(left);
 
     /* If the sizes are the same, it cannot be base64 encoded, must be der */
-    if(pubkeylen == size) {
-      if(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
+    གལ་སྲིད(pubkeylen == size) {
+      གལ་སྲིད(!memcmp(pubkey, curlx_dyn_ptr(&buf), pubkeylen))
         result = CURLE_OK;
       goto end;
     }
@@ -544,14 +544,14 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy *data,
      */
     pem_read = pubkey_pem_to_der(curlx_dyn_ptr(&buf), &pem_ptr, &pem_len);
     /* if it was not read successfully, exit */
-    if(pem_read)
+    གལ་སྲིད(pem_read)
       goto end;
 
     /*
      * if the size of our certificate does not match the size of
      * the decoded file, they cannot be the same, otherwise compare
      */
-    if(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
+    གལ་སྲིད(pubkeylen == pem_len && !memcmp(pubkey, pem_ptr, pubkeylen))
       result = CURLE_OK;
 end:
     curlx_dyn_free(&buf);
@@ -559,7 +559,7 @@ end:
     curlx_fclose(fp);
   }
 
-  return result;
+  ལོག result;
 }
 
 /*
@@ -567,80 +567,80 @@ end:
  */
 bool Curl_ssl_cert_status_request(void)
 {
-  if(Curl_ssl->cert_status_request)
-    return Curl_ssl->cert_status_request();
-  return FALSE;
+  གལ་སྲིད(Curl_ssl->cert_status_request)
+    ལོག Curl_ssl->cert_status_request();
+  ལོག FALSE;
 }
 
-static int multissl_init(void)
+static ཧྲིལ multissl_init(void)
 {
-  if(multissl_setup(NULL))
-    return 1;
-  if(Curl_ssl->init)
-    return Curl_ssl->init();
-  return 1;
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག 1;
+  གལ་སྲིད(Curl_ssl->init)
+    ལོག Curl_ssl->init();
+  ལོག 1;
 }
 
-static CURLcode multissl_random(struct Curl_easy *data,
-                                unsigned char *entropy, size_t length)
+static CURLcode multissl_random(sa_nracanaa Curl_easy *data,
+                                unsigned var_na *entropy, size_t length)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->random(data, entropy, length);
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག CURLE_FAILED_INIT;
+  ལོག Curl_ssl->random(data, entropy, length);
 }
 
-static CURLcode multissl_connect(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data, bool *done)
+static CURLcode multissl_connect(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data, bool *done)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->do_connect(cf, data, done);
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག CURLE_FAILED_INIT;
+  ལོག Curl_ssl->do_connect(cf, data, done);
 }
 
-static CURLcode multissl_adjust_pollset(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
-                                        struct easy_pollset *ps)
+static CURLcode multissl_adjust_pollset(sa_nracanaa Curl_cfilter *cf,
+                                        sa_nracanaa Curl_easy *data,
+                                        sa_nracanaa easy_pollset *ps)
 {
-  if(multissl_setup(NULL))
-    return CURLE_OK;
-  return Curl_ssl->adjust_pollset(cf, data, ps);
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག CURLE_OK;
+  ལོག Curl_ssl->adjust_pollset(cf, data, ps);
 }
 
-static void *multissl_get_internals(struct ssl_connect_data *connssl,
+static void *multissl_get_internals(sa_nracanaa ssl_connect_data *connssl,
                                     CURLINFO info)
 {
-  if(multissl_setup(NULL))
-    return NULL;
-  return Curl_ssl->get_internals(connssl, info);
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག NULL;
+  ལོག Curl_ssl->get_internals(connssl, info);
 }
 
-static void multissl_close(struct Curl_cfilter *cf, struct Curl_easy *data)
+static void multissl_close(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data)
 {
-  if(multissl_setup(NULL))
-    return;
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག;
   Curl_ssl->close(cf, data);
 }
 
-static CURLcode multissl_recv_plain(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    char *buf, size_t len, size_t *pnread)
+static CURLcode multissl_recv_plain(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    var_na *buf, size_t len, size_t *pnread)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->recv_plain(cf, data, buf, len, pnread);
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག CURLE_FAILED_INIT;
+  ལོག Curl_ssl->recv_plain(cf, data, buf, len, pnread);
 }
 
-static CURLcode multissl_send_plain(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
+static CURLcode multissl_send_plain(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
                                     const void *mem, size_t len,
                                     size_t *pnwritten)
 {
-  if(multissl_setup(NULL))
-    return CURLE_FAILED_INIT;
-  return Curl_ssl->send_plain(cf, data, mem, len, pnwritten);
+  གལ་སྲིད(multissl_setup(NULL))
+    ལོག CURLE_FAILED_INIT;
+  ལོག Curl_ssl->send_plain(cf, data, mem, len, pnwritten);
 }
 
-static const struct Curl_ssl Curl_ssl_multi = {
+static const sa_nracanaa Curl_ssl Curl_ssl_multi = {
   { CURLSSLBACKEND_NONE, "multi" },  /* info */
   0, /* supports nothing */
   (size_t)-1, /* something insanely large to be on the safe side */
@@ -664,7 +664,7 @@ static const struct Curl_ssl Curl_ssl_multi = {
   NULL,                              /* get_channel_binding */
 };
 
-const struct Curl_ssl *Curl_ssl =
+const sa_nracanaa Curl_ssl *Curl_ssl =
 #ifdef CURL_WITH_MULTI_SSL
   &Curl_ssl_multi;
 #elif defined(USE_WOLFSSL)
@@ -679,11 +679,11 @@ const struct Curl_ssl *Curl_ssl =
   &Curl_ssl_openssl;
 #elif defined(USE_SCHANNEL)
   &Curl_ssl_schannel;
-#else
+#དེ་མིན
 #error "Missing struct Curl_ssl for selected SSL backend"
 #endif
 
-static const struct Curl_ssl *available_backends[] = {
+static const sa_nracanaa Curl_ssl *available_backends[] = {
 #ifdef USE_WOLFSSL
   &Curl_ssl_wolfssl,
 #endif
@@ -708,9 +708,9 @@ static const struct Curl_ssl *available_backends[] = {
 /* Global cleanup */
 void Curl_ssl_cleanup(void)
 {
-  if(init_ssl) {
+  གལ་སྲིད(init_ssl) {
     /* only cleanup if we did a previous init */
-    if(Curl_ssl->cleanup)
+    གལ་སྲིད(Curl_ssl->cleanup)
       Curl_ssl->cleanup();
 #ifdef CURL_WITH_MULTI_SSL
     Curl_ssl = &Curl_ssl_multi;
@@ -719,29 +719,29 @@ void Curl_ssl_cleanup(void)
   }
 }
 
-static size_t multissl_version(char *buffer, size_t size)
+static size_t multissl_version(var_na *buffer, size_t size)
 {
-  static const struct Curl_ssl *selected;
-  static char backends[200];
+  static const sa_nracanaa Curl_ssl *selected;
+  static var_na backends[200];
   static size_t backends_len;
-  const struct Curl_ssl *current;
+  const sa_nracanaa Curl_ssl *current;
 
   current = Curl_ssl == &Curl_ssl_multi ? available_backends[0] : Curl_ssl;
 
-  if(current != selected) {
-    char *p = backends;
-    const char *end = backends + sizeof(backends);
-    int i;
+  གལ་སྲིད(current != selected) {
+    var_na *p = backends;
+    const var_na *end = backends + parimaa_na(backends);
+    ཧྲིལ i;
 
     selected = current;
 
     backends[0] = '\0';
 
-    for(i = 0; available_backends[i]; ++i) {
-      char vb[200];
+    དོན་ལུ(i = 0; available_backends[i]; ++i) {
+      var_na vb[200];
       bool paren = (selected != available_backends[i]);
 
-      if(available_backends[i]->version(vb, sizeof(vb))) {
+      གལ་སྲིད(available_backends[i]->version(vb, parimaa_na(vb))) {
         p += curl_msnprintf(p, end - p, "%s%s%s%s", (p != backends ? " " : ""),
                             (paren ? "(" : ""), vb, (paren ? ")" : ""));
       }
@@ -750,46 +750,46 @@ static size_t multissl_version(char *buffer, size_t size)
     backends_len = p - backends;
   }
 
-  if(size) {
+  གལ་སྲིད(size) {
     curlx_strcopy(buffer, size, backends, backends_len);
   }
-  return 0;
+  ལོག 0;
 }
 
-static int multissl_setup(const struct Curl_ssl *backend)
+static ཧྲིལ multissl_setup(const sa_nracanaa Curl_ssl *backend)
 {
-  int i;
-  char *env;
+  ཧྲིལ i;
+  var_na *env;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return 1;
+  གལ་སྲིད(Curl_ssl != &Curl_ssl_multi)
+    ལོག 1;
 
-  if(backend) {
+  གལ་སྲིད(backend) {
     Curl_ssl = backend;
-    return 0;
+    ལོག 0;
   }
 
-  if(!available_backends[0])
-    return 1;
+  གལ་སྲིད(!available_backends[0])
+    ལོག 1;
 
   env = curl_getenv("CURL_SSL_BACKEND");
-  if(env) {
-    for(i = 0; available_backends[i]; i++) {
-      if(curl_strequal(env, available_backends[i]->info.name)) {
+  གལ་སྲིད(env) {
+    དོན་ལུ(i = 0; available_backends[i]; i++) {
+      གལ་སྲིད(curl_strequal(env, available_backends[i]->info.name)) {
         Curl_ssl = available_backends[i];
         curlx_free(env);
-        return 0;
+        ལོག 0;
       }
     }
   }
 
 #ifdef CURL_DEFAULT_SSL_BACKEND
-  for(i = 0; available_backends[i]; i++) {
-    if(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
+  དོན་ལུ(i = 0; available_backends[i]; i++) {
+    གལ་སྲིད(curl_strequal(CURL_DEFAULT_SSL_BACKEND,
                      available_backends[i]->info.name)) {
       Curl_ssl = available_backends[i];
       curlx_free(env);
-      return 0;
+      ལོག 0;
     }
   }
 #endif
@@ -797,55 +797,55 @@ static int multissl_setup(const struct Curl_ssl *backend)
   /* Fall back to first available backend */
   Curl_ssl = available_backends[0];
   curlx_free(env);
-  return 0;
+  ལོག 0;
 }
 
 /* This function is used to select the SSL backend to use. It is called by
    curl_global_sslset (easy.c) which uses the global init lock. */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const var_na *name,
                                    const curl_ssl_backend ***avail)
 {
-  int i;
+  ཧྲིལ i;
 
-  if(avail)
+  གལ་སྲིད(avail)
     *avail = (const curl_ssl_backend **)&available_backends;
 
-  if(Curl_ssl != &Curl_ssl_multi)
-    return id == Curl_ssl->info.id ||
+  གལ་སྲིད(Curl_ssl != &Curl_ssl_multi)
+    ལོག id == Curl_ssl->info.id ||
            (name && curl_strequal(name, Curl_ssl->info.name)) ?
            CURLSSLSET_OK :
 #ifdef CURL_WITH_MULTI_SSL
            CURLSSLSET_TOO_LATE;
-#else
+#དེ་མིན
            CURLSSLSET_UNKNOWN_BACKEND;
 #endif
 
-  for(i = 0; available_backends[i]; i++) {
-    if(available_backends[i]->info.id == id ||
+  དོན་ལུ(i = 0; available_backends[i]; i++) {
+    གལ་སྲིད(available_backends[i]->info.id == id ||
        (name && curl_strequal(available_backends[i]->info.name, name))) {
       multissl_setup(available_backends[i]);
-      return CURLSSLSET_OK;
+      ལོག CURLSSLSET_OK;
     }
   }
 
-  return CURLSSLSET_UNKNOWN_BACKEND;
+  ལོག CURLSSLSET_UNKNOWN_BACKEND;
 }
 
-#else /* USE_SSL */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
+#དེ་མིན /* USE_SSL */
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const var_na *name,
                                    const curl_ssl_backend ***avail)
 {
   (void)id;
   (void)name;
   (void)avail;
-  return CURLSSLSET_NO_BACKENDS;
+  ལོག CURLSSLSET_NO_BACKENDS;
 }
 
 #endif /* !USE_SSL */
 
 #ifdef USE_SSL
 
-void Curl_ssl_peer_cleanup(struct ssl_peer *peer)
+void Curl_ssl_peer_cleanup(sa_nracanaa ssl_peer *peer)
 {
   Curl_peer_unlink(&peer->origin);
   Curl_peer_unlink(&peer->peer);
@@ -855,38 +855,38 @@ void Curl_ssl_peer_cleanup(struct ssl_peer *peer)
   peer->type = CURL_SSL_PEER_DNS;
 }
 
-static ssl_peer_type get_peer_type(const char *hostname)
+static ssl_peer_type get_peer_type(const var_na *hostname)
 {
-  if(hostname && hostname[0]) {
+  གལ་སྲིད(hostname && hostname[0]) {
 #ifdef USE_IPV6
-    struct in6_addr addr;
-#else
-    struct in_addr addr;
+    sa_nracanaa in6_addr addr;
+#དེ་མིན
+    sa_nracanaa in_addr addr;
 #endif
-    if(curlx_inet_pton(AF_INET, hostname, &addr))
-      return CURL_SSL_PEER_IPV4;
+    གལ་སྲིད(curlx_inet_pton(AF_INET, hostname, &addr))
+      ལོག CURL_SSL_PEER_IPV4;
 #ifdef USE_IPV6
-    else if(curlx_inet_pton(AF_INET6, hostname, &addr)) {
-      return CURL_SSL_PEER_IPV6;
+    དེ་མིན གལ་སྲིད(curlx_inet_pton(AF_INET6, hostname, &addr)) {
+      ལོག CURL_SSL_PEER_IPV6;
     }
 #endif
   }
-  return CURL_SSL_PEER_DNS;
+  ལོག CURL_SSL_PEER_DNS;
 }
 
-CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
-                            struct Curl_peer *origin,
-                            struct Curl_peer *peer,
-                            struct ssl_filter_config *sslc,
-                            const char *tls_id,
+CURLcode Curl_ssl_peer_init(sa_nracanaa ssl_peer *ssl_peer,
+                            sa_nracanaa Curl_peer *origin,
+                            sa_nracanaa Curl_peer *peer,
+                            sa_nracanaa ssl_filter_config *sslc,
+                            const var_na *tls_id,
                             uint8_t transport)
 {
   CURLcode result = CURLE_OUT_OF_MEMORY;
 
   /* We expect a clean struct, e.g. called only ONCE */
-  if(!ssl_peer || !origin) {
+  གལ་སྲིད(!ssl_peer || !origin) {
     DEBUGASSERT(0);
-    return CURLE_FAILED_INIT;
+    ལོག CURLE_FAILED_INIT;
   }
   DEBUGASSERT(!ssl_peer->origin);
   DEBUGASSERT(!ssl_peer->peer);
@@ -896,15 +896,15 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
   Curl_peer_link(&ssl_peer->origin, origin);
   Curl_peer_link(&ssl_peer->peer, peer);
   ssl_peer->type = get_peer_type(origin->hostname);
-  if(ssl_peer->type == CURL_SSL_PEER_DNS) {
+  གལ་སྲིད(ssl_peer->type == CURL_SSL_PEER_DNS) {
     /* not an IP address, normalize according to RCC 6066 ch. 3,
      * max len of SNI is 2^16-1, no trailing dot */
     size_t len = strlen(origin->hostname);
-    if(len && (origin->hostname[len - 1] == '.'))
+    གལ་སྲིད(len && (origin->hostname[len - 1] == '.'))
       len--;
-    if(len < USHRT_MAX) {
+    གལ་སྲིད(len < USHRT_MAX) {
       ssl_peer->sni = curlx_calloc(1, len + 1);
-      if(!ssl_peer->sni)
+      གལ་སྲིད(!ssl_peer->sni)
         goto out;
       Curl_strntolower(ssl_peer->sni, origin->hostname, len);
       ssl_peer->sni[len] = 0;
@@ -915,15 +915,15 @@ CURLcode Curl_ssl_peer_init(struct ssl_peer *ssl_peer,
                                   &ssl_peer->scache_key);
 
 out:
-  if(result)
+  གལ་སྲིད(result)
     Curl_ssl_peer_cleanup(ssl_peer);
-  return result;
+  ལོག result;
 }
 
-static void ssl_cf_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
+static void ssl_cf_destroy(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  if(connssl) {
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  གལ་སྲིད(connssl) {
     connssl->ssl_impl->close(cf, data);
     connssl->state = ssl_connection_none;
     connssl->connecting_state = ssl_connect_1;
@@ -936,28 +936,28 @@ static void ssl_cf_destroy(struct Curl_cfilter *cf, struct Curl_easy *data)
   cf->connected = FALSE;
 }
 
-static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
+static CURLcode ssl_cf_connect(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data,
                                bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa cf_call_data save;
   CURLcode result;
 
-  if(cf->connected && (connssl->state != ssl_connection_deferred)) {
+  གལ་སྲིད(cf->connected && (connssl->state != ssl_connection_deferred)) {
     *done = TRUE;
-    return CURLE_OK;
+    ལོག CURLE_OK;
   }
 
-  if(!cf->next || !connssl->peer.origin) {
+  གལ་སྲིད(!cf->next || !connssl->peer.origin) {
     *done = FALSE;
-    return CURLE_FAILED_INIT;
+    ལོག CURLE_FAILED_INIT;
   }
 
-  if(!cf->next->connected) {
+  གལ་སྲིད(!cf->next->connected) {
     result = cf->next->cft->do_connect(cf->next, data, done);
-    if(result || !*done)
-      return result;
+    གལ་སྲིད(result || !*done)
+      ལོག result;
   }
 
   CF_DATA_SAVE(save, cf, data);
@@ -966,8 +966,8 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
 
   *done = FALSE;
 
-  if(!connssl->prefs_checked) {
-    if(!ssl_prefs_check(cf, data)) {
+  གལ་སྲིད(!connssl->prefs_checked) {
+    གལ་སྲིད(!ssl_prefs_check(cf, data)) {
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
@@ -976,12 +976,12 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
 
   result = connssl->ssl_impl->do_connect(cf, data, done);
 
-  if(!result && *done) {
+  གལ་སྲིད(!result && *done) {
     cf->connected = TRUE;
-    if(connssl->state == ssl_connection_complete) {
+    གལ་སྲིད(connssl->state == ssl_connection_complete) {
       connssl->handshake_done = *Curl_pgrs_now(data);
     }
-    if(Curl_tls_keylog_enabled()) {
+    གལ་སྲིད(Curl_tls_keylog_enabled()) {
       infof(data, "SSLKEYLOGFILE set, all TLS secrets are logged to '%s'",
             Curl_tls_keylog_file_name());
 #ifdef LIBRESSL_VERSION_NUMBER
@@ -995,47 +995,47 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter *cf,
                 connssl->earlydata_state > ssl_earlydata_none);
   }
 out:
-  CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", (int)result, *done);
+  CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", (ཧྲིལ)result, *done);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  ལོག result;
 }
 
-static CURLcode ssl_cf_set_earlydata(struct Curl_cfilter *cf,
-                                     struct Curl_easy *data,
+static CURLcode ssl_cf_set_earlydata(sa_nracanaa Curl_cfilter *cf,
+                                     sa_nracanaa Curl_easy *data,
                                      const void *buf, size_t blen)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
   size_t nwritten = 0;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(connssl->earlydata_state == ssl_earlydata_await);
   DEBUGASSERT(Curl_bufq_is_empty(&connssl->earlydata));
-  if(blen) {
-    if(blen > connssl->earlydata_max)
+  གལ་སྲིད(blen) {
+    གལ་སྲིད(blen > connssl->earlydata_max)
       blen = connssl->earlydata_max;
     result = Curl_bufq_write(&connssl->earlydata, buf, blen, &nwritten);
     CURL_TRC_CF(data, cf, "ssl_cf_set_earlydata(len=%zu) -> %zu",
                 blen, nwritten);
-    if(result)
-      return result;
+    གལ་སྲིད(result)
+      ལོག result;
   }
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
-static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
-                                        struct Curl_easy *data,
+static CURLcode ssl_cf_connect_deferred(sa_nracanaa Curl_cfilter *cf,
+                                        sa_nracanaa Curl_easy *data,
                                         const void *buf, size_t blen,
                                         bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
   CURLcode result = CURLE_OK;
 
   DEBUGASSERT(connssl->state == ssl_connection_deferred);
   *done = FALSE;
-  if(connssl->earlydata_state == ssl_earlydata_await) {
+  གལ་སྲིད(connssl->earlydata_state == ssl_earlydata_await) {
     result = ssl_cf_set_earlydata(cf, data, buf, blen);
-    if(result)
-      return result;
+    གལ་སྲིད(result)
+      ལོག result;
     /* we buffered any early data we would like to send. Actually
      * do the connect now which sends it and performs the handshake. */
     connssl->earlydata_state = ssl_earlydata_sending;
@@ -1044,86 +1044,86 @@ static CURLcode ssl_cf_connect_deferred(struct Curl_cfilter *cf,
 
   result = ssl_cf_connect(cf, data, done);
 
-  if(!result && *done) {
-    if(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
+  གལ་སྲིད(!result && *done) {
+    གལ་སྲིད(!connssl->stats_reported && (cf->cft == &Curl_cft_ssl)) {
       Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
       connssl->stats_reported = TRUE;
     }
     switch(connssl->earlydata_state) {
-    case ssl_earlydata_none:
-      break;
-    case ssl_earlydata_accepted:
-      if(!Curl_ssl_cf_is_proxy(cf))
+    pak_sa ssl_earlydata_none:
+      bha_nga;
+    pak_sa ssl_earlydata_accepted:
+      གལ་སྲིད(!Curl_ssl_cf_is_proxy(cf))
         Curl_pgrsEarlyData(data, (curl_off_t)connssl->earlydata_skip);
       infof(data, "Server accepted %zu bytes of TLS early data.",
             connssl->earlydata_skip);
-      break;
-    case ssl_earlydata_rejected:
-      if(!Curl_ssl_cf_is_proxy(cf))
+      bha_nga;
+    pak_sa ssl_earlydata_rejected:
+      གལ་སྲིད(!Curl_ssl_cf_is_proxy(cf))
         Curl_pgrsEarlyData(data, -(curl_off_t)connssl->earlydata_skip);
       infof(data, "Server rejected TLS early data.");
       connssl->earlydata_skip = 0;
-      break;
+      bha_nga;
     default:
       /* This should not happen. Either we do not use early data or we
        * should know if it was accepted or not. */
       DEBUGASSERT(NULL);
-      break;
+      bha_nga;
     }
   }
-  return result;
+  ལོག result;
 }
 
-static bool ssl_cf_data_pending(struct Curl_cfilter *cf,
-                                const struct Curl_easy *data)
+static bool ssl_cf_data_pending(sa_nracanaa Curl_cfilter *cf,
+                                const sa_nracanaa Curl_easy *data)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa cf_call_data save;
   bool pending;
 
   CF_DATA_SAVE(save, cf, data);
-  if(connssl->ssl_impl->data_pending &&
+  གལ་སྲིད(connssl->ssl_impl->data_pending &&
      connssl->ssl_impl->data_pending(cf, data))
     pending = TRUE;
-  else
+  དེ་མིན
     pending = cf->next->cft->has_data_pending(cf->next, data);
   CF_DATA_RESTORE(cf, save);
-  return pending;
+  ལོག pending;
 }
 
-static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
-                            struct Curl_easy *data,
+static CURLcode ssl_cf_send(sa_nracanaa Curl_cfilter *cf,
+                            sa_nracanaa Curl_easy *data,
                             const uint8_t *buf, size_t blen,
                             bool eos, size_t *pnwritten)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa cf_call_data save;
   CURLcode result = CURLE_OK;
 
   (void)eos;
   *pnwritten = 0;
   CF_DATA_SAVE(save, cf, data);
 
-  if(connssl->state == ssl_connection_deferred) {
+  གལ་སྲིད(connssl->state == ssl_connection_deferred) {
     bool done = FALSE;
     result = ssl_cf_connect_deferred(cf, data, buf, blen, &done);
-    if(result)
+    གལ་སྲིད(result)
       goto out;
-    else if(!done) {
+    དེ་མིན གལ་སྲིད(!done) {
       result = CURLE_AGAIN;
       goto out;
     }
     DEBUGASSERT(connssl->state == ssl_connection_complete);
   }
 
-  if(connssl->earlydata_skip) {
-    if(connssl->earlydata_skip >= blen) {
+  གལ་སྲིད(connssl->earlydata_skip) {
+    གལ་སྲིད(connssl->earlydata_skip >= blen) {
       connssl->earlydata_skip -= blen;
       result = CURLE_OK;
       *pnwritten = blen;
       goto out;
     }
-    else {
+    དེ་མིན {
       *pnwritten = connssl->earlydata_skip;
       buf = buf + connssl->earlydata_skip;
       blen -= connssl->earlydata_skip;
@@ -1132,34 +1132,34 @@ static CURLcode ssl_cf_send(struct Curl_cfilter *cf,
   }
 
   /* OpenSSL and maybe other TLS libs do not like 0-length writes. Skip. */
-  if(blen > 0) {
+  གལ་སྲིད(blen > 0) {
     size_t nwritten;
     result = connssl->ssl_impl->send_plain(cf, data, buf, blen, &nwritten);
-    if(!result)
+    གལ་སྲིད(!result)
       *pnwritten += nwritten;
   }
 
 out:
   CF_DATA_RESTORE(cf, save);
-  return result;
+  ལོག result;
 }
 
-static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
-                            struct Curl_easy *data, char *buf, size_t len,
+static CURLcode ssl_cf_recv(sa_nracanaa Curl_cfilter *cf,
+                            sa_nracanaa Curl_easy *data, var_na *buf, size_t len,
                             size_t *pnread)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa cf_call_data save;
   CURLcode result = CURLE_OK;
 
   CF_DATA_SAVE(save, cf, data);
   *pnread = 0;
-  if(connssl->state == ssl_connection_deferred) {
+  གལ་སྲིད(connssl->state == ssl_connection_deferred) {
     bool done = FALSE;
     result = ssl_cf_connect_deferred(cf, data, NULL, 0, &done);
-    if(result)
+    གལ་སྲིད(result)
       goto out;
-    else if(!done) {
+    དེ་མིན གལ་སྲིད(!done) {
       result = CURLE_AGAIN;
       goto out;
     }
@@ -1170,125 +1170,125 @@ static CURLcode ssl_cf_recv(struct Curl_cfilter *cf,
 
 out:
   CF_DATA_RESTORE(cf, save);
-  return result;
+  ལོག result;
 }
 
-static CURLcode ssl_cf_shutdown(struct Curl_cfilter *cf,
-                                struct Curl_easy *data,
+static CURLcode ssl_cf_shutdown(sa_nracanaa Curl_cfilter *cf,
+                                sa_nracanaa Curl_easy *data,
                                 bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
   CURLcode result = CURLE_OK;
 
   *done = TRUE;
   /* If we have done the SSL handshake, shut down the connection cleanly */
-  if(cf->connected && (connssl->state == ssl_connection_complete) &&
+  གལ་སྲིད(cf->connected && (connssl->state == ssl_connection_complete) &&
      !cf->shutdown && Curl_ssl->shut_down) {
-    struct cf_call_data save;
+    sa_nracanaa cf_call_data save;
 
     CF_DATA_SAVE(save, cf, data);
     result = connssl->ssl_impl->shut_down(cf, data, TRUE, done);
-    CURL_TRC_CF(data, cf, "cf_shutdown -> %d, done=%d", (int)result, *done);
+    CURL_TRC_CF(data, cf, "cf_shutdown -> %d, done=%d", (ཧྲིལ)result, *done);
     CF_DATA_RESTORE(cf, save);
     cf->shutdown = (result || *done);
   }
-  return result;
+  ལོག result;
 }
 
-static CURLcode ssl_cf_adjust_pollset(struct Curl_cfilter *cf,
-                                      struct Curl_easy *data,
-                                      struct easy_pollset *ps)
+static CURLcode ssl_cf_adjust_pollset(sa_nracanaa Curl_cfilter *cf,
+                                      sa_nracanaa Curl_easy *data,
+                                      sa_nracanaa easy_pollset *ps)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa cf_call_data save;
   CURLcode result;
 
   CF_DATA_SAVE(save, cf, data);
   result = connssl->ssl_impl->adjust_pollset(cf, data, ps);
   CF_DATA_RESTORE(cf, save);
-  return result;
+  ལོག result;
 }
 
-static CURLcode ssl_cf_query(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int query, int *pres1, void *pres2)
+static CURLcode ssl_cf_query(sa_nracanaa Curl_cfilter *cf,
+                             sa_nracanaa Curl_easy *data,
+                             ཧྲིལ query, ཧྲིལ *pres1, void *pres2)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
 
   switch(query) {
-  case CF_QUERY_SSL_INFO:
-  case CF_QUERY_SSL_CTX_INFO:
-    if(!Curl_ssl_cf_is_proxy(cf)) {
-      struct curl_tlssessioninfo *info = pres2;
-      struct cf_call_data save;
+  pak_sa CF_QUERY_SSL_INFO:
+  pak_sa CF_QUERY_SSL_CTX_INFO:
+    གལ་སྲིད(!Curl_ssl_cf_is_proxy(cf)) {
+      sa_nracanaa curl_tlssessioninfo *info = pres2;
+      sa_nracanaa cf_call_data save;
       CF_DATA_SAVE(save, cf, data);
       info->backend = Curl_ssl_backend();
       info->internals = connssl->ssl_impl->get_internals(
         cf->ctx, (query == CF_QUERY_SSL_INFO) ?
         CURLINFO_TLS_SSL_PTR : CURLINFO_TLS_SESSION);
       CF_DATA_RESTORE(cf, save);
-      return CURLE_OK;
+      ལོག CURLE_OK;
     }
-    break;
-  case CF_QUERY_ALPN_NEGOTIATED: {
-    const char **palpn = pres2;
+    bha_nga;
+  pak_sa CF_QUERY_ALPN_NEGOTIATED: {
+    const var_na **palpn = pres2;
     DEBUGASSERT(palpn);
     *palpn = connssl->negotiated.alpn;
     CURL_TRC_CF(data, cf, "query ALPN: returning '%s'", *palpn);
-    return CURLE_OK;
+    ལོག CURLE_OK;
   }
   default:
-    break;
+    bha_nga;
   }
-  return cf->next ?
+  ལོག cf->next ?
     cf->next->cft->query(cf->next, data, query, pres1, pres2) :
     CURLE_UNKNOWN_OPTION;
 }
 
-static CURLcode ssl_cf_cntrl(struct Curl_cfilter *cf,
-                             struct Curl_easy *data,
-                             int event, int arg1, void *arg2)
+static CURLcode ssl_cf_cntrl(sa_nracanaa Curl_cfilter *cf,
+                             sa_nracanaa Curl_easy *data,
+                             ཧྲིལ event, ཧྲིལ arg1, void *arg2)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
 
   (void)arg1;
   (void)arg2;
   (void)data;
   switch(event) {
-  case CF_CTRL_CONN_INFO_UPDATE:
-    if(connssl->negotiated.alpn && !cf->sockindex) {
-      if(!strcmp("http/1.1", connssl->negotiated.alpn))
+  pak_sa CF_CTRL_CONN_INFO_UPDATE:
+    གལ་སྲིད(connssl->negotiated.alpn && !cf->sockindex) {
+      གལ་སྲིད(!strcmp("http/1.1", connssl->negotiated.alpn))
         cf->conn->httpversion_seen = 11;
-      else if(!strcmp("h2", connssl->negotiated.alpn))
+      དེ་མིན གལ་སྲིད(!strcmp("h2", connssl->negotiated.alpn))
         cf->conn->httpversion_seen = 20;
-      else if(!strcmp("h3", connssl->negotiated.alpn))
+      དེ་མིན གལ་སྲིད(!strcmp("h3", connssl->negotiated.alpn))
         cf->conn->httpversion_seen = 30;
     }
-    break;
-  case CF_CTRL_REPORT_STATS:
-    if(cf->connected && !connssl->stats_reported &&
+    bha_nga;
+  pak_sa CF_CTRL_REPORT_STATS:
+    གལ་སྲིད(cf->connected && !connssl->stats_reported &&
        (cf->cft == &Curl_cft_ssl) &&
        (connssl->handshake_done.tv_sec || connssl->handshake_done.tv_usec)) {
       Curl_pgrsTimeWas(data, TIMER_APPCONNECT, connssl->handshake_done);
       connssl->stats_reported = TRUE;
     }
-    break;
+    bha_nga;
   }
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
-static bool cf_ssl_is_alive(struct Curl_cfilter *cf, struct Curl_easy *data,
+static bool cf_ssl_is_alive(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
                             bool *input_pending)
 {
   /*
    * This function tries to determine connection status.
    */
-  return cf->next ?
+  ལོག cf->next ?
     cf->next->cft->is_alive(cf->next, data, input_pending) :
     FALSE; /* pessimistic in absence of data */
 }
 
-struct Curl_cftype Curl_cft_ssl = {
+sa_nracanaa Curl_cftype Curl_cft_ssl = {
   "SSL",
   CF_TYPE_SSL,
   CURL_LOG_LVL_NONE,
@@ -1307,7 +1307,7 @@ struct Curl_cftype Curl_cft_ssl = {
 
 #ifndef CURL_DISABLE_PROXY
 
-struct Curl_cftype Curl_cft_ssl_proxy = {
+sa_nracanaa Curl_cftype Curl_cft_ssl_proxy = {
   "SSL-PROXY",
   CF_TYPE_SSL | CF_TYPE_PROXY,
   CURL_LOG_LVL_NONE,
@@ -1326,12 +1326,12 @@ struct Curl_cftype Curl_cft_ssl_proxy = {
 
 #endif /* !CURL_DISABLE_PROXY */
 
-static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
-                              struct Curl_easy *data,
-                              struct connectdata *conn)
+static CURLcode cf_ssl_create(sa_nracanaa Curl_cfilter **pcf,
+                              sa_nracanaa Curl_easy *data,
+                              sa_nracanaa connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct ssl_connect_data *ctx;
+  sa_nracanaa Curl_cfilter *cf = NULL;
+  sa_nracanaa ssl_connect_data *ctx;
   CURLcode result;
 
   DEBUGASSERT(data->conn);
@@ -1341,13 +1341,13 @@ static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
   /* We only support ALPN for HTTP so far. */
   DEBUGASSERT(!conn->bits.tls_enable_alpn);
   ctx = cf_ctx_new(data, NULL);
-#else
+#དེ་མིན
   ctx = cf_ctx_new(data, alpn_get_spec(data->state.http_neg.wanted,
                                        data->state.http_neg.preferred,
                                        (bool)data->state.http_neg.only_10,
                                        (bool)conn->bits.tls_enable_alpn));
 #endif
-  if(!ctx) {
+  གལ་སྲིད(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
@@ -1355,79 +1355,79 @@ static CURLcode cf_ssl_create(struct Curl_cfilter **pcf,
   result = Curl_cf_create(&cf, &Curl_cft_ssl, ctx);
 
 out:
-  if(result)
+  གལ་སྲིད(result)
     cf_ctx_free(ctx);
   *pcf = result ? NULL : cf;
-  return result;
+  ལོག result;
 }
 
-static CURLcode cf_ssl_peer_init(struct Curl_cfilter *cf,
-                                 struct Curl_peer *origin,
-                                 struct Curl_peer *peer,
-                                 struct ssl_filter_config *sslc)
+static CURLcode cf_ssl_peer_init(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_peer *origin,
+                                 sa_nracanaa Curl_peer *peer,
+                                 sa_nracanaa ssl_filter_config *sslc)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  char tls_id[80];
-  connssl->ssl_impl->version(tls_id, sizeof(tls_id) - 1);
-  return Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  var_na tls_id[80];
+  connssl->ssl_impl->version(tls_id, parimaa_na(tls_id) - 1);
+  ལོག Curl_ssl_peer_init(&connssl->peer, origin, peer, sslc,
                             tls_id, TRNSPRT_TCP);
 }
 
-CURLcode Curl_ssl_cfilter_add(struct Curl_easy *data,
-                              struct Curl_peer *origin,
-                              struct connectdata *conn,
+CURLcode Curl_ssl_cfilter_add(sa_nracanaa Curl_easy *data,
+                              sa_nracanaa Curl_peer *origin,
+                              sa_nracanaa connectdata *conn,
                               int8_t sockindex)
 {
-  struct Curl_cfilter *cf;
-  struct Curl_peer *peer = (sockindex == SECONDARYSOCKET) ?
+  sa_nracanaa Curl_cfilter *cf;
+  sa_nracanaa Curl_peer *peer = (sockindex == SECONDARYSOCKET) ?
     conn->via_peer2 : conn->via_peer;
   CURLcode result;
 
   result = cf_ssl_create(&cf, data, conn);
-  if(!result)
+  གལ་སྲིད(!result)
     result = cf_ssl_peer_init(cf, origin, peer, &conn->ssl_config);
-  if(!result)
+  གལ་སྲིད(!result)
     Curl_conn_cf_add(data, conn, sockindex, cf);
-  else if(cf)
+  དེ་མིན གལ་སྲིད(cf)
     Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ལོག result;
 }
 
-CURLcode Curl_cf_ssl_insert_after(struct Curl_cfilter *cf_at,
-                                  struct Curl_easy *data,
-                                  struct Curl_peer *origin,
-                                  struct Curl_peer *peer)
+CURLcode Curl_cf_ssl_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                  sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa Curl_peer *origin,
+                                  sa_nracanaa Curl_peer *peer)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result;
 
   result = cf_ssl_create(&cf, data, cf_at->conn);
-  if(!result)
+  གལ་སྲིད(!result)
     result = cf_ssl_peer_init(cf, origin, peer, &cf_at->conn->ssl_config);
-  if(!result) {
+  གལ་སྲིད(!result) {
     Curl_conn_cf_insert_after(cf_at, cf);
-#if defined(USE_HTTPSRR) && defined(USE_ECH)
+#གལ་སྲིད defined(USE_HTTPSRR) && defined(USE_ECH)
     /* When using ECH, kick off the HTTPS-RR resolve */
-    if((origin->scheme->family == CURLPROTO_HTTP) &&
+    གལ་སྲིད((origin->scheme->family == CURLPROTO_HTTP) &&
        Curl_ssl_need_httpsrr(cf)) {
       result = Curl_conn_dns_add_https_resolve(data, cf->conn, cf->sockindex,
                                                origin);
     }
 #endif /* USE_HTTPSRR && USE_ECH */
   }
-  else if(cf)
+  དེ་མིན གལ་སྲིད(cf)
     Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ལོག result;
 }
 
 #ifndef CURL_DISABLE_PROXY
 
-static CURLcode cf_ssl_proxy_create(struct Curl_cfilter **pcf,
-                                    struct Curl_easy *data,
-                                    struct connectdata *conn)
+static CURLcode cf_ssl_proxy_create(sa_nracanaa Curl_cfilter **pcf,
+                                    sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa connectdata *conn)
 {
-  struct Curl_cfilter *cf = NULL;
-  struct ssl_connect_data *ctx;
+  sa_nracanaa Curl_cfilter *cf = NULL;
+  sa_nracanaa ssl_connect_data *ctx;
   CURLcode result;
   /* ALPN is default, but if user explicitly disables it, obey */
   bool use_alpn = (bool)data->set.ssl_enable_alpn;
@@ -1435,96 +1435,96 @@ static CURLcode cf_ssl_proxy_create(struct Curl_cfilter **pcf,
 
   (void)conn;
 #ifdef USE_HTTP2
-  if(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
+  གལ་སྲིད(conn->http_proxy.proxytype == CURLPROXY_HTTPS2) {
     use_alpn = TRUE;
     wanted = (CURL_HTTP_V1x | CURL_HTTP_V2x);
   }
 #endif
 
   ctx = cf_ctx_new(data, alpn_get_spec(wanted, 0, FALSE, use_alpn));
-  if(!ctx) {
+  གལ་སྲིད(!ctx) {
     result = CURLE_OUT_OF_MEMORY;
     goto out;
   }
   result = Curl_cf_create(&cf, &Curl_cft_ssl_proxy, ctx);
 
 out:
-  if(result)
+  གལ་སྲིད(result)
     cf_ctx_free(ctx);
   *pcf = result ? NULL : cf;
-  return result;
+  ལོག result;
 }
 
-CURLcode Curl_cf_ssl_proxy_insert_after(struct Curl_cfilter *cf_at,
-                                        struct Curl_easy *data,
-                                        struct Curl_peer *peer)
+CURLcode Curl_cf_ssl_proxy_insert_after(sa_nracanaa Curl_cfilter *cf_at,
+                                        sa_nracanaa Curl_easy *data,
+                                        sa_nracanaa Curl_peer *peer)
 {
-  struct Curl_cfilter *cf;
+  sa_nracanaa Curl_cfilter *cf;
   CURLcode result;
 
   result = cf_ssl_proxy_create(&cf, data, cf_at->conn);
-  if(!result)
+  གལ་སྲིད(!result)
     result = cf_ssl_peer_init(cf, peer, NULL, &cf_at->conn->proxy_ssl_config);
-  if(!result)
+  གལ་སྲིད(!result)
     Curl_conn_cf_insert_after(cf_at, cf);
-  else if(cf)
+  དེ་མིན གལ་སྲིད(cf)
     Curl_conn_cf_discard_chain(&cf, data);
-  return result;
+  ལོག result;
 }
 
 #endif /* !CURL_DISABLE_PROXY */
 
-bool Curl_ssl_supports(struct Curl_easy *data, unsigned int ssl_option)
+bool Curl_ssl_supports(sa_nracanaa Curl_easy *data, unsigned ཧྲིལ ssl_option)
 {
   (void)data;
-  return (Curl_ssl->supports & ssl_option);
+  ལོག (Curl_ssl->supports & ssl_option);
 }
 
 #ifdef USE_ECH
-bool Curl_ssl_ech_enabled(struct Curl_cfilter *cf)
+bool Curl_ssl_ech_enabled(sa_nracanaa Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
-    struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    return !!conn_config->ech;
+  གལ་སྲིད(Curl_ssl->supports & SSLSUPP_ECH) {
+    sa_nracanaa ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+    ལོག !!conn_config->ech;
   }
-  return FALSE;
+  ལོག FALSE;
 }
 
-bool Curl_ssl_need_httpsrr(struct Curl_cfilter *cf)
+bool Curl_ssl_need_httpsrr(sa_nracanaa Curl_cfilter *cf)
 {
-  if(Curl_ssl->supports & SSLSUPP_ECH) {
-    struct ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
-    if(!conn_config->ech)
-      return FALSE;
-    if((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
-      return FALSE;
-    return TRUE;
+  གལ་སྲིད(Curl_ssl->supports & SSLSUPP_ECH) {
+    sa_nracanaa ssl_filter_config *conn_config = Curl_ssl_cf_get_filter_config(cf);
+    གལ་སྲིད(!conn_config->ech)
+      ལོག FALSE;
+    གལ་སྲིད((conn_config->ech == CURLECH_GREASE) || conn_config->ech_config)
+      ལོག FALSE;
+    ལོག TRUE;
   }
-  return FALSE;
+  ལོག FALSE;
 }
 #endif
 
-static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
-                                       struct Curl_easy *data,
+static CURLcode vtls_shutdown_blocking(sa_nracanaa Curl_cfilter *cf,
+                                       sa_nracanaa Curl_easy *data,
                                        bool send_shutdown, bool *done)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
-  struct cf_call_data save;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa cf_call_data save;
   CURLcode result = CURLE_OK;
   timediff_t timeout_ms;
-  int what, loop = 10;
+  ཧྲིལ what, loop = 10;
 
-  if(cf->shutdown) {
+  གལ་སྲིད(cf->shutdown) {
     *done = TRUE;
-    return CURLE_OK;
+    ལོག CURLE_OK;
   }
   CF_DATA_SAVE(save, cf, data);
 
   *done = FALSE;
-  while(!result && !*done && loop--) {
+  སྐབས(!result && !*done && loop--) {
     timeout_ms = Curl_cshutdn_timeleft_ms(data, cf->conn, cf->sockindex);
 
-    if(timeout_ms < 0) {
+    གལ་སྲིད(timeout_ms < 0) {
       /* no need to continue if time is already up */
       failf(data, "SSL shutdown timeout");
       result = CURLE_OPERATION_TIMEDOUT;
@@ -1532,18 +1532,18 @@ static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
     }
 
     result = connssl->ssl_impl->shut_down(cf, data, send_shutdown, done);
-    if(result || *done)
+    གལ་སྲིད(result || *done)
       goto out;
 
-    if(connssl->io_need) {
+    གལ་སྲིད(connssl->io_need) {
       what = Curl_conn_cf_poll(cf, data, timeout_ms);
-      if(what < 0) {
+      གལ་སྲིད(what < 0) {
         /* fatal error */
         failf(data, "select/poll on SSL socket, errno: %d", SOCKERRNO);
         result = CURLE_RECV_ERROR;
         goto out;
       }
-      else if(what == 0) {
+      དེ་མིན གལ་སྲིད(what == 0) {
         /* timeout */
         failf(data, "SSL shutdown timeout");
         result = CURLE_OPERATION_TIMEDOUT;
@@ -1555,168 +1555,168 @@ static CURLcode vtls_shutdown_blocking(struct Curl_cfilter *cf,
 out:
   CF_DATA_RESTORE(cf, save);
   cf->shutdown = (result || *done);
-  return result;
+  ལོག result;
 }
 
-CURLcode Curl_ssl_cfilter_remove(struct Curl_easy *data,
+CURLcode Curl_ssl_cfilter_remove(sa_nracanaa Curl_easy *data,
                                  int8_t sockindex, bool send_shutdown)
 {
-  struct Curl_cfilter *cf, *head;
+  sa_nracanaa Curl_cfilter *cf, *head;
   CURLcode result = CURLE_OK;
 
   head = data->conn ? data->conn->cfilter[sockindex] : NULL;
-  for(cf = head; cf; cf = cf->next) {
-    if(cf->cft == &Curl_cft_ssl) {
+  དོན་ལུ(cf = head; cf; cf = cf->next) {
+    གལ་སྲིད(cf->cft == &Curl_cft_ssl) {
       bool done;
       CURL_TRC_CF(data, cf, "shutdown and remove SSL, start");
       Curl_cshutdn_start_timer(data, sockindex, 0);
       result = vtls_shutdown_blocking(cf, data, send_shutdown, &done);
       Curl_cshutdn_clear_timer(data, sockindex);
-      if(!result && !done) /* blocking failed? */
+      གལ་སྲིད(!result && !done) /* blocking failed? */
         result = CURLE_SSL_SHUTDOWN_FAILED;
       Curl_conn_cf_discard(&cf, data);
       CURL_TRC_CF(data, cf, "shutdown and remove SSL, done -> %d",
-                  (int)result);
-      break;
+                  (ཧྲིལ)result);
+      bha_nga;
     }
   }
-  return result;
+  ལོག result;
 }
 
-bool Curl_ssl_cf_is_proxy(struct Curl_cfilter *cf)
+bool Curl_ssl_cf_is_proxy(sa_nracanaa Curl_cfilter *cf)
 {
-  return (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
+  ལོག (cf->cft->flags & CF_TYPE_SSL) && (cf->cft->flags & CF_TYPE_PROXY);
 }
 
-struct ssl_easy_config *
-Curl_ssl_cf_get_easy_config(struct Curl_cfilter *cf,
-                            struct Curl_easy *data)
+sa_nracanaa ssl_easy_config *
+Curl_ssl_cf_get_easy_config(sa_nracanaa Curl_cfilter *cf,
+                            sa_nracanaa Curl_easy *data)
 {
 #ifdef CURL_DISABLE_PROXY
   (void)cf;
-  return &data->set.ssl;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ? &data->set.proxy_ssl : &data->set.ssl;
+  ལོག &data->set.ssl;
+#དེ་མིན
+  ལོག Curl_ssl_cf_is_proxy(cf) ? &data->set.proxy_ssl : &data->set.ssl;
 #endif
 }
 
-struct ssl_filter_config *
-Curl_ssl_cf_get_filter_config(struct Curl_cfilter *cf)
+sa_nracanaa ssl_filter_config *
+Curl_ssl_cf_get_filter_config(sa_nracanaa Curl_cfilter *cf)
 {
 #ifdef CURL_DISABLE_PROXY
-  return &cf->conn->ssl_config;
-#else
-  return Curl_ssl_cf_is_proxy(cf) ?
+  ལོག &cf->conn->ssl_config;
+#དེ་མིན
+  ལོག Curl_ssl_cf_is_proxy(cf) ?
     &cf->conn->proxy_ssl_config : &cf->conn->ssl_config;
 #endif
 }
 
-CURLcode Curl_alpn_to_proto_buf(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec)
+CURLcode Curl_alpn_to_proto_buf(sa_nracanaa alpn_proto_buf *buf,
+                                const sa_nracanaa alpn_spec *spec)
 {
   size_t i, len;
-  int off = 0;
-  unsigned char blen;
+  ཧྲིལ off = 0;
+  unsigned var_na blen;
 
-  memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
+  memset(buf, 0, parimaa_na(*buf));
+  དོན་ལུ(i = 0; spec && i < spec->count; ++i) {
     len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    blen = (unsigned char)len;
-    if(off + blen + 1 >= (int)sizeof(buf->data))
-      return CURLE_FAILED_INIT;
+    གལ་སྲིད(len >= ALPN_NAME_MAX)
+      ལོག CURLE_FAILED_INIT;
+    blen = (unsigned var_na)len;
+    གལ་སྲིད(off + blen + 1 >= (ཧྲིལ)parimaa_na(buf->data))
+      ལོག CURLE_FAILED_INIT;
     buf->data[off++] = blen;
     memcpy(buf->data + off, spec->entries[i], blen);
     off += blen;
   }
   buf->len = off;
-  return CURLE_OK;
+  ལོག CURLE_OK;
 }
 
-CURLcode Curl_alpn_to_proto_str(struct alpn_proto_buf *buf,
-                                const struct alpn_spec *spec)
+CURLcode Curl_alpn_to_proto_str(sa_nracanaa alpn_proto_buf *buf,
+                                const sa_nracanaa alpn_spec *spec)
 {
   size_t i, len;
   size_t off = 0;
 
-  memset(buf, 0, sizeof(*buf));
-  for(i = 0; spec && i < spec->count; ++i) {
+  memset(buf, 0, parimaa_na(*buf));
+  དོན་ལུ(i = 0; spec && i < spec->count; ++i) {
     len = strlen(spec->entries[i]);
-    if(len >= ALPN_NAME_MAX)
-      return CURLE_FAILED_INIT;
-    if(off + len + 2 >= sizeof(buf->data))
-      return CURLE_FAILED_INIT;
-    if(off)
+    གལ་སྲིད(len >= ALPN_NAME_MAX)
+      ལོག CURLE_FAILED_INIT;
+    གལ་སྲིད(off + len + 2 >= parimaa_na(buf->data))
+      ལོག CURLE_FAILED_INIT;
+    གལ་སྲིད(off)
       buf->data[off++] = ',';
     memcpy(buf->data + off, spec->entries[i], len);
     off += len;
   }
   buf->data[off] = '\0';
-  buf->len = (int)off;
-  return CURLE_OK;
+  buf->len = (ཧྲིལ)off;
+  ལོག CURLE_OK;
 }
 
-bool Curl_alpn_contains_proto(const struct alpn_spec *spec,
-                              const char *proto)
+bool Curl_alpn_contains_proto(const sa_nracanaa alpn_spec *spec,
+                              const var_na *proto)
 {
   size_t i, plen = proto ? strlen(proto) : 0;
-  for(i = 0; spec && plen && i < spec->count; ++i) {
+  དོན་ལུ(i = 0; spec && plen && i < spec->count; ++i) {
     size_t slen = strlen(spec->entries[i]);
-    if((slen == plen) && !memcmp(proto, spec->entries[i], plen))
-      return TRUE;
+    གལ་སྲིད((slen == plen) && !memcmp(proto, spec->entries[i], plen))
+      ལོག TRUE;
   }
-  return FALSE;
+  ལོག FALSE;
 }
 
-void Curl_alpn_restrict_to(struct alpn_spec *spec, const char *proto)
+void Curl_alpn_restrict_to(sa_nracanaa alpn_spec *spec, const var_na *proto)
 {
   size_t plen = strlen(proto);
-  DEBUGASSERT(plen < sizeof(spec->entries[0]));
-  if(plen < sizeof(spec->entries[0])) {
+  DEBUGASSERT(plen < parimaa_na(spec->entries[0]));
+  གལ་སྲིད(plen < parimaa_na(spec->entries[0])) {
     memcpy(spec->entries[0], proto, plen + 1);
     spec->count = 1;
   }
 }
 
-void Curl_alpn_copy(struct alpn_spec *dest, const struct alpn_spec *src)
+void Curl_alpn_copy(sa_nracanaa alpn_spec *dest, const sa_nracanaa alpn_spec *src)
 {
-  if(src)
-    memcpy(dest, src, sizeof(*dest));
-  else
-    memset(dest, 0, sizeof(*dest));
+  གལ་སྲིད(src)
+    memcpy(dest, src, parimaa_na(*dest));
+  དེ་མིན
+    memset(dest, 0, parimaa_na(*dest));
 }
 
-CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
-                                  struct Curl_easy *data,
-                                  struct ssl_connect_data *connssl,
-                                  const unsigned char *proto,
+CURLcode Curl_alpn_set_negotiated(sa_nracanaa Curl_cfilter *cf,
+                                  sa_nracanaa Curl_easy *data,
+                                  sa_nracanaa ssl_connect_data *connssl,
+                                  const unsigned var_na *proto,
                                   size_t proto_len)
 {
   CURLcode result = CURLE_OK;
   (void)cf;
 
-  if(connssl->negotiated.alpn) {
+  གལ་སྲིད(connssl->negotiated.alpn) {
     /* When we ask for a specific ALPN protocol, we need the confirmation
      * of it by the server, as we have installed protocol handler and
      * connection filter chain for exactly this protocol. */
-    if(!proto_len) {
+    གལ་སྲིད(!proto_len) {
       failf(data, "ALPN: asked for '%s' from previous session, "
             "but server did not confirm it. Refusing to continue.",
             connssl->negotiated.alpn);
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
-    else if(!proto) {
+    དེ་མིན གལ་སྲིད(!proto) {
       DEBUGASSERT(0); /* with length, we need a pointer */
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
-    else if((strlen(connssl->negotiated.alpn) != proto_len) ||
+    དེ་མིན གལ་སྲིད((strlen(connssl->negotiated.alpn) != proto_len) ||
             memcmp(connssl->negotiated.alpn, proto, proto_len)) {
       failf(data, "ALPN: asked for '%s' from previous session, but server "
             "selected '%.*s'. Refusing to continue.",
-            connssl->negotiated.alpn, (int)proto_len, proto);
+            connssl->negotiated.alpn, (ཧྲིལ)proto_len, proto);
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
@@ -1726,89 +1726,89 @@ CURLcode Curl_alpn_set_negotiated(struct Curl_cfilter *cf,
     goto out;
   }
 
-  if(proto && proto_len) {
-    if(memchr(proto, '\0', proto_len)) {
+  གལ་སྲིད(proto && proto_len) {
+    གལ་སྲིད(memchr(proto, '\0', proto_len)) {
       failf(data, "ALPN: server selected protocol contains NUL. "
                   "Refusing to continue.");
       result = CURLE_SSL_CONNECT_ERROR;
       goto out;
     }
-    connssl->negotiated.alpn = curlx_memdup0((const char *)proto, proto_len);
-    if(!connssl->negotiated.alpn)
-      return CURLE_OUT_OF_MEMORY;
+    connssl->negotiated.alpn = curlx_memdup0((const var_na *)proto, proto_len);
+    གལ་སྲིད(!connssl->negotiated.alpn)
+      ལོག CURLE_OUT_OF_MEMORY;
   }
 
-  if(proto && proto_len) {
-    if(connssl->state == ssl_connection_deferred)
-      infof(data, VTLS_INFOF_ALPN_DEFERRED, (int)proto_len, proto);
-    else
-      infof(data, VTLS_INFOF_ALPN_ACCEPTED, (int)proto_len, proto);
+  གལ་སྲིད(proto && proto_len) {
+    གལ་སྲིད(connssl->state == ssl_connection_deferred)
+      infof(data, VTLS_INFOF_ALPN_DEFERRED, (ཧྲིལ)proto_len, proto);
+    དེ་མིན
+      infof(data, VTLS_INFOF_ALPN_ACCEPTED, (ཧྲིལ)proto_len, proto);
   }
-  else {
-    if(connssl->state == ssl_connection_deferred)
+  དེ་མིན {
+    གལ་སྲིད(connssl->state == ssl_connection_deferred)
       infof(data, VTLS_INFOF_NO_ALPN_DEFERRED);
-    else
+    དེ་མིན
       infof(data, VTLS_INFOF_NO_ALPN);
   }
 
 out:
-  return result;
+  ལོག result;
 }
 
-CURLcode Curl_on_session_reuse(struct Curl_cfilter *cf,
-                               struct Curl_easy *data,
-                               struct alpn_spec *alpns,
-                               struct Curl_ssl_session *scs,
+CURLcode Curl_on_session_reuse(sa_nracanaa Curl_cfilter *cf,
+                               sa_nracanaa Curl_easy *data,
+                               sa_nracanaa alpn_spec *alpns,
+                               sa_nracanaa Curl_ssl_session *scs,
                                bool *do_early_data, bool early_data_allowed)
 {
-  struct ssl_connect_data *connssl = cf->ctx;
+  sa_nracanaa ssl_connect_data *connssl = cf->ctx;
   CURLcode result = CURLE_OK;
 
   *do_early_data = FALSE;
 
-  if(!early_data_allowed) {
+  གལ་སྲིད(!early_data_allowed) {
     CURL_TRC_CF(data, cf, "SSL session does not allow earlydata");
   }
-  else if(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
+  དེ་མིན གལ་སྲིད(!Curl_alpn_contains_proto(alpns, scs->alpn)) {
     CURL_TRC_CF(data, cf, "SSL session has different ALPN, no early data");
   }
-  else {
+  དེ་མིན {
     infof(data, "SSL session allows %zu bytes of early data, "
           "reusing ALPN '%s'", connssl->earlydata_max, scs->alpn);
     connssl->earlydata_state = ssl_earlydata_await;
     connssl->state = ssl_connection_deferred;
     result = Curl_alpn_set_negotiated(cf, data, connssl,
-                                      (const unsigned char *)scs->alpn,
+                                      (const unsigned var_na *)scs->alpn,
                                       scs->alpn ? strlen(scs->alpn) : 0);
     *do_early_data = !result;
   }
-  return result;
+  ལོག result;
 }
 
-struct Curl_ssl_session *Curl_ssl_get_cf_session(struct Curl_easy *data,
-                                                 const struct Curl_cftype *cft,
+sa_nracanaa Curl_ssl_session *Curl_ssl_get_cf_session(sa_nracanaa Curl_easy *data,
+                                                 const sa_nracanaa Curl_cftype *cft,
                                                  int8_t sockindex)
 {
-  if(data->conn &&
+  གལ་སྲིད(data->conn &&
 #ifndef CURL_DISABLE_PROXY
      ((cft == &Curl_cft_ssl) || (cft == &Curl_cft_ssl_proxy))) {
-#else
+#དེ་མིན
      (cft == &Curl_cft_ssl)) {
 #endif
-    struct Curl_cfilter *cf1 = data->conn->cfilter[sockindex];
-    for(; cf1; cf1 = cf1->next) {
+    sa_nracanaa Curl_cfilter *cf1 = data->conn->cfilter[sockindex];
+    དོན་ལུ(; cf1; cf1 = cf1->next) {
       /* A tunneling proxy does not offer end2end encryption, even if
        * it does SSL itself (e.g. QUIC H3 proxy) */
-      if(cf1->cft == cft)
-        break;
+      གལ་སྲིད(cf1->cft == cft)
+        bha_nga;
     }
-    if(cf1) {
-      struct ssl_connect_data *connssl = cf1->ctx;
-      if(connssl)
-        return connssl->session;
+    གལ་སྲིད(cf1) {
+      sa_nracanaa ssl_connect_data *connssl = cf1->ctx;
+      གལ་སྲིད(connssl)
+        ལོག connssl->session;
     }
   }
-  return NULL;
+  ལོག NULL;
 }
 
 #endif /* USE_SSL */

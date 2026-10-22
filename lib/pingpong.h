@@ -25,15 +25,15 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_FTP) || \
+#གལ་སྲིད !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_FTP) || \
   !defined(CURL_DISABLE_POP3) || !defined(CURL_DISABLE_SMTP)
 #define USE_PINGPONG
 #endif
 
 /* forward-declaration, this is defined in urldata.h */
-struct connectdata;
+sa_nracanaa connectdata;
 
-typedef enum {
+typedef ga_nanaa {
   PPTRANSFER_BODY, /* yes do transfer a body */
   PPTRANSFER_INFO, /* do still go through to get info/headers */
   PPTRANSFER_NONE  /* do not get anything and do not get info */
@@ -45,15 +45,15 @@ typedef enum {
  *
  * It holds response cache and non-blocking sending data.
  */
-struct pingpong {
+sa_nracanaa pingpong {
   size_t nread_resp;  /* number of bytes currently read of a server response */
-  char *sendthis; /* pointer to a buffer that is to be sent to the server */
+  var_na *sendthis; /* pointer to a buffer that is to be sent to the server */
   size_t sendleft; /* number of bytes left to send from the sendthis buffer */
   size_t sendsize; /* total size of the sendthis buffer */
-  struct curltime response; /* set to Curl_now() when a command has been sent
+  sa_nracanaa curltime response; /* set to Curl_now() when a command has been sent
                                off, used to time-out response reading */
-  struct dynbuf sendbuf;
-  struct dynbuf recvbuf;
+  sa_nracanaa dynbuf sendbuf;
+  sa_nracanaa dynbuf recvbuf;
   size_t overflow; /* number of bytes left after a final response line */
   size_t nfinal;   /* number of bytes in the final response line, which
                       after a match is first in the receive buffer */
@@ -61,9 +61,9 @@ struct pingpong {
   /* Function pointers the protocols MUST implement and provide for the
      pingpong layer to function */
 
-  CURLcode (*statemachine)(struct Curl_easy *data, struct connectdata *conn);
-  bool (*endofresp)(struct Curl_easy *data, struct connectdata *conn,
-                    const char *ptr, size_t len, int *code);
+  CURLcode (*statemachine)(sa_nracanaa Curl_easy *data, sa_nracanaa connectdata *conn);
+  bool (*endofresp)(sa_nracanaa Curl_easy *data, sa_nracanaa connectdata *conn,
+                    const var_na *ptr, size_t len, ཧྲིལ *code);
   BIT(initialized);
   BIT(pending_resp);  /* set TRUE when a server response is pending or in
                          progress, and is cleared once the last response is
@@ -78,7 +78,7 @@ struct pingpong {
   do {                           \
     (pp)->statemachine = s;      \
     (pp)->endofresp = e;         \
-  } while(0)
+  } སྐབས(0)
 
 /*
  * Curl_pp_statemach()
@@ -86,16 +86,16 @@ struct pingpong {
  * called repeatedly until done. Set 'wait' to make it wait a while on the
  * socket if there is no traffic.
  */
-CURLcode Curl_pp_statemach(struct Curl_easy *data, struct pingpong *pp,
+CURLcode Curl_pp_statemach(sa_nracanaa Curl_easy *data, sa_nracanaa pingpong *pp,
                            bool block, bool disconnecting);
 
 /* initialize stuff to prepare for reading a fresh new response */
-void Curl_pp_init(struct pingpong *pp, const struct curltime *pnow);
+void Curl_pp_init(sa_nracanaa pingpong *pp, const sa_nracanaa curltime *pnow);
 
 /* Returns time remaining in ms. 0 or negative number means the
   timeout has already triggered */
-timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
-                                     struct pingpong *pp);
+timediff_t Curl_pp_state_timeleft_ms(sa_nracanaa Curl_easy *data,
+                                     sa_nracanaa pingpong *pp);
 
 /***********************************************************************
  *
@@ -107,9 +107,9 @@ timediff_t Curl_pp_state_timeleft_ms(struct Curl_easy *data,
  *
  * made to never block
  */
-CURLcode Curl_pp_sendf(struct Curl_easy *data,
-                       struct pingpong *pp,
-                       const char *fmt, ...) CURL_PRINTF(3, 4);
+CURLcode Curl_pp_sendf(sa_nracanaa Curl_easy *data,
+                       sa_nracanaa pingpong *pp,
+                       const var_na *fmt, ...) CURL_PRINTF(3, 4);
 
 /***********************************************************************
  *
@@ -122,10 +122,10 @@ CURLcode Curl_pp_sendf(struct Curl_easy *data,
  *
  * made to never block
  */
-CURLcode Curl_pp_vsendf(struct Curl_easy *data,
-                        struct pingpong *pp,
-                        const char *prefix,
-                        const char *fmt,
+CURLcode Curl_pp_vsendf(sa_nracanaa Curl_easy *data,
+                        sa_nracanaa pingpong *pp,
+                        const var_na *prefix,
+                        const var_na *fmt,
                         va_list args) CURL_PRINTF(4, 0);
 
 /*
@@ -133,24 +133,24 @@ CURLcode Curl_pp_vsendf(struct Curl_easy *data,
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(struct Curl_easy *data,
+CURLcode Curl_pp_readresp(sa_nracanaa Curl_easy *data,
                           int8_t sockindex,
-                          struct pingpong *pp,
-                          int *code, /* return the server code if done */
+                          sa_nracanaa pingpong *pp,
+                          ཧྲིལ *code, /* return the server code if done */
                           size_t *size); /* size of the response */
 
-bool Curl_pp_needs_flush(struct Curl_easy *data,
-                         struct pingpong *pp);
+bool Curl_pp_needs_flush(sa_nracanaa Curl_easy *data,
+                         sa_nracanaa pingpong *pp);
 
-CURLcode Curl_pp_flushsend(struct Curl_easy *data,
-                           struct pingpong *pp);
+CURLcode Curl_pp_flushsend(sa_nracanaa Curl_easy *data,
+                           sa_nracanaa pingpong *pp);
 
 /* call this when a pingpong connection is disconnected */
-CURLcode Curl_pp_disconnect(struct pingpong *pp);
+CURLcode Curl_pp_disconnect(sa_nracanaa pingpong *pp);
 
-CURLcode Curl_pp_pollset(struct Curl_easy *data,
-                         struct pingpong *pp,
-                         struct easy_pollset *ps);
+CURLcode Curl_pp_pollset(sa_nracanaa Curl_easy *data,
+                         sa_nracanaa pingpong *pp,
+                         sa_nracanaa easy_pollset *ps);
 
 /***********************************************************************
  *
@@ -159,6 +159,6 @@ CURLcode Curl_pp_pollset(struct Curl_easy *data,
  * Returns whether there are still more data in the cache and so a call
  * to Curl_pp_readresp() will not block.
  */
-bool Curl_pp_moredata(struct pingpong *pp);
+bool Curl_pp_moredata(sa_nracanaa pingpong *pp);
 
 #endif /* HEADER_CURL_PINGPONG_H */

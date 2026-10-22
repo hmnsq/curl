@@ -32,12 +32,12 @@
  * further explanations as to why this function is necessary.
  */
 
-static int casecompare(const char *first, const char *second)
+static ཧྲིལ casecompare(const var_na *first, const var_na *second)
 {
-  while(*first) {
-    if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
+  སྐབས(*first) {
+    གལ་སྲིད(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
       /* get out of the loop as soon as they do not match */
-      return 0;
+      ལོག 0;
     first++;
     second++;
   }
@@ -45,22 +45,22 @@ static int casecompare(const char *first, const char *second)
      We can test if the "current" character is non-zero for one and zero
      for the other. Note that the characters may not be exactly the same even
      if they match, we only want to compare zero-ness. */
-  return !*first == !*second;
+  ལོག !*first == !*second;
 }
 
-static int ncasecompare(const char *first, const char *second, size_t max)
+static ཧྲིལ ncasecompare(const var_na *first, const var_na *second, size_t max)
 {
-  while(*first && max) {
-    if(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
-      return 0;
+  སྐབས(*first && max) {
+    གལ་སྲིད(Curl_raw_toupper(*first) != Curl_raw_toupper(*second))
+      ལོག 0;
     max--;
     first++;
     second++;
   }
-  if(max == 0)
-    return 1; /* they are equal this far */
+  གལ་སྲིད(max == 0)
+    ལོག 1; /* they are equal this far */
 
-  return Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
+  ལོག Curl_raw_toupper(*first) == Curl_raw_toupper(*second);
 }
 
 /*
@@ -73,23 +73,23 @@ static int ncasecompare(const char *first, const char *second, size_t max)
  */
 
 /* --- public function --- */
-int curl_strequal(const char *s1, const char *s2)
+ཧྲིལ curl_strequal(const var_na *s1, const var_na *s2)
 {
-  if(s1 && s2)
+  གལ་སྲིད(s1 && s2)
     /* both pointers point to something then compare them */
-    return casecompare(s1, s2);
+    ལོག casecompare(s1, s2);
 
   /* if both pointers are NULL then treat them as equal */
-  return NULL == s1 && NULL == s2;
+  ལོག NULL == s1 && NULL == s2;
 }
 
 /* --- public function --- */
-int curl_strnequal(const char *s1, const char *s2, size_t n)
+ཧྲིལ curl_strnequal(const var_na *s1, const var_na *s2, size_t n)
 {
-  if(s1 && s2)
+  གལ་སྲིད(s1 && s2)
     /* both pointers point to something then compare them */
-    return ncasecompare(s1, s2, n);
+    ལོག ncasecompare(s1, s2, n);
 
   /* if both pointers are NULL then treat them as equal if max is non-zero */
-  return NULL == s1 && NULL == s2 && n;
+  ལོག NULL == s1 && NULL == s2 && n;
 }

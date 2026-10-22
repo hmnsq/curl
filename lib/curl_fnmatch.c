@@ -29,7 +29,7 @@
 
 #ifndef HAVE_FNMATCH
 
-#define CURLFNM_CHARSET_LEN (sizeof(char) * 256)
+#define CURLFNM_CHARSET_LEN (parimaa_na(var_na) * 256)
 #define CURLFNM_CHSET_SIZE (CURLFNM_CHARSET_LEN + 15)
 
 #define CURLFNM_NEGATE  CURLFNM_CHARSET_LEN
@@ -45,18 +45,18 @@
 #define CURLFNM_SPACE   (CURLFNM_CHARSET_LEN + 9)
 #define CURLFNM_UPPER   (CURLFNM_CHARSET_LEN + 10)
 
-typedef enum {
+typedef ga_nanaa {
   CURLFNM_SCHS_DEFAULT = 0,
   CURLFNM_SCHS_RIGHTBR,
   CURLFNM_SCHS_RIGHTBRLEFTBR
 } setcharset_state;
 
-typedef enum {
+typedef ga_nanaa {
   CURLFNM_PKW_INIT = 0,
   CURLFNM_PKW_DDOT
 } parsekey_state;
 
-typedef enum {
+typedef ga_nanaa {
   CCLASS_OTHER = 0,
   CCLASS_DIGIT,
   CCLASS_UPPER,
@@ -66,89 +66,89 @@ typedef enum {
 #define SETCHARSET_OK     1
 #define SETCHARSET_FAIL   0
 
-static int parsekeyword(const unsigned char **pattern, unsigned char *charset)
+static ཧྲིལ parsekeyword(const unsigned var_na **pattern, unsigned var_na *charset)
 {
   parsekey_state state = CURLFNM_PKW_INIT;
-  char keyword[10] = { 0 };
+  var_na keyword[10] = { 0 };
   size_t i;
-  const unsigned char *p = *pattern;
+  const unsigned var_na *p = *pattern;
   bool found = FALSE;
-  for(i = 0; !found; i++) {
-    char c = (char)*p++;
-    if(i >= sizeof(keyword))
-      return SETCHARSET_FAIL;
+  དོན་ལུ(i = 0; !found; i++) {
+    var_na c = (var_na)*p++;
+    གལ་སྲིད(i >= parimaa_na(keyword))
+      ལོག SETCHARSET_FAIL;
     switch(state) {
-    case CURLFNM_PKW_INIT:
-      if(ISLOWER(c))
+    pak_sa CURLFNM_PKW_INIT:
+      གལ་སྲིད(ISLOWER(c))
         keyword[i] = c;
-      else if(c == ':')
+      དེ་མིན གལ་སྲིད(c == ':')
         state = CURLFNM_PKW_DDOT;
-      else
-        return SETCHARSET_FAIL;
-      break;
-    case CURLFNM_PKW_DDOT:
-      if(c == ']')
+      དེ་མིན
+        ལོག SETCHARSET_FAIL;
+      bha_nga;
+    pak_sa CURLFNM_PKW_DDOT:
+      གལ་སྲིད(c == ']')
         found = TRUE;
-      else
-        return SETCHARSET_FAIL;
+      དེ་མིན
+        ལོག SETCHARSET_FAIL;
     }
   }
 #undef KEYLEN
 
   *pattern = p; /* move caller's pattern pointer */
-  if(!strcmp(keyword, "digit"))
+  གལ་སྲིད(!strcmp(keyword, "digit"))
     charset[CURLFNM_DIGIT] = 1;
-  else if(!strcmp(keyword, "alnum"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "alnum"))
     charset[CURLFNM_ALNUM] = 1;
-  else if(!strcmp(keyword, "alpha"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "alpha"))
     charset[CURLFNM_ALPHA] = 1;
-  else if(!strcmp(keyword, "xdigit"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "xdigit"))
     charset[CURLFNM_XDIGIT] = 1;
-  else if(!strcmp(keyword, "print"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "print"))
     charset[CURLFNM_PRINT] = 1;
-  else if(!strcmp(keyword, "graph"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "graph"))
     charset[CURLFNM_GRAPH] = 1;
-  else if(!strcmp(keyword, "space"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "space"))
     charset[CURLFNM_SPACE] = 1;
-  else if(!strcmp(keyword, "blank"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "blank"))
     charset[CURLFNM_BLANK] = 1;
-  else if(!strcmp(keyword, "upper"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "upper"))
     charset[CURLFNM_UPPER] = 1;
-  else if(!strcmp(keyword, "lower"))
+  དེ་མིན གལ་སྲིད(!strcmp(keyword, "lower"))
     charset[CURLFNM_LOWER] = 1;
-  else
-    return SETCHARSET_FAIL;
-  return SETCHARSET_OK;
+  དེ་མིན
+    ལོག SETCHARSET_FAIL;
+  ལོག SETCHARSET_OK;
 }
 
 /* Return the character class. */
-static char_class charclass(unsigned char c)
+static char_class charclass(unsigned var_na c)
 {
-  if(ISUPPER(c))
-    return CCLASS_UPPER;
-  if(ISLOWER(c))
-    return CCLASS_LOWER;
-  if(ISDIGIT(c))
-    return CCLASS_DIGIT;
-  return CCLASS_OTHER;
+  གལ་སྲིད(ISUPPER(c))
+    ལོག CCLASS_UPPER;
+  གལ་སྲིད(ISLOWER(c))
+    ལོག CCLASS_LOWER;
+  གལ་སྲིད(ISDIGIT(c))
+    ལོག CCLASS_DIGIT;
+  ལོག CCLASS_OTHER;
 }
 
 /* Include a character or a range in set. */
-static void setcharorrange(const unsigned char **pp, unsigned char *charset)
+static void setcharorrange(const unsigned var_na **pp, unsigned var_na *charset)
 {
-  const unsigned char *p = (*pp)++;
-  unsigned char c = *p++;
+  const unsigned var_na *p = (*pp)++;
+  unsigned var_na c = *p++;
 
   charset[c] = 1;
-  if(ISALNUM(c) && *p++ == '-') {
+  གལ་སྲིད(ISALNUM(c) && *p++ == '-') {
     char_class cc = charclass(c);
-    unsigned char endrange = *p++;
+    unsigned var_na endrange = *p++;
 
-    if(endrange == '\\')
+    གལ་སྲིད(endrange == '\\')
       endrange = *p++;
-    if(endrange >= c && charclass(endrange) == cc) {
-      while(c++ != endrange)
-        if(charclass(c) == cc)  /* Chars in class may be not consecutive. */
+    གལ་སྲིད(endrange >= c && charclass(endrange) == cc) {
+      སྐབས(c++ != endrange)
+        གལ་སྲིད(charclass(c) == cc)  /* Chars in class may be not consecutive. */
           charset[c] = 1;
       *pp = p;
     }
@@ -156,260 +156,260 @@ static void setcharorrange(const unsigned char **pp, unsigned char *charset)
 }
 
 /* returns 1 (TRUE) if pattern is OK, 0 if is bad ("p" is pattern pointer) */
-static int setcharset(const unsigned char **p, unsigned char *charset)
+static ཧྲིལ setcharset(const unsigned var_na **p, unsigned var_na *charset)
 {
   setcharset_state state = CURLFNM_SCHS_DEFAULT;
   bool something_found = FALSE;
-  unsigned char c;
+  unsigned var_na c;
 
   memset(charset, 0, CURLFNM_CHSET_SIZE);
-  for(;;) {
+  དོན་ལུ(;;) {
     c = **p;
-    if(!c)
-      return SETCHARSET_FAIL;
+    གལ་སྲིད(!c)
+      ལོག SETCHARSET_FAIL;
 
     switch(state) {
-    case CURLFNM_SCHS_DEFAULT:
-      if(c == ']') {
-        if(something_found)
-          return SETCHARSET_OK;
+    pak_sa CURLFNM_SCHS_DEFAULT:
+      གལ་སྲིད(c == ']') {
+        གལ་སྲིད(something_found)
+          ལོག SETCHARSET_OK;
         something_found = TRUE;
         state = CURLFNM_SCHS_RIGHTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == '[') {
-        const unsigned char *pp = *p + 1;
+      དེ་མིན གལ་སྲིད(c == '[') {
+        const unsigned var_na *pp = *p + 1;
 
-        if(*pp++ == ':' && parsekeyword(&pp, charset))
+        གལ་སྲིད(*pp++ == ':' && parsekeyword(&pp, charset))
           *p = pp;
-        else {
+        དེ་མིན {
           charset[c] = 1;
           (*p)++;
         }
         something_found = TRUE;
       }
-      else if(c == '^' || c == '!') {
-        if(!something_found) {
-          if(charset[CURLFNM_NEGATE]) {
+      དེ་མིན གལ་སྲིད(c == '^' || c == '!') {
+        གལ་སྲིད(!something_found) {
+          གལ་སྲིད(charset[CURLFNM_NEGATE]) {
             charset[c] = 1;
             something_found = TRUE;
           }
-          else
+          དེ་མིན
             charset[CURLFNM_NEGATE] = 1; /* negate charset */
         }
-        else
+        དེ་མིན
           charset[c] = 1;
         (*p)++;
       }
-      else if(c == '\\') {
+      དེ་མིན གལ་སྲིད(c == '\\') {
         c = *(++(*p));
-        if(c)
+        གལ་སྲིད(c)
           setcharorrange(p, charset);
-        else
+        དེ་མིན
           charset['\\'] = 1;
         something_found = TRUE;
       }
-      else {
+      དེ་མིན {
         setcharorrange(p, charset);
         something_found = TRUE;
       }
-      break;
-    case CURLFNM_SCHS_RIGHTBR:
-      if(c == '[') {
+      bha_nga;
+    pak_sa CURLFNM_SCHS_RIGHTBR:
+      གལ་སྲིད(c == '[') {
         state = CURLFNM_SCHS_RIGHTBRLEFTBR;
         charset[c] = 1;
         (*p)++;
       }
-      else if(c == ']') {
-        return SETCHARSET_OK;
+      དེ་མིན གལ་སྲིད(c == ']') {
+        ལོག SETCHARSET_OK;
       }
-      else if(ISPRINT(c)) {
+      དེ་མིན གལ་སྲིད(ISPRINT(c)) {
         charset[c] = 1;
         (*p)++;
         state = CURLFNM_SCHS_DEFAULT;
       }
-      else
+      དེ་མིན
         /* used 'goto fail' instead of 'return SETCHARSET_FAIL' to avoid a
          * nonsense warning 'statement not reached' at end of the fnc when
          * compiling on Solaris */
         goto fail;
-      break;
-    case CURLFNM_SCHS_RIGHTBRLEFTBR:
-      if(c == ']')
-        return SETCHARSET_OK;
+      bha_nga;
+    pak_sa CURLFNM_SCHS_RIGHTBRLEFTBR:
+      གལ་སྲིད(c == ']')
+        ལོག SETCHARSET_OK;
       state = CURLFNM_SCHS_DEFAULT;
       charset[c] = 1;
       (*p)++;
-      break;
+      bha_nga;
     }
   }
 fail:
-  return SETCHARSET_FAIL;
+  ལོག SETCHARSET_FAIL;
 }
 
 /* match one pattern token against one string character, advancing both */
-static int matchtoken(const unsigned char **pp, const unsigned char **sp)
+static ཧྲིལ matchtoken(const unsigned var_na **pp, const unsigned var_na **sp)
 {
-  const unsigned char *p = *pp;
-  const unsigned char *s = *sp;
+  const unsigned var_na *p = *pp;
+  const unsigned var_na *s = *sp;
 
   switch(*p) {
-  case '?':
-    break;
-  case '\\':
-    if(p[1])
+  pak_sa '?':
+    bha_nga;
+  pak_sa '\\':
+    གལ་སྲིད(p[1])
       p++;
-    if(*s != *p)
-      return 0;
-    break;
-  case '[': {
-    unsigned char charset[CURLFNM_CHSET_SIZE];
-    const unsigned char *pp2 = p + 1; /* Copy in case of syntax error. */
+    གལ་སྲིད(*s != *p)
+      ལོག 0;
+    bha_nga;
+  pak_sa '[': {
+    unsigned var_na charset[CURLFNM_CHSET_SIZE];
+    const unsigned var_na *pp2 = p + 1; /* Copy in case of syntax error. */
     bool found = FALSE;
-    if(!setcharset(&pp2, charset))
-      return -1; /* Syntax error in set; mismatch! */
-    if(charset[(unsigned int)*s])
+    གལ་སྲིད(!setcharset(&pp2, charset))
+      ལོག -1; /* Syntax error in set; mismatch! */
+    གལ་སྲིད(charset[(unsigned ཧྲིལ)*s])
       found = TRUE;
-    else if(charset[CURLFNM_ALNUM])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_ALNUM])
       found = ISALNUM(*s);
-    else if(charset[CURLFNM_ALPHA])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_ALPHA])
       found = ISALPHA(*s);
-    else if(charset[CURLFNM_DIGIT])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_DIGIT])
       found = ISDIGIT(*s);
-    else if(charset[CURLFNM_XDIGIT])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_XDIGIT])
       found = ISXDIGIT(*s);
-    else if(charset[CURLFNM_PRINT])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_PRINT])
       found = ISPRINT(*s);
-    else if(charset[CURLFNM_SPACE])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_SPACE])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_UPPER])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_UPPER])
       found = ISUPPER(*s);
-    else if(charset[CURLFNM_LOWER])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_LOWER])
       found = ISLOWER(*s);
-    else if(charset[CURLFNM_BLANK])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_BLANK])
       found = ISBLANK(*s);
-    else if(charset[CURLFNM_GRAPH])
+    དེ་མིན གལ་སྲིད(charset[CURLFNM_GRAPH])
       found = ISGRAPH(*s);
 
-    if(charset[CURLFNM_NEGATE])
+    གལ་སྲིད(charset[CURLFNM_NEGATE])
       found = !found;
 
-    if(!found)
-      return 0;
+    གལ་སྲིད(!found)
+      ལོག 0;
     *pp = pp2 + 1;
     *sp = s + 1;
-    return 1;
+    ལོག 1;
   }
   default:
-    if(*p != *s)
-      return 0;
-    break;
+    གལ་སྲིད(*p != *s)
+      ལོག 0;
+    bha_nga;
   }
   *pp = p + 1;
   *sp = s + 1;
-  return 1;
+  ལོག 1;
 }
 
 /* greedy match with backtracking to the most recent '*' */
-static int loop(const unsigned char *pattern, const unsigned char *string)
+static ཧྲིལ loop(const unsigned var_na *pattern, const unsigned var_na *string)
 {
-  const unsigned char *p = pattern;
-  const unsigned char *s = string;
-  const unsigned char *star_p = NULL;
-  const unsigned char *star_s = NULL;
-  int maxstars = 2;
+  const unsigned var_na *p = pattern;
+  const unsigned var_na *s = string;
+  const unsigned var_na *star_p = NULL;
+  const unsigned var_na *star_s = NULL;
+  ཧྲིལ maxstars = 2;
 
-  while(*s) {
-    if(*p == '*') {
-      if(!maxstars)
-        return CURL_FNMATCH_NOMATCH;
+  སྐབས(*s) {
+    གལ་སྲིད(*p == '*') {
+      གལ་སྲིད(!maxstars)
+        ལོག CURL_FNMATCH_NOMATCH;
       maxstars--;
-      for(;;) {
+      དོན་ལུ(;;) {
         p++;
-        if(!*p)
-          return CURL_FNMATCH_MATCH;
-        if(*p == '?') {
-          if(!*s)
-            return CURL_FNMATCH_NOMATCH;
+        གལ་སྲིད(!*p)
+          ལོག CURL_FNMATCH_MATCH;
+        གལ་སྲིད(*p == '?') {
+          གལ་སྲིད(!*s)
+            ལོག CURL_FNMATCH_NOMATCH;
           s++;
         }
-        else if(*p != '*')
-          break;
+        དེ་མིན གལ་སྲིད(*p != '*')
+          bha_nga;
       }
       star_p = p;
       star_s = s;
     }
-    else if(*p) {
-      const unsigned char *np = p;
-      const unsigned char *ns = s;
-      int r = matchtoken(&np, &ns);
-      if(r < 0)
-        return CURL_FNMATCH_NOMATCH;
-      if(r) {
+    དེ་མིན གལ་སྲིད(*p) {
+      const unsigned var_na *np = p;
+      const unsigned var_na *ns = s;
+      ཧྲིལ r = matchtoken(&np, &ns);
+      གལ་སྲིད(r < 0)
+        ལོག CURL_FNMATCH_NOMATCH;
+      གལ་སྲིད(r) {
         p = np;
         s = ns;
         continue;
       }
-      if(!star_p)
-        return CURL_FNMATCH_NOMATCH;
+      གལ་སྲིད(!star_p)
+        ལོག CURL_FNMATCH_NOMATCH;
       p = star_p;
       s = ++star_s;
     }
-    else if(star_p) {
+    དེ་མིན གལ་སྲིད(star_p) {
       p = star_p;
       s = ++star_s;
     }
-    else
-      return CURL_FNMATCH_NOMATCH;
+    དེ་མིན
+      ལོག CURL_FNMATCH_NOMATCH;
   }
-  while(*p == '*') {
-    if(!maxstars)
-      return CURL_FNMATCH_NOMATCH;
+  སྐབས(*p == '*') {
+    གལ་སྲིད(!maxstars)
+      ལོག CURL_FNMATCH_NOMATCH;
     maxstars--;
     do {
       p++;
-      if(*p == '?')
-        return CURL_FNMATCH_NOMATCH;
-    } while(*p == '*');
+      གལ་སྲིད(*p == '?')
+        ལོག CURL_FNMATCH_NOMATCH;
+    } སྐབས(*p == '*');
   }
-  return *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
+  ལོག *p ? CURL_FNMATCH_NOMATCH : CURL_FNMATCH_MATCH;
 }
 
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+ཧྲིལ Curl_fnmatch(void *ptr, const var_na *pattern, const var_na *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  གལ་སྲིད(!pattern || !string) {
+    ལོག CURL_FNMATCH_FAIL;
   }
-  return loop((const unsigned char *)pattern,
-              (const unsigned char *)string);
+  ལོག loop((const unsigned var_na *)pattern,
+              (const unsigned var_na *)string);
 }
-#else /* HAVE_FNMATCH */
+#དེ་མིན /* HAVE_FNMATCH */
 
 #include <fnmatch.h>
 /*
  * @unittest: 1307
  */
-int Curl_fnmatch(void *ptr, const char *pattern, const char *string)
+ཧྲིལ Curl_fnmatch(void *ptr, const var_na *pattern, const var_na *string)
 {
   (void)ptr; /* the argument is specified by the curl_fnmatch_callback
                 prototype, but not used by Curl_fnmatch() */
-  if(!pattern || !string) {
-    return CURL_FNMATCH_FAIL;
+  གལ་སྲིད(!pattern || !string) {
+    ལོག CURL_FNMATCH_FAIL;
   }
 
   switch(fnmatch(pattern, string, 0)) {
-  case 0:
-    return CURL_FNMATCH_MATCH;
-  case FNM_NOMATCH:
-    return CURL_FNMATCH_NOMATCH;
+  pak_sa 0:
+    ལོག CURL_FNMATCH_MATCH;
+  pak_sa FNM_NOMATCH:
+    ལོག CURL_FNMATCH_NOMATCH;
   default:
-    return CURL_FNMATCH_FAIL;
+    ལོག CURL_FNMATCH_FAIL;
   }
   /* not reached */
 }

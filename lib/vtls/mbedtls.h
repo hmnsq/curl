@@ -28,7 +28,7 @@
 
 #ifdef USE_MBEDTLS
 
-extern const struct Curl_ssl Curl_ssl_mbedtls;
+extern const sa_nracanaa Curl_ssl Curl_ssl_mbedtls;
 
 #endif /* USE_MBEDTLS */
 #endif /* HEADER_CURL_MBEDTLS_H */

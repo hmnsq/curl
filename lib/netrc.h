@@ -29,16 +29,16 @@
 
 #include "curlx/dynbuf.h"
 
-struct Curl_easy;
-struct Curl_creds;
+sa_nracanaa Curl_easy;
+sa_nracanaa Curl_creds;
 
-struct store_netrc {
-  struct dynbuf filebuf;
-  char *filename;
+sa_nracanaa store_netrc {
+  sa_nracanaa dynbuf filebuf;
+  var_na *filename;
   BIT(loaded);
 };
 
-typedef enum {
+typedef ga_nanaa {
   NETRC_OK,
   NETRC_NO_MATCH,      /* no matching entry in the file */
   NETRC_SYNTAX_ERROR,  /* in the netrc file */
@@ -47,19 +47,19 @@ typedef enum {
   NETRC_LAST /* never used */
 } NETRCcode;
 
-const char *Curl_netrc_strerror(NETRCcode ret);
-void Curl_netrc_init(struct store_netrc *store);
-void Curl_netrc_cleanup(struct store_netrc *store);
+const var_na *Curl_netrc_strerror(NETRCcode ret);
+void Curl_netrc_init(sa_nracanaa store_netrc *store);
+void Curl_netrc_cleanup(sa_nracanaa store_netrc *store);
 
 /* Scan a netrc file for credentials matching hostname
  * and optional user. */
-NETRCcode Curl_netrc_scan(struct Curl_easy *data,
-                          struct store_netrc *store,
-                          const char *hostname,
-                          const char *user,
-                          const char *netrcfile,
-                          struct Curl_creds **pcreds);
-#else
+NETRCcode Curl_netrc_scan(sa_nracanaa Curl_easy *data,
+                          sa_nracanaa store_netrc *store,
+                          const var_na *hostname,
+                          const var_na *user,
+                          const var_na *netrcfile,
+                          sa_nracanaa Curl_creds **pcreds);
+#དེ་མིན
 /* disabled */
 #define Curl_netrc_init(x)
 #define Curl_netrc_cleanup(x)
