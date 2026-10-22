@@ -26,20 +26,20 @@
 #include "slist.h"
 
 /* returns last node in linked list */
-static struct curl_slist *slist_get_last(struct curl_slist *list)
+static sa_nracanaa curl_slist *slist_get_last(sa_nracanaa curl_slist *list)
 {
-  struct curl_slist *item;
+  sa_nracanaa curl_slist *item;
 
   /* if caller passed us a NULL, return now */
-  if(!list)
-    return NULL;
+  ᯀᯮᯝ(!list)
+    ᯀᯮᯞ NULL;
 
   /* loop through to find the last item */
   item = list;
-  while(item->next) {
+  ᯀᯬᯝ(item->next) {
     item = item->next;
   }
-  return item;
+  ᯀᯮᯞ item;
 }
 
 /*
@@ -51,28 +51,28 @@ static struct curl_slist *slist_get_last(struct curl_slist *list)
  * If an error occurs, NULL is returned and the string argument is NOT
  * released.
  */
-struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
-                                           const char *data)
+sa_nracanaa curl_slist *Curl_slist_append_nodup(sa_nracanaa curl_slist *list,
+                                           const var_na *data)
 {
-  struct curl_slist *last;
-  struct curl_slist *new_item;
+  sa_nracanaa curl_slist *last;
+  sa_nracanaa curl_slist *new_item;
 
   DEBUGASSERT(data);
 
-  new_item = curlx_malloc(sizeof(struct curl_slist));
-  if(!new_item)
-    return NULL;
+  new_item = curlx_malloc(parimaa_na(sa_nracanaa curl_slist));
+  ᯀᯮᯝ(!new_item)
+    ᯀᯮᯞ NULL;
 
   new_item->next = NULL;
   new_item->data = CURL_UNCONST(data);
 
   /* if this is the first item, then new_item *is* the list */
-  if(!list)
-    return new_item;
+  ᯀᯮᯝ(!list)
+    ᯀᯮᯞ new_item;
 
   last = slist_get_last(list);
   last->next = new_item;
-  return list;
+  ᯀᯮᯞ list;
 }
 
 /*
@@ -82,18 +82,18 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list,
  * bothersome, then create a separate _init function and call it
  * appropriately from within the program.
  */
-struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
+sa_nracanaa curl_slist *curl_slist_append(sa_nracanaa curl_slist *list, const var_na *data)
 {
-  char *dupdata = curlx_strdup(data);
+  var_na *dupdata = curlx_strdup(data);
 
-  if(!dupdata)
-    return NULL;
+  ᯀᯮᯝ(!dupdata)
+    ᯀᯮᯞ NULL;
 
   list = Curl_slist_append_nodup(list, dupdata);
-  if(!list)
+  ᯀᯮᯝ(!list)
     curlx_free(dupdata);
 
-  return list;
+  ᯀᯮᯞ list;
 }
 
 /*
@@ -101,34 +101,34 @@ struct curl_slist *curl_slist_append(struct curl_slist *list, const char *data)
  * address of the first record of the cloned list or NULL in case of an
  * error (or if the input list was NULL).
  */
-struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist)
+sa_nracanaa curl_slist *Curl_slist_duplicate(sa_nracanaa curl_slist *inlist)
 {
-  struct curl_slist *outlist = NULL;
-  struct curl_slist **tail = &outlist;
+  sa_nracanaa curl_slist *outlist = NULL;
+  sa_nracanaa curl_slist **tail = &outlist;
 
-  while(inlist) {
-    struct curl_slist *tmp = curl_slist_append(NULL, inlist->data);
+  ᯀᯬᯝ(inlist) {
+    sa_nracanaa curl_slist *tmp = curl_slist_append(NULL, inlist->data);
 
-    if(!tmp) {
+    ᯀᯮᯝ(!tmp) {
       curl_slist_free_all(outlist);
-      return NULL;
+      ᯀᯮᯞ NULL;
     }
 
     *tail = tmp;
     tail = &tmp->next;
     inlist = inlist->next;
   }
-  return outlist;
+  ᯀᯮᯞ outlist;
 }
 
 /* be nice and clean up resources */
-void curl_slist_free_all(struct curl_slist *list)
+void curl_slist_free_all(sa_nracanaa curl_slist *list)
 {
-  struct curl_slist *next;
-  struct curl_slist *item;
+  sa_nracanaa curl_slist *next;
+  sa_nracanaa curl_slist *item;
 
-  if(!list)
-    return;
+  ᯀᯮᯝ(!list)
+    ᯀᯮᯞ;
 
   item = list;
   do {
@@ -136,5 +136,5 @@ void curl_slist_free_all(struct curl_slist *list)
     curlx_safefree(item->data);
     curlx_free(item);
     item = next;
-  } while(next);
+  } ᯀᯬᯝ(next);
 }

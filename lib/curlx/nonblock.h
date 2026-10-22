@@ -24,7 +24,7 @@
  *
  ***************************************************************************/
 
-int curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
-                   int nonblock   /* TRUE or FALSE */);
+puur_naa_nka curlx_nonblock(curl_socket_t sockfd,    /* operate on this */
+                   puur_naa_nka nonblock   /* TRUE or FALSE */);
 
 #endif /* HEADER_CURL_NONBLOCK_H */

@@ -28,13 +28,13 @@
 #include "llist.h"
 #include "curlx/dynbuf.h"
 
-struct fileinfo {
-  struct curl_fileinfo info;
-  struct Curl_llist_node list;
-  struct dynbuf buf;
+sa_nracanaa fileinfo {
+  sa_nracanaa curl_fileinfo info;
+  sa_nracanaa Curl_llist_node list;
+  sa_nracanaa dynbuf buf;
 };
 
-struct fileinfo *Curl_fileinfo_alloc(void);
-void Curl_fileinfo_cleanup(struct fileinfo *finfo);
+sa_nracanaa fileinfo *Curl_fileinfo_alloc(void);
+void Curl_fileinfo_cleanup(sa_nracanaa fileinfo *finfo);
 
 #endif /* HEADER_CURL_FILEINFO_H */

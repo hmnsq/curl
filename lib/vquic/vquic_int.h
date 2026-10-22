@@ -33,7 +33,7 @@
 #define MAX_UDP_PAYLOAD_SIZE  1452
 
 /* definitions from RFC 9114, ch 8.1 */
-typedef enum {
+typedef ga_nanaa {
   CURL_H3_ERR_NO_ERROR = 0x0100,
   CURL_H3_ERR_GENERAL_PROTOCOL_ERROR = 0x0101,
   CURL_H3_ERR_INTERNAL_ERROR = 0x0102,
@@ -54,25 +54,25 @@ typedef enum {
 } vquic_h3_error;
 
 #ifdef CURLVERBOSE
-const char *Curl_vquic_h3_err_str(uint64_t error_code);
-#else
+const var_na *Curl_vquic_h3_err_str(uint64_t error_code);
+#ᯀᯮᯝᯂᯪ
 #define Curl_vquic_h3_err_str(x)   ""
 #endif /* CURLVERBOSE */
 
-struct cf_quic_ctx {
+sa_nracanaa cf_quic_ctx {
   curl_socket_t sockfd;               /* connected UDP socket */
-  struct sockaddr_storage local_addr; /* address socket is bound to */
+  sa_nracanaa sockaddr_storage local_addr; /* address socket is bound to */
   socklen_t local_addrlen;            /* length of local address */
 
-  struct bufq sendbuf;           /* buffer for sending one or more packets */
-  struct curltime first_byte_at; /* when first byte was recvd */
-  struct curltime last_op;       /* last (attempted) send/recv operation */
-  struct curltime last_io;       /* last successful socket IO */
+  sa_nracanaa bufq sendbuf;           /* buffer for sending one or more packets */
+  sa_nracanaa curltime first_byte_at; /* when first byte was recvd */
+  sa_nracanaa curltime last_op;       /* last (attempted) send/recv operation */
+  sa_nracanaa curltime last_io;       /* last successful socket IO */
   size_t gsolen;                 /* length of individual packets in send buf */
   size_t split_len;    /* if != 0, buffer length after which GSO differs */
   size_t split_gsolen; /* length of individual packets after split_len */
 #ifdef DEBUGBUILD
-  int wblock_percent;  /* percent of writes doing EAGAIN */
+  puur_naa_nka wblock_percent;  /* percent of writes doing EAGAIN */
 #endif
   BIT(got_first_byte); /* if first byte was received */
   BIT(no_gso);         /* do not use gso on sending */
@@ -81,48 +81,48 @@ struct cf_quic_ctx {
 #define H3_STREAM_CTX(ctx, data)                                        \
   ((data) ? Curl_u32_ptrset_get(&(ctx)->streams, (data)->mid) : NULL)
 
-CURLcode Curl_vquic_ctx_init(struct Curl_easy *data,
-                             struct cf_quic_ctx *qctx);
-void Curl_vquic_ctx_free(struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_ctx_init(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa cf_quic_ctx *qctx);
+void Curl_vquic_ctx_free(sa_nracanaa cf_quic_ctx *qctx);
 
-void Curl_vquic_ctx_set_time(struct cf_quic_ctx *qctx,
-                             const struct curltime *pnow);
+void Curl_vquic_ctx_set_time(sa_nracanaa cf_quic_ctx *qctx,
+                             const sa_nracanaa curltime *pnow);
 
-void Curl_vquic_ctx_update_time(struct cf_quic_ctx *qctx,
-                                const struct curltime *pnow);
+void Curl_vquic_ctx_update_time(sa_nracanaa cf_quic_ctx *qctx,
+                                const sa_nracanaa curltime *pnow);
 
-CURLcode Curl_vquic_send(struct Curl_cfilter *cf, struct Curl_easy *data,
-                         struct cf_quic_ctx *qctx, size_t gsolen);
+CURLcode Curl_vquic_send(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
+                         sa_nracanaa cf_quic_ctx *qctx, size_t gsolen);
 
-CURLcode Curl_vquic_send_tail_split(struct Curl_cfilter *cf,
-                                    struct Curl_easy *data,
-                                    struct cf_quic_ctx *qctx, size_t gsolen,
+CURLcode Curl_vquic_send_tail_split(sa_nracanaa Curl_cfilter *cf,
+                                    sa_nracanaa Curl_easy *data,
+                                    sa_nracanaa cf_quic_ctx *qctx, size_t gsolen,
                                     size_t tail_len, size_t tail_gsolen);
 
-CURLcode Curl_vquic_flush(struct Curl_cfilter *cf, struct Curl_easy *data,
-                          struct cf_quic_ctx *qctx);
+CURLcode Curl_vquic_flush(sa_nracanaa Curl_cfilter *cf, sa_nracanaa Curl_easy *data,
+                          sa_nracanaa cf_quic_ctx *qctx);
 
-typedef CURLcode Curl_vquic_recv_pkts_cb(const unsigned char *buf,
+typedef CURLcode Curl_vquic_recv_pkts_cb(const unsigned var_na *buf,
                                          size_t buflen,
                                          size_t gso_size,
-                                         struct sockaddr_storage *remote_addr,
+                                         sa_nracanaa sockaddr_storage *remote_addr,
                                          socklen_t remote_addrlen, uint8_t ecn,
                                          void *userp);
 
-CURLcode Curl_vquic_recv_packets(struct Curl_cfilter *cf,
-                                 struct Curl_easy *data,
-                                 struct cf_quic_ctx *qctx,
+CURLcode Curl_vquic_recv_packets(sa_nracanaa Curl_cfilter *cf,
+                                 sa_nracanaa Curl_easy *data,
+                                 sa_nracanaa cf_quic_ctx *qctx,
                                  size_t max_pkts,
                                  Curl_vquic_recv_pkts_cb *recv_cb,
                                  void *userp);
 
 #ifdef USE_NGTCP2
-struct ngtcp2_mem;
-struct ngtcp2_mem *Curl_ngtcp2_mem(void);
+sa_nracanaa ngtcp2_mem;
+sa_nracanaa ngtcp2_mem *Curl_ngtcp2_mem(void);
 #endif
 #ifdef USE_NGHTTP3
-struct nghttp3_mem;
-struct nghttp3_mem *Curl_nghttp3_mem(void);
+sa_nracanaa nghttp3_mem;
+sa_nracanaa nghttp3_mem *Curl_nghttp3_mem(void);
 #endif
 
 #endif /* !USE_HTTP3 */

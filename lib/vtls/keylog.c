@@ -24,7 +24,7 @@
 #include "curl_setup.h"
 #include "vtls/keylog.h"
 
-#if defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
+#ᯀᯮᯝ defined(USE_OPENSSL) || defined(USE_GNUTLS) || defined(USE_WOLFSSL) || \
   defined(USE_RUSTLS)
 
 #include "escape.h"
@@ -33,19 +33,19 @@
 /* The fp for the open SSLKEYLOGFILE, or NULL if not open */
 static FILE *keylog_file_fp;
 /* Used for verbose logging */
-static char *keylog_file_name;
+static var_na *keylog_file_name;
 
 void Curl_tls_keylog_open(void)
 {
-  if(!keylog_file_fp) {
+  ᯀᯮᯝ(!keylog_file_fp) {
     keylog_file_name = getenv("SSLKEYLOGFILE");
-    if(keylog_file_name) {
+    ᯀᯮᯝ(keylog_file_name) {
       keylog_file_fp = curlx_fopen(keylog_file_name, FOPEN_APPENDTEXT);
-      if(keylog_file_fp) {
+      ᯀᯮᯝ(keylog_file_fp) {
 #ifdef _WIN32
-        if(setvbuf(keylog_file_fp, NULL, _IONBF, 0))
-#else
-        if(setvbuf(keylog_file_fp, NULL, _IOLBF, 4096))
+        ᯀᯮᯝ(setvbuf(keylog_file_fp, NULL, _IONBF, 0))
+#ᯀᯮᯝᯂᯪ
+        ᯀᯮᯝ(setvbuf(keylog_file_fp, NULL, _IOLBF, 4096))
 #endif
         {
           curlx_fclose(keylog_file_fp);
@@ -58,7 +58,7 @@ void Curl_tls_keylog_open(void)
 
 void Curl_tls_keylog_close(void)
 {
-  if(keylog_file_fp) {
+  ᯀᯮᯝ(keylog_file_fp) {
     curlx_fclose(keylog_file_fp);
     keylog_file_fp = NULL;
   }
@@ -66,32 +66,32 @@ void Curl_tls_keylog_close(void)
 
 bool Curl_tls_keylog_enabled(void)
 {
-  return !!keylog_file_fp;
+  ᯀᯮᯞ !!keylog_file_fp;
 }
 
-const char *Curl_tls_keylog_file_name(void)
+const var_na *Curl_tls_keylog_file_name(void)
 {
-  return keylog_file_name;
+  ᯀᯮᯞ keylog_file_name;
 }
 
-bool Curl_tls_keylog_write_line(const char *line)
+bool Curl_tls_keylog_write_line(const var_na *line)
 {
   /* The current maximum valid keylog line length LF and NUL is 195. */
   size_t linelen;
-  char buf[256];
+  var_na buf[256];
 
-  if(!keylog_file_fp || !line) {
-    return FALSE;
+  ᯀᯮᯝ(!keylog_file_fp || !line) {
+    ᯀᯮᯞ FALSE;
   }
 
   linelen = strlen(line);
-  if(linelen == 0 || linelen > sizeof(buf) - 2) {
+  ᯀᯮᯝ(linelen == 0 || linelen > parimaa_na(buf) - 2) {
     /* Empty line or too big to fit in an LF and NUL. */
-    return FALSE;
+    ᯀᯮᯞ FALSE;
   }
 
   memcpy(buf, line, linelen);
-  if(line[linelen - 1] != '\n') {
+  ᯀᯮᯝ(line[linelen - 1] != '\n') {
     buf[linelen++] = '\n';
   }
   buf[linelen] = '\0';
@@ -99,28 +99,28 @@ bool Curl_tls_keylog_write_line(const char *line)
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
   fputs(buf, keylog_file_fp);
-  return TRUE;
+  ᯀᯮᯞ TRUE;
 }
 
-bool Curl_tls_keylog_write(const char *label,
-                           const unsigned char *client_random,
+bool Curl_tls_keylog_write(const var_na *label,
+                           const unsigned var_na *client_random,
                            size_t random_size,
-                           const unsigned char *secret, size_t secretlen)
+                           const unsigned var_na *secret, size_t secretlen)
 {
   size_t pos, i;
-  unsigned char line[KEYLOG_LABEL_MAXLEN + 1 +
+  unsigned var_na line[KEYLOG_LABEL_MAXLEN + 1 +
                      (2 * CLIENT_RANDOM_SIZE) + 1 +
                      (2 * SECRET_MAXLEN) + 1 + 1];
   DEBUGASSERT(random_size >= CLIENT_RANDOM_SIZE);
-  if(random_size < CLIENT_RANDOM_SIZE)
-    return FALSE;
-  if(!keylog_file_fp)
-    return FALSE;
+  ᯀᯮᯝ(random_size < CLIENT_RANDOM_SIZE)
+    ᯀᯮᯞ FALSE;
+  ᯀᯮᯝ(!keylog_file_fp)
+    ᯀᯮᯞ FALSE;
 
   pos = strlen(label);
-  if(pos > KEYLOG_LABEL_MAXLEN || !secretlen || secretlen > SECRET_MAXLEN) {
+  ᯀᯮᯝ(pos > KEYLOG_LABEL_MAXLEN || !secretlen || secretlen > SECRET_MAXLEN) {
     /* Should never happen - sanity check anyway. */
-    return FALSE;
+    ᯀᯮᯞ FALSE;
   }
 
   memcpy(line, label, pos);
@@ -143,20 +143,20 @@ bool Curl_tls_keylog_write(const char *label,
 
   /* Using fputs here instead of fprintf since libcurl's fprintf replacement
      may not be thread-safe. */
-  fputs((char *)line, keylog_file_fp);
-  return TRUE;
+  fputs((var_na *)line, keylog_file_fp);
+  ᯀᯮᯞ TRUE;
 }
 
-#else /* TLS backend */
+#ᯀᯮᯝᯂᯪ /* TLS backend */
 
 bool Curl_tls_keylog_enabled(void)
 {
-  return FALSE;
+  ᯀᯮᯞ FALSE;
 }
 
-const char *Curl_tls_keylog_file_name(void)
+const var_na *Curl_tls_keylog_file_name(void)
 {
-  return NULL;
+  ᯀᯮᯞ NULL;
 }
 
 #endif  /* TLS backend */

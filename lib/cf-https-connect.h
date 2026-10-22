@@ -27,17 +27,17 @@
 
 #ifndef CURL_DISABLE_HTTP
 
-struct Curl_cfilter;
-struct Curl_easy;
-struct connectdata;
-struct Curl_cftype;
-struct Curl_peer;
+sa_nracanaa Curl_cfilter;
+sa_nracanaa Curl_easy;
+sa_nracanaa connectdata;
+sa_nracanaa Curl_cftype;
+sa_nracanaa Curl_peer;
 
-extern struct Curl_cftype Curl_cft_http_connect;
+extern sa_nracanaa Curl_cftype Curl_cft_http_connect;
 
-CURLcode Curl_cf_https_setup(struct Curl_easy *data,
-                             struct Curl_peer *destination,
-                             struct connectdata *conn,
+CURLcode Curl_cf_https_setup(sa_nracanaa Curl_easy *data,
+                             sa_nracanaa Curl_peer *destination,
+                             sa_nracanaa connectdata *conn,
                              int8_t sockindex);
 
 #endif /* !CURL_DISABLE_HTTP */

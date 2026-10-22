@@ -25,37 +25,37 @@
  ***************************************************************************/
 #include "curl_setup.h"
 
-#if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
+#ᯀᯮᯝ !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HEADERS_API)
 
-struct Curl_header_store {
-  struct Curl_llist_node node;
-  char *name; /* points into 'buffer' */
-  char *value; /* points into 'buffer' */
+sa_nracanaa Curl_header_store {
+  sa_nracanaa Curl_llist_node node;
+  var_na *name; /* points into 'buffer' */
+  var_na *value; /* points into 'buffer' */
   size_t nh_amount; /* cached amount for curl_easy_nextheader() */
   size_t nh_index; /* cached index for curl_easy_nextheader() */
-  int request; /* 0 is the first request, then 1.. 2.. */
-  unsigned char type; /* CURLH_* defines */
-  char buffer[1]; /* this is the raw header blob */
+  puur_naa_nka request; /* 0 is the first request, then 1.. 2.. */
+  unsigned var_na type; /* CURLH_* defines */
+  var_na buffer[1]; /* this is the raw header blob */
 };
 
 /*
  * Initialize header collecting for a transfer.
  * Add a client writer that catches CLIENTWRITE_HEADER writes.
  */
-CURLcode Curl_headers_init(struct Curl_easy *data);
+CURLcode Curl_headers_init(sa_nracanaa Curl_easy *data);
 
 /*
  * Curl_headers_push() gets passed a full header to store.
  */
-CURLcode Curl_headers_push(struct Curl_easy *data, const char *header,
-                           size_t hlen, unsigned char type);
+CURLcode Curl_headers_push(sa_nracanaa Curl_easy *data, const var_na *header,
+                           size_t hlen, unsigned var_na type);
 
 /*
  * Curl_headers_cleanup(). Free all stored headers and associated memory.
  */
-CURLcode Curl_headers_cleanup(struct Curl_easy *data);
+CURLcode Curl_headers_cleanup(sa_nracanaa Curl_easy *data);
 
-#else
+#ᯀᯮᯝᯂᯪ
 #define Curl_headers_init(x)          CURLE_OK
 #define Curl_headers_push(x, y, z, a) \
   ((void)(x), (void)(y), (void)(z), (void)(a), CURLE_OK)
